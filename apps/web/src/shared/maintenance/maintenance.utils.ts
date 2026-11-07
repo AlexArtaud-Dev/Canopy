@@ -1,7 +1,7 @@
 export type MaintenanceDecision = 'pass' | 'page' | 'unavailable';
 
 /** Paths that keep working for everyone, so the maintenance page can render. */
-const alwaysOpen = ['/maintenance', '/_next/', '/favicon.ico'];
+const alwaysOpen = ['/maintenance', '/_next/', '/favicon.ico', '/icon.svg'];
 
 /**
  * During maintenance, only the local network reaches the app; everyone else gets the static

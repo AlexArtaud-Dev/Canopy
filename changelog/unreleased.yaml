@@ -160,3 +160,10 @@ entries:
       en: Choose the instance color theme, the default light or dark mode and the default language in Settings
       fr: Choix du thème de couleur de l’instance, du mode clair ou sombre par défaut et de la langue par défaut dans les Réglages
       es: Elige el tema de color de la instancia, el modo claro u oscuro por defecto y el idioma por defecto en Ajustes
+  - type: feat
+    scope: shell
+    issue: 2
+    text:
+      en: The browser tab shows the Canopy logo
+      fr: L’onglet du navigateur affiche le logo Canopy
+      es: La pestaña del navegador muestra el logo de Canopy
