@@ -12,7 +12,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t('metaTitle') };
 }
 
-export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
+interface LoginPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { next } = await searchParams;
   const destination = typeof next === 'string' ? next : undefined;
   if (await getCurrentSession()) redirect(safeRedirectPath(destination) as Route);
