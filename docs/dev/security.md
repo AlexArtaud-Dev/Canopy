@@ -7,6 +7,12 @@
 - Real client IP: forwarded headers (`X-Forwarded-For`, `CF-Connecting-IP`) are honored only when
   the direct peer is in `CANOPY_TRUSTED_PROXIES`; XFF is walked right-to-left skipping trusted hops.
   Typical chain: Cloudflare → SWAG/Nginx → web.
+  - Next.js does not expose the TCP peer to App Router code, and only fills XFF when the client
+    sent none. `apps/web/server/peer-address.mjs` (loaded with `node --import`) stamps every
+    request with `x-canopy-peer: <per-process nonce> <socket address>` through the
+    `http.server.request.start` diagnostics channel; values without the nonce are ignored.
+  - `getRequestContext()` resolves the client IP (`shared/request/client-ip.ts`). An unknown peer
+    yields no IP: local-only features fail closed.
 - An upstream SSO layer (e.g. Authelia) may sit in front; Canopy still requires its own login.
 - Headers: strict CSP with nonces, `frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`,
   `Referrer-Policy`, `Permissions-Policy`. Secure cookies when the public URL is https.

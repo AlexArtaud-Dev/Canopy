@@ -59,11 +59,19 @@ services:
     security_opt: [no-new-privileges:true]
     environment:
       CANOPY_ENGINE_URL: http://engine:8080
+      CANOPY_DATABASE_URL: postgres://canopy_web:${CANOPY_WEB_DB_PASSWORD}@postgres:5432/canopy
+      CANOPY_TRUSTED_PROXIES: ${CANOPY_TRUSTED_PROXIES:-}
     ports:
       - ${CANOPY_HTTP_BIND:-127.0.0.1}:${CANOPY_HTTP_PORT:-3000}:3000
     # The web container never mounts the file root: everything goes through the engine.
-    networks: [internal, edge]
+    networks:
+      internal: {}
+      # Ports are published through the gateway network: make it `edge`, never the internal one.
+      edge:
+        gw_priority: 1
     depends_on:
+      postgres:
+        condition: service_healthy
       engine:
         condition: service_healthy
 

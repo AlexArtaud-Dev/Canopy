@@ -23,11 +23,18 @@ Run the engine (from `apps/engine`, with the engine password from `docker/.env`)
 CANOPY_DATABASE_URL=postgres://canopy_engine:<password>@127.0.0.1:5432/canopy go run ./cmd/engine
 ```
 
-Run the web app (http://localhost:3000; it reaches the engine on `http://localhost:8080` by default):
+Run the web app (http://localhost:3000; it reaches the engine on `http://localhost:8080` by default).
+Create `apps/web/.env.local` first (gitignored) so it can reach Postgres; migrations run on start:
+
+```bash
+echo "CANOPY_DATABASE_URL=postgres://canopy_web:<web password>@127.0.0.1:5432/canopy" > apps/web/.env.local
+```
 
 ```bash
 pnpm dev
 ```
+
+After changing a `*.schema.ts` file, generate the migration with `pnpm --filter @canopy/web db:generate`.
 
 On Git Bash for Windows, prefix the engine command with `MSYS2_ENV_CONV_EXCL=CANOPY_ROOT` if you
 set `CANOPY_ROOT`, otherwise the POSIX path is rewritten to a Windows path.
