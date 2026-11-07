@@ -1,3 +1,4 @@
+export { AccessDenied } from './ui/access-denied';
 export { AccountContainer } from './account.container';
 export { usePreferences } from './model/use-preferences';
 export type { AccountSummary } from './ui/account-menu';

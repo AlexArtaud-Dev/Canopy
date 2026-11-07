@@ -90,3 +90,10 @@ entries:
       en: Manage roles with a permission matrix and groups of users, including groups that require two-factor authentication
       fr: Gestion des rôles avec une matrice de permissions et des groupes d’utilisateurs, y compris des groupes qui exigent la double authentification
       es: Gestión de roles con una matriz de permisos y de grupos de usuarios, incluidos grupos que exigen la verificación en dos pasos
+  - type: feat
+    scope: admin
+    issue: 35
+    text:
+      en: Pages you are not allowed to open now show a clear “Access denied” message
+      fr: Les pages que vous n’êtes pas autorisé à ouvrir affichent désormais un message « Accès refusé » clair
+      es: Las páginas que no puedes abrir muestran ahora un mensaje claro de «Acceso denegado»

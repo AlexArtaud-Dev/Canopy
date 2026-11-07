@@ -32,5 +32,10 @@
   "password": {
     "show": "Afficher le mot de passe",
     "hide": "Masquer le mot de passe"
+  },
+  "accessDenied": {
+    "title": "Accès refusé",
+    "description": "Votre compte n’a pas l’autorisation d’ouvrir cette page. Demandez-la à un administrateur si vous en avez besoin.",
+    "backHome": "Retour aux fichiers"
   }
 }

@@ -3,8 +3,8 @@ import { getTranslations } from 'next-intl/server';
 
 import { appRegistry } from '@/modules';
 import { isBuiltInRoleKey, listRoles, permissionMatrix, RolesContainer } from '@/features/access';
-import { authorize } from '@/features/auth';
-import { PageHeader } from '@/features/shell';
+import { authorizePage } from '@/features/auth';
+import { AccessDenied, PageHeader } from '@/features/shell';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('access.roles');
@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RolesPage() {
-  await authorize('roles:read');
+  if (!(await authorizePage('roles:read'))) return <AccessDenied />;
   const [t, roles] = await Promise.all([getTranslations('access'), listRoles()]);
 
   return (

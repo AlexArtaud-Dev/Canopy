@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
-import { authorize } from '@/features/auth';
-import { PageHeader } from '@/features/shell';
+import { authorizePage } from '@/features/auth';
+import { AccessDenied, PageHeader } from '@/features/shell';
 import { getSystemStatus, SystemStatusCard } from '@/features/system';
 
 // Status must reflect the moment of the request, never a build-time snapshot.
@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SystemPage() {
-  await authorize('system:read');
+  if (!(await authorizePage('system:read'))) return <AccessDenied />;
   const [nav, status] = await Promise.all([getTranslations('shell.nav'), getSystemStatus()]);
 
   return (

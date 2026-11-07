@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
-import { authorize, getConfiguredAuth, initialsOf } from '@/features/auth';
+import { authorizePage, getConfiguredAuth, initialsOf } from '@/features/auth';
 import { isBuiltInRoleKey } from '@/features/access';
-import { PageHeader } from '@/features/shell';
+import { AccessDenied, PageHeader } from '@/features/shell';
 import {
   listRoleOptions,
   listUsers,
@@ -22,7 +22,9 @@ interface UsersPageProps {
 }
 
 export default async function UsersPage({ searchParams }: UsersPageProps) {
-  const { user } = await authorize('users:read');
+  const session = await authorizePage('users:read');
+  if (!session) return <AccessDenied />;
+  const { user } = session;
   const query = usersQuerySchema.parse(await searchParams);
   const [t, roles, access, { items, total }, { policy }] = await Promise.all([
     getTranslations('users'),
