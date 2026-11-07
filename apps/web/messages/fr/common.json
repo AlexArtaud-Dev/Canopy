@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "description": "Gestionnaire de fichiers auto-hébergé"
+  },
+  "actions": {
+    "toggleSidebar": "Afficher ou masquer la barre latérale",
+    "close": "Fermer"
+  },
+  "files": {
+    "empty": {
+      "title": "Aucun volume pour l’instant",
+      "description": "Montez un dossier dans la racine de l’engine : il apparaîtra ici, prêt à être parcouru."
+    }
+  },
+  "a11y": {
+    "navigation": "Navigation",
+    "navigationDescription": "Navigation principale de Canopy"
+  }
+}

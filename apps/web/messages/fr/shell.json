@@ -1,0 +1,11 @@
+{
+  "tagline": "Gestionnaire de fichiers",
+  "groups": { "workspace": "Espace de travail", "administration": "Administration" },
+  "nav": { "files": "Fichiers", "system": "État du système" },
+  "preferences": {
+    "title": "Préférences",
+    "appearance": "Apparence",
+    "language": "Langue",
+    "themes": { "light": "Clair", "dark": "Sombre", "system": "Système" }
+  }
+}

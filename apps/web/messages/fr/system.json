@@ -1,0 +1,13 @@
+{
+  "status": {
+    "title": "Services",
+    "description": "État des composants dont Canopy dépend.",
+    "checkedAt": "Vérifié à {time}"
+  },
+  "services": {
+    "web": { "name": "Application web", "description": "Interface, comptes et paramètres" },
+    "engine": { "name": "Engine", "description": "Opérations sur les fichiers et tâches de fond" },
+    "database": { "name": "Base de données", "description": "PostgreSQL, interrogée via l’engine" }
+  },
+  "states": { "up": "Opérationnel", "down": "Indisponible", "unknown": "Inconnu" }
+}

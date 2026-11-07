@@ -83,6 +83,9 @@ The engine DB role has read-only access to `app` (grants, settings) and INSERT-o
 | `CANOPY_ENCRYPTION_KEY`     | AES-256-GCM key for secrets at rest             |
 | `CANOPY_ENGINE_SIGNING_KEY` | Ed25519 private key (web) / public key (engine) |
 | `CANOPY_ROOT`               | File root inside the engine container           |
+| `CANOPY_ENGINE_URL`         | Engine base URL as seen from web (internal)     |
+| `CANOPY_ENGINE_ADDR`        | Engine listen address (default `:8080`)         |
+| `CANOPY_LOG_LEVEL`          | Engine log level (`debug`, `info`, `warn`…)     |
 | `CANOPY_TRUSTED_PROXIES`    | CIDR list allowed to set forwarded headers      |
 | `CANOPY_LOCAL_NETWORKS`     | CIDR list considered "local" (maintenance mode) |
 | `CANOPY_MAINTENANCE`        | `true` forces maintenance mode                  |
