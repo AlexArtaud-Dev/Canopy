@@ -58,7 +58,9 @@ Dependency direction is one-way: `ui ← container ← model ← server/contract
 - next-intl, cookie `NEXT_LOCALE`, no locale in URLs. `en` is the source language; `fr`, `es` required.
 - Messages split by feature: `messages/<locale>/<feature>.json`, namespace = feature.
 - ICU plurals; dates, numbers and file sizes via shared `Intl` formatters, never hand-formatted.
-- CI fails on missing or unused keys.
+- CI fails on missing or unused keys (`pnpm check:i18n`). Unused detection scans `src/` per file:
+  namespaces from `useTranslations`/`getTranslations` × key strings in calls. Template keys
+  (`` t(`nav.${key}`) ``) count as one-segment wildcards, so keep dynamic keys as literal prefixes.
 - Exception: data not owned by the app (file names, external values) is displayed as-is.
 
 ## Accessibility

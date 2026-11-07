@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 // Fails when locales drift from the English source: missing or extra files, missing or extra keys,
-// or translations whose ICU placeholders/tags differ from the English message.
+// translations whose ICU placeholders/tags differ from the English message, or English keys that
+// no source file uses.
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const messagesDir = path.resolve(import.meta.dirname, '../../apps/web/messages');
+const webDir = path.resolve(import.meta.dirname, '../../apps/web');
+const messagesDir = path.join(webDir, 'messages');
+const sourceDir = path.join(webDir, 'src');
 const sourceLocale = 'en';
 const targetLocales = ['fr', 'es'];
 
@@ -64,6 +67,46 @@ for (const locale of targetLocales) {
   for (const key of target.messages.keys()) {
     if (!source.messages.has(key)) problems.push(`${locale}: extra key ${key}`);
   }
+}
+
+// --- Unused keys -------------------------------------------------------------------------------
+// Deliberately simple static scan, per file: every namespace passed to useTranslations /
+// getTranslations is combined with every key-looking string passed to a call. Template keys such
+// as `nav.${item}` become wildcards matching one segment. It can only miss an unused key (when
+// a similar-looking string exists), never flag a used one.
+
+const namespacePattern = /(?:useTranslations|getTranslations)\(\s*['"`]([\w.]+)['"`]/g;
+const keyCallPattern = /[\w$]\s*\(\s*(['"`])([\w.]*(?:\$\{[^}`]+\}[\w.]*)*)\1/g;
+
+function keyMatcher(key) {
+  const escaped = key
+    .split(/\$\{[^}]+\}/)
+    .map((part) => part.replace(/[.]/g, '\\.'))
+    .join('[^.]+');
+  return new RegExp(`^${escaped}$`);
+}
+
+async function usedKeyMatchers() {
+  const entries = await readdir(sourceDir, { recursive: true });
+  const files = entries.filter((file) => /\.tsx?$/.test(file) && !/\.test\.tsx?$/.test(file));
+  const matchers = [];
+  for (const file of files) {
+    const code = await readFile(path.join(sourceDir, file), 'utf8');
+    const namespaces = ['', ...[...code.matchAll(namespacePattern)].map((match) => match[1])];
+    for (const [, , key] of code.matchAll(keyCallPattern)) {
+      if (!key) continue;
+      for (const namespace of namespaces) {
+        matchers.push(keyMatcher(namespace ? `${namespace}.${key}` : key));
+      }
+    }
+  }
+  return matchers;
+}
+
+const matchers = await usedKeyMatchers();
+for (const key of source.messages.keys()) {
+  if (!matchers.some((matcher) => matcher.test(key)))
+    problems.push(`${sourceLocale}: unused key ${key}`);
 }
 
 if (problems.length > 0) {
