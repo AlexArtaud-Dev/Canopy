@@ -26,3 +26,4 @@ apps/engine/tmp/
 !.env.example
 .DS_Store
 Thumbs.db
+coverage.out

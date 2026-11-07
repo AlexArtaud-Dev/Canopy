@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "description": "Self-hosted file manager"
+  },
+  "actions": {
+    "toggleSidebar": "Toggle sidebar",
+    "close": "Close"
+  },
+  "files": {
+    "empty": {
+      "title": "No volumes yet",
+      "description": "Mount a folder inside the engine root and it will show up here, ready to browse."
+    }
+  },
+  "a11y": {
+    "navigation": "Navigation",
+    "navigationDescription": "Main navigation of Canopy"
+  }
+}

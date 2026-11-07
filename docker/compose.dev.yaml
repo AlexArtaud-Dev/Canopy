@@ -1,0 +1,27 @@
+# Development dependencies. Web and engine run on the host (`pnpm dev`) for fast reloads.
+# Usage: docker compose -f docker/compose.dev.yaml --env-file docker/.env up -d
+name: canopy-dev
+
+services:
+  postgres:
+    image: postgres:18-alpine@sha256:123b17998ccaf47e53b502e8c6a1e79afd8f579c6f3eec83c563da026f957395
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: canopy
+      POSTGRES_USER: canopy_admin
+      POSTGRES_PASSWORD: ${CANOPY_DB_ADMIN_PASSWORD:?set it in docker/.env}
+      CANOPY_WEB_DB_PASSWORD: ${CANOPY_WEB_DB_PASSWORD:?set it in docker/.env}
+      CANOPY_ENGINE_DB_PASSWORD: ${CANOPY_ENGINE_DB_PASSWORD:?set it in docker/.env}
+    ports:
+      - 127.0.0.1:${CANOPY_DEV_DB_PORT:-5432}:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U canopy_admin -d canopy]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:

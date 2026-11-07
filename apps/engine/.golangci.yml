@@ -1,0 +1,41 @@
+version: '2'
+
+run:
+  timeout: 5m
+
+linters:
+  default: standard
+  enable:
+    - bodyclose
+    - contextcheck
+    - errorlint
+    - gocritic
+    - gosec
+    - misspell
+    - nestif
+    - noctx
+    - revive
+    - unconvert
+    - unparam
+    - wrapcheck
+  settings:
+    nestif:
+      min-complexity: 4
+    wrapcheck:
+      ignore-package-globs:
+        - github.com/AlexArtaud-Dev/Canopy/*
+  exclusions:
+    presets:
+      - std-error-handling
+    rules:
+      - path: _test\.go
+        linters: [gosec, wrapcheck, noctx]
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/AlexArtaud-Dev/Canopy

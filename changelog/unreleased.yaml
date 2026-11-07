@@ -1,0 +1,15 @@
+entries:
+  - type: feat
+    scope: shell
+    issue: 2
+    text:
+      en: New app layout with a collapsible sidebar, light and dark themes and a language picker
+      fr: Nouvelle mise en page avec barre latérale repliable, thèmes clair et sombre et choix de la langue
+      es: Nuevo diseño con barra lateral plegable, temas claro y oscuro y selector de idioma
+  - type: feat
+    scope: system
+    issue: 2
+    text:
+      en: System status page showing the health of the web app, the engine and the database
+      fr: Page d’état du système indiquant la santé de l’application web, de l’engine et de la base de données
+      es: Página de estado del sistema con la salud de la aplicación web, el engine y la base de datos

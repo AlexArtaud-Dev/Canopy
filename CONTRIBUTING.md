@@ -13,9 +13,24 @@ Docker + Docker Compose.
 
 ```bash
 pnpm install
-docker compose -f docker/compose.dev.yaml up -d
+cp docker/.env.example docker/.env   # then replace the passwords
+docker compose -f docker/compose.dev.yaml --env-file docker/.env up -d --wait
+```
+
+Run the engine (from `apps/engine`, with the engine password from `docker/.env`):
+
+```bash
+CANOPY_DATABASE_URL=postgres://canopy_engine:<password>@127.0.0.1:5432/canopy go run ./cmd/engine
+```
+
+Run the web app (http://localhost:3000; it reaches the engine on `http://localhost:8080` by default):
+
+```bash
 pnpm dev
 ```
+
+On Git Bash for Windows, prefix the engine command with `MSYS2_ENV_CONV_EXCL=CANOPY_ROOT` if you
+set `CANOPY_ROOT`, otherwise the POSIX path is rewritten to a Windows path.
 
 ## Workflow
 
