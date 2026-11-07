@@ -27,6 +27,7 @@
     "second_factor_expired": "This sign-in took too long. Start again.",
     "invalid_password": "The password is incorrect.",
     "totp_already_enabled": "Two-factor authentication is already on.",
-    "totp_not_enabled": "Two-factor authentication is off."
+    "totp_not_enabled": "Two-factor authentication is off.",
+    "cannot_revoke_current": "Use “Sign out” in the account menu to end this session."
   }
 }

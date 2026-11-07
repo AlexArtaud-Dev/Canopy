@@ -27,6 +27,7 @@
     "second_factor_expired": "Este inicio de sesión tardó demasiado. Empieza de nuevo.",
     "invalid_password": "La contraseña es incorrecta.",
     "totp_already_enabled": "La verificación en dos pasos ya está activada.",
-    "totp_not_enabled": "La verificación en dos pasos está desactivada."
+    "totp_not_enabled": "La verificación en dos pasos está desactivada.",
+    "cannot_revoke_current": "Usa «Cerrar sesión» en el menú de la cuenta para terminar esta sesión."
   }
 }

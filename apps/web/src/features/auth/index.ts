@@ -1,3 +1,4 @@
+export { AccountContainer } from './account.container';
 export { authModule } from './auth.module';
 export { initialsOf, safeRedirectPath } from './auth.utils';
 export { LoginContainer } from './login.container';
@@ -14,4 +15,5 @@ export { signOut } from './server/sign-out';
 export { SetupContainer } from './setup.container';
 export { TotpContainer } from './totp.container';
 export { TwoFactorContainer } from './two-factor.container';
+export { listSessions } from './server/account-sessions';
 export { hasTotpEnabled, remainingRecoveryCodes } from './server/totp-factor';

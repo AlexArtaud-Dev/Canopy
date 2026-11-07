@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { Stepper } from '@/shared/ui/stepper';
 import { usePreferences } from '@/features/shell';
 
-import { invalidAccountFields } from './auth.utils';
+import { invalidFields as findInvalidFields, newAccountSchema } from './auth.utils';
 import { completeSetup } from './server/setup';
 import {
   AccountForm,
@@ -43,7 +43,7 @@ export function SetupContainer({
   const current = steps.indexOf(step);
 
   const handleSubmit = (values: AccountValues) => {
-    const invalid = invalidAccountFields(values, passwordMinLength);
+    const invalid = findInvalidFields(newAccountSchema(passwordMinLength), values);
     setInvalidFields(new Set(accountFields.filter((field) => invalid.has(field))));
     if (invalid.size > 0) return;
     startTransition(async () => {
