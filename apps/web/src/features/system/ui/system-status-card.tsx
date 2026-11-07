@@ -1,5 +1,5 @@
 import { Database, Globe, Server, type LucideIcon } from 'lucide-react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 
 import { Badge } from '@/shared/ui/badge';
 import {
@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/ui/card';
+import { LocalTime } from '@/shared/i18n/local-time';
 import { cn } from '@/shared/lib/utils';
 
 import type { ServiceState, SystemStatus } from '../system.types';
@@ -31,7 +32,6 @@ const stateStyles: Record<
 
 export function SystemStatusCard({ status }: { status: SystemStatus }) {
   const t = useTranslations('system');
-  const format = useFormatter();
 
   return (
     <Card>
@@ -65,9 +65,7 @@ export function SystemStatusCard({ status }: { status: SystemStatus }) {
         </ul>
       </CardContent>
       <CardFooter className="text-muted-foreground text-xs">
-        {t('status.checkedAt', {
-          time: format.dateTime(new Date(status.checkedAt), { timeStyle: 'medium' }),
-        })}
+        {t.rich('status.checkedAt', { time: () => <LocalTime iso={status.checkedAt} /> })}
       </CardFooter>
     </Card>
   );

@@ -13,3 +13,10 @@ entries:
       en: System status page showing the health of the web app, the engine and the database
       fr: Page d’état du système indiquant la santé de l’application web, de l’engine et de la base de données
       es: Página de estado del sistema con la salud de la aplicación web, el engine y la base de datos
+  - type: feat
+    scope: docker
+    issue: 5
+    text:
+      en: Production Docker images and a hardened compose stack (non-root, read-only, isolated network)
+      fr: Images Docker de production et stack compose durcie (non-root, lecture seule, réseau isolé)
+      es: Imágenes Docker de producción y stack compose reforzado (sin root, solo lectura, red aislada)

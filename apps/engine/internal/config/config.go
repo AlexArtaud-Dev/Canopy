@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"path"
+	"strconv"
 	"strings"
 )
 
@@ -13,6 +14,7 @@ const (
 	defaultAddr     = ":8080"
 	defaultRoot     = "/srv/canopy/root"
 	defaultLogLevel = slog.LevelInfo
+	defaultUmask    = 0o022
 )
 
 // Config is the validated bootstrap configuration of the engine.
@@ -21,6 +23,8 @@ type Config struct {
 	DatabaseURL string
 	Root        string
 	LogLevel    slog.Level
+	// Umask applies to every file the engine creates (linuxserver-style UMASK, octal).
+	Umask int
 }
 
 // ErrorCode identifies a configuration error independently of its message.
@@ -49,6 +53,7 @@ func Load(getenv func(string) string) (Config, error) {
 		DatabaseURL: strings.TrimSpace(getenv("CANOPY_DATABASE_URL")),
 		Root:        valueOr(getenv("CANOPY_ROOT"), defaultRoot),
 		LogLevel:    defaultLogLevel,
+		Umask:       defaultUmask,
 	}
 
 	if cfg.DatabaseURL == "" {
@@ -64,6 +69,14 @@ func Load(getenv func(string) string) (Config, error) {
 		if err := cfg.LogLevel.UnmarshalText([]byte(raw)); err != nil {
 			return Config{}, &Error{Code: CodeInvalid, Key: "CANOPY_LOG_LEVEL"}
 		}
+	}
+
+	if raw := strings.TrimSpace(getenv("UMASK")); raw != "" {
+		umask, err := strconv.ParseUint(raw, 8, 32)
+		if err != nil || umask > 0o777 {
+			return Config{}, &Error{Code: CodeInvalid, Key: "UMASK"}
+		}
+		cfg.Umask = int(umask)
 	}
 
 	return cfg, nil

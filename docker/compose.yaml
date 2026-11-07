@@ -1,0 +1,77 @@
+# Production-style stack. Put TLS and your own reverse proxy in front of `web` (none is shipped).
+# Usage: docker compose -f docker/compose.yaml --env-file docker/.env up -d --build
+name: canopy
+
+services:
+  postgres:
+    image: postgres:18-alpine@sha256:123b17998ccaf47e53b502e8c6a1e79afd8f579c6f3eec83c563da026f957395
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: canopy
+      POSTGRES_USER: canopy_admin
+      POSTGRES_PASSWORD: ${CANOPY_DB_ADMIN_PASSWORD:?set it in docker/.env}
+      CANOPY_WEB_DB_PASSWORD: ${CANOPY_WEB_DB_PASSWORD:?set it in docker/.env}
+      CANOPY_ENGINE_DB_PASSWORD: ${CANOPY_ENGINE_DB_PASSWORD:?set it in docker/.env}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    networks: [internal]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U canopy_admin -d canopy]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  engine:
+    build:
+      context: ..
+      dockerfile: docker/engine.Dockerfile
+    image: canopy-engine:local
+    restart: unless-stopped
+    # Files the engine creates belong to this host user (linuxserver-style PUID/PGID).
+    user: ${PUID:-1000}:${PGID:-1000}
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      CANOPY_DATABASE_URL: postgres://canopy_engine:${CANOPY_ENGINE_DB_PASSWORD}@postgres:5432/canopy
+      CANOPY_LOG_LEVEL: ${CANOPY_LOG_LEVEL:-info}
+      UMASK: ${UMASK:-022}
+    volumes:
+      # Mount every host folder INSIDE the root; no host symlinks needed. Examples:
+      # - /mnt/disk1:/srv/canopy/root/disk1
+      # - /mnt/nas/media:/srv/canopy/root/media
+      - ${CANOPY_DATA_DIR:-./data}:/srv/canopy/root/data
+    networks: [internal]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/web.Dockerfile
+    image: canopy-web:local
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp, /app/apps/web/.next/cache]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      CANOPY_ENGINE_URL: http://engine:8080
+    ports:
+      - ${CANOPY_HTTP_BIND:-127.0.0.1}:${CANOPY_HTTP_PORT:-3000}:3000
+    # The web container never mounts the file root: everything goes through the engine.
+    networks: [internal, edge]
+    depends_on:
+      engine:
+        condition: service_healthy
+
+networks:
+  # No route outside the host: only `web` is reachable, through `edge`.
+  internal:
+    internal: true
+  edge: {}
+
+volumes:
+  postgres-data:

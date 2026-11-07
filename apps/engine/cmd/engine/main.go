@@ -14,6 +14,7 @@ import (
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/config"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/database"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/healthcheck"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/httpapi"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
 )
@@ -24,11 +25,34 @@ const (
 	startupTimeout    = 30 * time.Second
 )
 
+// version is set at build time (-ldflags "-X main.version=...").
+var version = "dev"
+
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "healthcheck" {
+		os.Exit(runHealthcheck())
+	}
 	if err := run(); err != nil {
 		slog.Error("engine stopped", slog.Any("error", err))
 		os.Exit(1)
 	}
+}
+
+// runHealthcheck is the container HEALTHCHECK entry point: exit 0 when the engine is live.
+func runHealthcheck() int {
+	addr := os.Getenv("CANOPY_ENGINE_ADDR")
+	if addr == "" {
+		addr = ":8080"
+	}
+	url, err := healthcheck.LocalURL(addr)
+	if err == nil {
+		err = healthcheck.Probe(context.Background(), http.DefaultClient, url)
+	}
+	if err != nil {
+		slog.Error("healthcheck failed", slog.Any("error", err))
+		return 1
+	}
+	return 0
 }
 
 func run() error {
@@ -37,6 +61,7 @@ func run() error {
 		return fmt.Errorf("load config: %w", err)
 	}
 	logger := logging.New(os.Stdout, cfg.LogLevel)
+	applyUmask(cfg.Umask)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -63,7 +88,7 @@ func run() error {
 
 	serverErr := make(chan error, 1)
 	go func() {
-		logger.Info("engine listening", slog.String("addr", cfg.Addr))
+		logger.Info("engine listening", slog.String("addr", cfg.Addr), slog.String("version", version))
 		serverErr <- server.ListenAndServe()
 	}()
 
