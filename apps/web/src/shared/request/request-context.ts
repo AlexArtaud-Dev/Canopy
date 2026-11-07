@@ -8,7 +8,7 @@ import { cache } from 'react';
 import { parseServerEnv } from '@/shared/config/env';
 import { logger, type Logger } from '@/shared/lib/logger';
 
-import { parseTrustedNetworks, readPeerHeader, resolveClientIp } from './client-ip';
+import { isInNetworks, parseTrustedNetworks, readPeerHeader, resolveClientIp } from './client-ip';
 import { resolveRequestId } from './request-id';
 
 export interface RequestContext {
@@ -40,3 +40,12 @@ export const getRequestContext = cache(async (): Promise<RequestContext> => {
 
   return { requestId, clientIp, logger: logger.child({ requestId, clientIp }) };
 });
+
+let localNetworks: ReturnType<typeof parseTrustedNetworks> | undefined;
+
+/** True only when the client IP is known and inside `CANOPY_LOCAL_NETWORKS`. */
+export async function isLocalRequest(): Promise<boolean> {
+  const { clientIp } = await getRequestContext();
+  localNetworks ??= parseTrustedNetworks(parseServerEnv(process.env).CANOPY_LOCAL_NETWORKS);
+  return clientIp !== undefined && isInNetworks(clientIp, localNetworks);
+}

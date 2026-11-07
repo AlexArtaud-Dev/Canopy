@@ -46,3 +46,6 @@ function parseLanguageRange(part: string): { language: string; quality: number }
   const quality = qualityMatch ? Number(qualityMatch[1]) : 1;
   return { language, quality: Number.isFinite(quality) ? quality : 0 };
 }
+
+/** Endonyms: a language is always listed in its own language so users can find it. */
+export const localeNames: Record<Locale, string> = { en: 'English', fr: 'Français', es: 'Español' };

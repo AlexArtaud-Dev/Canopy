@@ -63,6 +63,8 @@ services:
       CANOPY_TRUSTED_PROXIES: ${CANOPY_TRUSTED_PROXIES:-}
       CANOPY_ENCRYPTION_KEY: ${CANOPY_ENCRYPTION_KEY:?set it in docker/.env (openssl rand -base64 32)}
       CANOPY_ENCRYPTION_KEY_PREVIOUS: ${CANOPY_ENCRYPTION_KEY_PREVIOUS:-}
+      CANOPY_PUBLIC_URL: ${CANOPY_PUBLIC_URL:-http://localhost:3000}
+      CANOPY_LOCAL_NETWORKS: ${CANOPY_LOCAL_NETWORKS:-127.0.0.0/8,::1/128,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fc00::/7}
     ports:
       - ${CANOPY_HTTP_BIND:-127.0.0.1}:${CANOPY_HTTP_PORT:-3000}:3000
     # The web container never mounts the file root: everything goes through the engine.

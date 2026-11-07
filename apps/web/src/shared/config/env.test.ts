@@ -6,6 +6,8 @@ describe('parseServerEnv', () => {
       CANOPY_ENGINE_URL: 'http://localhost:8080',
       CANOPY_TRUSTED_PROXIES: '',
       CANOPY_ENCRYPTION_KEY_PREVIOUS: '',
+      CANOPY_PUBLIC_URL: 'http://localhost:3000',
+      CANOPY_LOCAL_NETWORKS: '127.0.0.0/8,::1/128,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fc00::/7',
     });
   });
 

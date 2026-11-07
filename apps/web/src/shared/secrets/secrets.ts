@@ -3,7 +3,14 @@ import 'server-only';
 import { parseServerEnv } from '@/shared/config/env';
 import { AppBaseError } from '@/shared/lib/errors';
 
-import { createKeyring, decrypt, encrypt, needsRotation, type Keyring } from './envelope';
+import {
+  createKeyring,
+  decrypt,
+  deriveSubkey,
+  encrypt,
+  needsRotation,
+  type Keyring,
+} from './envelope';
 
 let keyring: Keyring | undefined;
 
@@ -36,4 +43,9 @@ export function openSecret(envelope: string, purpose: string): string {
 
 export function isSealedWithRetiredKey(envelope: string): boolean {
   return needsRotation(envelope, getKeyring());
+}
+
+/** A purpose-bound key derived from `CANOPY_ENCRYPTION_KEY` (base64url). */
+export function deriveSecret(purpose: string): string {
+  return deriveSubkey(getKeyring(), purpose).toString('base64url');
 }

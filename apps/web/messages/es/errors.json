@@ -15,5 +15,11 @@
     "unknown_key": "Este ajuste no existe («{key}»).",
     "invalid_value": "El valor de «{key}» no es válido.",
     "locked_by_env": "«{key}» lo define la variable de entorno {env} y no se puede cambiar aquí."
+  },
+  "auth": {
+    "invalid_credentials": "Nombre de usuario o contraseña incorrectos.",
+    "username_taken": "Este nombre de usuario ya está en uso.",
+    "setup_already_done": "Canopy ya está configurado. Inicia sesión con una cuenta existente.",
+    "setup_not_local": "El primer administrador solo puede crearse desde la red local."
   }
 }

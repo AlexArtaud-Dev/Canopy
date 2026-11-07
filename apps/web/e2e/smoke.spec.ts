@@ -35,9 +35,9 @@ test('navigation reaches the system page and marks it active', async ({ page, is
 });
 
 test('language preference switches the UI to French', async ({ page, isMobile }) => {
-  test.skip(isMobile, 'Preferences live in the sidebar footer; covered on desktop.');
+  test.skip(isMobile, 'The account menu lives in the sidebar footer; covered on desktop.');
   await page.goto('/');
-  await page.getByRole('button', { name: /Preferences/ }).click();
+  await page.getByRole('button', { name: 'Account and preferences' }).click();
   await page.getByRole('menuitemradio', { name: 'Français' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Fichiers' })).toBeVisible();
 });

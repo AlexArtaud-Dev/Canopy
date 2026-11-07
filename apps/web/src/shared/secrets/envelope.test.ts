@@ -5,6 +5,7 @@ import { AppBaseError } from '@/shared/lib/errors';
 import {
   createKeyring,
   decrypt,
+  deriveSubkey,
   encrypt,
   encryptionErrorCodes,
   needsRotation,
@@ -82,5 +83,17 @@ describe('rotation', () => {
     expect(decrypt(old, 'ctx', rotated)).toBe('legacy');
     expect(needsRotation(old, rotated)).toBe(true);
     expect(needsRotation(encrypt('fresh', 'ctx', rotated), rotated)).toBe(false);
+  });
+});
+
+describe('deriveSubkey', () => {
+  const keyring = createKeyring(randomBytes(32).toString('base64'));
+
+  it('is stable for one purpose and distinct across purposes', () => {
+    const first = deriveSubkey(keyring, 'canopy.auth');
+    expect(first).toHaveLength(32);
+    expect(deriveSubkey(keyring, 'canopy.auth').equals(first)).toBe(true);
+    expect(deriveSubkey(keyring, 'other').equals(first)).toBe(false);
+    expect(first.equals(keyring.current.key)).toBe(false);
   });
 });

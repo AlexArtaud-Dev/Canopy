@@ -15,5 +15,11 @@
     "unknown_key": "This setting does not exist (“{key}”).",
     "invalid_value": "The value for “{key}” is not valid.",
     "locked_by_env": "“{key}” is set by the {env} environment variable and cannot be changed here."
+  },
+  "auth": {
+    "invalid_credentials": "Incorrect username or password.",
+    "username_taken": "This username is already taken.",
+    "setup_already_done": "Canopy is already set up. Sign in with an existing account.",
+    "setup_not_local": "The first administrator can only be created from the local network."
   }
 }

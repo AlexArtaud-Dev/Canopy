@@ -15,6 +15,8 @@ next-env.d.ts
 # Test artifacts
 playwright-report/
 test-results/
+# Playwright sessions saved by e2e/auth.setup.ts
+**/e2e/.auth/
 
 # Go
 apps/engine/bin/

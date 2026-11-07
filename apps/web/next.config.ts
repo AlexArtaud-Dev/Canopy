@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   typedRoutes: true,
+  // Dev logging prints server action arguments, which include passwords.
+  logging: { serverFunctions: false },
   // postgres.js ships ESM only; transpiling it lets Jest (next/jest) load it. Next already bundles it.
   transpilePackages: ['postgres'],
   headers() {

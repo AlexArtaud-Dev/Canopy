@@ -1,7 +1,7 @@
 'use client';
 
 import { CircleAlert, Copy, RotateCcw } from 'lucide-react';
-import { useMessages, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import { toast } from 'sonner';
 
@@ -15,7 +15,7 @@ import {
   EmptyTitle,
 } from '@/shared/ui/empty';
 
-import { resolveErrorKey } from './error-key';
+import { useErrorMessage } from './use-error-message';
 
 interface ErrorStateProps {
   code: string;
@@ -33,9 +33,7 @@ interface ErrorStateProps {
  */
 export function ErrorState({ code, params, reference, onRetry, children }: ErrorStateProps) {
   const t = useTranslations('common.errorState');
-  const errors = useTranslations('errors');
-  // i18n-dynamic: errors — codes arrive at runtime; every `errors.*` key may be shown.
-  const key = resolveErrorKey(code, useMessages().errors);
+  const errorMessage = useErrorMessage();
 
   const copyReference = async () => {
     if (!reference) return;
@@ -50,10 +48,7 @@ export function ErrorState({ code, params, reference, onRetry, children }: Error
           <CircleAlert aria-hidden />
         </EmptyMedia>
         <EmptyTitle>{t('title')}</EmptyTitle>
-        <EmptyDescription>
-          {/* `key` is validated against the loaded catalog; next-intl cannot type a runtime key. */}
-          {errors(key as Parameters<typeof errors>[0], params)}
-        </EmptyDescription>
+        <EmptyDescription>{errorMessage(code, params)}</EmptyDescription>
       </EmptyHeader>
       <EmptyContent className="flex-row flex-wrap justify-center gap-2">
         {onRetry ? (

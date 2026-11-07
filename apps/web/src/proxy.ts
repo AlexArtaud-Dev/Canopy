@@ -3,8 +3,25 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { resolveRequestId } from '@/shared/request/request-id';
 import { buildContentSecurityPolicy } from '@/shared/security/csp';
 
+const publicPaths = ['/login', '/setup'];
+const sessionCookies = ['canopy.session_token', '__Secure-canopy.session_token'];
+
+function isPublic(pathname: string): boolean {
+  return publicPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+}
+
 // Next.js 16 "proxy" (formerly middleware). Keep it cheap: it runs before every matched request.
 export function proxy(request: NextRequest): NextResponse {
+  const { pathname, search } = request.nextUrl;
+  // Optimistic only (no DB): saves a render for obvious visitors. Pages and actions still verify
+  // the session with `requireSession()`.
+  const hasSessionCookie = sessionCookies.some((name) => request.cookies.has(name));
+  if (!hasSessionCookie && !isPublic(pathname) && request.method === 'GET') {
+    const login = new URL('/login', request.url);
+    if (pathname !== '/') login.searchParams.set('next', `${pathname}${search}`);
+    return NextResponse.redirect(login);
+  }
+
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const policy = buildContentSecurityPolicy(nonce, process.env.NODE_ENV === 'development');
 
