@@ -9,7 +9,7 @@ import { Input } from '@/shared/ui/input';
 
 /** Password field with a reveal toggle (helps on phones, where typos are common). */
 export function PasswordInput(props: Omit<ComponentProps<typeof Input>, 'type'>) {
-  const t = useTranslations('auth.password');
+  const t = useTranslations('common.password');
   const [visible, setVisible] = useState(false);
 
   return (

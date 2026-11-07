@@ -1,0 +1,87 @@
+{
+  "metaTitle": "Users",
+  "title": "Users",
+  "description": "People who can sign in to Canopy, and the roles they hold.",
+  "search": "Search by name, username or email",
+  "add": "New user",
+  "columns": {
+    "user": "User",
+    "roles": "Roles",
+    "status": "Status",
+    "lastActive": "Last active"
+  },
+  "status": {
+    "active": "Active",
+    "disabled": "Disabled"
+  },
+  "twoFactor": "2FA",
+  "noRoles": "No role",
+  "never": "Never",
+  "you": "You",
+  "empty": {
+    "title": "No user matches",
+    "description": "Try another search."
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "summary": "Page {page} of {pages} · {total} users"
+  },
+  "actions": {
+    "menu": "Actions for {name}",
+    "edit": "Edit",
+    "resetPassword": "Reset password",
+    "resetTwoFactor": "Reset two-factor",
+    "revokeSessions": "Sign out everywhere",
+    "disable": "Disable",
+    "enable": "Enable",
+    "delete": "Delete"
+  },
+  "form": {
+    "createTitle": "New user",
+    "createDescription": "They can sign in right away with this password and change it from their account page.",
+    "editTitle": "Edit {name}",
+    "editDescription": "The username cannot be changed.",
+    "username": "Username",
+    "displayName": "Display name",
+    "contactEmail": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "roles": "Roles",
+    "rolesHint": "Roles add up. Groups can grant more.",
+    "save": "Save",
+    "create": "Create user",
+    "errors": {
+      "username": "Use 3–32 characters: letters, digits, dots, dashes or underscores.",
+      "displayName": "Enter a name of 64 characters or fewer.",
+      "contactEmail": "Enter a valid email address, or leave it empty.",
+      "password": "Use between {min} and 256 characters.",
+      "confirmPassword": "The passwords do not match."
+    }
+  },
+  "resetPassword": {
+    "title": "Reset the password of {name}",
+    "description": "They will be signed out everywhere and must use the new password.",
+    "submit": "Reset password"
+  },
+  "confirm": {
+    "disableTitle": "Disable {name}?",
+    "disableDescription": "They are signed out at once and cannot sign in until enabled again.",
+    "deleteTitle": "Delete {name}?",
+    "deleteDescription": "The account, its sessions and its two-factor setup are removed for good. Audit entries are kept.",
+    "resetTwoFactorTitle": "Reset two-factor for {name}?",
+    "resetTwoFactorDescription": "Their authenticator and recovery codes are removed and they are signed out. They can set it up again after signing in.",
+    "revokeSessionsTitle": "Sign {name} out everywhere?",
+    "revokeSessionsDescription": "Every session of this account ends now."
+  },
+  "toasts": {
+    "created": "User created",
+    "updated": "User updated",
+    "disabled": "User disabled",
+    "enabled": "User enabled",
+    "deleted": "User deleted",
+    "passwordReset": "Password reset",
+    "twoFactorReset": "Two-factor reset",
+    "sessionsRevoked": "Signed out everywhere"
+  }
+}

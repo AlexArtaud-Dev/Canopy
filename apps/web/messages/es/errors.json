@@ -31,5 +31,9 @@
     "cannot_revoke_current": "Usa «Cerrar sesión» en el menú de la cuenta para terminar esta sesión.",
     "forbidden": "No tienes permiso para hacer esto. Pide acceso a un administrador.",
     "ip_blocked": "Demasiados intentos fallidos desde tu red. Vuelve a intentarlo en {minutes, plural, one {# minuto} other {# minutos}}."
+  },
+  "users": {
+    "last_admin": "Canopy necesita al menos un administrador activo. Da antes el rol Administrador a otra cuenta.",
+    "not_on_self": "Gestiona tu propia cuenta desde la página Cuenta."
   }
 }

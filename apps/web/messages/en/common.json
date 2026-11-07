@@ -4,7 +4,8 @@
   },
   "actions": {
     "toggleSidebar": "Toggle sidebar",
-    "close": "Close"
+    "close": "Close",
+    "cancel": "Cancel"
   },
   "files": {
     "empty": {
@@ -27,5 +28,9 @@
     "title": "Page not found",
     "description": "The page you are looking for does not exist or you do not have access to it.",
     "backHome": "Back to files"
+  },
+  "password": {
+    "show": "Show password",
+    "hide": "Hide password"
   }
 }

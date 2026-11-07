@@ -4,7 +4,7 @@ import { getRequestConfig } from 'next-intl/server';
 import { localeCookieName, resolveLocale, type Locale } from './locales';
 
 /** One JSON file per feature; the file name is the message namespace. */
-const namespaces = ['auth', 'common', 'errors', 'shell', 'system'] as const;
+const namespaces = ['access', 'auth', 'common', 'errors', 'shell', 'system', 'users'] as const;
 
 async function loadMessages(locale: Locale): Promise<Record<string, unknown>> {
   const entries = await Promise.all(

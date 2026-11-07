@@ -76,3 +76,10 @@ entries:
       en: Addresses that fail to sign in too often are blocked for an hour, and the password reveal button no longer jumps when pressed
       fr: Les adresses qui échouent trop souvent à se connecter sont bloquées une heure, et le bouton d’affichage du mot de passe ne saute plus au clic
       es: Las direcciones que fallan demasiadas veces al iniciar sesión se bloquean durante una hora, y el botón para mostrar la contraseña ya no salta al pulsarlo
+  - type: feat
+    scope: admin
+    issue: 33
+    text:
+      en: Administrators can create, edit, disable and delete users, reset their password or two-factor, and assign roles
+      fr: Les administrateurs peuvent créer, modifier, désactiver et supprimer des utilisateurs, réinitialiser leur mot de passe ou leur double authentification, et attribuer des rôles
+      es: Los administradores pueden crear, editar, desactivar y eliminar usuarios, restablecer su contraseña o su verificación en dos pasos y asignar roles
