@@ -63,6 +63,13 @@
   target (virtual path or entity id), result (success/denied/error), requestId, meta (never file content).
 - Covers every state change, auth events, admin/settings/permission changes and denied attempts.
 - Retention configurable; viewer with filters in the admin UI.
+- Write with `audit({ action, result, target, actorId, meta })` (`features/audit/server/audit-writer.ts`):
+  request ID and client IP are added automatically; actions must be declared in the module's
+  `auditActions`. If the insert fails the calling action fails — no unaudited change.
+- `meta` is sanitized (secret-looking keys redacted, strings/arrays/depth truncated, 8 KiB cap).
+  Sensitive setting values are never passed at all.
+- Append-only is enforced in Postgres: a trigger rejects UPDATE and TRUNCATE, and DELETE unless
+  the purge transaction runs `SET LOCAL canopy.audit_purge = 'on'`.
 
 ## RGPD
 
