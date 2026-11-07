@@ -66,31 +66,41 @@ async function readSession(auth: Auth, requestHeaders: Headers) {
   }
 }
 
-/** The signed-in user for this request, or null. Memoized per request. */
-export const getCurrentSession = cache(async (): Promise<CurrentSession | null> => {
+export type SessionState =
+  | { kind: 'none' }
+  | { kind: 'pending'; sessionId: string; userId: string }
+  | ({ kind: 'active' } & CurrentSession);
+
+/** Session state for this request (signed out, waiting for 2FA, or active). Memoized. */
+export const getSessionState = cache(async (): Promise<SessionState> => {
   const [{ auth, policy }, requestHeaders] = await Promise.all([
     getConfiguredAuth(),
     authRequestHeaders(),
   ]);
   const result = await readSession(auth, requestHeaders);
-  if (!result) return null;
+  if (!result) return { kind: 'none' };
 
   const verdict = evaluateSession(
     {
       createdAt: new Date(result.session.createdAt),
       updatedAt: new Date(result.session.updatedAt),
+      twoFactorPending: result.session.twoFactorPending === true,
     },
     policy,
     new Date(),
   );
-  if (verdict !== 'active') {
+  if (verdict === 'expired' || verdict === 'idle') {
     await getDb().delete(sessionsTable).where(eq(sessionsTable.id, result.session.id));
-    return null;
+    return { kind: 'none' };
+  }
+  if (verdict === 'pending') {
+    return { kind: 'pending', sessionId: result.session.id, userId: result.user.id };
   }
   await recordActivity(result.session.id);
 
   const { user } = result;
   return {
+    kind: 'active',
     sessionId: result.session.id,
     user: {
       id: user.id,
@@ -101,6 +111,20 @@ export const getCurrentSession = cache(async (): Promise<CurrentSession | null> 
     },
   };
 });
+
+/** The fully signed-in user for this request, or null (a pending 2FA session counts as none). */
+export async function getCurrentSession(): Promise<CurrentSession | null> {
+  const state = await getSessionState();
+  return state.kind === 'active' ? { sessionId: state.sessionId, user: state.user } : null;
+}
+
+/** Marks a pending session as fully authenticated once its second factor is verified. */
+export async function completeSecondFactor(sessionId: string): Promise<void> {
+  await getDb()
+    .update(sessionsTable)
+    .set({ twoFactorPending: false, updatedAt: sql`now()` })
+    .where(eq(sessionsTable.id, sessionId));
+}
 
 export async function hasAnyUser(): Promise<boolean> {
   const rows = await getDb().select({ id: usersTable.id }).from(usersTable).limit(1);
@@ -119,7 +143,8 @@ export async function setupBlocker(): Promise<'already_done' | 'not_local' | nul
  * wizard when the instance has no account yet).
  */
 export async function requireSession(): Promise<CurrentSession> {
-  const session = await getCurrentSession();
-  if (session) return session;
+  const state = await getSessionState();
+  if (state.kind === 'active') return { sessionId: state.sessionId, user: state.user };
+  if (state.kind === 'pending') redirect('/login/verify');
   redirect((await hasAnyUser()) ? '/login' : '/setup');
 }

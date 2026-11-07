@@ -1,4 +1,4 @@
-import { boolean, index, text, timestamp } from 'drizzle-orm/pg-core';
+import { bigint, boolean, index, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 import { authSchema } from '@/shared/db/schemas.schema';
 
@@ -37,6 +37,8 @@ export const sessionsTable = authSchema.table(
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
+    /** Password accepted, second factor not yet: the session grants nothing. */
+    twoFactorPending: boolean('two_factor_pending').notNull().default(false),
     ...timestamps,
   },
   (table) => [index('sessions_user_id_idx').on(table.userId)],
@@ -74,4 +76,31 @@ export const verificationsTable = authSchema.table(
     ...timestamps,
   },
   (table) => [index('verifications_identifier_idx').on(table.identifier)],
+);
+
+/** One authenticator per user. `enabledAt` is null while enrolment awaits its first code. */
+export const totpFactorsTable = authSchema.table('totp_factors', {
+  userId: text('user_id')
+    .primaryKey()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
+  /** `sealSecret(base32, 'auth.totp:<userId>')`. */
+  secret: text('secret').notNull(),
+  /** Last accepted time step: codes cannot be replayed. */
+  lastUsedStep: bigint('last_used_step', { mode: 'number' }),
+  enabledAt: timestamp('enabled_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** One-time recovery codes, stored as SHA-256 of the normalized code. */
+export const recoveryCodesTable = authSchema.table(
+  'recovery_codes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => usersTable.id, { onDelete: 'cascade' }),
+    codeHash: text('code_hash').notNull(),
+    usedAt: timestamp('used_at', { withTimezone: true }),
+  },
+  (table) => [index('recovery_codes_user_id_idx').on(table.userId)],
 );

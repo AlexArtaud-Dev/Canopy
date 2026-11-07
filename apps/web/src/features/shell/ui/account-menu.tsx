@@ -1,6 +1,7 @@
 'use client';
 
-import { ChevronsUpDown, Languages, LogOut } from 'lucide-react';
+import { ChevronsUpDown, Languages, LogOut, UserRound } from 'lucide-react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
 import { localeNames, locales, type Locale } from '@/shared/i18n/locales';
@@ -87,6 +88,13 @@ export function AccountMenu({
             <DropdownMenuLabel className="flex items-center gap-2 font-normal">
               {identity}
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/account">
+                <UserRound aria-hidden />
+                {accountT('open')}
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>{t('appearance')}</DropdownMenuLabel>
             <DropdownMenuRadioGroup

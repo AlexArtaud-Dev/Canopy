@@ -22,6 +22,11 @@
     "setup_already_done": "Canopy is already set up. Sign in with an existing account.",
     "setup_not_local": "The first administrator can only be created from the local network.",
     "locked": "Too many failed attempts. This account is locked for {minutes, plural, one {# minute} other {# minutes}}.",
-    "password_breached": "This password appears in a public data breach. Choose another one."
+    "password_breached": "This password appears in a public data breach. Choose another one.",
+    "invalid_code": "This code is not valid. Check your app's clock and try again.",
+    "second_factor_expired": "This sign-in took too long. Start again.",
+    "invalid_password": "The password is incorrect.",
+    "totp_already_enabled": "Two-factor authentication is already on.",
+    "totp_not_enabled": "Two-factor authentication is off."
   }
 }

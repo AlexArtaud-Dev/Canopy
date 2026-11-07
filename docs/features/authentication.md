@@ -22,3 +22,10 @@ Local accounts only (Better Auth, username + password). No public sign-up.
   call it, after validation, rate limiting and with our resolved client IP.
 - **Audit**: `auth.setup`, `auth.sign_in` (success / denied with the attempted username),
   `auth.sign_out`.
+- **Two-factor (TOTP)**: enrolled from Account → Security (QR code + manual key, confirmed by a
+  first code). RFC 6238 (SHA-1, 6 digits, 30 s, ±1 step), implemented in `totp.utils.ts`; a used
+  step is never accepted again. Secrets are sealed (`auth.totp:<userId>`); 10 single-use recovery
+  codes (`XXXXX-XXXXX`, 50 bits) are stored as SHA-256. After the password, a 2FA account gets a
+  session marked `two_factor_pending` (set by a Better Auth hook when the row is created): it grants
+  nothing, expires after 10 minutes, and `/login/verify` completes it. Code attempts share the
+  lockout rule. Turning 2FA off or regenerating codes requires the current password.

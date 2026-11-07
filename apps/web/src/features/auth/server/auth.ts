@@ -14,6 +14,7 @@ import { deriveSecret } from '@/shared/secrets/secrets';
 import { usernameSchema } from '../auth.utils';
 import { accountsTable, sessionsTable, usersTable, verificationsTable } from './auth.schema';
 import { hashPassword, verifyPassword } from './password';
+import { hasTotpEnabled } from './totp-factor';
 
 /** Request header carrying the client IP we resolved; anything the client sent is overwritten. */
 export const clientIpHeader = 'x-canopy-client-ip';
@@ -56,6 +57,20 @@ function createAuth(lifetimeSeconds: number) {
       // ours (`current-session.ts`) because server components cannot rewrite cookies.
       expiresIn: lifetimeSeconds,
       disableSessionRefresh: true,
+      additionalFields: {
+        twoFactorPending: { type: 'boolean', required: false, defaultValue: false, input: false },
+      },
+    },
+    databaseHooks: {
+      session: {
+        create: {
+          // Decided when the row is written, so a 2FA account never has a usable session before
+          // its second factor, even for a moment.
+          before: async (session) => ({
+            data: { ...session, twoFactorPending: await hasTotpEnabled(session.userId) },
+          }),
+        },
+      },
     },
     advanced: {
       cookiePrefix: 'canopy',
