@@ -133,3 +133,33 @@ export async function browseFolders(
     };
   });
 }
+
+const grantUpdateInput = grantInputSchema.extend({ id: z.uuid() });
+
+/** Changes the folder, effect or actions of an existing rule of this subject. */
+export async function updateGrant(input: unknown): Promise<ActionResult<null>> {
+  return runAction(async () => {
+    const { id, ...grant } = parse(grantUpdateInput, input);
+    const { user } = await authorize(permissionFor(grant.subjectType));
+    const updated = await getDb()
+      .update(pathGrantsTable)
+      .set({ path: grant.path, actions: grant.actions, effect: grant.effect })
+      .where(
+        and(
+          eq(pathGrantsTable.id, id),
+          eq(pathGrantsTable.subjectType, grant.subjectType),
+          eq(pathGrantsTable.subjectId, grant.subjectId),
+        ),
+      )
+      .returning({ id: pathGrantsTable.id });
+    if (updated.length === 0) throw new AppBaseError('system.not_found', 'grant not found');
+    await audit({
+      action: 'files.grant_update',
+      result: 'success',
+      actorId: user.id,
+      target: grant.path,
+      meta: { ...grant, id },
+    });
+    return null;
+  });
+}

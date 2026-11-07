@@ -1,6 +1,6 @@
 'use client';
 
-import { FolderLock, Plus, Trash2 } from 'lucide-react';
+import { FolderLock, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
@@ -20,7 +20,15 @@ import {
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog';
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@/shared/ui/empty';
 
-import { addGrant, browseFolders, listGrants, removeGrant, type GrantRow } from './server/grants';
+import {
+  addGrant,
+  browseFolders,
+  listGrants,
+  removeGrant,
+  updateGrant,
+  type GrantRow,
+} from './server/grants';
+import { pathActions, type PathAction } from './files.utils';
 import { GrantDialog, type FolderView, type GrantDraft } from './ui/grant-dialog';
 
 interface GrantsContainerProps {
@@ -36,6 +44,7 @@ export function GrantsContainer({ subjectType, subjectId, grants, canEdit }: Gra
   const toFormError = useFormError();
   const [rows, setRows] = useState(grants);
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<GrantRow | null>(null);
   const [folder, setFolder] = useState<FolderView | null>(null);
   const [error, setError] = useState<FormErrorContent | null>(null);
   const [removing, setRemoving] = useState<GrantRow | null>(null);
@@ -51,16 +60,20 @@ export function GrantsContainer({ subjectType, subjectId, grants, canEdit }: Gra
     });
   };
 
-  const openEditor = () => {
+  /** Opens the dialog on a new rule, or on an existing one (starting at its folder). */
+  const openEditor = (row: GrantRow | null) => {
     setError(null);
     setFolder(null);
+    setEditing(row);
     setOpen(true);
-    browse('/');
+    browse(row?.path ?? '/');
   };
 
   const submit = (draft: GrantDraft) => {
     startTransition(async () => {
-      const result = await addGrant({ ...subject, ...draft });
+      const result = editing
+        ? await updateGrant({ ...subject, ...draft, id: editing.id })
+        : await addGrant({ ...subject, ...draft });
       if (!result.ok) {
         setError(toFormError(result.error));
         return;
@@ -68,7 +81,7 @@ export function GrantsContainer({ subjectType, subjectId, grants, canEdit }: Gra
       // Reload rather than guess: the new row's id comes from the database.
       const reloaded = await listGrants(subject);
       if (reloaded.ok) setRows(reloaded.data);
-      toast.success(t('added'));
+      toast.success(editing ? t('updated') : t('added'));
       setOpen(false);
     });
   };
@@ -97,7 +110,12 @@ export function GrantsContainer({ subjectType, subjectId, grants, canEdit }: Gra
         <CardDescription>{t(`description.${subjectType}`)}</CardDescription>
         {canEdit && (
           <CardAction>
-            <Button size="sm" onClick={openEditor}>
+            <Button
+              size="sm"
+              onClick={() => {
+                openEditor(null);
+              }}
+            >
               <Plus aria-hidden data-icon="inline-start" />
               {t('add')}
             </Button>
@@ -138,6 +156,18 @@ export function GrantsContainer({ subjectType, subjectId, grants, canEdit }: Gra
                   <Button
                     variant="ghost"
                     size="icon-sm"
+                    aria-label={t('editLabel', { path: row.path })}
+                    onClick={() => {
+                      openEditor(row);
+                    }}
+                  >
+                    <Pencil aria-hidden />
+                  </Button>
+                )}
+                {canEdit && (
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     aria-label={t('removeLabel', { path: row.path })}
                     onClick={() => {
                       setRemoving(row);
@@ -153,6 +183,7 @@ export function GrantsContainer({ subjectType, subjectId, grants, canEdit }: Gra
       </CardContent>
       {open && (
         <GrantDialog
+          key={editing?.id ?? 'new'}
           open
           folder={folder}
           browsing={browsing}
@@ -161,6 +192,17 @@ export function GrantsContainer({ subjectType, subjectId, grants, canEdit }: Gra
           onBrowse={browse}
           onSubmit={submit}
           onOpenChange={setOpen}
+          initial={
+            editing
+              ? {
+                  path: editing.path,
+                  effect: editing.effect,
+                  actions: editing.actions.filter((action): action is PathAction =>
+                    pathActions.some((known) => known === action),
+                  ),
+                }
+              : undefined
+          }
         />
       )}
       {removing && (
