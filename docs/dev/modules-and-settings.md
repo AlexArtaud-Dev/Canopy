@@ -31,9 +31,18 @@ entries (filtered by permissions) and audit action labels.
   `localOnly` (editable only from a local IP).
 - Stored in `app.settings` (module, key, jsonb value, updatedBy, updatedAt). Typed `getSettings(module)`,
   in-memory cache invalidated via Postgres `NOTIFY`.
+  - Declare with `defineSettings({ schema, fields })` on the module (`settings` key). Labels live under
+    `settings.<module>.<key>` in the messages.
+  - Read: `getSettings(moduleId, definition)` → `{ values, locked, modified, invalid }`
+    (`features/settings/server/settings-store.ts`). Precedence: default ← stored ← env (`fields.<key>.env`).
+  - Write: `updateSetting` validates (env-locked fields are rejected), seals `sensitive` values with
+    `sealSecret` (purpose `settings:<module>.<key>`) and sends `NOTIFY canopy_settings`; `resetSetting`
+    deletes the row so the default applies again.
+  - A stored value that no longer matches the schema is ignored (default used) and logged, never fatal.
 - Admin UI generated from the schema: search, groups, "modified" indicator, reset to default, every change audited.
 - Settings consumed by the engine are defined as JSON Schema in `packages/contracts/settings/` and
-  generated into Zod (web) and Go structs (engine) — one definition only.
+  generated into Zod (web) and Go structs (engine) — one definition only. The pipeline lands with the
+  first engine setting (jobs concurrency, M7.5); no engine setting exists before that.
 - Env vars are bootstrap-only (see architecture.md) and override DB values (shown read-only).
 
 ## Default values (initial proposal)

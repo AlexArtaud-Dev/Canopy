@@ -30,7 +30,17 @@ jobs:
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
+      - name: Start Postgres for integration tests
+        run: |
+          {
+            echo "CANOPY_DB_ADMIN_PASSWORD=ci-admin"
+            echo "CANOPY_WEB_DB_PASSWORD=ci-web"
+            echo "CANOPY_ENGINE_DB_PASSWORD=ci-engine"
+          } > docker/.env
+          docker compose -f docker/compose.dev.yaml --env-file docker/.env up -d --wait
       - run: pnpm test
+        env:
+          CANOPY_TEST_WEB_DATABASE_URL: postgres://canopy_web:ci-web@127.0.0.1:5432/canopy
       - run: pnpm build
 
   checks:

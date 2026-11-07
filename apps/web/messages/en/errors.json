@@ -9,5 +9,10 @@
     "encryption_key_missing": "Secret storage is not configured. Ask your administrator to set CANOPY_ENCRYPTION_KEY.",
     "encryption_key_invalid": "The encryption key is invalid. It must be 32 random bytes encoded in base64.",
     "secret_undecryptable": "A stored secret could not be read. It may have been encrypted with a key that is no longer configured."
+  },
+  "settings": {
+    "unknown_key": "This setting does not exist (“{key}”).",
+    "invalid_value": "The value for “{key}” is not valid.",
+    "locked_by_env": "“{key}” is set by the {env} environment variable and cannot be changed here."
   }
 }
