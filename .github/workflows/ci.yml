@@ -31,6 +31,30 @@ jobs:
       - run: pnpm test
       - run: pnpm build
 
+  contracts:
+    name: Contracts (drift check)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: apps/engine/go.mod
+          cache-dependency-path: apps/engine/go.sum
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm contracts:gen
+      - name: Fail on drift
+        run: |
+          if ! git diff --exit-code -- packages/contracts apps/engine/internal/api; then
+            echo "::error::Generated code is out of date. Run 'pnpm contracts:gen' and commit the result."
+            exit 1
+          fi
+
   engine:
     name: Go (lint, test, coverage)
     runs-on: ubuntu-latest

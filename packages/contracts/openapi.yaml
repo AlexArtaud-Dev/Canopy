@@ -1,0 +1,77 @@
+openapi: 3.1.0
+info:
+  title: Canopy engine API
+  version: 0.1.0
+  description: >-
+    Contract between the Canopy web app and the engine. Single source of truth: Go server
+    interfaces and the TypeScript client + Zod schemas are generated from this file.
+  license:
+    name: AGPL-3.0-only
+    identifier: AGPL-3.0-only
+servers:
+  - url: http://localhost:8080
+paths:
+  /healthz:
+    get:
+      operationId: getLiveness
+      summary: Liveness of the engine process
+      description: Never touches dependencies; used by container health checks.
+      tags: [system]
+      responses:
+        '200':
+          description: The process is running.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LivenessStatus'
+  /readyz:
+    get:
+      operationId: getReadiness
+      summary: Readiness of the engine and its database
+      tags: [system]
+      responses:
+        '200':
+          description: The engine can serve requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessStatus'
+        '503':
+          description: A dependency is unavailable (code `system.database_unavailable`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    LivenessStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+    ReadinessStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ready]
+    Error:
+      description: >-
+        Shared error model. `code` is namespaced `<module>.<error>` and translated by the UI
+        (`errors.<code>`); no human message is ever sent.
+      type: object
+      required: [code, params, requestId]
+      properties:
+        code:
+          type: string
+          pattern: '^[a-z]+\.[a-z_]+$'
+          examples: [system.database_unavailable]
+        params:
+          description: Interpolation values for the translated message (strings or numbers).
+          type: object
+          additionalProperties: true
+        requestId:
+          type: string

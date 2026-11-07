@@ -1,6 +1,7 @@
 import 'server-only';
 
-import { z } from 'zod';
+import { getReadiness } from '@canopy/contracts';
+import { createClient } from '@canopy/contracts/client';
 
 import { parseServerEnv } from '@/shared/config/env';
 import { logger } from '@/shared/lib/logger';
@@ -9,16 +10,20 @@ import type { EngineProbe, SystemStatus } from '../system.types';
 import { toSystemStatus } from '../system.utils';
 
 const probeTimeoutMs = 2000;
-const errorBodySchema = z.object({ code: z.string() }).partial();
 
 async function probeEngine(engineUrl: string): Promise<EngineProbe> {
+  const client = createClient({ baseUrl: engineUrl });
   try {
-    const response = await fetch(new URL('/readyz', engineUrl), {
+    const { error, response } = await getReadiness({
+      client,
       cache: 'no-store',
       signal: AbortSignal.timeout(probeTimeoutMs),
     });
-    const body = errorBodySchema.safeParse(await response.json().catch(() => ({})));
-    return { kind: 'response', httpStatus: response.status, code: body.data?.code };
+    // No response means the request never completed (network failure surfaced as a value).
+    if (!response) {
+      return { kind: 'unreachable' };
+    }
+    return { kind: 'response', httpStatus: response.status, code: error?.code };
   } catch (error) {
     logger.warn('engine readiness probe failed', { module: 'system', error });
     return { kind: 'unreachable' };
