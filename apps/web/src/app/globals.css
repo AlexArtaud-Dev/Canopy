@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+@import '../shared/theme/themes/ocean.css';
+@import '../shared/theme/themes/violet.css';
+@import '../shared/theme/themes/amber.css';
 
 @custom-variant dark (&:is(.dark *));
 

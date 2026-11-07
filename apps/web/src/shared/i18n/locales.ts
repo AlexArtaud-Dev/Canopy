@@ -12,16 +12,17 @@ export function isLocale(value: string): value is Locale {
 
 /**
  * Picks the UI locale: an explicit cookie choice wins, then the browser's Accept-Language
- * preferences (by q-value), then the default. Region subtags are ignored (fr-CA → fr).
+ * preferences (by q-value), then the instance default. Region subtags are ignored (fr-CA → fr).
  */
 export function resolveLocale(
   cookieValue: string | undefined,
   acceptLanguage: string | null,
+  fallback: Locale = defaultLocale,
 ): Locale {
   if (cookieValue !== undefined && isLocale(cookieValue)) {
     return cookieValue;
   }
-  return matchAcceptLanguage(acceptLanguage) ?? defaultLocale;
+  return matchAcceptLanguage(acceptLanguage) ?? fallback;
 }
 
 function matchAcceptLanguage(header: string | null): Locale | undefined {

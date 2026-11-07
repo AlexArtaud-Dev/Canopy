@@ -63,3 +63,10 @@ describe('localeNames', () => {
     ]);
   });
 });
+
+describe('resolveLocale fallback', () => {
+  it('uses the instance default when nothing else matches', () => {
+    expect(resolveLocale(undefined, 'de-DE,de;q=0.9', 'fr')).toBe('fr');
+    expect(resolveLocale(undefined, 'es', 'fr')).toBe('es');
+  });
+});

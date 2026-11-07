@@ -22,6 +22,8 @@ interface SettingFieldProps {
   /** Local-only field opened from elsewhere: explains why it is read-only. */
   needsLocal: boolean;
   pending: boolean;
+  /** Translated label of a select option. */
+  optionLabel: (option: string) => string;
   onSave: (value: unknown) => void;
   onReset: () => void;
 }
@@ -44,6 +46,7 @@ export function SettingField({
   editable,
   needsLocal,
   pending,
+  optionLabel,
   onSave,
   onReset,
 }: SettingFieldProps) {
@@ -108,7 +111,7 @@ export function SettingField({
             <SelectContent>
               {control.options.map((option) => (
                 <SelectItem key={option} value={option}>
-                  {option}
+                  {optionLabel(option)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -128,7 +131,12 @@ export function SettingField({
           />
         )}
         <p className="text-muted-foreground text-xs">
-          {t('default', { value: display(field.defaultValue) })}
+          {t('default', {
+            value:
+              control.kind === 'select'
+                ? optionLabel(String(field.defaultValue))
+                : display(field.defaultValue),
+          })}
         </p>
         {editable && (
           <div className="flex gap-2">

@@ -1,0 +1,20 @@
+/* violet: the default theme's tokens with hue 295; lightness and chroma unchanged keep the contrast ratios. */
+:root[data-theme='violet'] {
+  --primary: oklch(0.47 0.09 295);
+  --primary-foreground: oklch(0.985 0.01 295);
+  --ring: oklch(0.62 0.09 295);
+  --chart-1: oklch(0.62 0.11 295);
+  --sidebar-primary: oklch(0.47 0.09 295);
+  --sidebar-primary-foreground: oklch(0.985 0.01 295);
+  --sidebar-ring: oklch(0.62 0.09 295);
+}
+
+:root[data-theme='violet'].dark {
+  --primary: oklch(0.76 0.11 295);
+  --primary-foreground: oklch(0.22 0.04 295);
+  --ring: oklch(0.6 0.09 295);
+  --chart-1: oklch(0.72 0.12 295);
+  --sidebar-primary: oklch(0.76 0.11 295);
+  --sidebar-primary-foreground: oklch(0.22 0.04 295);
+  --sidebar-ring: oklch(0.6 0.09 295);
+}
