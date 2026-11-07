@@ -11,7 +11,8 @@
     "groups": "Groups",
     "roles": "Roles",
     "email": "Email",
-    "settings": "Settings"
+    "settings": "Settings",
+    "audit": "Audit log"
   },
   "preferences": {
     "appearance": "Appearance",

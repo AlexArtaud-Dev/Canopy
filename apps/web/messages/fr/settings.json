@@ -18,12 +18,14 @@
     "mail": "Les réglages e-mail (SMTP) sont sur la page E-mail."
   },
   "modules": {
-    "auth": "Connexion et sessions"
+    "auth": "Connexion et sessions",
+    "audit": "Journal d’audit"
   },
   "groups": {
     "sessions": "Sessions",
     "passwords": "Mots de passe",
-    "protection": "Protection contre le brute-force"
+    "protection": "Protection contre le brute-force",
+    "retention": "Conservation"
   },
   "fields": {
     "auth": {
@@ -62,6 +64,12 @@
       "notifyNewSignIn": {
         "label": "E-mail lors d’une nouvelle connexion",
         "description": "Les utilisateurs avec un e-mail sont prévenus d’une connexion depuis un nouvel appareil ou une nouvelle adresse."
+      }
+    },
+    "audit": {
+      "retentionDays": {
+        "label": "Conserver les événements (jours)",
+        "description": "Les événements plus anciens sont supprimés une fois par jour ; la purge elle-même est journalisée."
       }
     }
   }

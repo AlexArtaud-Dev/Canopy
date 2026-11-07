@@ -1,0 +1,46 @@
+{
+  "title": "Registro de auditoría",
+  "metaTitle": "Registro de auditoría",
+  "description": "Cada cambio, inicio de sesión e intento rechazado, de más reciente a más antiguo.",
+  "filters": {
+    "actor": "Persona",
+    "actorPlaceholder": "Usuario",
+    "action": "Acción",
+    "anyAction": "Cualquier acción",
+    "result": "Resultado",
+    "anyResult": "Cualquier resultado",
+    "target": "Objetivo",
+    "from": "Desde",
+    "to": "Hasta",
+    "apply": "Aplicar",
+    "clear": "Borrar"
+  },
+  "results": {
+    "success": "Correcto",
+    "denied": "Denegado",
+    "error": "Error"
+  },
+  "columns": {
+    "when": "Fecha",
+    "actor": "Persona",
+    "action": "Acción",
+    "result": "Resultado",
+    "target": "Objetivo",
+    "address": "Dirección"
+  },
+  "system": "Sistema",
+  "anonymous": "Anónimo",
+  "details": "Detalles",
+  "request": "Petición {id}",
+  "empty": {
+    "title": "Ningún evento coincide",
+    "description": "Cambia o borra los filtros."
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "summary": "Página {page} de {pages} · {total} eventos"
+  },
+  "export": "Exportar CSV",
+  "exported": "{count, plural, one {# evento exportado} other {# eventos exportados}}"
+}

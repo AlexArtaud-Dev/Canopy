@@ -1,0 +1,46 @@
+{
+  "title": "Audit log",
+  "metaTitle": "Audit log",
+  "description": "Every change, sign-in and refused attempt, newest first.",
+  "filters": {
+    "actor": "Person",
+    "actorPlaceholder": "Username",
+    "action": "Action",
+    "anyAction": "Any action",
+    "result": "Result",
+    "anyResult": "Any result",
+    "target": "Target",
+    "from": "From",
+    "to": "To",
+    "apply": "Apply",
+    "clear": "Clear"
+  },
+  "results": {
+    "success": "Success",
+    "denied": "Denied",
+    "error": "Error"
+  },
+  "columns": {
+    "when": "When",
+    "actor": "Person",
+    "action": "Action",
+    "result": "Result",
+    "target": "Target",
+    "address": "Address"
+  },
+  "system": "System",
+  "anonymous": "Anonymous",
+  "details": "Details",
+  "request": "Request {id}",
+  "empty": {
+    "title": "No event matches",
+    "description": "Change or clear the filters."
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "summary": "Page {page} of {pages} · {total} events"
+  },
+  "export": "Export CSV",
+  "exported": "{count, plural, one {# event exported} other {# events exported}}"
+}
