@@ -8,7 +8,7 @@ test.use({ storageState: { cookies: [], origins: [] } });
 test('protected pages send visitors to sign in, then back where they were', async ({ page }) => {
   await page.goto('/system');
   await expect(page).toHaveURL(/\/login\?next=%2Fsystem$/);
-  await expect(page).toHaveTitle('Sign in · Canopy');
+  await expect(page).toHaveTitle('Canopy · Sign in');
 
   await page.getByLabel('Username').fill(testAdmin.username);
   await page.getByLabel('Password', { exact: true }).fill(testAdmin.password);

@@ -17,7 +17,7 @@ import './globals.css';
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('common');
   return {
-    title: { default: 'Canopy', template: '%s · Canopy' },
+    title: { default: 'Canopy', template: 'Canopy · %s' },
     description: t('meta.description'),
   };
 }

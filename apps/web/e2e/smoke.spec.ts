@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('files page renders the shell and the empty state', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('Files · Canopy');
+  await expect(page).toHaveTitle('Canopy · Files');
   await expect(page.getByRole('heading', { level: 1, name: 'Files' })).toBeVisible();
   await expect(page.getByText('No volumes yet')).toBeVisible();
 });
