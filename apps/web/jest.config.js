@@ -14,6 +14,7 @@ const config = {
     'src/shared/request/client-ip.ts',
     'src/shared/errors/error-key.ts',
     'src/shared/secrets/envelope.ts',
+    'src/shared/modules/registry.ts',
     'src/shared/{lib,i18n,config}/**/*.ts',
     '!src/**/*.d.ts',
     '!src/shared/i18n/request.ts',
