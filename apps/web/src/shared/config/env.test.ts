@@ -1,17 +1,28 @@
 import { parseServerEnv } from './env';
 
 describe('parseServerEnv', () => {
-  it('defaults the engine URL for local development', () => {
-    expect(parseServerEnv({})).toEqual({ CANOPY_ENGINE_URL: 'http://localhost:8080' });
+  it('applies defaults for local development', () => {
+    expect(parseServerEnv({})).toEqual({
+      CANOPY_ENGINE_URL: 'http://localhost:8080',
+      CANOPY_TRUSTED_PROXIES: '',
+    });
   });
 
-  it('accepts an explicit engine URL', () => {
-    expect(parseServerEnv({ CANOPY_ENGINE_URL: 'http://engine:8080' }).CANOPY_ENGINE_URL).toBe(
-      'http://engine:8080',
-    );
+  it('accepts explicit values', () => {
+    const env = parseServerEnv({
+      CANOPY_ENGINE_URL: 'http://engine:8080',
+      CANOPY_DATABASE_URL: 'postgres://canopy_web:pw@postgres:5432/canopy',
+      CANOPY_TRUSTED_PROXIES: '172.16.0.0/12',
+    });
+    expect(env.CANOPY_ENGINE_URL).toBe('http://engine:8080');
+    expect(env.CANOPY_DATABASE_URL).toBe('postgres://canopy_web:pw@postgres:5432/canopy');
+    expect(env.CANOPY_TRUSTED_PROXIES).toBe('172.16.0.0/12');
   });
 
-  it('rejects a malformed engine URL', () => {
-    expect(() => parseServerEnv({ CANOPY_ENGINE_URL: 'not a url' })).toThrow();
-  });
+  it.each([[{ CANOPY_ENGINE_URL: 'not a url' }], [{ CANOPY_DATABASE_URL: 'mysql://db' }]])(
+    'rejects %o',
+    (source) => {
+      expect(() => parseServerEnv(source)).toThrow();
+    },
+  );
 });

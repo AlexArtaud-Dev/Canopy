@@ -11,6 +11,7 @@ const config = {
   // Pure logic must stay fully covered; generated shadcn primitives and route files are excluded.
   collectCoverageFrom: [
     'src/**/*.{utils,nav}.ts',
+    'src/shared/request/client-ip.ts',
     'src/shared/{lib,i18n,config}/**/*.ts',
     '!src/**/*.d.ts',
     '!src/shared/i18n/request.ts',

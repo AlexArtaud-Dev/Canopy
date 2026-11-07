@@ -8,3 +8,4 @@ playwright-report/
 test-results/
 **/gen/
 *.go
+apps/web/drizzle/
