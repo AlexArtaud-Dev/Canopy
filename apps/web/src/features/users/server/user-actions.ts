@@ -32,6 +32,7 @@ import {
 import { activeAdminIds } from '@/features/access/server/admin-guard';
 import { pathGrantsTable } from '@/features/files/server/files.schema';
 
+import { collectPersonalData, deletePersonalLeftovers } from './personal-data';
 import { rolesGrantAdmin, setUserRoles } from './users-store';
 
 const adminLinkLifetimeMs = 24 * 60 * 60 * 1000;
@@ -177,8 +178,14 @@ export async function deleteUser(input: unknown): Promise<ActionResult<null>> {
     const { userId } = parse(userTargetSchema, input);
     assertNotSelf(actor.id, userId);
     await assertKeepsAnAdmin(userId);
-    // Sessions, credentials, roles, memberships and 2FA rows cascade; grants live in `app`.
+    const [target] = await getDb()
+      .select({ email: usersTable.contactEmail })
+      .from(usersTable)
+      .where(eq(usersTable.id, userId));
+    // Sessions, credentials, roles, memberships and 2FA rows cascade; grants and sent emails live
+    // in `app`. Audit entries stay (pseudonymous id), until their retention expires.
     await getDb().transaction(async (tx) => {
+      await deletePersonalLeftovers(tx, target?.email ?? null);
       await tx
         .delete(pathGrantsTable)
         .where(and(eq(pathGrantsTable.subjectType, 'user'), eq(pathGrantsTable.subjectId, userId)));
@@ -245,5 +252,22 @@ export async function resetUserTwoFactor(input: unknown): Promise<ActionResult<n
     });
     await notifySecurity(userId, 'two_factor_disabled');
     return null;
+  });
+}
+
+/** RGPD access right, on behalf of a user: a JSON of everything stored about them. */
+export async function exportUserData(input: unknown): Promise<ActionResult<{ json: string }>> {
+  return runAction(async () => {
+    const { user: actor } = await authorize('users:update');
+    const { userId } = parse(userTargetSchema, input);
+    const data = await collectPersonalData(userId);
+    if (!data) throw new AppBaseError('system.not_found', 'user not found');
+    await audit({
+      action: 'users.data_export',
+      result: 'success',
+      actorId: actor.id,
+      target: userId,
+    });
+    return { json: JSON.stringify(data, null, 2) };
   });
 }

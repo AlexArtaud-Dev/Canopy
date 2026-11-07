@@ -22,6 +22,8 @@ const config = {
     '!src/**/*.d.ts',
     '!src/shared/i18n/request.ts',
     '!src/shared/lib/utils.ts',
+    // Browser file download (DOM side effect only).
+    '!src/shared/lib/download.ts',
   ],
   coverageThreshold: { global: { branches: 100, functions: 100, lines: 100, statements: 100 } },
 };

@@ -96,5 +96,8 @@
     "invited": "Invitation envoyée",
     "resetLink": "Envoyer un lien de réinitialisation",
     "resetSent": "Lien de réinitialisation envoyé"
+  },
+  "privacy": {
+    "export": "Exporter les données personnelles"
   }
 }

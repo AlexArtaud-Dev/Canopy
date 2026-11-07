@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import type { FormErrorContent } from '@/shared/errors/form-error';
 import { useFormError } from '@/shared/errors/use-error-message';
 import { invalidFields } from '@/features/auth/auth.utils';
+import { downloadText } from '@/shared/lib/download';
 import { useCan } from '@/shared/permissions/can';
 import { Button } from '@/shared/ui/button';
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog';
@@ -20,6 +21,7 @@ import type { ActionResult } from '@/shared/lib/action';
 import {
   createUser,
   deleteUser,
+  exportUserData,
   resetUserPassword,
   resetUserTwoFactor,
   sendUserResetLink,
@@ -204,6 +206,15 @@ export function UsersContainer({
       setFormOpen(true);
     } else if (action === 'resetPassword') {
       setResetting(user);
+    } else if (action === 'exportData') {
+      startTransition(async () => {
+        const result = await exportUserData({ userId: user.id });
+        if (!result.ok) {
+          toast.error(toFormError(result.error).message);
+          return;
+        }
+        downloadText(`canopy-data-${user.username}.json`, result.data.json, 'application/json');
+      });
     } else if (action === 'resetLink') {
       startTransition(async () => {
         const result = await sendUserResetLink({ userId: user.id });

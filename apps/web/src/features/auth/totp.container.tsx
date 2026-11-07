@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 
 import type { FormErrorContent } from '@/shared/errors/form-error';
 import { useFormError } from '@/shared/errors/use-error-message';
+import { downloadText } from '@/shared/lib/download';
 
 import {
   confirmTotpEnrollment,
@@ -17,15 +18,6 @@ import { PasswordConfirmDialog } from './ui/password-confirm-dialog';
 import { TotpCard, type TotpView } from './ui/totp-card';
 
 type StepUp = 'disable' | 'regenerate' | null;
-
-function downloadText(filename: string, text: string): void {
-  const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-}
 
 export function TotpContainer({
   enabled,
@@ -99,7 +91,7 @@ export function TotpContainer({
           });
         }}
         onDownloadCodes={() => {
-          downloadText('canopy-recovery-codes.txt', `${codes.join('\n')}\n`);
+          downloadText('canopy-recovery-codes.txt', `${codes.join('\n')}\n`, 'text/plain');
         }}
         onCodesSaved={() => {
           setView({ kind: 'on', remainingCodes: codes.length });

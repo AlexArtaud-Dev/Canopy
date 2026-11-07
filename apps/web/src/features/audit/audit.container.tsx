@@ -7,6 +7,7 @@ import { Fragment, useState, useTransition, type SubmitEvent } from 'react';
 import { toast } from 'sonner';
 
 import { useFormError } from '@/shared/errors/use-error-message';
+import { downloadText } from '@/shared/lib/download';
 import { formText } from '@/shared/lib/form';
 import { useCan } from '@/shared/permissions/can';
 import { Badge } from '@/shared/ui/badge';
@@ -75,12 +76,11 @@ export function AuditContainer({ rows, total, pages, filters, actions }: AuditCo
         toast.error(toFormError(response.error).message);
         return;
       }
-      const url = URL.createObjectURL(new Blob([response.data.csv], { type: 'text/csv' }));
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `canopy-audit-${new Date().toISOString().slice(0, 10)}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
+      downloadText(
+        `canopy-audit-${new Date().toISOString().slice(0, 10)}.csv`,
+        response.data.csv,
+        'text/csv',
+      );
       toast.success(t('exported', { count: response.data.rows }));
     });
   };

@@ -10,6 +10,8 @@ import type { AppBaseError } from '@/shared/lib/errors';
 
 import { base32Decode, hotp, timeStep } from '../totp.utils';
 import { consumeActionToken, isActionTokenUsable, issueActionToken } from './action-tokens';
+import { collectPersonalData } from '@/features/users/server/personal-data';
+
 import { createAccount } from './create-account';
 import {
   completeSecondFactor,
@@ -196,5 +198,16 @@ describeWithDb('auth (integration)', () => {
     expect(await isActionTokenUsable(token)).toBe(true);
     expect(await consumeActionToken(token)).toEqual({ userId: row.id, purpose: 'password_reset' });
     expect(await consumeActionToken(token)).toBeNull();
+  });
+
+  it('exports personal data without any secret', async () => {
+    const [row] = await getConnection().sql<{ id: string }[]>`
+      SELECT id FROM auth.users WHERE username = 'ada'`;
+    if (!row) throw new Error('fixture missing');
+    const data = await collectPersonalData(row.id);
+    expect(data?.account.username).toBe('ada');
+    const json = JSON.stringify(data);
+    expect(json).not.toMatch(/argon2|password|secret|token/i);
+    expect(await collectPersonalData('missing-user')).toBeNull();
   });
 });

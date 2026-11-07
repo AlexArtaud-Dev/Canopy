@@ -6,6 +6,7 @@ import {
   getConfiguredAuth,
   hasTotpEnabled,
   listSessions,
+  MyDataContainer,
   remainingRecoveryCodes,
   requireSession,
   TotpContainer,
@@ -38,6 +39,7 @@ export default async function AccountPage() {
           sessions={sessions}
         />
         <TotpContainer enabled={totpEnabled} remainingCodes={remainingCodes} />
+        <MyDataContainer />
       </main>
     </>
   );

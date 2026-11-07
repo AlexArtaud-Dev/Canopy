@@ -27,7 +27,8 @@
     "passwords": "Contraseñas",
     "protection": "Protección contra fuerza bruta",
     "retention": "Conservación",
-    "maintenance": "Mantenimiento"
+    "maintenance": "Mantenimiento",
+    "privacy": "Privacidad"
   },
   "fields": {
     "auth": {
@@ -78,6 +79,10 @@
       "maintenance": {
         "label": "Modo mantenimiento",
         "description": "Solo la red local puede usar Canopy; los demás ven una página de mantenimiento. Solo se puede cambiar desde la red local."
+      },
+      "mailRetentionDays": {
+        "label": "Conservar correos enviados (días)",
+        "description": "Destinatario, asunto y contenido de los correos enviados o fallidos se borran pasado este plazo."
       }
     }
   }
