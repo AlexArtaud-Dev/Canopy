@@ -48,6 +48,10 @@
       "delete": "Eliminar",
       "share": "Compartir",
       "execute": "Ejecutar comandos"
-    }
+    },
+    "editTitle": "Editar acceso a la carpeta",
+    "save": "Guardar",
+    "updated": "Acceso actualizado",
+    "editLabel": "Editar el acceso a {path}"
   }
 }

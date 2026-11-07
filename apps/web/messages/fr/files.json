@@ -48,6 +48,10 @@
       "delete": "Supprimer",
       "share": "Partager",
       "execute": "Exécuter des commandes"
-    }
+    },
+    "editTitle": "Modifier l’accès au dossier",
+    "save": "Enregistrer",
+    "updated": "Accès modifié",
+    "editLabel": "Modifier l’accès à {path}"
   }
 }

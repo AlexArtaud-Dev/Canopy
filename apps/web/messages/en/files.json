@@ -48,6 +48,10 @@
       "delete": "Delete",
       "share": "Share",
       "execute": "Run commands"
-    }
+    },
+    "editTitle": "Edit folder access",
+    "save": "Save",
+    "updated": "Access updated",
+    "editLabel": "Edit access to {path}"
   }
 }

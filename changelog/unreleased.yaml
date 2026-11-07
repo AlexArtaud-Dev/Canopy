@@ -167,3 +167,9 @@ entries:
       en: The browser tab shows the Canopy logo
       fr: L’onglet du navigateur affiche le logo Canopy
       es: La pestaña del navegador muestra el logo de Canopy
+    scope: files
+    issue: 100
+    text:
+      en: Folder access rules can be edited, not only added and removed
+      fr: Les règles d’accès aux dossiers peuvent être modifiées, et plus seulement ajoutées ou retirées
+      es: Las reglas de acceso a carpetas se pueden editar, no solo añadir y quitar

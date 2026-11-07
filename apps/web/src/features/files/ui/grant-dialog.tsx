@@ -41,10 +41,13 @@ interface GrantDialogProps {
   onBrowse: (path: string) => void;
   onSubmit: (draft: GrantDraft) => void;
   onOpenChange: (open: boolean) => void;
+  /** Set when editing an existing rule: prefills effect and actions. */
+  initial?: GrantDraft | undefined;
 }
 
 export function GrantDialog({
   open,
+  initial,
   folder,
   browsing,
   pending,
@@ -54,8 +57,10 @@ export function GrantDialog({
   onOpenChange,
 }: GrantDialogProps) {
   const t = useTranslations('files.grants');
-  const [effect, setEffect] = useState<'allow' | 'deny'>('allow');
-  const [actions, setActions] = useState<ReadonlySet<PathAction>>(new Set(actionPresets.readOnly));
+  const [effect, setEffect] = useState<'allow' | 'deny'>(initial?.effect ?? 'allow');
+  const [actions, setActions] = useState<ReadonlySet<PathAction>>(
+    new Set(initial?.actions ?? actionPresets.readOnly),
+  );
   const current = folder?.path ?? '/';
 
   const toggle = (action: PathAction, checked: boolean) => {
@@ -71,7 +76,7 @@ export function GrantDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{t('dialogTitle')}</DialogTitle>
+          <DialogTitle>{initial ? t('editTitle') : t('dialogTitle')}</DialogTitle>
           <DialogDescription>{t('dialogDescription')}</DialogDescription>
         </DialogHeader>
         <FieldGroup>
@@ -206,7 +211,7 @@ export function GrantDialog({
             }}
           >
             {pending && <Spinner />}
-            {t('add')}
+            {initial ? t('save') : t('add')}
           </Button>
         </DialogFooter>
       </DialogContent>
