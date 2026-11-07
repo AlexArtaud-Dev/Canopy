@@ -1,5 +1,6 @@
 import {
   activityGranularitySeconds,
+  defaultPasswordMinLength,
   evaluateSession,
   initialsOf,
   invalidAccountFields,
@@ -77,27 +78,30 @@ describe('newAccountSchema', () => {
   };
 
   it('treats an empty email as absent', () => {
-    expect(newAccountSchema.parse(valid).contactEmail).toBeUndefined();
-    expect(newAccountSchema.parse({ ...valid, contactEmail: 'ada@example.com' }).contactEmail).toBe(
-      'ada@example.com',
-    );
+    expect(newAccountSchema(12).parse(valid).contactEmail).toBeUndefined();
+    expect(
+      newAccountSchema(12).parse({ ...valid, contactEmail: 'ada@example.com' }).contactEmail,
+    ).toBe('ada@example.com');
   });
 
   it('lists every invalid field', () => {
-    expect(invalidAccountFields(valid)).toEqual(new Set());
+    expect(invalidAccountFields(valid, 12)).toEqual(new Set());
     expect(
-      invalidAccountFields({
-        ...valid,
-        username: 'a',
-        contactEmail: 'nope',
-        password: 'short',
-        confirmPassword: 'other',
-      }),
+      invalidAccountFields(
+        {
+          ...valid,
+          username: 'a',
+          contactEmail: 'nope',
+          password: 'short',
+          confirmPassword: 'other',
+        },
+        12,
+      ),
     ).toEqual(new Set(['username', 'contactEmail', 'password', 'confirmPassword']));
   });
 
   it('reports a non-object input under an empty field name', () => {
-    expect(invalidAccountFields(null)).toEqual(new Set(['']));
+    expect(invalidAccountFields(null, 12)).toEqual(new Set(['']));
   });
 });
 
@@ -126,8 +130,9 @@ describe('policy constants', () => {
     expect(activityGranularitySeconds).toBeLessThanOrEqual(15 * 60);
   });
 
-  it('requires at least 12 password characters', () => {
-    expect(passwordSchema.safeParse('a'.repeat(11)).success).toBe(false);
-    expect(passwordSchema.safeParse('a'.repeat(12)).success).toBe(true);
+  it('applies the configured minimum password length', () => {
+    expect(passwordSchema(defaultPasswordMinLength).safeParse('a'.repeat(11)).success).toBe(false);
+    expect(passwordSchema(defaultPasswordMinLength).safeParse('a'.repeat(12)).success).toBe(true);
+    expect(passwordSchema(8).safeParse('a'.repeat(8)).success).toBe(true);
   });
 });

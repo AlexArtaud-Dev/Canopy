@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 
-import { SetupContainer, setupBlocker } from '@/features/auth';
+import { getConfiguredAuth, SetupContainer, setupBlocker } from '@/features/auth';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty';
 
 export const dynamic = 'force-dynamic';
@@ -30,5 +30,6 @@ export default async function SetupPage() {
       </Empty>
     );
   }
-  return <SetupContainer />;
+  const { policy } = await getConfiguredAuth();
+  return <SetupContainer passwordMinLength={policy.passwordMinLength} />;
 }

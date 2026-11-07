@@ -25,7 +25,13 @@ const steps = ['welcome', 'account', 'done'] as const;
 type Step = (typeof steps)[number];
 
 /** `done` renders the confirmation once the account exists (see `completeSetup`). */
-export function SetupContainer({ initialStep = 'welcome' }: { initialStep?: Step }) {
+export function SetupContainer({
+  initialStep = 'welcome',
+  passwordMinLength,
+}: {
+  initialStep?: Step;
+  passwordMinLength: number;
+}) {
   const t = useTranslations('auth.setup');
   const router = useRouter();
   const preferences = usePreferences();
@@ -37,7 +43,7 @@ export function SetupContainer({ initialStep = 'welcome' }: { initialStep?: Step
   const current = steps.indexOf(step);
 
   const handleSubmit = (values: AccountValues) => {
-    const invalid = invalidAccountFields(values);
+    const invalid = invalidAccountFields(values, passwordMinLength);
     setInvalidFields(new Set(accountFields.filter((field) => invalid.has(field))));
     if (invalid.size > 0) return;
     startTransition(async () => {
@@ -85,6 +91,7 @@ export function SetupContainer({ initialStep = 'welcome' }: { initialStep?: Step
           <AccountForm
             pending={pending}
             invalidFields={invalidFields}
+            passwordMinLength={passwordMinLength}
             error={error}
             onSubmit={handleSubmit}
             onBack={() => {

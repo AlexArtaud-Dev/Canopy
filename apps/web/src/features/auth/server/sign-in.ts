@@ -4,14 +4,27 @@ import { isAPIError } from 'better-auth/api';
 
 import { runAction, type ActionResult } from '@/shared/lib/action';
 import { AppBaseError } from '@/shared/lib/errors';
-import { enforceRateLimit } from '@/shared/rate-limit/rate-limit';
+import {
+  clearRateLimit,
+  consume,
+  enforceRateLimit,
+  readLockout,
+} from '@/shared/rate-limit/rate-limit';
 import { getRequestContext } from '@/shared/request/request-context';
 import { audit } from '@/features/audit/server/audit-writer';
 
 import { safeRedirectPath, signInInputSchema } from '../auth.utils';
 import { authRequestHeaders, getConfiguredAuth } from './current-session';
 
-const signInRule = { limit: 10, windowSeconds: 60 };
+/** Per client IP, whatever the account: slows down password spraying. */
+const perIpRule = { limit: 10, windowSeconds: 60 };
+const lockoutScope = 'auth.lockout';
+
+function lockedError(retryAfterSeconds: number): AppBaseError {
+  return new AppBaseError('auth.locked', 'account temporarily locked', {
+    params: { minutes: Math.ceil(retryAfterSeconds / 60) },
+  });
+}
 
 /** Signs in with username + password; returns where to go next. */
 export async function signIn(input: unknown): Promise<ActionResult<{ redirectTo: string }>> {
@@ -22,16 +35,43 @@ export async function signIn(input: unknown): Promise<ActionResult<{ redirectTo:
     }
     const { username, password, next } = parsed.data;
     const context = await getRequestContext();
-    await enforceRateLimit('auth.sign_in', context.clientIp ?? 'unknown', signInRule);
+    await enforceRateLimit('auth.sign_in', context.clientIp ?? 'unknown', perIpRule);
 
-    const [{ auth }, headers] = await Promise.all([getConfiguredAuth(), authRequestHeaders()]);
+    const [{ auth, policy }, headers] = await Promise.all([
+      getConfiguredAuth(),
+      authRequestHeaders(),
+    ]);
+    // Failures are counted per account name, so one attacker cannot hide behind many IPs.
+    const account = username.toLowerCase();
+    const lockoutRule = {
+      limit: policy.lockoutThreshold,
+      windowSeconds: policy.lockoutMinutes * 60,
+    };
+    const lockout = await readLockout(lockoutScope, account, lockoutRule);
+    if (lockout.locked) {
+      await audit({
+        action: 'auth.sign_in',
+        result: 'denied',
+        meta: { username, reason: 'locked' },
+      });
+      throw lockedError(lockout.retryAfterSeconds);
+    }
+
     try {
       const result = await auth.api.signInUsername({ body: { username, password }, headers });
+      await clearRateLimit(lockoutScope, account);
       await audit({ action: 'auth.sign_in', result: 'success', actorId: result.user.id });
     } catch (error) {
       if (!isAPIError(error)) throw error;
+      const failures = await consume(lockoutScope, account, lockoutRule);
+      const nowLocked = failures.remaining === 0;
       // Same answer for unknown user and wrong password; the attempted name is kept for admins.
-      await audit({ action: 'auth.sign_in', result: 'denied', meta: { username } });
+      await audit({
+        action: 'auth.sign_in',
+        result: 'denied',
+        meta: { username, reason: nowLocked ? 'locked' : 'invalid_credentials' },
+      });
+      if (nowLocked) throw lockedError(lockoutRule.windowSeconds);
       throw new AppBaseError('auth.invalid_credentials', 'sign-in rejected', { cause: error });
     }
     return { redirectTo: safeRedirectPath(next) };

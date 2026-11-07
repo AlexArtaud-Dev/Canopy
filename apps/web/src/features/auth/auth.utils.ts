@@ -53,26 +53,33 @@ export const usernameSchema = z
   .max(32)
   .regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/);
 
-/** Baseline until the configurable policy lands (#29). */
-export const passwordSchema = z.string().min(12).max(256);
+export const defaultPasswordMinLength = 12;
 
-export const newAccountSchema = z
-  .object({
-    username: usernameSchema,
-    displayName: z.string().trim().max(64).optional(),
-    contactEmail: z
-      .union([z.literal(''), z.email()])
-      .optional()
-      .transform((value) => (value === '' ? undefined : value)),
-    password: passwordSchema,
-    confirmPassword: z.string(),
-  })
-  .refine((value) => value.password === value.confirmPassword, {
-    path: ['confirmPassword'],
-    message: 'mismatch',
-  });
+/** Password rule from the `auth.passwordMinLength` setting. */
+export function passwordSchema(minLength: number) {
+  return z.string().min(minLength).max(256);
+}
 
-export type NewAccountInput = z.input<typeof newAccountSchema>;
+/** New local account; the password rule depends on the admin setting. */
+export function newAccountSchema(passwordMinLength: number) {
+  return z
+    .object({
+      username: usernameSchema,
+      displayName: z.string().trim().max(64).optional(),
+      contactEmail: z
+        .union([z.literal(''), z.email()])
+        .optional()
+        .transform((value) => (value === '' ? undefined : value)),
+      password: passwordSchema(passwordMinLength),
+      confirmPassword: z.string(),
+    })
+    .refine((value) => value.password === value.confirmPassword, {
+      path: ['confirmPassword'],
+      message: 'mismatch',
+    });
+}
+
+export type NewAccountInput = z.input<ReturnType<typeof newAccountSchema>>;
 
 export const signInInputSchema = z.object({
   username: z.string().trim().min(1).max(64),
@@ -94,8 +101,8 @@ export function initialsOf(name: string): string {
 }
 
 /** Top-level fields of a new-account draft that fail validation (for inline form errors). */
-export function invalidAccountFields(input: unknown): Set<string> {
-  const result = newAccountSchema.safeParse(input);
+export function invalidAccountFields(input: unknown, passwordMinLength: number): Set<string> {
+  const result = newAccountSchema(passwordMinLength).safeParse(input);
   if (result.success) return new Set();
   return new Set(result.error.issues.map((issue) => String(issue.path[0] ?? '')));
 }

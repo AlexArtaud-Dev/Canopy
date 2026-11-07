@@ -5,7 +5,9 @@ import { AppBaseError } from '@/shared/lib/errors';
 
 import {
   decide,
+  lockoutState,
   rateLimitKey,
+  type LockoutState,
   type RateLimitDecision,
   type RateLimitRule,
 } from './rate-limit.utils';
@@ -55,4 +57,24 @@ export async function enforceRateLimit(
       params: { retryAfter: decision.retryAfterSeconds },
     });
   }
+}
+
+/** Current lockout for `scope:subject` without counting a hit. */
+export async function readLockout(
+  scope: string,
+  subject: string,
+  rule: RateLimitRule,
+): Promise<LockoutState> {
+  const { sql } = getConnection();
+  const [row] = await sql<{ hits: number; window_start: string | Date; now: string | Date }[]>`
+    SELECT hits, window_start, now() AS now FROM app.rate_limits
+    WHERE key = ${rateLimitKey(scope, subject)}`;
+  if (!row) return { locked: false, retryAfterSeconds: 0 };
+  return lockoutState(rule, row.hits, new Date(row.window_start), new Date(row.now));
+}
+
+/** Forgets the counter, e.g. failed logins after a successful one. */
+export async function clearRateLimit(scope: string, subject: string): Promise<void> {
+  const { sql } = getConnection();
+  await sql`DELETE FROM app.rate_limits WHERE key = ${rateLimitKey(scope, subject)}`;
 }

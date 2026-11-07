@@ -13,5 +13,6 @@ export async function generateMetadata(): Promise<Metadata> {
 /** Last wizard step, reached right after `completeSetup` signs the new administrator in. */
 export default async function SetupDonePage() {
   await requireSession();
-  return <SetupContainer initialStep="done" />;
+  // The done step has no form; the policy value is unused there.
+  return <SetupContainer initialStep="done" passwordMinLength={0} />;
 }
