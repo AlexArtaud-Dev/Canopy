@@ -1,0 +1,44 @@
+name: Bug report
+description: Something does not work as expected.
+labels: ['type: fix']
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the error code and request ID shown in the UI, if any.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to …
+        2. Click …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Canopy version
+      placeholder: 2026.11.0
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Host OS, Docker version, reverse proxy, browser.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant `docker compose logs` lines. Remove secrets and file names you do not want to share.
+      render: text

@@ -2,6 +2,8 @@ module github.com/AlexArtaud-Dev/Canopy/apps/engine
 
 go 1.26.0
 
+toolchain go1.26.10
+
 require (
 	github.com/go-chi/chi/v5 v5.5.0
 	github.com/jackc/pgx/v5 v5.12.0

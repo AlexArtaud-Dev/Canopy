@@ -16,11 +16,15 @@
     "test:e2e": "pnpm -r --if-present test:e2e",
     "contracts:gen": "pnpm -r --if-present contracts:gen",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "check:i18n": "node scripts/ci/check-i18n.mjs",
+    "check:changelog": "node scripts/ci/check-changelog.mjs"
   },
   "devDependencies": {
     "@canopy/config": "workspace:*",
     "lint-staged": "17.6.0",
-    "prettier": "3.9.10"
+    "prettier": "3.9.10",
+    "yaml": "2.9.1",
+    "zod": "4.6.7"
   }
 }
