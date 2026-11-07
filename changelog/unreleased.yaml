@@ -20,3 +20,10 @@ entries:
       en: Production Docker images and a hardened compose stack (non-root, read-only, isolated network)
       fr: Images Docker de production et stack compose durcie (non-root, lecture seule, réseau isolé)
       es: Imágenes Docker de producción y stack compose reforzado (sin root, solo lectura, red aislada)
+  - type: feat
+    scope: errors
+    issue: 21
+    text:
+      en: Clear error and not-found pages with a retry button and a reference to share with your administrator
+      fr: Pages d’erreur et de page introuvable claires, avec un bouton Réessayer et une référence à transmettre à votre administrateur
+      es: Páginas de error y de página no encontrada claras, con un botón Reintentar y una referencia para su administrador
