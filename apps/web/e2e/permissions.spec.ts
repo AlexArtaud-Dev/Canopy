@@ -24,6 +24,6 @@ test('a user without permissions sees the access-denied state', async ({ page, b
   await expect(userPage.getByRole('heading', { level: 1, name: 'Files' })).toBeVisible();
 
   await userPage.goto('/admin/users');
-  await expect(userPage.getByText('Access denied')).toBeVisible();
+  await expect(userPage.getByRole('heading', { level: 1, name: 'Access denied' })).toBeVisible();
   await visitor.close();
 });
