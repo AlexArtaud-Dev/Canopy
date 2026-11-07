@@ -22,6 +22,7 @@ import {
   userTargetSchema,
 } from '../users.utils';
 import { activeAdminIds } from '@/features/access/server/admin-guard';
+import { pathGrantsTable } from '@/features/files/server/files.schema';
 
 import { rolesGrantAdmin, setUserRoles } from './users-store';
 
@@ -119,8 +120,13 @@ export async function deleteUser(input: unknown): Promise<ActionResult<null>> {
     const { userId } = parse(userTargetSchema, input);
     assertNotSelf(actor.id, userId);
     await assertKeepsAnAdmin(userId);
-    // Sessions, credentials, roles, memberships and 2FA rows cascade.
-    await getDb().delete(usersTable).where(eq(usersTable.id, userId));
+    // Sessions, credentials, roles, memberships and 2FA rows cascade; grants live in `app`.
+    await getDb().transaction(async (tx) => {
+      await tx
+        .delete(pathGrantsTable)
+        .where(and(eq(pathGrantsTable.subjectType, 'user'), eq(pathGrantsTable.subjectId, userId)));
+      await tx.delete(usersTable).where(eq(usersTable.id, userId));
+    });
     await audit({ action: 'users.delete', result: 'success', actorId: actor.id, target: userId });
     return null;
   });

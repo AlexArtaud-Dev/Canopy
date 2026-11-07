@@ -29,8 +29,12 @@
 1. Collect grants of the user and of all their groups.
 2. Keep grants whose path is the target or one of its ancestors.
 3. The most specific (deepest) path wins.
-4. At equal depth: `deny` beats `allow`; then user-level beats group-level.
-5. No matching grant → no access (default deny).
+4. At equal depth: user-level beats group-level; at the same level, `deny` beats `allow`.
+5. No matching grant → no access (default deny). `system:admin` bypasses grants.
+6. Folders above a granted one are listed (names only) so users can reach it (`MayTraverse`).
+
+Implementation: `apps/engine/internal/authz` (pure, 100 % covered) and `internal/grantstore`
+(loads `app.path_grants`, written by the web app; the engine is read-only on `app`).
 
 | Grants                                     | `/media/kids` | `/media/private` |
 | ------------------------------------------ | ------------- | ---------------- |

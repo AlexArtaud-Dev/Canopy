@@ -10,6 +10,7 @@ import { AppBaseError } from '@/shared/lib/errors';
 import { audit } from '@/features/audit/server/audit-writer';
 import { authorize } from '@/features/auth';
 import { usersTable } from '@/features/auth/server/auth.schema';
+import { pathGrantsTable } from '@/features/files/server/files.schema';
 
 import {
   entityIdSchema,
@@ -159,7 +160,12 @@ export async function deleteGroup(input: unknown): Promise<ActionResult<null>> {
   return runAction(async () => {
     const { id } = parse(entityIdSchema, input);
     const { user } = await authorize('groups:delete');
-    await withAdminGuard((tx) => tx.delete(groupsTable).where(eq(groupsTable.id, id)));
+    await withAdminGuard(async (tx) => {
+      await tx
+        .delete(pathGrantsTable)
+        .where(and(eq(pathGrantsTable.subjectType, 'group'), eq(pathGrantsTable.subjectId, id)));
+      await tx.delete(groupsTable).where(eq(groupsTable.id, id));
+    });
     await audit({ action: 'groups.delete', result: 'success', actorId: user.id, target: id });
     return null;
   });
