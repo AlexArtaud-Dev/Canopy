@@ -84,5 +84,17 @@
     "passwordReset": "Password reset",
     "twoFactorReset": "Two-factor reset",
     "sessionsRevoked": "Signed out everywhere"
+  },
+  "invitation": {
+    "invite": "Send an invitation instead of setting a password",
+    "inviteHint": "They choose their own password. Needs an email address.",
+    "emailRequired": "An email address is needed to invite.",
+    "linkTitle": "Share this link",
+    "linkDescription": "Email is not configured, so send this one-time link yourself. It works once.",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "invited": "Invitation sent",
+    "resetLink": "Send a reset link",
+    "resetSent": "Reset link sent"
   }
 }

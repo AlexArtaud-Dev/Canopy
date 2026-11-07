@@ -18,5 +18,7 @@ export const authModule = defineModule({
     'auth.session_revoke',
     'auth.access_denied',
     'auth.ip_block',
+    'auth.password_reset_request',
+    'auth.password_set',
   ],
 });

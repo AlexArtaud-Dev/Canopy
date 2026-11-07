@@ -21,6 +21,7 @@ import { activeAdminIds, withAdminGuard } from './admin-guard';
 import { groupsRequireTwoFactor, loadPermissions } from './permissions';
 
 jest.mock('server-only', () => ({}));
+jest.mock('next-intl/server', () => ({ getLocale: () => Promise.resolve('en') }));
 jest.mock('next/headers', () => ({
   headers: () => Promise.resolve(new Headers()),
   cookies: () => Promise.resolve({ set: jest.fn(), get: jest.fn() }),

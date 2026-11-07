@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { SubmitEvent } from 'react';
+import { useState, type SubmitEvent } from 'react';
 
 import { FormError, type FormErrorContent } from '@/shared/errors/form-error';
 import { formText } from '@/shared/lib/form';
@@ -17,6 +17,7 @@ import {
 } from '@/shared/ui/dialog';
 import {
   Field,
+  FieldContent,
   FieldDescription,
   FieldError,
   FieldGroup,
@@ -40,6 +41,8 @@ export interface UserFormValues {
   password: string;
   confirmPassword: string;
   roleIds: string[];
+  /** Create mode only: email an invitation instead of setting a password. */
+  invite: boolean;
 }
 
 interface UserFormDialogProps {
@@ -67,6 +70,8 @@ export function UserFormDialog({
   onOpenChange,
 }: UserFormDialogProps) {
   const t = useTranslations('users.form');
+  const invitation = useTranslations('users.invitation');
+  const [invite, setInvite] = useState(false);
   const invalid = (field: string) => invalidFields.has(field) || undefined;
 
   const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
@@ -79,6 +84,7 @@ export function UserFormDialog({
       password: formText(form, 'password'),
       confirmPassword: formText(form, 'confirmPassword'),
       roleIds: form.getAll('roleIds').filter((value) => typeof value === 'string'),
+      invite: !editing && invite,
     });
   };
 
@@ -131,10 +137,29 @@ export function UserFormDialog({
                   defaultValue={editing?.contactEmail}
                   aria-invalid={invalid('contactEmail')}
                 />
-                {invalid('contactEmail') && <FieldError>{t('errors.contactEmail')}</FieldError>}
+                {invalid('contactEmail') && (
+                  <FieldError>
+                    {invite ? invitation('emailRequired') : t('errors.contactEmail')}
+                  </FieldError>
+                )}
               </Field>
             </div>
             {!editing && (
+              <Field orientation="horizontal">
+                <Checkbox
+                  id="user-invite"
+                  checked={invite}
+                  onCheckedChange={(checked) => {
+                    setInvite(checked === true);
+                  }}
+                />
+                <FieldContent>
+                  <FieldLabel htmlFor="user-invite">{invitation('invite')}</FieldLabel>
+                  <FieldDescription>{invitation('inviteHint')}</FieldDescription>
+                </FieldContent>
+              </Field>
+            )}
+            {!editing && !invite && (
               <div className="grid gap-6 sm:grid-cols-2">
                 <Field data-invalid={invalid('password')}>
                   <FieldLabel htmlFor="user-password">{t('password')}</FieldLabel>

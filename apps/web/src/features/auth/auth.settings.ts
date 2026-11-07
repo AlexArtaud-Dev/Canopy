@@ -27,6 +27,8 @@ export const authSettings = defineSettings({
      * 5 hex chars of the SHA-1 leave the server). Off by default: it calls an external service.
      */
     checkBreachedPasswords: z.boolean().default(false),
+    /** Email users when their account signs in from a new device or address. */
+    notifyNewSignIn: z.boolean().default(true),
   }),
   fields: {
     sessionLifetimeDays: { group: 'sessions' },
@@ -37,5 +39,6 @@ export const authSettings = defineSettings({
     ipBlockThreshold: { group: 'protection' },
     ipBlockMinutes: { group: 'protection' },
     checkBreachedPasswords: { group: 'passwords' },
+    notifyNewSignIn: { group: 'protection' },
   },
 });

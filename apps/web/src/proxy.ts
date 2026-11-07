@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { resolveRequestId } from '@/shared/request/request-id';
 import { buildContentSecurityPolicy } from '@/shared/security/csp';
 
-const publicPaths = ['/login', '/setup'];
+const publicPaths = ['/login', '/setup', '/forgot-password', '/set-password'];
 const sessionCookies = ['canopy.session_token', '__Secure-canopy.session_token'];
 
 function isPublic(pathname: string): boolean {

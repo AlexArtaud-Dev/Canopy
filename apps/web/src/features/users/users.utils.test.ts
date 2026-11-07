@@ -1,6 +1,7 @@
 import {
   createUserSchema,
   editUserSchema,
+  inviteUserSchema,
   likePattern,
   pageCount,
   removesLastAdmin,
@@ -85,5 +86,15 @@ describe('constants', () => {
   it('pages users by 20 and needs a user id for targeted actions', () => {
     expect(usersPageSize).toBe(20);
     expect(userTargetSchema.safeParse({ userId: '' }).success).toBe(false);
+  });
+});
+
+describe('inviteUserSchema', () => {
+  it('needs an email but no password', () => {
+    const base = { invite: true, username: 'grace', roleIds: [] };
+    expect(inviteUserSchema.safeParse({ ...base, contactEmail: 'g@example.com' }).success).toBe(
+      true,
+    );
+    expect(inviteUserSchema.safeParse({ ...base, contactEmail: '' }).success).toBe(false);
   });
 });

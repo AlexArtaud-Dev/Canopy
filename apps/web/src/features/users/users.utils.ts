@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { newAccountSchema, passwordSchema } from '@/features/auth/auth.utils';
+import { newAccountSchema, passwordSchema, usernameSchema } from '@/features/auth/auth.utils';
 
 export const usersPageSize = 20;
 
@@ -26,6 +26,15 @@ const roleIds = z.array(z.uuid()).max(50);
 export function createUserSchema(passwordMinLength: number) {
   return newAccountSchema(passwordMinLength).and(z.object({ roleIds }));
 }
+
+/** Invited accounts choose their own password from the emailed (or copied) link. */
+export const inviteUserSchema = z.object({
+  invite: z.literal(true),
+  username: usernameSchema,
+  displayName: z.string().trim().max(64).optional(),
+  contactEmail: z.email(),
+  roleIds,
+});
 
 export const editUserSchema = z.object({
   userId: z.string().min(1).max(64),

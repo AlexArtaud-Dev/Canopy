@@ -8,5 +8,46 @@
     "title": "L’e-mail fonctionne",
     "preheader": "Vos réglages SMTP sont corrects.",
     "body": "Ce test confirme que Canopy peut envoyer des e-mails avec les réglages actuels."
+  },
+  "invitation": {
+    "subject": "Vous êtes invité sur Canopy",
+    "title": "Bienvenue, {name}",
+    "preheader": "Choisissez votre mot de passe pour commencer.",
+    "body": "Un administrateur vous a créé un compte Canopy. Choisissez un mot de passe pour vous connecter.",
+    "expiry": "Ce lien ne fonctionne qu’une fois et expire dans 7 jours.",
+    "action": "Choisir mon mot de passe"
+  },
+  "reset": {
+    "subject": "Réinitialisez votre mot de passe Canopy",
+    "title": "Réinitialisation pour {name}",
+    "preheader": "Choisissez un nouveau mot de passe.",
+    "body": "Quelqu’un a demandé à réinitialiser le mot de passe de votre compte Canopy. Choisissez-en un nouveau avec le bouton ci-dessous.",
+    "expiry": "Ce lien ne fonctionne qu’une fois et expire dans 1 heure.",
+    "ignore": "Si vous n’êtes pas à l’origine de la demande, ignorez cet e-mail : votre mot de passe reste inchangé.",
+    "action": "Choisir un nouveau mot de passe"
+  },
+  "security": {
+    "details": "Appareil : {device} · Adresse : {ipAddress}",
+    "notYou": "Si ce n’était pas vous, changez votre mot de passe et contactez votre administrateur.",
+    "password_changed": {
+      "subject": "Votre mot de passe Canopy a changé",
+      "title": "Mot de passe changé, {name}",
+      "body": "Le mot de passe de votre compte Canopy vient d’être changé et vos autres sessions ont été déconnectées."
+    },
+    "two_factor_enabled": {
+      "subject": "Double authentification activée",
+      "title": "Double authentification activée, {name}",
+      "body": "La connexion à votre compte Canopy demande désormais aussi un code de votre application d’authentification."
+    },
+    "two_factor_disabled": {
+      "subject": "Double authentification désactivée",
+      "title": "Double authentification désactivée, {name}",
+      "body": "La connexion à votre compte Canopy ne demande plus de code d’authentification."
+    },
+    "new_sign_in": {
+      "subject": "Nouvelle connexion à Canopy",
+      "title": "Nouvelle connexion, {name}",
+      "body": "Votre compte Canopy vient d’être utilisé pour se connecter depuis un appareil ou une adresse inhabituels."
+    }
   }
 }

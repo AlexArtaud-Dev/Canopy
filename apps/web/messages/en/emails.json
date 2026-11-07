@@ -8,5 +8,46 @@
     "title": "Email is working",
     "preheader": "Your SMTP settings are correct.",
     "body": "This test confirms that Canopy can send emails with the current settings."
+  },
+  "invitation": {
+    "subject": "You are invited to Canopy",
+    "title": "Welcome, {name}",
+    "preheader": "Choose your password to start using Canopy.",
+    "body": "An administrator created a Canopy account for you. Choose a password to sign in.",
+    "expiry": "This link works once and expires in 7 days.",
+    "action": "Choose my password"
+  },
+  "reset": {
+    "subject": "Reset your Canopy password",
+    "title": "Password reset for {name}",
+    "preheader": "Choose a new password.",
+    "body": "Someone asked to reset the password of your Canopy account. Choose a new one with the button below.",
+    "expiry": "This link works once and expires in 1 hour.",
+    "ignore": "If you did not ask for it, ignore this email: your password stays the same.",
+    "action": "Choose a new password"
+  },
+  "security": {
+    "details": "Device: {device} · Address: {ipAddress}",
+    "notYou": "If this was not you, change your password and contact your administrator.",
+    "password_changed": {
+      "subject": "Your Canopy password changed",
+      "title": "Password changed, {name}",
+      "body": "The password of your Canopy account was just changed and your other sessions were signed out."
+    },
+    "two_factor_enabled": {
+      "subject": "Two-factor authentication is on",
+      "title": "Two-factor turned on, {name}",
+      "body": "Signing in to your Canopy account now also asks for a code from your authenticator app."
+    },
+    "two_factor_disabled": {
+      "subject": "Two-factor authentication is off",
+      "title": "Two-factor turned off, {name}",
+      "body": "Signing in to your Canopy account no longer asks for an authenticator code."
+    },
+    "new_sign_in": {
+      "subject": "New sign-in to Canopy",
+      "title": "New sign-in, {name}",
+      "body": "Your Canopy account was just used to sign in from a device or address it had not used recently."
+    }
   }
 }
