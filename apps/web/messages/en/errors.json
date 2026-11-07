@@ -8,7 +8,8 @@
     "database_not_configured": "The database connection is not configured. Ask your administrator to set CANOPY_DATABASE_URL.",
     "encryption_key_missing": "Secret storage is not configured. Ask your administrator to set CANOPY_ENCRYPTION_KEY.",
     "encryption_key_invalid": "The encryption key is invalid. It must be 32 random bytes encoded in base64.",
-    "secret_undecryptable": "A stored secret could not be read. It may have been encrypted with a key that is no longer configured."
+    "secret_undecryptable": "A stored secret could not be read. It may have been encrypted with a key that is no longer configured.",
+    "rate_limited": "Too many attempts. Wait {retryAfter, plural, one {# second} other {# seconds}} and try again."
   },
   "settings": {
     "unknown_key": "This setting does not exist (“{key}”).",

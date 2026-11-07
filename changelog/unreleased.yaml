@@ -27,3 +27,10 @@ entries:
       en: Clear error and not-found pages with a retry button and a reference to share with your administrator
       fr: Pages d’erreur et de page introuvable claires, avec un bouton Réessayer et une référence à transmettre à votre administrateur
       es: Páginas de error y de página no encontrada claras, con un botón Reintentar y una referencia para su administrador
+  - type: security
+    scope: web
+    issue: 26
+    text:
+      en: Strict Content Security Policy, hardened HTTP headers and rate limiting
+      fr: Politique de sécurité du contenu stricte, en-têtes HTTP renforcés et limitation du débit
+      es: Política de seguridad de contenido estricta, cabeceras HTTP reforzadas y limitación de peticiones

@@ -9,6 +9,7 @@ import { parseServerEnv } from '@/shared/config/env';
 import { logger, type Logger } from '@/shared/lib/logger';
 
 import { parseTrustedNetworks, readPeerHeader, resolveClientIp } from './client-ip';
+import { resolveRequestId } from './request-id';
 
 export interface RequestContext {
   requestId: string;
@@ -16,8 +17,6 @@ export interface RequestContext {
   clientIp: string | undefined;
   logger: Logger;
 }
-
-const requestIdPattern = /^[\w-]{8,128}$/;
 
 let trustedNetworks: ReturnType<typeof parseTrustedNetworks> | undefined;
 
@@ -29,8 +28,8 @@ function getTrustedNetworks() {
 /** Per-request context, memoized for the duration of one server render or action. */
 export const getRequestContext = cache(async (): Promise<RequestContext> => {
   const headerStore = await headers();
-  const incomingId = headerStore.get('x-request-id');
-  const requestId = incomingId && requestIdPattern.test(incomingId) ? incomingId : randomUUID();
+  // proxy.ts already resolved it for pages and actions; this covers routes it skips.
+  const requestId = resolveRequestId(headerStore.get('x-request-id'), randomUUID);
 
   const clientIp = resolveClientIp({
     peer: readPeerHeader(headerStore.get('x-canopy-peer'), process.env.CANOPY_PEER_NONCE),

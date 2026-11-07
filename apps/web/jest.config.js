@@ -12,6 +12,9 @@ const config = {
   collectCoverageFrom: [
     'src/**/*.{utils,nav}.ts',
     'src/shared/request/client-ip.ts',
+    'src/shared/request/request-id.ts',
+    'src/shared/security/csp.ts',
+    'src/shared/rate-limit/rate-limit.utils.ts',
     'src/shared/errors/error-key.ts',
     'src/shared/secrets/envelope.ts',
     'src/shared/modules/registry.ts',

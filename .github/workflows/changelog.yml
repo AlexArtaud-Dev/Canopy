@@ -1,0 +1,37 @@
+name: Changelog
+
+# Separate from CI because label changes must re-run this check, and re-running the whole CI on
+# every label event would race with (and cancel) the run started when the PR was opened.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: changelog-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  entry:
+    name: Changelog entry
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Skip when labelled no-changelog
+        if: contains(github.event.pull_request.labels.*.name, 'no-changelog')
+        run: echo "no-changelog label present"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: "!contains(github.event.pull_request.labels.*.name, 'no-changelog')"
+        with:
+          fetch-depth: 0
+      - name: Require an entry in changelog/unreleased.yaml
+        if: "!contains(github.event.pull_request.labels.*.name, 'no-changelog')"
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          if ! git diff --name-only "origin/${BASE_REF}...HEAD" | grep -qx 'changelog/unreleased.yaml'; then
+            echo "::error::Add an entry to changelog/unreleased.yaml (en/fr/es) or label the PR 'no-changelog' with a justification."
+            exit 1
+          fi
