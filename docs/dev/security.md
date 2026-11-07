@@ -16,6 +16,11 @@
 - An upstream SSO layer (e.g. Authelia) may sit in front; Canopy still requires its own login.
 - Headers: strict CSP with nonces, `frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`,
   `Referrer-Policy`, `Permissions-Policy`. Secure cookies when the public URL is https.
+  - `src/proxy.ts` mints a nonce and request ID per request; the CSP comes from
+    `shared/security/csp.ts` (styles keep `'unsafe-inline'` for Radix positioning; `'unsafe-eval'`
+    only in development). Static headers are set in `next.config.ts`. HSTS belongs to the TLS proxy.
+  - The proxy matcher MUST exclude `/engine/*` and any upload route: matched requests get their
+    body cloned and buffered (see streaming.md).
 - The engine port is never published; it lives on the internal Docker network only.
 
 ## Maintenance / lockdown mode
@@ -35,7 +40,11 @@
 ## Request hardening
 
 - Rate limiting per IP and per user (stricter on auth endpoints) — settings.
+  `enforceRateLimit(scope, subject, { limit, windowSeconds })` (`shared/rate-limit`) counts in
+  Postgres with one atomic upsert (shared by every instance) and throws `system.rate_limited`
+  with `retryAfter`.
 - CSRF: origin check on server actions + SameSite cookies; engine endpoints use bearer tokens, not cookies.
+  Next.js already rejects server actions whose `Origin` differs from the host.
 - Strict CORS: same-origin only.
 - All inputs Zod-validated (web) and re-validated (engine).
 

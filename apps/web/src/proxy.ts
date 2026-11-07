@@ -1,0 +1,40 @@
+import { NextResponse, type NextRequest } from 'next/server';
+
+import { resolveRequestId } from '@/shared/request/request-id';
+import { buildContentSecurityPolicy } from '@/shared/security/csp';
+
+// Next.js 16 "proxy" (formerly middleware). Keep it cheap: it runs before every matched request.
+export function proxy(request: NextRequest): NextResponse {
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  const policy = buildContentSecurityPolicy(nonce, process.env.NODE_ENV === 'development');
+
+  // Next reads the CSP from the request to put the nonce on its own scripts; pages read `x-nonce`.
+  const requestId = resolveRequestId(request.headers.get('x-request-id'), () =>
+    crypto.randomUUID(),
+  );
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-request-id', requestId);
+  requestHeaders.set('x-nonce', nonce);
+  requestHeaders.set('content-security-policy', policy);
+
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  response.headers.set('Content-Security-Policy', policy);
+  // Lets users and admins correlate a page with server logs.
+  response.headers.set('X-Request-Id', requestId);
+  return response;
+}
+
+export const config = {
+  matcher: [
+    {
+      /*
+       * Skip streaming and asset routes. `/engine/*` and `/api/engine/*` MUST stay excluded: a
+       * matched request has its body cloned and buffered (10 MiB cap), which breaks uploads.
+       * See docs/dev/streaming.md.
+       */
+      source: '/((?!engine|api/engine|api/health|_next/static|_next/image|favicon.ico).*)',
+      missing: [{ type: 'header', key: 'next-router-prefetch' }],
+    },
+  ],
+};
