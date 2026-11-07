@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import type { GlobalPermission } from '@/shared/modules/module.types';
 
 /** Stored in a role to mean "every permission, including ones declared later" (Admin). */
@@ -38,3 +40,40 @@ export function sanitizeRolePermissions(
 export function twoFactorRequired(groups: readonly { requireTwoFactor: boolean }[]): boolean {
   return groups.some((group) => group.requireTwoFactor);
 }
+
+export interface PermissionRow {
+  module: string;
+  actions: { action: string; permission: GlobalPermission }[];
+}
+
+/** Rows of the role editor's matrix: one per module, its actions in declaration order. */
+export function permissionMatrix(declared: readonly GlobalPermission[]): PermissionRow[] {
+  const rows = new Map<string, PermissionRow>();
+  for (const permission of declared) {
+    const separator = permission.indexOf(':');
+    const moduleId = permission.slice(0, separator);
+    const action = permission.slice(separator + 1);
+    const row = rows.get(moduleId) ?? { module: moduleId, actions: [] };
+    row.actions.push({ action, permission });
+    rows.set(moduleId, row);
+  }
+  return [...rows.values()];
+}
+
+export const roleInputSchema = z.object({
+  roleId: z.uuid().optional(),
+  name: z.string().trim().min(1).max(64),
+  description: z.string().trim().max(200),
+  permissions: z.array(z.string().max(80)).max(200),
+});
+
+export const groupInputSchema = z.object({
+  groupId: z.uuid().optional(),
+  name: z.string().trim().min(1).max(64),
+  description: z.string().trim().max(200),
+  requireTwoFactor: z.boolean(),
+  roleIds: z.array(z.uuid()).max(50),
+  memberIds: z.array(z.string().min(1).max(64)).max(5000),
+});
+
+export const entityIdSchema = z.object({ id: z.uuid() });

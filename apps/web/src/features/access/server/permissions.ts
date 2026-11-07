@@ -6,8 +6,14 @@ import { appRegistry } from '@/modules';
 import { getDb } from '@/shared/db/client';
 import type { GlobalPermission } from '@/shared/modules/module.types';
 
-import { effectivePermissions } from '../access.utils';
-import { groupMembersTable, groupRolesTable, rolesTable, userRolesTable } from './access.schema';
+import { effectivePermissions, twoFactorRequired } from '../access.utils';
+import {
+  groupMembersTable,
+  groupRolesTable,
+  groupsTable,
+  rolesTable,
+  userRolesTable,
+} from './access.schema';
 
 /** Global permissions of a user: roles assigned directly plus those of their groups. */
 export async function loadPermissions(userId: string): Promise<GlobalPermission[]> {
@@ -37,4 +43,14 @@ export async function assignBuiltInRoles(userId: string, keys: readonly string[]
     .insert(userRolesTable)
     .values(roles.map((role) => ({ userId, roleId: role.id })))
     .onConflictDoNothing();
+}
+
+/** True when one of the user's groups requires two-factor authentication. */
+export async function groupsRequireTwoFactor(userId: string): Promise<boolean> {
+  const rows = await getDb()
+    .select({ require: groupsTable.requireTwoFactor })
+    .from(groupMembersTable)
+    .innerJoin(groupsTable, eq(groupsTable.id, groupMembersTable.groupId))
+    .where(eq(groupMembersTable.userId, userId));
+  return twoFactorRequired(rows.map((row) => ({ requireTwoFactor: row.require })));
 }

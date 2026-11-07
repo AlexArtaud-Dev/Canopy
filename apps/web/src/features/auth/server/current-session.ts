@@ -9,7 +9,8 @@ import { getDb } from '@/shared/db/client';
 import { getRequestContext, isLocalRequest } from '@/shared/request/request-context';
 import { getSettings } from '@/features/settings/server/settings-store';
 import { adminPermission } from '@/features/access/access.utils';
-import { loadPermissions } from '@/features/access/server/permissions';
+import { groupsRequireTwoFactor, loadPermissions } from '@/features/access/server/permissions';
+import { hasTotpEnabled } from './totp-factor';
 import type { GlobalPermission } from '@/shared/modules/module.types';
 
 import { authSettings } from '../auth.settings';
@@ -26,6 +27,8 @@ export interface SessionUser {
   permissions: readonly GlobalPermission[];
   /** Holds `system:admin`. */
   isAdmin: boolean;
+  /** A group requires 2FA and the user has not set it up yet. */
+  twoFactorSetupRequired: boolean;
 }
 
 export interface CurrentSession {
@@ -107,8 +110,10 @@ export const getSessionState = cache(async (): Promise<SessionState> => {
   if (verdict === 'pending') {
     return { kind: 'pending', sessionId: result.session.id, userId: result.user.id };
   }
-  const [permissions] = await Promise.all([
+  const [permissions, groupRequires2fa, totpEnabled] = await Promise.all([
     loadPermissions(result.user.id),
+    groupsRequireTwoFactor(result.user.id),
+    hasTotpEnabled(result.user.id),
     recordActivity(result.session.id),
   ]);
   const { user } = result;
@@ -122,6 +127,7 @@ export const getSessionState = cache(async (): Promise<SessionState> => {
       contactEmail: user.contactEmail ?? null,
       permissions,
       isAdmin: permissions.includes(adminPermission),
+      twoFactorSetupRequired: groupRequires2fa && !totpEnabled,
     },
   };
 });
@@ -156,9 +162,17 @@ export async function setupBlocker(): Promise<'already_done' | 'not_local' | nul
  * Gate for every protected page, layout and server action: no session → login (or the setup
  * wizard when the instance has no account yet).
  */
-export async function requireSession(): Promise<CurrentSession> {
+export async function requireSession(
+  options: { allowTwoFactorSetup?: boolean } = {},
+): Promise<CurrentSession> {
   const state = await getSessionState();
-  if (state.kind === 'active') return { sessionId: state.sessionId, user: state.user };
+  if (state.kind === 'active') {
+    // A group demands 2FA: nothing else is reachable until it is set up.
+    if (state.user.twoFactorSetupRequired && !options.allowTwoFactorSetup) {
+      redirect('/two-factor/setup');
+    }
+    return { sessionId: state.sessionId, user: state.user };
+  }
   if (state.kind === 'pending') redirect('/login/verify');
   redirect((await hasAnyUser()) ? '/login' : '/setup');
 }

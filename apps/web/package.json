@@ -10,7 +10,7 @@
     "start": "node --import ./server/peer-address.mjs ./node_modules/next/dist/bin/next start --port 3000",
     "lint": "next typegen && eslint --max-warnings 0 .",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "jest --coverage",
+    "test": "jest --coverage --runInBand",
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate"
   },

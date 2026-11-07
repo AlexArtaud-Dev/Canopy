@@ -30,10 +30,15 @@
     "totp_not_enabled": "La verificación en dos pasos está desactivada.",
     "cannot_revoke_current": "Usa «Cerrar sesión» en el menú de la cuenta para terminar esta sesión.",
     "forbidden": "No tienes permiso para hacer esto. Pide acceso a un administrador.",
-    "ip_blocked": "Demasiados intentos fallidos desde tu red. Vuelve a intentarlo en {minutes, plural, one {# minuto} other {# minutos}}."
+    "ip_blocked": "Demasiados intentos fallidos desde tu red. Vuelve a intentarlo en {minutes, plural, one {# minuto} other {# minutos}}.",
+    "two_factor_required": "Uno de tus grupos exige la verificación en dos pasos, así que no se puede desactivar."
   },
   "users": {
     "last_admin": "Canopy necesita al menos un administrador activo. Da antes el rol Administrador a otra cuenta.",
     "not_on_self": "Gestiona tu propia cuenta desde la página Cuenta."
+  },
+  "access": {
+    "name_taken": "Este nombre ya está en uso.",
+    "built_in_role": "Los roles integrados se pueden editar pero no eliminar."
   }
 }

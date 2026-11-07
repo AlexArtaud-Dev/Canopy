@@ -7,7 +7,9 @@
   "nav": {
     "files": "Fichiers",
     "system": "État du système",
-    "users": "Utilisateurs"
+    "users": "Utilisateurs",
+    "groups": "Groupes",
+    "roles": "Rôles"
   },
   "preferences": {
     "appearance": "Apparence",

@@ -3,5 +3,99 @@
     "admin": "Administrador",
     "editor": "Editor",
     "viewer": "Lector"
+  },
+  "modules": {
+    "users": "Usuarios",
+    "groups": "Grupos",
+    "roles": "Roles",
+    "settings": "Ajustes",
+    "audit": "Registro de auditoría",
+    "system": "Sistema"
+  },
+  "actions": {
+    "read": "Ver",
+    "create": "Crear",
+    "update": "Editar",
+    "delete": "Eliminar",
+    "export": "Exportar",
+    "admin": "Administrar"
+  },
+  "roles": {
+    "metaTitle": "Roles",
+    "title": "Roles",
+    "description": "Los roles agrupan permisos. Asígnalos a usuarios directamente o mediante grupos.",
+    "add": "Nuevo rol",
+    "allPermissions": "Todos los permisos",
+    "permissionCount": "{count, plural, one {# permiso} other {# permisos}}",
+    "usage": "{users, plural, one {# usuario} other {# usuarios}} · {groups, plural, one {# grupo} other {# grupos}}",
+    "builtIn": "Integrado",
+    "menu": "Acciones para {name}",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "form": {
+      "createTitle": "Nuevo rol",
+      "editTitle": "Editar {name}",
+      "name": "Nombre",
+      "builtInName": "Los roles integrados conservan su nombre.",
+      "description": "Descripción",
+      "fullAccess": "Acceso completo",
+      "fullAccessHint": "Todos los permisos, incluidos los de módulos añadidos más adelante. Incluye administrar Canopy.",
+      "permissions": "Permisos",
+      "save": "Guardar",
+      "create": "Crear rol",
+      "errors": {
+        "name": "Introduce un nombre de 64 caracteres como máximo.",
+        "description": "La descripción debe tener menos de 200 caracteres."
+      }
+    },
+    "confirmDelete": {
+      "title": "¿Eliminar el rol {name}?",
+      "description": "Los usuarios y grupos que lo tienen pierden sus permisos de inmediato."
+    },
+    "toasts": {
+      "saved": "Rol guardado",
+      "deleted": "Rol eliminado"
+    }
+  },
+  "groups": {
+    "metaTitle": "Grupos",
+    "title": "Grupos",
+    "description": "Los grupos reúnen usuarios para aplicarles roles y requisitos a la vez.",
+    "add": "Nuevo grupo",
+    "empty": {
+      "title": "Todavía no hay grupos",
+      "description": "Crea un grupo para gestionar a varias personas a la vez."
+    },
+    "members": "{count, plural, one {# miembro} other {# miembros}}",
+    "requireTwoFactor": "2FA obligatoria",
+    "noRoles": "Sin rol",
+    "menu": "Acciones para {name}",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "form": {
+      "createTitle": "Nuevo grupo",
+      "editTitle": "Editar {name}",
+      "name": "Nombre",
+      "description": "Descripción",
+      "requireTwoFactor": "Exigir verificación en dos pasos",
+      "requireTwoFactorHint": "Los miembros que no la tengan deberán configurarla en la próxima carga de página.",
+      "roles": "Roles",
+      "members": "Miembros",
+      "searchMembers": "Filtrar personas",
+      "save": "Guardar",
+      "create": "Crear grupo",
+      "errors": {
+        "name": "Introduce un nombre de 64 caracteres como máximo.",
+        "description": "La descripción debe tener menos de 200 caracteres."
+      }
+    },
+    "confirmDelete": {
+      "title": "¿Eliminar el grupo {name}?",
+      "description": "Los miembros conservan su cuenta pero pierden los roles y requisitos de este grupo."
+    },
+    "toasts": {
+      "saved": "Grupo guardado",
+      "deleted": "Grupo eliminado"
+    }
   }
 }

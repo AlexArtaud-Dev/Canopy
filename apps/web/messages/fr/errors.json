@@ -30,10 +30,15 @@
     "totp_not_enabled": "La double authentification est désactivée.",
     "cannot_revoke_current": "Utilisez « Se déconnecter » dans le menu du compte pour fermer cette session.",
     "forbidden": "Vous n’avez pas l’autorisation de faire cela. Demandez l’accès à un administrateur.",
-    "ip_blocked": "Trop de tentatives échouées depuis votre réseau. Réessayez dans {minutes, plural, one {# minute} other {# minutes}}."
+    "ip_blocked": "Trop de tentatives échouées depuis votre réseau. Réessayez dans {minutes, plural, one {# minute} other {# minutes}}.",
+    "two_factor_required": "L’un de vos groupes exige la double authentification : elle ne peut pas être désactivée."
   },
   "users": {
     "last_admin": "Canopy a besoin d’au moins un administrateur actif. Donnez d’abord le rôle Administrateur à un autre compte.",
     "not_on_self": "Gérez votre propre compte depuis la page Compte."
+  },
+  "access": {
+    "name_taken": "Ce nom est déjà utilisé.",
+    "built_in_role": "Les rôles intégrés peuvent être modifiés mais pas supprimés."
   }
 }

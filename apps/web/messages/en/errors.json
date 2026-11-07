@@ -30,10 +30,15 @@
     "totp_not_enabled": "Two-factor authentication is off.",
     "cannot_revoke_current": "Use “Sign out” in the account menu to end this session.",
     "forbidden": "You don't have permission to do this. Ask an administrator for access.",
-    "ip_blocked": "Too many failed attempts from your network. Try again in {minutes, plural, one {# minute} other {# minutes}}."
+    "ip_blocked": "Too many failed attempts from your network. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
+    "two_factor_required": "One of your groups requires two-factor authentication, so it cannot be turned off."
   },
   "users": {
     "last_admin": "Canopy needs at least one active administrator. Give another account the Admin role first.",
     "not_on_self": "Manage your own account from the Account page."
+  },
+  "access": {
+    "name_taken": "This name is already used.",
+    "built_in_role": "Built-in roles can be edited but not deleted."
   }
 }

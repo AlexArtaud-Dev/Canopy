@@ -21,7 +21,9 @@ import {
   resetPasswordSchema,
   userTargetSchema,
 } from '../users.utils';
-import { activeAdminIds, rolesGrantAdmin, setUserRoles } from './users-store';
+import { activeAdminIds } from '@/features/access/server/admin-guard';
+
+import { rolesGrantAdmin, setUserRoles } from './users-store';
 
 function parse<T>(schema: z.ZodType<T>, input: unknown): T {
   const parsed = schema.safeParse(input);
