@@ -1,6 +1,10 @@
 export { permissionMatrix } from './access.utils';
 export { GroupMembersContainer } from './group-members.container';
 export { GroupsContainer } from './groups.container';
+export { GroupTabs } from './ui/group-tabs';
 export { isBuiltInRoleKey } from './role-label';
 export { RolesContainer } from './roles.container';
 export { getGroup, listGroups, listMemberOptions, listRoles } from './server/access-store';
+export { AccessCheckContainer } from './access-check.container';
+export { getUserAccessOverview } from './server/user-access';
+export { InheritedGrantsCard, PermissionsCard } from './ui/access-overview';

@@ -7,13 +7,13 @@ import { z } from 'zod';
 
 import {
   getGroup,
+  GroupTabs,
   GroupMembersContainer,
   isBuiltInRoleKey,
   listMemberOptions,
   listRoles,
 } from '@/features/access';
 import { authorizePage, initialsOf } from '@/features/auth';
-import { GrantsContainer, listGrants } from '@/features/files';
 import { AccessDenied, PageHeader } from '@/features/shell';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
@@ -28,16 +28,14 @@ interface GroupPageProps {
 }
 
 export default async function GroupPage({ params }: GroupPageProps) {
-  const session = await authorizePage('groups:read');
-  if (!session) return <AccessDenied />;
+  if (!(await authorizePage('groups:read'))) return <AccessDenied />;
   const parsed = z.uuid().safeParse((await params).groupId);
   if (!parsed.success) notFound();
-  const [t, group, roles, people, grants] = await Promise.all([
+  const [t, group, roles, people] = await Promise.all([
     getTranslations('access'),
     getGroup(parsed.data),
     listRoles(),
     listMemberOptions(),
-    listGrants({ subjectType: 'group', subjectId: parsed.data }),
   ]);
   if (!group) notFound();
 
@@ -81,16 +79,11 @@ export default async function GroupPage({ params }: GroupPageProps) {
             ))}
           </div>
         </div>
+        <GroupTabs groupId={group.id} current="members" />
         <GroupMembersContainer
           groupId={group.id}
           members={group.members.map(toPerson)}
           candidates={people.filter((person) => !memberIds.has(person.id)).map(toPerson)}
-        />
-        <GrantsContainer
-          subjectType="group"
-          subjectId={group.id}
-          grants={grants.ok ? grants.data : []}
-          canEdit={session.user.permissions.includes('groups:update')}
         />
       </main>
     </>

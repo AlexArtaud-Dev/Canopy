@@ -36,7 +36,6 @@
       "title": "¿Quitar el acceso a {path}?",
       "description": "El cambio se aplica en la próxima petición de las personas afectadas."
     },
-    "pageDescription": "Lo que esta persona puede alcanzar en las carpetas gestionadas.",
     "actionNames": {
       "read": "Ver",
       "download": "Descargar",

@@ -10,6 +10,7 @@ import {
   permissionMatrix,
   roleInputSchema,
   sanitizeRolePermissions,
+  tracePermissions,
   twoFactorRequired,
 } from './access.utils';
 
@@ -103,5 +104,29 @@ describe('input schemas', () => {
         userIds: [],
       }).success,
     ).toBe(false);
+  });
+});
+
+describe('tracePermissions', () => {
+  it('lists every role, direct or through a group, granting each permission', () => {
+    expect(
+      tracePermissions(
+        [
+          { roleName: 'Viewer', groupName: null, permissions: ['system:read'] },
+          { roleName: 'Admin', groupName: 'Ops', permissions: ['*'] },
+        ],
+        ['users:read', 'system:read'],
+      ),
+    ).toEqual([
+      { permission: 'users:read', sources: [{ roleName: 'Admin', groupName: 'Ops' }] },
+      {
+        permission: 'system:read',
+        sources: [
+          { roleName: 'Viewer', groupName: null },
+          { roleName: 'Admin', groupName: 'Ops' },
+        ],
+      },
+    ]);
+    expect(tracePermissions([], ['users:read'])).toEqual([]);
   });
 });

@@ -112,6 +112,41 @@
         "title": "Aucun membre",
         "description": "Ajoutez des personnes ci-dessus pour leur appliquer les rôles et exigences de ce groupe."
       }
+    },
+    "tabs": {
+      "members": "Membres",
+      "access": "Accès aux dossiers",
+      "label": "Sections du groupe"
+    },
+    "folderAccess": "Accès aux dossiers"
+  },
+  "userAccess": {
+    "title": "Accès",
+    "description": "ce que cette personne peut faire dans Canopy, et pourquoi.",
+    "administrator": "Administrateur",
+    "noGroups": "Dans aucun groupe",
+    "permissionsTitle": "Permissions",
+    "permissionsDescription": "Droits d’administration, avec le rôle (et le groupe) qui accorde chacun.",
+    "noPermissions": "Aucun droit d’administration.",
+    "direct": "{role}",
+    "viaGroup": "{role} via {group}",
+    "inheritedTitle": "Règles de dossiers des groupes",
+    "inheritedDescription": "Règles des groupes de cette personne. Modifiez-les sur la page d’accès aux dossiers de chaque groupe.",
+    "noInherited": "Aucune règle ne vient d’un groupe.",
+    "fromGroup": "de {group}",
+    "checkTitle": "Vérifier un dossier",
+    "checkDescription": "Choisissez un dossier pour voir, action par action, si cette personne peut la faire et quelle règle a décidé, comme le moteur l’applique.",
+    "checkButton": "Vérifier {path}",
+    "allowed": "Autorisé",
+    "denied": "Refusé",
+    "byAdmin": "Administrateur : les règles ne s’appliquent pas",
+    "noRule": "Aucune règle : refusé par défaut",
+    "ownRule": "Règle personnelle",
+    "groupRule": "Règle de {group}",
+    "columns": {
+      "action": "Action",
+      "result": "Résultat",
+      "decidedBy": "Décidé par"
     }
   }
 }

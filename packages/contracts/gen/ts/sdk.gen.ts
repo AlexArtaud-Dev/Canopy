@@ -5,6 +5,9 @@ import * as z from 'zod';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
 import type {
+  ExplainAccessData,
+  ExplainAccessErrors,
+  ExplainAccessResponses,
   GetLivenessData,
   GetLivenessResponses,
   GetReadinessData,
@@ -15,6 +18,8 @@ import type {
   ListDirectoryResponses,
 } from './types.gen';
 import {
+  zExplainAccessBody,
+  zExplainAccessResponse,
   zGetLivenessResponse,
   zGetReadinessResponse,
   zListDirectoryQuery,
@@ -102,4 +107,31 @@ export const listDirectory = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v1/fs/list',
     ...options,
+  });
+
+/**
+ * Explain a person's access to a folder
+ *
+ * For each path action, whether the given person (and their groups) may do it on the path and which rule decided. Only for callers holding `users:read`; used by the user access page so administrators can trace permissions with the engine's own resolution.
+ */
+export const explainAccess = <ThrowOnError extends boolean = false>(
+  options: Options<ExplainAccessData, ThrowOnError>,
+): RequestResult<ExplainAccessResponses, ExplainAccessErrors, ThrowOnError> =>
+  (options.client ?? client).post<ExplainAccessResponses, ExplainAccessErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zExplainAccessBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zExplainAccessResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/authz/explain',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });

@@ -36,7 +36,7 @@
     "disable": "Désactiver",
     "enable": "Activer",
     "delete": "Supprimer",
-    "folderAccess": "Accès aux dossiers"
+    "folderAccess": "Accès et permissions"
   },
   "form": {
     "createTitle": "Nouvel utilisateur",

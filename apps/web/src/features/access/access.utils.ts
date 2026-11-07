@@ -81,3 +81,34 @@ export const groupMembersInputSchema = z.object({
 });
 
 export const entityIdSchema = z.object({ id: z.uuid() });
+
+export interface RoleSource {
+  roleName: string;
+  /** Set when the role reaches the user through a group. */
+  groupName: string | null;
+  permissions: readonly string[];
+}
+
+export interface PermissionTrace {
+  permission: GlobalPermission;
+  /** Every role (direct or through a group) granting it. */
+  sources: { roleName: string; groupName: string | null }[];
+}
+
+/** For each declared permission the user holds, the roles and groups it comes from. */
+export function tracePermissions(
+  sources: readonly RoleSource[],
+  declared: readonly GlobalPermission[],
+): PermissionTrace[] {
+  return declared
+    .map((permission) => ({
+      permission,
+      sources: sources
+        .filter(
+          (source) =>
+            source.permissions.includes(allPermissions) || source.permissions.includes(permission),
+        )
+        .map(({ roleName, groupName }) => ({ roleName, groupName })),
+    }))
+    .filter((trace) => trace.sources.length > 0);
+}

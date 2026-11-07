@@ -26,7 +26,7 @@ func NewStore(db Querier) *Store {
 }
 
 const grantsQuery = `
-SELECT subject_type, subject_id, path, actions, effect FROM app.path_grants
+SELECT id::text, subject_type, subject_id, path, actions, effect FROM app.path_grants
 WHERE (subject_type = 'user' AND subject_id = $1)
    OR (subject_type = 'group' AND subject_id = ANY($2::text[]))`
 
@@ -42,7 +42,7 @@ func (s *Store) GrantsFor(ctx context.Context, subject authz.Subject) ([]authz.G
 	}
 	grants, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (authz.Grant, error) {
 		var grant authz.Grant
-		scanErr := row.Scan(&grant.SubjectType, &grant.SubjectID, &grant.Path, &grant.Actions, &grant.Effect)
+		scanErr := row.Scan(&grant.ID, &grant.SubjectType, &grant.SubjectID, &grant.Path, &grant.Actions, &grant.Effect)
 		return grant, scanErr //nolint:wrapcheck // wrapped below with the query context
 	})
 	if err != nil {

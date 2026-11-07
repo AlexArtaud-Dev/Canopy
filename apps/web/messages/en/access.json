@@ -112,6 +112,41 @@
         "title": "No member yet",
         "description": "Add people above to apply this group's roles and requirements."
       }
+    },
+    "tabs": {
+      "members": "Members",
+      "access": "Folder access",
+      "label": "Group sections"
+    },
+    "folderAccess": "Folder access"
+  },
+  "userAccess": {
+    "title": "Access",
+    "description": "what this person can do in Canopy, and why.",
+    "administrator": "Administrator",
+    "noGroups": "In no group",
+    "permissionsTitle": "Permissions",
+    "permissionsDescription": "Administration rights, with the role (and group) granting each one.",
+    "noPermissions": "No administration right.",
+    "direct": "{role}",
+    "viaGroup": "{role} via {group}",
+    "inheritedTitle": "Folder rules from groups",
+    "inheritedDescription": "Rules of this person’s groups. Edit them on each group’s folder access page.",
+    "noInherited": "No rule comes from a group.",
+    "fromGroup": "from {group}",
+    "checkTitle": "Check a folder",
+    "checkDescription": "Pick a folder to see, for each action, whether this person may do it and which rule decided, as the engine enforces it.",
+    "checkButton": "Check {path}",
+    "allowed": "Allowed",
+    "denied": "Denied",
+    "byAdmin": "Administrator: rules do not apply",
+    "noRule": "No matching rule: denied by default",
+    "ownRule": "Own rule",
+    "groupRule": "Rule of {group}",
+    "columns": {
+      "action": "Action",
+      "result": "Result",
+      "decidedBy": "Decided by"
     }
   }
 }

@@ -120,3 +120,23 @@ func TestMayTraverse(t *testing.T) {
 		t.Fatal("admin traverses everything")
 	}
 }
+
+func TestExplain(t *testing.T) {
+	decision := Explain(docGrants, alice, "/media/private/x", "read")
+	if !decision.Allowed || decision.ByAdmin || decision.Grant == nil ||
+		decision.Grant.SubjectType != SubjectUser || decision.Grant.Path != "/media/private" {
+		t.Fatalf("alice: %+v", decision)
+	}
+	denied := Explain(docGrants, bob, "/media/private", "read")
+	if denied.Allowed || denied.Grant == nil || denied.Grant.Effect != EffectDeny {
+		t.Fatalf("bob: %+v", denied)
+	}
+	none := Explain(docGrants, carol, "/media", "read")
+	if none.Allowed || none.Grant != nil {
+		t.Fatalf("carol: %+v", none)
+	}
+	byAdmin := Explain(nil, admin, "/x", "delete")
+	if !byAdmin.Allowed || !byAdmin.ByAdmin {
+		t.Fatalf("admin: %+v", byAdmin)
+	}
+}

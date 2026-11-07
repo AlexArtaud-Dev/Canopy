@@ -161,9 +161,12 @@ export function GroupsContainer({
                       <MoreHorizontal aria-hidden />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="w-64">
                     <DropdownMenuItem asChild>
                       <Link href={`/admin/groups/${group.id}`}>{t('manageMembers')}</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/admin/groups/${group.id}/access`}>{t('folderAccess')}</Link>
                     </DropdownMenuItem>
                     {canUpdate && (
                       <DropdownMenuItem
