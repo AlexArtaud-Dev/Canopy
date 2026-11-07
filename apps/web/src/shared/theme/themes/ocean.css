@@ -1,0 +1,20 @@
+/* ocean: the default theme's tokens with hue 245; lightness and chroma unchanged keep the contrast ratios. */
+:root[data-theme='ocean'] {
+  --primary: oklch(0.47 0.09 245);
+  --primary-foreground: oklch(0.985 0.01 245);
+  --ring: oklch(0.62 0.09 245);
+  --chart-1: oklch(0.62 0.11 245);
+  --sidebar-primary: oklch(0.47 0.09 245);
+  --sidebar-primary-foreground: oklch(0.985 0.01 245);
+  --sidebar-ring: oklch(0.62 0.09 245);
+}
+
+:root[data-theme='ocean'].dark {
+  --primary: oklch(0.76 0.11 245);
+  --primary-foreground: oklch(0.22 0.04 245);
+  --ring: oklch(0.6 0.09 245);
+  --chart-1: oklch(0.72 0.12 245);
+  --sidebar-primary: oklch(0.76 0.11 245);
+  --sidebar-primary-foreground: oklch(0.22 0.04 245);
+  --sidebar-ring: oklch(0.6 0.09 245);
+}

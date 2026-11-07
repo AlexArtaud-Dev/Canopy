@@ -20,7 +20,8 @@
   "modules": {
     "auth": "Inicio de sesión y sesiones",
     "audit": "Registro de auditoría",
-    "system": "Sistema"
+    "system": "Sistema",
+    "appearance": "Apariencia"
   },
   "groups": {
     "sessions": "Sesiones",
@@ -28,7 +29,9 @@
     "protection": "Protección contra fuerza bruta",
     "retention": "Conservación",
     "maintenance": "Mantenimiento",
-    "privacy": "Privacidad"
+    "privacy": "Privacidad",
+    "theme": "Tema",
+    "language": "Idioma"
   },
   "fields": {
     "auth": {
@@ -83,6 +86,40 @@
       "mailRetentionDays": {
         "label": "Conservar correos enviados (días)",
         "description": "Destinatario, asunto y contenido de los correos enviados o fallidos se borran pasado este plazo."
+      }
+    },
+    "appearance": {
+      "colorTheme": {
+        "label": "Tema de color",
+        "description": "Color de acento de toda la interfaz, para todos."
+      },
+      "defaultMode": {
+        "label": "Modo por defecto",
+        "description": "Claro u oscuro para quien no lo haya elegido en su dispositivo; Sistema sigue su dispositivo."
+      },
+      "defaultLocale": {
+        "label": "Idioma por defecto",
+        "description": "Se usa cuando un visitante no ha elegido idioma y los de su navegador no están disponibles."
+      }
+    }
+  },
+  "options": {
+    "appearance": {
+      "colorTheme": {
+        "canopy": "Canopy (verde)",
+        "ocean": "Océano (azul)",
+        "violet": "Violeta",
+        "amber": "Ámbar"
+      },
+      "defaultMode": {
+        "system": "Sistema",
+        "light": "Claro",
+        "dark": "Oscuro"
+      },
+      "defaultLocale": {
+        "en": "English",
+        "fr": "Français",
+        "es": "Español"
       }
     }
   }

@@ -3,7 +3,7 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 import { staticSecurityHeaders } from './src/shared/security/csp';
 
-const withNextIntl = createNextIntlPlugin('./src/shared/i18n/request.ts');
+const withNextIntl = createNextIntlPlugin('./src/i18n.request.ts');
 
 const nextConfig: NextConfig = {
   output: 'standalone',

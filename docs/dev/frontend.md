@@ -32,6 +32,10 @@ Dependency direction is one-way: `ui ← container ← model ← server/contract
 - Light/dark: next-themes (`class` strategy, `system` default).
 - Color themes: `data-theme="<name>"` redefines tokens in `shared/theme/themes/<name>.css`
   (light + dark blocks). Adding a theme = adding one token file and registering it.
+  Registry: `shared/theme/color-themes.ts`; the instance theme, default light/dark mode and
+  default language are `appearance` settings (`/admin/settings`), applied in the root layout and
+  `src/i18n.request.ts`. Themes keep the default tokens' lightness and chroma (hue only), so
+  contrast stays WCAG AA.
 - Structural differences (e.g. logo swap) only via `useTheme()`, never conditional colors.
 
 ## Layout & devices

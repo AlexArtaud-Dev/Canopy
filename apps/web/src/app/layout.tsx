@@ -6,6 +6,7 @@ import { headers } from 'next/headers';
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 
+import { getAppearance } from '@/features/appearance';
 import { cn } from '@/shared/lib/utils';
 import { ThemeProvider } from '@/shared/theme/theme-provider';
 import { Toaster } from '@/shared/ui/sonner';
@@ -29,18 +30,24 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const [locale, headerStore] = await Promise.all([getLocale(), headers()]);
+  const [locale, headerStore, appearance] = await Promise.all([
+    getLocale(),
+    headers(),
+    getAppearance(),
+  ]);
   const nonce = headerStore.get('x-nonce') ?? undefined;
 
   return (
     <html
       lang={locale}
+      // The default tokens are "canopy"; other themes override them via [data-theme].
+      data-theme={appearance.colorTheme === 'canopy' ? undefined : appearance.colorTheme}
       suppressHydrationWarning
       className={cn(GeistSans.variable, GeistMono.variable, 'font-sans antialiased')}
     >
       <body>
         <NextIntlClientProvider>
-          <ThemeProvider nonce={nonce}>
+          <ThemeProvider nonce={nonce} defaultTheme={appearance.defaultMode}>
             <TooltipProvider delayDuration={300}>
               {children}
               <Toaster />

@@ -37,7 +37,11 @@ export function SettingsContainer({
   const [search, setSearch] = useState('');
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [, startTransition] = useTransition();
-  // i18n-dynamic: settings.fields settings.modules settings.groups — keys come from module schemas.
+  // Keys come from module schemas:
+  // i18n-dynamic: settings.fields
+  // i18n-dynamic: settings.modules
+  // i18n-dynamic: settings.groups
+  // i18n-dynamic: settings.options
   const label = (key: string) => t(key as Parameters<typeof t>[0]);
 
   const run = (key: string, action: () => ReturnType<typeof saveSetting>, success: string) => {
@@ -128,6 +132,7 @@ export function SettingsContainer({
                             editable={canEdit && !field.locked && (!field.localOnly || local)}
                             needsLocal={field.localOnly && !local}
                             pending={busyKey === key}
+                            optionLabel={(option) => label(`options.${key}.${option}`)}
                             onSave={(value) => {
                               run(
                                 key,

@@ -1,0 +1,20 @@
+/* amber: the default theme's tokens with hue 65; lightness and chroma unchanged keep the contrast ratios. */
+:root[data-theme='amber'] {
+  --primary: oklch(0.47 0.09 65);
+  --primary-foreground: oklch(0.985 0.01 65);
+  --ring: oklch(0.62 0.09 65);
+  --chart-1: oklch(0.62 0.11 65);
+  --sidebar-primary: oklch(0.47 0.09 65);
+  --sidebar-primary-foreground: oklch(0.985 0.01 65);
+  --sidebar-ring: oklch(0.62 0.09 65);
+}
+
+:root[data-theme='amber'].dark {
+  --primary: oklch(0.76 0.11 65);
+  --primary-foreground: oklch(0.22 0.04 65);
+  --ring: oklch(0.6 0.09 65);
+  --chart-1: oklch(0.72 0.12 65);
+  --sidebar-primary: oklch(0.76 0.11 65);
+  --sidebar-primary-foreground: oklch(0.22 0.04 65);
+  --sidebar-ring: oklch(0.6 0.09 65);
+}

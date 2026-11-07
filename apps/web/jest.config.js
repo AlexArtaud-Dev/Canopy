@@ -20,7 +20,7 @@ const config = {
     'src/shared/modules/registry.ts',
     'src/shared/{lib,i18n,config}/**/*.ts',
     '!src/**/*.d.ts',
-    '!src/shared/i18n/request.ts',
+    '!src/i18n.request.ts',
     '!src/shared/lib/utils.ts',
     // Browser file download (DOM side effect only).
     '!src/shared/lib/download.ts',
