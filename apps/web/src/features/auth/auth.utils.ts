@@ -109,9 +109,9 @@ export function initialsOf(name: string): string {
   return letters.toUpperCase();
 }
 
-/** Top-level fields of a new-account draft that fail validation (for inline form errors). */
-export function invalidAccountFields(input: unknown, passwordMinLength: number): Set<string> {
-  const result = newAccountSchema(passwordMinLength).safeParse(input);
+/** Top-level fields of a form draft that fail `schema` (for inline errors). */
+export function invalidFields(schema: z.ZodType, input: unknown): Set<string> {
+  const result = schema.safeParse(input);
   if (result.success) return new Set();
   return new Set(result.error.issues.map((issue) => String(issue.path[0] ?? '')));
 }

@@ -27,6 +27,7 @@
     "second_factor_expired": "Cette connexion a pris trop de temps. Recommencez.",
     "invalid_password": "Le mot de passe est incorrect.",
     "totp_already_enabled": "La double authentification est déjà activée.",
-    "totp_not_enabled": "La double authentification est désactivée."
+    "totp_not_enabled": "La double authentification est désactivée.",
+    "cannot_revoke_current": "Utilisez « Se déconnecter » dans le menu du compte pour fermer cette session."
   }
 }

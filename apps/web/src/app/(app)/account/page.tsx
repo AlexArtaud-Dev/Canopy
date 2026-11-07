@@ -2,7 +2,10 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
 import {
+  AccountContainer,
+  getConfiguredAuth,
   hasTotpEnabled,
+  listSessions,
   remainingRecoveryCodes,
   requireSession,
   TotpContainer,
@@ -15,23 +18,26 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AccountPage() {
-  const { user } = await requireSession();
-  const [t, totpEnabled, remainingCodes] = await Promise.all([
+  const { user, sessionId } = await requireSession();
+  const [t, { policy }, totpEnabled, remainingCodes, sessions] = await Promise.all([
     getTranslations('auth.accountPage'),
+    getConfiguredAuth(),
     hasTotpEnabled(user.id),
     remainingRecoveryCodes(user.id),
+    listSessions(user.id, sessionId),
   ]);
 
   return (
     <>
       <PageHeader title={t('title')} />
       <main className="mx-auto grid w-full max-w-3xl gap-6 p-4 md:p-6">
-        <section aria-labelledby="security-heading" className="grid gap-3">
-          <h2 id="security-heading" className="text-muted-foreground text-sm font-medium">
-            {t('security')}
-          </h2>
-          <TotpContainer enabled={totpEnabled} remainingCodes={remainingCodes} />
-        </section>
+        <AccountContainer
+          username={user.username}
+          profile={{ displayName: user.name, contactEmail: user.contactEmail ?? '' }}
+          passwordMinLength={policy.passwordMinLength}
+          sessions={sessions}
+        />
+        <TotpContainer enabled={totpEnabled} remainingCodes={remainingCodes} />
       </main>
     </>
   );

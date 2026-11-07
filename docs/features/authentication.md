@@ -29,3 +29,8 @@ Local accounts only (Better Auth, username + password). No public sign-up.
   session marked `two_factor_pending` (set by a Better Auth hook when the row is created): it grants
   nothing, expires after 10 minutes, and `/login/verify` completes it. Code attempts share the
   lockout rule. Turning 2FA off or regenerating codes requires the current password.
+- **Account page** (`/account`, from the account menu): profile (display name, optional email;
+  the username is admin-managed), password change (current password required, other sessions
+  signed out), sessions list (browser/OS from the user agent, IP, last activity) with sign-out per
+  device or for every other device (confirmation). Audited: `auth.profile_update` (field names
+  only), `auth.password_change`, `auth.session_revoke`.

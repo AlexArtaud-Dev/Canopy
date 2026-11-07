@@ -62,3 +62,10 @@ entries:
       en: Two-factor authentication with an authenticator app, plus one-time recovery codes
       fr: Double authentification avec une application d’authentification, et codes de secours à usage unique
       es: Verificación en dos pasos con una aplicación de autenticación y códigos de recuperación de un solo uso
+  - type: feat
+    scope: auth
+    issue: 31
+    text:
+      en: Account page to edit your profile, change your password and sign out other devices
+      fr: Page Compte pour modifier votre profil, changer votre mot de passe et déconnecter vos autres appareils
+      es: Página de cuenta para editar tu perfil, cambiar tu contraseña y cerrar sesión en otros dispositivos

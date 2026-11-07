@@ -13,5 +13,8 @@ export const authModule = defineModule({
     'auth.totp_enable',
     'auth.totp_disable',
     'auth.recovery_codes_regenerate',
+    'auth.profile_update',
+    'auth.password_change',
+    'auth.session_revoke',
   ],
 });

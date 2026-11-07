@@ -3,7 +3,7 @@ import {
   defaultPasswordMinLength,
   evaluateSession,
   initialsOf,
-  invalidAccountFields,
+  invalidFields,
   newAccountSchema,
   passwordSchema,
   pendingSecondFactorMinutes,
@@ -113,23 +113,20 @@ describe('newAccountSchema', () => {
   });
 
   it('lists every invalid field', () => {
-    expect(invalidAccountFields(valid, 12)).toEqual(new Set());
+    expect(invalidFields(newAccountSchema(12), valid)).toEqual(new Set());
     expect(
-      invalidAccountFields(
-        {
-          ...valid,
-          username: 'a',
-          contactEmail: 'nope',
-          password: 'short',
-          confirmPassword: 'other',
-        },
-        12,
-      ),
+      invalidFields(newAccountSchema(12), {
+        ...valid,
+        username: 'a',
+        contactEmail: 'nope',
+        password: 'short',
+        confirmPassword: 'other',
+      }),
     ).toEqual(new Set(['username', 'contactEmail', 'password', 'confirmPassword']));
   });
 
   it('reports a non-object input under an empty field name', () => {
-    expect(invalidAccountFields(null, 12)).toEqual(new Set(['']));
+    expect(invalidFields(newAccountSchema(12), null)).toEqual(new Set(['']));
   });
 });
 
