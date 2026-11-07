@@ -1,0 +1,68 @@
+{
+  "metaTitle": "Settings",
+  "title": "Settings",
+  "description": "Instance-wide settings. Every field has a sensible default; change only what you need.",
+  "search": "Search settings",
+  "empty": "No setting matches.",
+  "modified": "Modified",
+  "default": "Default: {value}",
+  "locked": "Set by {env}",
+  "localOnly": "Local network only",
+  "localOnlyHint": "Open Canopy from the local network to change this.",
+  "restart": "Needs a restart",
+  "save": "Save",
+  "reset": "Reset to default",
+  "saved": "Setting saved",
+  "resetDone": "Back to the default value",
+  "ownPage": {
+    "mail": "Email (SMTP) settings are on the Email page."
+  },
+  "modules": {
+    "auth": "Sign-in & sessions"
+  },
+  "groups": {
+    "sessions": "Sessions",
+    "passwords": "Passwords",
+    "protection": "Brute-force protection"
+  },
+  "fields": {
+    "auth": {
+      "sessionLifetimeDays": {
+        "label": "Session lifetime (days)",
+        "description": "A session ends this long after sign-in, even if it is used."
+      },
+      "idleTimeoutMinutes": {
+        "label": "Idle timeout (minutes)",
+        "description": "A session unused for this long ends."
+      },
+      "passwordMinLength": {
+        "label": "Minimum password length",
+        "description": "Applies to new passwords; existing ones keep working."
+      },
+      "checkBreachedPasswords": {
+        "label": "Refuse breached passwords",
+        "description": "Checks new passwords against Have I Been Pwned (only 5 characters of a hash leave the server)."
+      },
+      "lockoutThreshold": {
+        "label": "Failed attempts before lockout",
+        "description": "Consecutive failures on one account before it is locked."
+      },
+      "lockoutMinutes": {
+        "label": "Lockout duration (minutes)",
+        "description": "How long a locked account stays locked."
+      },
+      "ipBlockThreshold": {
+        "label": "Failures before blocking an address",
+        "description": "Failed sign-ins and codes from one address, all accounts together."
+      },
+      "ipBlockMinutes": {
+        "label": "Address block window (minutes)",
+        "description": "Window counting failures, and how long the address stays blocked."
+      },
+      "notifyNewSignIn": {
+        "label": "Email on new sign-in",
+        "description": "Users with an email get a notice when they sign in from a new device or address."
+      }
+    }
+  }
+}

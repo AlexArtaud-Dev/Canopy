@@ -125,3 +125,10 @@ entries:
       en: Invitation and password reset emails, a forgot-password page, and security notices for password, two-factor and new sign-ins
       fr: E-mails d’invitation et de réinitialisation de mot de passe, page « mot de passe oublié », et alertes de sécurité pour le mot de passe, la double authentification et les nouvelles connexions
       es: Correos de invitación y de restablecimiento de contraseña, página de contraseña olvidada y avisos de seguridad sobre contraseña, verificación en dos pasos y nuevos inicios de sesión
+  - type: feat
+    scope: settings
+    issue: 39
+    text:
+      en: Administration › Settings lets administrators search and change instance settings, see what was modified and reset to defaults
+      fr: Administration › Réglages permet de rechercher et modifier les réglages de l’instance, de voir ce qui a été modifié et de revenir aux valeurs par défaut
+      es: Administración › Ajustes permite buscar y cambiar los ajustes de la instancia, ver qué se modificó y volver a los valores por defecto

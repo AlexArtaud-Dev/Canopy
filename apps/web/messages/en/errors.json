@@ -16,7 +16,8 @@
   "settings": {
     "unknown_key": "This setting does not exist (“{key}”).",
     "invalid_value": "The value for “{key}” is not valid.",
-    "locked_by_env": "“{key}” is set by the {env} environment variable and cannot be changed here."
+    "locked_by_env": "“{key}” is set by the {env} environment variable and cannot be changed here.",
+    "local_only": "“{key}” can only be changed from the local network."
   },
   "auth": {
     "invalid_credentials": "Incorrect username or password.",

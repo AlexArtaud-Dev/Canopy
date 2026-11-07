@@ -63,3 +63,14 @@ entries (filtered by permissions) and audit action labels.
 | Thumbnails                       | on                  |
 | Default theme / locale           | system / en         |
 | Share links default expiry       | 7 days              |
+
+## Settings page (generated)
+
+`/admin/settings` (`settings:read`, edits need `settings:update`) is built from every module's
+`settings` definition: the control comes from the Zod type (`describeField`: boolean → checkbox,
+number → numeric input with bounds, enum → select, string/email → input), labels from
+`messages/<locale>/settings.json` (`modules.<id>`, `groups.<group>`, `fields.<id>.<key>.label|description`).
+Per field: "Modified" badge, default value, reset, env lock (read-only, names the variable),
+`localOnly` (editable only from `CANOPY_LOCAL_NETWORKS`), `requiresRestart`. Sensitive values are
+never sent to the browser. Modules with a dedicated page (`mail`) are listed in
+`modulesWithOwnPage` and linked instead. Adding a setting = schema field + `fields` entry + labels.
