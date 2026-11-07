@@ -27,13 +27,21 @@ interface AccountFormProps {
   pending: boolean;
   /** Fields that failed validation; their translated hint is shown under them. */
   invalidFields: ReadonlySet<AccountField>;
+  passwordMinLength: number;
   /** Set when the last submission failed. */
   error: FormErrorContent | null;
   onSubmit: (values: AccountValues) => void;
   onBack: () => void;
 }
 
-export function AccountForm({ pending, invalidFields, error, onSubmit, onBack }: AccountFormProps) {
+export function AccountForm({
+  pending,
+  invalidFields,
+  passwordMinLength,
+  error,
+  onSubmit,
+  onBack,
+}: AccountFormProps) {
   const t = useTranslations('auth.setup.account');
 
   const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
@@ -123,9 +131,13 @@ export function AccountForm({ pending, invalidFields, error, onSubmit, onBack }:
             aria-describedby={describedBy('password')}
           />
           {invalid('password') ? (
-            <FieldError id={describedBy('password')}>{t('errors.password')}</FieldError>
+            <FieldError id={describedBy('password')}>
+              {t('errors.password', { min: passwordMinLength })}
+            </FieldError>
           ) : (
-            <FieldDescription id={describedBy('password')}>{t('passwordHint')}</FieldDescription>
+            <FieldDescription id={describedBy('password')}>
+              {t('passwordHint', { min: passwordMinLength })}
+            </FieldDescription>
           )}
         </Field>
         <Field data-invalid={invalid('confirmPassword') || undefined}>

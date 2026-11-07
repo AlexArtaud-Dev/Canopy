@@ -2,6 +2,7 @@ export { authModule } from './auth.module';
 export { initialsOf, safeRedirectPath } from './auth.utils';
 export { LoginContainer } from './login.container';
 export {
+  getConfiguredAuth,
   getCurrentSession,
   hasAnyUser,
   requireSession,

@@ -20,6 +20,8 @@
     "invalid_credentials": "Nom d’utilisateur ou mot de passe incorrect.",
     "username_taken": "Ce nom d’utilisateur est déjà pris.",
     "setup_already_done": "Canopy est déjà configuré. Connectez-vous avec un compte existant.",
-    "setup_not_local": "Le premier administrateur ne peut être créé que depuis le réseau local."
+    "setup_not_local": "Le premier administrateur ne peut être créé que depuis le réseau local.",
+    "locked": "Trop de tentatives échouées. Ce compte est bloqué pendant {minutes, plural, one {# minute} other {# minutes}}.",
+    "password_breached": "Ce mot de passe figure dans une fuite de données publique. Choisissez-en un autre."
   }
 }

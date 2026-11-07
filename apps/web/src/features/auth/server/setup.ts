@@ -6,9 +6,12 @@ import { runAction, type ActionResult } from '@/shared/lib/action';
 import { AppBaseError } from '@/shared/lib/errors';
 import { getConnection } from '@/shared/db/client';
 import { audit } from '@/features/audit/server/audit-writer';
+import { getSettings } from '@/features/settings/server/settings-store';
 
+import { authSettings } from '../auth.settings';
 import { newAccountSchema } from '../auth.utils';
 import { createAccount } from './create-account';
+import { assertPasswordAllowed } from './password-policy';
 import { authRequestHeaders, getConfiguredAuth, setupBlocker } from './current-session';
 
 // Arbitrary constant: serializes concurrent wizard submissions across instances.
@@ -20,7 +23,8 @@ const setupLockId = 7_201_301;
  */
 export async function completeSetup(input: unknown): Promise<ActionResult<null>> {
   const result = await runAction(async () => {
-    const parsed = newAccountSchema.safeParse(input);
+    const { values: policy } = await getSettings('auth', authSettings);
+    const parsed = newAccountSchema(policy.passwordMinLength).safeParse(input);
     if (!parsed.success) {
       throw new AppBaseError('system.bad_request', 'invalid setup input');
     }
@@ -33,6 +37,7 @@ export async function completeSetup(input: unknown): Promise<ActionResult<null>>
         throw new AppBaseError(`auth.setup_${blocker}`, 'setup refused');
       }
       const { username, displayName, contactEmail, password } = parsed.data;
+      await assertPasswordAllowed(password, policy);
       const { id } = await createAccount({
         username,
         displayName,

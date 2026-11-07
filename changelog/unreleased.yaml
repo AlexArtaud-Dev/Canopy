@@ -48,3 +48,10 @@ entries:
       en: First-run setup wizard to create the administrator, available only from the local network
       fr: Assistant de premier lancement pour créer l’administrateur, accessible uniquement depuis le réseau local
       es: Asistente de primer arranque para crear el administrador, disponible solo desde la red local
+  - type: feat
+    scope: auth
+    issue: 29
+    text:
+      en: Accounts lock for a while after repeated failed sign-ins, and the password policy is configurable
+      fr: Les comptes sont bloqués un moment après plusieurs échecs de connexion, et la politique de mot de passe est configurable
+      es: Las cuentas se bloquean un tiempo tras varios intentos fallidos y la política de contraseñas es configurable

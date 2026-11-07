@@ -20,6 +20,8 @@
     "invalid_credentials": "Incorrect username or password.",
     "username_taken": "This username is already taken.",
     "setup_already_done": "Canopy is already set up. Sign in with an existing account.",
-    "setup_not_local": "The first administrator can only be created from the local network."
+    "setup_not_local": "The first administrator can only be created from the local network.",
+    "locked": "Too many failed attempts. This account is locked for {minutes, plural, one {# minute} other {# minutes}}.",
+    "password_breached": "This password appears in a public data breach. Choose another one."
   }
 }

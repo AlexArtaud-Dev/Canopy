@@ -31,3 +31,29 @@ export function decide(
 export function rateLimitKey(scope: string, subject: string): string {
   return `${scope}:${subject}`;
 }
+
+export interface LockoutState {
+  locked: boolean;
+  /** Seconds until the lock lifts (0 when not locked). */
+  retryAfterSeconds: number;
+}
+
+/**
+ * Lockout read from a failure counter: locked once `limit` failures fall in the current window,
+ * until that window ends. Unlike `decide`, the check itself never counts.
+ */
+export function lockoutState(
+  rule: RateLimitRule,
+  failures: number,
+  windowStart: Date,
+  now: Date,
+): LockoutState {
+  const resetAt = windowStart.getTime() + rule.windowSeconds * 1000;
+  if (failures < rule.limit || now.getTime() >= resetAt) {
+    return { locked: false, retryAfterSeconds: 0 };
+  }
+  return {
+    locked: true,
+    retryAfterSeconds: Math.max(1, Math.ceil((resetAt - now.getTime()) / 1000)),
+  };
+}
