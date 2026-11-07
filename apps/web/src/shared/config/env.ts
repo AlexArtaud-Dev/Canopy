@@ -8,6 +8,10 @@ const serverEnvSchema = z.object({
     .optional(),
   /** Comma-separated CIDRs allowed to set forwarded headers; empty = trust no proxy. */
   CANOPY_TRUSTED_PROXIES: z.string().default(''),
+  /** base64 32-byte key for secrets at rest (`openssl rand -base64 32`). */
+  CANOPY_ENCRYPTION_KEY: z.string().optional(),
+  /** Retired keys, comma-separated, still accepted for decryption during a rotation. */
+  CANOPY_ENCRYPTION_KEY_PREVIOUS: z.string().default(''),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;

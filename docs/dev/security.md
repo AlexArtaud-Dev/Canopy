@@ -43,6 +43,11 @@
 
 - Encrypted with AES-256-GCM (`CANOPY_ENCRYPTION_KEY`, key-versioned envelope for rotation):
   session-adjacent tokens, TOTP secrets, API keys, plugin credentials, any setting flagged `sensitive`.
+  - Use `sealSecret(value, purpose)` / `openSecret(envelope, purpose)` (`shared/secrets`). The
+    purpose (`auth.totp:<userId>`) is authenticated data: a value copied elsewhere fails to open.
+  - Envelope `v1.<keyId>.<iv>.<tag>.<ciphertext>`. Rotation: put the new key in
+    `CANOPY_ENCRYPTION_KEY`, the old one in `CANOPY_ENCRYPTION_KEY_PREVIOUS`, re-encrypt values
+    where `isSealedWithRetiredKey()` is true, then drop the old key.
 - Passwords are hashed, never encrypted. Managed files are NOT encrypted by Canopy.
 - Nothing sensitive in localStorage/sessionStorage; engine token kept in memory only, short-lived.
 

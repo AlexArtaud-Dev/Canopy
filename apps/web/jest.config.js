@@ -13,6 +13,7 @@ const config = {
     'src/**/*.{utils,nav}.ts',
     'src/shared/request/client-ip.ts',
     'src/shared/errors/error-key.ts',
+    'src/shared/secrets/envelope.ts',
     'src/shared/{lib,i18n,config}/**/*.ts',
     '!src/**/*.d.ts',
     '!src/shared/i18n/request.ts',

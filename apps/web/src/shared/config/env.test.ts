@@ -5,6 +5,7 @@ describe('parseServerEnv', () => {
     expect(parseServerEnv({})).toEqual({
       CANOPY_ENGINE_URL: 'http://localhost:8080',
       CANOPY_TRUSTED_PROXIES: '',
+      CANOPY_ENCRYPTION_KEY_PREVIOUS: '',
     });
   });
 

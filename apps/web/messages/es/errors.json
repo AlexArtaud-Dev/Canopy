@@ -5,6 +5,9 @@
     "bad_request": "La solicitud no era válida. Actualice la página e inténtelo de nuevo.",
     "internal": "El servidor no pudo completar esta solicitud. Inténtelo de nuevo en un momento.",
     "database_unavailable": "La base de datos no está disponible. Canopy se recuperará en cuanto vuelva.",
-    "database_not_configured": "La conexión con la base de datos no está configurada. Pida a su administrador que defina CANOPY_DATABASE_URL."
+    "database_not_configured": "La conexión con la base de datos no está configurada. Pida a su administrador que defina CANOPY_DATABASE_URL.",
+    "encryption_key_missing": "El almacenamiento de secretos no está configurado. Pida a su administrador que defina CANOPY_ENCRYPTION_KEY.",
+    "encryption_key_invalid": "La clave de cifrado no es válida. Debe tener 32 bytes aleatorios codificados en base64.",
+    "secret_undecryptable": "No se pudo leer un secreto guardado. Puede que se haya cifrado con una clave que ya no está configurada."
   }
 }
