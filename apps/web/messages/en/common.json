@@ -32,5 +32,10 @@
   "password": {
     "show": "Show password",
     "hide": "Hide password"
+  },
+  "accessDenied": {
+    "title": "Access denied",
+    "description": "Your account does not have permission to open this page. Ask an administrator if you need it.",
+    "backHome": "Back to files"
   }
 }

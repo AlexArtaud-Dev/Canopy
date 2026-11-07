@@ -32,5 +32,10 @@
   "password": {
     "show": "Mostrar contraseña",
     "hide": "Ocultar contraseña"
+  },
+  "accessDenied": {
+    "title": "Acceso denegado",
+    "description": "Tu cuenta no tiene permiso para abrir esta página. Pídelo a un administrador si lo necesitas.",
+    "backHome": "Volver a los archivos"
   }
 }

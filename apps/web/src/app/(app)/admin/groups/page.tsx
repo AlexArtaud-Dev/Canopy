@@ -8,8 +8,8 @@ import {
   listMemberOptions,
   listRoles,
 } from '@/features/access';
-import { authorize } from '@/features/auth';
-import { PageHeader } from '@/features/shell';
+import { authorizePage } from '@/features/auth';
+import { AccessDenied, PageHeader } from '@/features/shell';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('access.groups');
@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function GroupsPage() {
-  await authorize('groups:read');
+  if (!(await authorizePage('groups:read'))) return <AccessDenied />;
   const [t, groups, roles, people] = await Promise.all([
     getTranslations('access'),
     listGroups(),

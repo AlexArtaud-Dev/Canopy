@@ -12,3 +12,10 @@
   without an active administrator (`users.last_admin`).
 - Audit: `users.create`, `users.update`, `users.disable`, `users.enable`, `users.delete`,
   `users.password_reset`, `users.sessions_revoke`, `users.two_factor_reset`.
+
+## Access denied
+
+Pages call `authorizePage('<module>:<action>')`: without the permission they render the shell's
+translated `AccessDenied` state (the refusal is audited as `auth.access_denied`). Server actions
+use `authorize()`, whose `auth.forbidden` code reaches the UI through `ActionResult`. The
+Administration sidebar group only lists entries the user may open.
