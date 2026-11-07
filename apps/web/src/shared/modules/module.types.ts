@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import type { Route } from 'next';
 
 import type shellMessages from '../../../messages/en/shell.json';
+import type { SettingsDefinition } from './settings.types';
 
 export type ModuleId = string;
 
@@ -36,6 +37,7 @@ export interface CanopyModule {
   id: ModuleId;
   permissions?: PermissionManifest;
   navigation?: readonly NavEntry[];
+  settings?: SettingsDefinition;
   /** `<module>.<action>` names this module writes to the audit log. */
   auditActions: readonly string[];
 }

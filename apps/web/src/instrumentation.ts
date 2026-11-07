@@ -14,6 +14,10 @@ export async function register(): Promise<void> {
  * page, so logging it with the route lets an admin find the stack trace.
  */
 export const onRequestError: Instrumentation.onRequestError = async (error, request, context) => {
+  // NEXT_RUNTIME is inlined at build time, so the Edge bundle never pulls in the Node logger.
+  if (process.env.NEXT_RUNTIME !== 'nodejs') {
+    return;
+  }
   const { logger } = await import('@/shared/lib/logger');
   const digest =
     typeof error === 'object' && error !== null && 'digest' in error

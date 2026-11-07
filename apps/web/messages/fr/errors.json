@@ -9,5 +9,10 @@
     "encryption_key_missing": "Le stockage des secrets n’est pas configuré. Demandez à votre administrateur de définir CANOPY_ENCRYPTION_KEY.",
     "encryption_key_invalid": "La clé de chiffrement est invalide. Elle doit faire 32 octets aléatoires encodés en base64.",
     "secret_undecryptable": "Un secret enregistré n’a pas pu être lu. Il a peut-être été chiffré avec une clé qui n’est plus configurée."
+  },
+  "settings": {
+    "unknown_key": "Ce paramètre n’existe pas (« {key} »).",
+    "invalid_value": "La valeur de « {key} » n’est pas valide.",
+    "locked_by_env": "« {key} » est défini par la variable d’environnement {env} et ne peut pas être modifié ici."
   }
 }

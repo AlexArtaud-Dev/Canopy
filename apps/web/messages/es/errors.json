@@ -9,5 +9,10 @@
     "encryption_key_missing": "El almacenamiento de secretos no está configurado. Pida a su administrador que defina CANOPY_ENCRYPTION_KEY.",
     "encryption_key_invalid": "La clave de cifrado no es válida. Debe tener 32 bytes aleatorios codificados en base64.",
     "secret_undecryptable": "No se pudo leer un secreto guardado. Puede que se haya cifrado con una clave que ya no está configurada."
+  },
+  "settings": {
+    "unknown_key": "Este ajuste no existe («{key}»).",
+    "invalid_value": "El valor de «{key}» no es válido.",
+    "locked_by_env": "«{key}» lo define la variable de entorno {env} y no se puede cambiar aquí."
   }
 }
