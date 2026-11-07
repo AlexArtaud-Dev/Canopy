@@ -43,8 +43,10 @@ The engine DB role has read-only access to `app` (grants, settings) and INSERT-o
 - `packages/contracts/openapi.yaml` is the source of truth. `pnpm contracts:gen` produces Go server
   interfaces/types and the TS client + Zod schemas. CI fails on drift. Never hand-edit generated code.
 - **Engine token**: web issues a short-lived (≤ 5 min) Ed25519-signed JWT per session:
-  `sub`, `sid`, `perms[]` (global module permissions), `exp`. The engine verifies it with the public
-  key and resolves path grants itself from the DB (single implementation, in Go).
+  `sub`, `sid`, `perms[]` (global module permissions), `groups[]` (group ids, so the engine never
+  reads the `auth` schema), `iss=canopy-web`, `aud=canopy-engine`, `exp` (2 min; the engine refuses
+  more than 5). The engine verifies it with the public key (`internal/enginetoken`) and resolves
+  path grants itself from the DB (single implementation, in Go). Keys: `scripts/dev/engine-keys.mjs`.
 - **Capabilities**: listing responses include per-entry capabilities (`canDelete`, `canShare`…)
   computed by the engine, so the UI never re-implements permission logic.
 - **Error model**: `{ code: "files.not_found", params: {...}, requestId }`. Codes are namespaced
@@ -82,7 +84,8 @@ The engine DB role has read-only access to `app` (grants, settings) and INSERT-o
 | `CANOPY_DATABASE_URL`            | Postgres DSN (one per app role)                 |
 | `CANOPY_ENCRYPTION_KEY`          | AES-256-GCM key for secrets at rest             |
 | `CANOPY_ENCRYPTION_KEY_PREVIOUS` | Retired keys still accepted during a rotation   |
-| `CANOPY_ENGINE_SIGNING_KEY`      | Ed25519 private key (web) / public key (engine) |
+| `CANOPY_ENGINE_PRIVATE_KEY`      | Ed25519 seed signing engine tokens (web only)   |
+| `CANOPY_ENGINE_PUBLIC_KEY`       | Matching public key verifying them (engine)     |
 | `CANOPY_ROOT`                    | File root inside the engine container           |
 | `CANOPY_ENGINE_URL`              | Engine base URL as seen from web (internal)     |
 | `CANOPY_ENGINE_ADDR`             | Engine listen address (default `:8080`)         |
