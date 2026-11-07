@@ -75,6 +75,8 @@ for (const locale of targetLocales) {
 // as `nav.${item}` become wildcards matching one segment. It can only miss an unused key (when
 // a similar-looking string exists), never flag a used one.
 
+// `// i18n-dynamic: <prefix>` marks a whole subtree as used (keys only known at runtime, e.g. error codes).
+const dynamicPrefixPattern = /i18n-dynamic:\s*([\w.]+)/g;
 const namespacePattern = /(?:useTranslations|getTranslations)\(\s*['"`]([\w.]+)['"`]/g;
 const keyCallPattern = /[\w$]\s*\(\s*(['"`])([\w.]*(?:\$\{[^}`]+\}[\w.]*)*)\1/g;
 
@@ -92,6 +94,9 @@ async function usedKeyMatchers() {
   const matchers = [];
   for (const file of files) {
     const code = await readFile(path.join(sourceDir, file), 'utf8');
+    for (const [, prefix] of code.matchAll(dynamicPrefixPattern)) {
+      matchers.push(new RegExp(`^${prefix.replace(/[.]/g, '\\.')}\\.`));
+    }
     const namespaces = ['', ...[...code.matchAll(namespacePattern)].map((match) => match[1])];
     for (const [, , key] of code.matchAll(keyCallPattern)) {
       if (!key) continue;

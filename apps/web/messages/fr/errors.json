@@ -1,0 +1,10 @@
+{
+  "system": {
+    "unexpected": "Un problème inattendu est survenu de notre côté. Réessayez ; si cela persiste, transmettez la référence ci-dessous à votre administrateur.",
+    "not_found": "Cet élément n’existe plus ou a été déplacé.",
+    "bad_request": "La requête n’était pas valide. Actualisez la page et réessayez.",
+    "internal": "Le serveur n’a pas pu traiter cette requête. Réessayez dans un instant.",
+    "database_unavailable": "La base de données est injoignable. Canopy reprendra dès son retour.",
+    "database_not_configured": "La connexion à la base de données n’est pas configurée. Demandez à votre administrateur de définir CANOPY_DATABASE_URL."
+  }
+}

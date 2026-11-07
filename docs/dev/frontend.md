@@ -52,6 +52,12 @@ Dependency direction is one-way: `ui ← container ← model ← server/contract
   expandable live output (advanced mode), notification on completion.
 - Errors: error boundary per route segment; message = translated code + suggested action +
   copyable requestId. Never a raw API/stack message.
+  - Server actions wrap their body in `runAction()` (`shared/lib/action.ts`) and return
+    `{ ok, data | error }`; `error` is an `ErrorDto` (`code`, `params`, `requestId`).
+  - Show failures with `<ErrorState code reference onRetry />` (`shared/errors`); unknown codes fall
+    back to `system.unexpected`. Add every new code to `messages/<locale>/errors.json`.
+  - Uncaught server errors render `error.tsx` with the Next digest as reference; `onRequestError`
+    logs the same digest with the stack trace.
 
 ## i18n
 
@@ -61,6 +67,7 @@ Dependency direction is one-way: `ui ← container ← model ← server/contract
 - CI fails on missing or unused keys (`pnpm check:i18n`). Unused detection scans `src/` per file:
   namespaces from `useTranslations`/`getTranslations` × key strings in calls. Template keys
   (``t(`nav.${key}`)``) count as one-segment wildcards, so keep dynamic keys as literal prefixes.
+  Keys only known at runtime (error codes) are declared with a `// i18n-dynamic: <prefix>` comment.
 - Exception: data not owned by the app (file names, external values) is displayed as-is.
 
 ## Accessibility
