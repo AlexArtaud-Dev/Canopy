@@ -30,6 +30,19 @@ lint (ESLint, golangci-lint) · typecheck · contracts drift · i18n key check �
 (entry or `no-changelog` label) · unit tests + coverage gates · Playwright on the compose stack ·
 Docker build · `pnpm audit` + `govulncheck`.
 
+All jobs live in `.github/workflows/ci.yml` and are required checks on `main`. Run them locally:
+
+| Check                   | Command                                                         |
+| ----------------------- | --------------------------------------------------------------- |
+| Format, lint, typecheck | `pnpm format:check && pnpm lint && pnpm typecheck`              |
+| Unit tests + coverage   | `pnpm test` · `make -C apps/engine test cover-gate` (Go ≥ 90 %) |
+| i18n parity             | `pnpm check:i18n` (missing/extra keys, placeholder mismatches)  |
+| Changelog schema        | `pnpm check:changelog`                                          |
+| Contracts drift         | `pnpm contracts:gen && git diff --exit-code`                    |
+| E2E                     | start `docker/compose.yaml`, then `pnpm test:e2e`               |
+
+Dependabot opens weekly grouped updates for npm, Go modules, Docker base images and actions.
+
 ## CalVer
 
 - Format `YYYY.MM.MICRO`, no zero padding (`2026.11.0`, `2026.11.1`, `2026.12.0`), tags `v2026.11.0`.

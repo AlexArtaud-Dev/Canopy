@@ -34,5 +34,6 @@
 ## Conventions
 
 - golangci-lint (repo config) 0 issues; gofumpt.
-- Table-driven tests; 100% coverage on `authz`, path resolution, parsers, pure helpers.
+- Table-driven tests; pure packages (`authz`, path resolution, parsers, pure helpers, config) keep
+  ≥ 90 % statement coverage, enforced by `make cover-gate` in CI (aim for 100 %).
 - Resource limits: max parallel jobs, nice/ionice levels — settings.

@@ -10,7 +10,8 @@
     "start": "next start --port 3000",
     "lint": "eslint --max-warnings 0 .",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@canopy/contracts": "workspace:*",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@canopy/config": "workspace:*",
+    "@playwright/test": "1.65.0",
     "@tailwindcss/postcss": "4.3.4",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.3",
