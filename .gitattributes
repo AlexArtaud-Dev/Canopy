@@ -12,5 +12,5 @@
 
 # Generated code: collapse in diffs, exclude from language stats.
 packages/contracts/gen/** linguist-generated=true -diff
-apps/engine/internal/api/gen/** linguist-generated=true -diff
+**/*.gen.go linguist-generated=true -diff
 pnpm-lock.yaml linguist-generated=true -diff

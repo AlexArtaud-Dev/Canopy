@@ -1,0 +1,17 @@
+{
+  "extends": "@canopy/config/tsconfig/base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["DOM", "ES2023"],
+    "verbatimModuleSyntax": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": "gen/ts"
+  },
+  "include": ["gen/ts/**/*.ts"]
+}

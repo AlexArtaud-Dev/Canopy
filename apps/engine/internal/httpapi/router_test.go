@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/api"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
 )
 
@@ -71,11 +72,30 @@ func TestErrorResponseCarriesRequestID(t *testing.T) {
 	rec := httptest.NewRecorder()
 	newTestRouter(down).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/readyz", nil))
 
-	var body errorResponse
+	var body api.Error
 	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
 		t.Fatalf("invalid JSON: %v", err)
 	}
-	if body.RequestID == "" {
+	if body.RequestId == "" {
 		t.Fatal("requestId must be set on errors")
+	}
+}
+
+func TestErrorHandlerWritesSharedErrorModel(t *testing.T) {
+	t.Parallel()
+
+	handler := errorHandler(logging.New(&bytes.Buffer{}, slog.LevelInfo), http.StatusBadRequest, codeBadRequest)
+	rec := httptest.NewRecorder()
+	handler(rec, httptest.NewRequest(http.MethodGet, "/", nil), errors.New("bad input"))
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusBadRequest)
+	}
+	var body api.Error
+	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	if body.Code != codeBadRequest || body.Params == nil {
+		t.Fatalf("body = %+v", body)
 	}
 }

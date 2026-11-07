@@ -1,5 +1,5 @@
-// Package httpapi exposes the engine over HTTP. Handlers will implement the interfaces generated
-// from packages/contracts; until then only operational endpoints live here.
+// Package httpapi exposes the engine over HTTP by implementing the strict server interface
+// generated from packages/contracts/openapi.yaml.
 package httpapi
 
 import (
@@ -12,10 +12,17 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/api"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
 )
 
-const readinessTimeout = 2 * time.Second
+const (
+	readinessTimeout = 2 * time.Second
+
+	codeDatabaseUnavailable = "system.database_unavailable"
+	codeBadRequest          = "system.bad_request"
+	codeInternal            = "system.internal"
+)
 
 // Pinger reports whether a dependency (the database) is reachable.
 type Pinger interface {
@@ -35,52 +42,45 @@ func NewRouter(deps Deps) http.Handler {
 	r.Use(logging.Middleware(deps.Logger))
 	r.Use(middleware.Recoverer)
 
-	r.Get("/healthz", handleLiveness)
-	r.Get("/readyz", handleReadiness(deps))
-
-	return r
-}
-
-type statusResponse struct {
-	Status string `json:"status"`
-}
-
-// errorResponse mirrors the shared error model: a stable code the UI translates, never a message.
-type errorResponse struct {
-	Code      string         `json:"code"`
-	Params    map[string]any `json:"params"`
-	RequestID string         `json:"requestId"`
-}
-
-func handleLiveness(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, statusResponse{Status: "ok"})
-}
-
-func handleReadiness(deps Deps) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(r.Context(), readinessTimeout)
-		defer cancel()
-
-		if err := deps.Database.Ping(ctx); err != nil {
-			logging.FromContext(r.Context(), deps.Logger).Warn("database not ready", slog.Any("error", err))
-			writeError(w, r, http.StatusServiceUnavailable, "system.database_unavailable")
-			return
-		}
-		writeJSON(w, http.StatusOK, statusResponse{Status: "ready"})
-	}
-}
-
-func writeError(w http.ResponseWriter, r *http.Request, status int, code string) {
-	writeJSON(w, status, errorResponse{
-		Code:      code,
-		Params:    map[string]any{},
-		RequestID: middleware.GetReqID(r.Context()),
+	strict := api.NewStrictHandlerWithOptions(&server{deps: deps}, nil, api.StrictHTTPServerOptions{
+		RequestErrorHandlerFunc:  errorHandler(deps.Logger, http.StatusBadRequest, codeBadRequest),
+		ResponseErrorHandlerFunc: errorHandler(deps.Logger, http.StatusInternalServerError, codeInternal),
 	})
+	return api.HandlerFromMux(strict, r)
 }
 
-func writeJSON(w http.ResponseWriter, status int, body any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	// The status line is already sent; an encoding failure can only mean the client went away.
-	_ = json.NewEncoder(w).Encode(body)
+type server struct {
+	deps Deps
+}
+
+var _ api.StrictServerInterface = (*server)(nil)
+
+func (s *server) GetLiveness(context.Context, api.GetLivenessRequestObject) (api.GetLivenessResponseObject, error) {
+	return api.GetLiveness200JSONResponse{Status: api.Ok}, nil
+}
+
+func (s *server) GetReadiness(ctx context.Context, _ api.GetReadinessRequestObject) (api.GetReadinessResponseObject, error) {
+	pingCtx, cancel := context.WithTimeout(ctx, readinessTimeout)
+	defer cancel()
+
+	if err := s.deps.Database.Ping(pingCtx); err != nil {
+		logging.FromContext(ctx, s.deps.Logger).Warn("database not ready", slog.Any("error", err))
+		return api.GetReadiness503JSONResponse(newError(ctx, codeDatabaseUnavailable)), nil
+	}
+	return api.GetReadiness200JSONResponse{Status: api.Ready}, nil
+}
+
+// newError builds the shared error model: a stable code the UI translates, never a message.
+func newError(ctx context.Context, code string) api.Error {
+	return api.Error{Code: code, Params: map[string]any{}, RequestId: middleware.GetReqID(ctx)}
+}
+
+func errorHandler(logger *slog.Logger, status int, code string) func(http.ResponseWriter, *http.Request, error) {
+	return func(w http.ResponseWriter, r *http.Request, err error) {
+		logging.FromContext(r.Context(), logger).Error("request failed", slog.String("code", code), slog.Any("error", err))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		// The status line is already sent; an encoding failure can only mean the client went away.
+		_ = json.NewEncoder(w).Encode(newError(r.Context(), code))
+	}
 }
