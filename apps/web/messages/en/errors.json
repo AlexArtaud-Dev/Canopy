@@ -50,5 +50,13 @@
     "not_found": "This item no longer exists or was moved.",
     "invalid_path": "This path is not valid.",
     "not_a_directory": "This is a file, not a folder."
+  },
+  "mail": {
+    "not_configured": "Email is not configured. Set up SMTP in Administration › Email.",
+    "auth_failed": "The SMTP server rejected the username or password.",
+    "connection_failed": "Canopy could not reach the SMTP server. Check the host, port and encryption.",
+    "invalid_recipient": "The SMTP server refused the recipient address.",
+    "tls_failed": "The secure connection to the SMTP server failed. Try another encryption mode.",
+    "send_failed": "The email could not be sent."
   }
 }

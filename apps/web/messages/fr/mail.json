@@ -1,0 +1,60 @@
+{
+  "metaTitle": "E-mail",
+  "title": "E-mail",
+  "description": "Comment Canopy envoie les invitations, réinitialisations de mot de passe et alertes de sécurité.",
+  "status": {
+    "configured": "Envoi actif",
+    "off": "Non configuré"
+  },
+  "smtp": {
+    "title": "Serveur SMTP",
+    "description": "Utilisez les réglages SMTP de votre fournisseur (Gmail, Fastmail, Mailgun, votre propre serveur…).",
+    "enabled": "Envoyer des e-mails",
+    "enabledHint": "Désactivé, les liens d’invitation et de réinitialisation sont affichés aux administrateurs pour être copiés.",
+    "host": "Hôte",
+    "port": "Port",
+    "security": "Chiffrement",
+    "securityModes": {
+      "starttls": "STARTTLS (587)",
+      "tls": "TLS (465)",
+      "none": "Aucun (déconseillé)"
+    },
+    "username": "Identifiant",
+    "password": "Mot de passe",
+    "passwordSet": "Laissez vide pour garder le mot de passe enregistré.",
+    "fromAddress": "Adresse d’expédition",
+    "fromName": "Nom de l’expéditeur",
+    "save": "Enregistrer",
+    "saved": "Réglages e-mail enregistrés",
+    "locked": "Défini par une variable d’environnement",
+    "errors": {
+      "port": "Saisissez un port entre 1 et 65535.",
+      "fromAddress": "Saisissez une adresse d’expédition valide."
+    }
+  },
+  "test": {
+    "title": "Envoyer un e-mail de test",
+    "description": "Vérifiez les réglages en envoyant un message à une adresse que vous pouvez lire.",
+    "to": "Destinataire",
+    "send": "Envoyer le test",
+    "sent": "E-mail de test envoyé",
+    "error": "Saisissez une adresse e-mail valide."
+  },
+  "outbox": {
+    "title": "E-mails récents",
+    "description": "Les 50 derniers messages et leur statut d’envoi. Les échecs sont relancés pendant quelques heures.",
+    "empty": "Aucun e-mail envoyé pour l’instant.",
+    "columns": {
+      "recipient": "Destinataire",
+      "subject": "Objet",
+      "status": "Statut",
+      "when": "Date"
+    },
+    "statuses": {
+      "queued": "En attente",
+      "sent": "Envoyé",
+      "failed": "Échec"
+    },
+    "attempts": "{count, plural, one {# tentative} other {# tentatives}}"
+  }
+}
