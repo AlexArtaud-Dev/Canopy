@@ -5,3 +5,5 @@ allowBuilds:
   '@parcel/watcher': false
   '@swc/core': false
   esbuild: true
+minimumReleaseAgeExclude:
+  - nodemailer@10.4.0

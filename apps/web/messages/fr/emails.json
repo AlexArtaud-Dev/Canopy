@@ -1,0 +1,12 @@
+{
+  "footer": {
+    "admin": "Vous recevez cet e-mail parce qu’un administrateur de votre instance Canopy l’a envoyé.",
+    "account": "Vous recevez cet e-mail suite à une activité sur votre compte Canopy. Si ce n’était pas vous, contactez votre administrateur."
+  },
+  "test": {
+    "subject": "E-mail de test Canopy",
+    "title": "L’e-mail fonctionne",
+    "preheader": "Vos réglages SMTP sont corrects.",
+    "body": "Ce test confirme que Canopy peut envoyer des e-mails avec les réglages actuels."
+  }
+}

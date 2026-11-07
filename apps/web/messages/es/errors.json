@@ -50,5 +50,13 @@
     "not_found": "Este elemento ya no existe o se movió.",
     "invalid_path": "Esta ruta no es válida.",
     "not_a_directory": "Es un archivo, no una carpeta."
+  },
+  "mail": {
+    "not_configured": "El correo no está configurado. Configura el SMTP en Administración › Correo.",
+    "auth_failed": "El servidor SMTP rechazó el usuario o la contraseña.",
+    "connection_failed": "Canopy no pudo conectar con el servidor SMTP. Revisa el servidor, el puerto y el cifrado.",
+    "invalid_recipient": "El servidor SMTP rechazó la dirección del destinatario.",
+    "tls_failed": "Falló la conexión segura con el servidor SMTP. Prueba otro modo de cifrado.",
+    "send_failed": "No se pudo enviar el correo."
   }
 }

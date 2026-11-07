@@ -64,6 +64,13 @@
       "when": 1794085998509,
       "tag": "0008_path_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794087057566,
+      "tag": "0009_mail_outbox",
+      "breakpoints": true
     }
   ]
 }

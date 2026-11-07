@@ -1,0 +1,60 @@
+{
+  "metaTitle": "Correo",
+  "title": "Correo",
+  "description": "Cómo envía Canopy invitaciones, restablecimientos de contraseña y avisos de seguridad.",
+  "status": {
+    "configured": "Enviando",
+    "off": "Sin configurar"
+  },
+  "smtp": {
+    "title": "Servidor SMTP",
+    "description": "Usa la configuración SMTP de tu proveedor (Gmail, Fastmail, Mailgun, tu propio servidor…).",
+    "enabled": "Enviar correos",
+    "enabledHint": "Si está desactivado, los enlaces de invitación y restablecimiento se muestran a los administradores para copiarlos.",
+    "host": "Servidor",
+    "port": "Puerto",
+    "security": "Cifrado",
+    "securityModes": {
+      "starttls": "STARTTLS (587)",
+      "tls": "TLS (465)",
+      "none": "Ninguno (no recomendado)"
+    },
+    "username": "Usuario",
+    "password": "Contraseña",
+    "passwordSet": "Déjalo vacío para conservar la contraseña guardada.",
+    "fromAddress": "Dirección del remitente",
+    "fromName": "Nombre del remitente",
+    "save": "Guardar",
+    "saved": "Configuración de correo guardada",
+    "locked": "Definido por una variable de entorno",
+    "errors": {
+      "port": "Introduce un puerto entre 1 y 65535.",
+      "fromAddress": "Introduce una dirección de remitente válida."
+    }
+  },
+  "test": {
+    "title": "Enviar un correo de prueba",
+    "description": "Comprueba la configuración enviando un mensaje a una dirección que puedas leer.",
+    "to": "Destinatario",
+    "send": "Enviar prueba",
+    "sent": "Correo de prueba enviado",
+    "error": "Introduce un correo válido."
+  },
+  "outbox": {
+    "title": "Correos recientes",
+    "description": "Los últimos 50 mensajes y su estado de envío. Los fallidos se reintentan durante unas horas.",
+    "empty": "Todavía no se ha enviado ningún correo.",
+    "columns": {
+      "recipient": "Destinatario",
+      "subject": "Asunto",
+      "status": "Estado",
+      "when": "Fecha"
+    },
+    "statuses": {
+      "queued": "En cola",
+      "sent": "Enviado",
+      "failed": "Fallido"
+    },
+    "attempts": "{count, plural, one {# intento} other {# intentos}}"
+  }
+}

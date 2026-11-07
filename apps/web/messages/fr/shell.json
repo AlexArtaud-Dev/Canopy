@@ -9,7 +9,8 @@
     "system": "État du système",
     "users": "Utilisateurs",
     "groups": "Groupes",
-    "roles": "Rôles"
+    "roles": "Rôles",
+    "email": "E-mail"
   },
   "preferences": {
     "appearance": "Apparence",

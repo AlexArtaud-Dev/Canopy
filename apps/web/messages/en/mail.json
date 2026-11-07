@@ -1,0 +1,60 @@
+{
+  "metaTitle": "Email",
+  "title": "Email",
+  "description": "How Canopy sends invitations, password resets and security notices.",
+  "status": {
+    "configured": "Sending",
+    "off": "Not configured"
+  },
+  "smtp": {
+    "title": "SMTP server",
+    "description": "Use your provider’s SMTP settings (Gmail, Fastmail, Mailgun, your own server…).",
+    "enabled": "Send emails",
+    "enabledHint": "When off, invitation and reset links are shown to administrators to copy instead.",
+    "host": "Host",
+    "port": "Port",
+    "security": "Encryption",
+    "securityModes": {
+      "starttls": "STARTTLS (587)",
+      "tls": "TLS (465)",
+      "none": "None (not recommended)"
+    },
+    "username": "Username",
+    "password": "Password",
+    "passwordSet": "Leave empty to keep the saved password.",
+    "fromAddress": "Sender address",
+    "fromName": "Sender name",
+    "save": "Save",
+    "saved": "Email settings saved",
+    "locked": "Set by an environment variable",
+    "errors": {
+      "port": "Enter a port between 1 and 65535.",
+      "fromAddress": "Enter a valid sender address."
+    }
+  },
+  "test": {
+    "title": "Send a test email",
+    "description": "Check the settings by sending a message to an address you can read.",
+    "to": "Recipient",
+    "send": "Send test",
+    "sent": "Test email sent",
+    "error": "Enter a valid email address."
+  },
+  "outbox": {
+    "title": "Recent emails",
+    "description": "The last 50 messages and their delivery status. Failed messages are retried for a few hours.",
+    "empty": "No email sent yet.",
+    "columns": {
+      "recipient": "Recipient",
+      "subject": "Subject",
+      "status": "Status",
+      "when": "When"
+    },
+    "statuses": {
+      "queued": "Queued",
+      "sent": "Sent",
+      "failed": "Failed"
+    },
+    "attempts": "{count, plural, one {# attempt} other {# attempts}}"
+  }
+}

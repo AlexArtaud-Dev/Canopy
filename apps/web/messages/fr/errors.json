@@ -50,5 +50,13 @@
     "not_found": "Cet élément n’existe plus ou a été déplacé.",
     "invalid_path": "Ce chemin n’est pas valide.",
     "not_a_directory": "C’est un fichier, pas un dossier."
+  },
+  "mail": {
+    "not_configured": "L’e-mail n’est pas configuré. Configurez le SMTP dans Administration › E-mail.",
+    "auth_failed": "Le serveur SMTP a refusé l’identifiant ou le mot de passe.",
+    "connection_failed": "Canopy n’a pas pu joindre le serveur SMTP. Vérifiez l’hôte, le port et le chiffrement.",
+    "invalid_recipient": "Le serveur SMTP a refusé l’adresse du destinataire.",
+    "tls_failed": "La connexion sécurisée au serveur SMTP a échoué. Essayez un autre mode de chiffrement.",
+    "send_failed": "L’e-mail n’a pas pu être envoyé."
   }
 }

@@ -7,6 +7,24 @@ export async function register(): Promise<void> {
   }
   const { runMigrations } = await import('@/shared/db/migrate');
   await runMigrations();
+  await startMailSweep();
+}
+
+const mailSweepIntervalMs = 60_000;
+
+/** Retries queued emails every minute (instances coordinate through an advisory lock). */
+async function startMailSweep(): Promise<void> {
+  const [{ deliverDueMail }, { logger }] = await Promise.all([
+    import('@/features/mail/server/mailer'),
+    import('@/shared/lib/logger'),
+  ]);
+  const timer = setInterval(() => {
+    deliverDueMail().catch((error: unknown) => {
+      logger.error('mail sweep failed', { module: 'mail', error });
+    });
+  }, mailSweepIntervalMs);
+  // Never keep the process alive just for the sweep.
+  timer.unref();
 }
 
 /**

@@ -111,3 +111,10 @@ entries:
       en: Administrators decide which folders each user and group can reach, and what they may do there
       fr: Les administrateurs décident des dossiers accessibles à chaque utilisateur et groupe, et de ce qu’ils peuvent y faire
       es: Los administradores deciden a qué carpetas llega cada usuario y grupo, y qué pueden hacer en ellas
+  - type: feat
+    scope: mail
+    issue: 36
+    text:
+      en: Configure SMTP from Administration › Email, send a test message and follow recent deliveries
+      fr: Configuration du SMTP dans Administration › E-mail, envoi d’un message de test et suivi des envois récents
+      es: Configura el SMTP en Administración › Correo, envía un mensaje de prueba y sigue los envíos recientes
