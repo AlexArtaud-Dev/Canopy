@@ -17,7 +17,7 @@ import {
 import { Field, FieldGroup, FieldLabel } from '@/shared/ui/field';
 import { Spinner } from '@/shared/ui/spinner';
 
-import { PasswordInput } from './password-input';
+import { PasswordInput } from '@/shared/ui/password-input';
 
 interface PasswordConfirmDialogProps {
   open: boolean;

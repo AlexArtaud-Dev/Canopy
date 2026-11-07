@@ -1,0 +1,7 @@
+{
+  "builtInRoles": {
+    "admin": "Administrador",
+    "editor": "Editor",
+    "viewer": "Lector"
+  }
+}

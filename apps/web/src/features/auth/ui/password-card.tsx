@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/shared/ui/field';
 import { Spinner } from '@/shared/ui/spinner';
 
-import { PasswordInput } from './password-input';
+import { PasswordInput } from '@/shared/ui/password-input';
 
 export interface PasswordValues {
   currentPassword: string;

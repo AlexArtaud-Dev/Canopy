@@ -11,7 +11,7 @@ import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/s
 import { Input } from '@/shared/ui/input';
 import { Spinner } from '@/shared/ui/spinner';
 
-import { PasswordInput } from './password-input';
+import { PasswordInput } from '@/shared/ui/password-input';
 
 export const accountFields = [
   'username',

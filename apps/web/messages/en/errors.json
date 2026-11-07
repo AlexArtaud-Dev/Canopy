@@ -31,5 +31,9 @@
     "cannot_revoke_current": "Use “Sign out” in the account menu to end this session.",
     "forbidden": "You don't have permission to do this. Ask an administrator for access.",
     "ip_blocked": "Too many failed attempts from your network. Try again in {minutes, plural, one {# minute} other {# minutes}}."
+  },
+  "users": {
+    "last_admin": "Canopy needs at least one active administrator. Give another account the Admin role first.",
+    "not_on_self": "Manage your own account from the Account page."
   }
 }

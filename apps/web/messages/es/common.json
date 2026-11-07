@@ -4,7 +4,8 @@
   },
   "actions": {
     "toggleSidebar": "Mostrar u ocultar la barra lateral",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "cancel": "Cancelar"
   },
   "files": {
     "empty": {
@@ -27,5 +28,9 @@
     "title": "Página no encontrada",
     "description": "La página que busca no existe o no tiene acceso a ella.",
     "backHome": "Volver a los archivos"
+  },
+  "password": {
+    "show": "Mostrar contraseña",
+    "hide": "Ocultar contraseña"
   }
 }

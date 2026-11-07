@@ -4,7 +4,8 @@
   },
   "actions": {
     "toggleSidebar": "Afficher ou masquer la barre latérale",
-    "close": "Fermer"
+    "close": "Fermer",
+    "cancel": "Annuler"
   },
   "files": {
     "empty": {
@@ -27,5 +28,9 @@
     "title": "Page introuvable",
     "description": "La page demandée n’existe pas ou vous n’y avez pas accès.",
     "backHome": "Retour aux fichiers"
+  },
+  "password": {
+    "show": "Afficher le mot de passe",
+    "hide": "Masquer le mot de passe"
   }
 }

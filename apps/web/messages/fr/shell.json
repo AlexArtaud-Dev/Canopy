@@ -6,7 +6,8 @@
   },
   "nav": {
     "files": "Fichiers",
-    "system": "État du système"
+    "system": "État du système",
+    "users": "Utilisateurs"
   },
   "preferences": {
     "appearance": "Apparence",

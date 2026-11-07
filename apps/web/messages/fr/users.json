@@ -1,0 +1,87 @@
+{
+  "metaTitle": "Utilisateurs",
+  "title": "Utilisateurs",
+  "description": "Les personnes qui peuvent se connecter à Canopy, et leurs rôles.",
+  "search": "Rechercher par nom, identifiant ou e-mail",
+  "add": "Nouvel utilisateur",
+  "columns": {
+    "user": "Utilisateur",
+    "roles": "Rôles",
+    "status": "Statut",
+    "lastActive": "Dernière activité"
+  },
+  "status": {
+    "active": "Actif",
+    "disabled": "Désactivé"
+  },
+  "twoFactor": "2FA",
+  "noRoles": "Aucun rôle",
+  "never": "Jamais",
+  "you": "Vous",
+  "empty": {
+    "title": "Aucun utilisateur trouvé",
+    "description": "Essayez une autre recherche."
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "summary": "Page {page} sur {pages} · {total} utilisateurs"
+  },
+  "actions": {
+    "menu": "Actions pour {name}",
+    "edit": "Modifier",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "resetTwoFactor": "Réinitialiser la double authentification",
+    "revokeSessions": "Déconnecter partout",
+    "disable": "Désactiver",
+    "enable": "Activer",
+    "delete": "Supprimer"
+  },
+  "form": {
+    "createTitle": "Nouvel utilisateur",
+    "createDescription": "Il peut se connecter tout de suite avec ce mot de passe et le changer depuis sa page Compte.",
+    "editTitle": "Modifier {name}",
+    "editDescription": "Le nom d’utilisateur ne peut pas être modifié.",
+    "username": "Nom d’utilisateur",
+    "displayName": "Nom affiché",
+    "contactEmail": "E-mail",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "roles": "Rôles",
+    "rolesHint": "Les rôles s’additionnent. Les groupes peuvent en accorder d’autres.",
+    "save": "Enregistrer",
+    "create": "Créer l’utilisateur",
+    "errors": {
+      "username": "Utilisez 3 à 32 caractères : lettres, chiffres, points, tirets ou tirets bas.",
+      "displayName": "Saisissez un nom de 64 caractères maximum.",
+      "contactEmail": "Saisissez une adresse e-mail valide, ou laissez vide.",
+      "password": "Utilisez entre {min} et 256 caractères.",
+      "confirmPassword": "Les mots de passe ne correspondent pas."
+    }
+  },
+  "resetPassword": {
+    "title": "Réinitialiser le mot de passe de {name}",
+    "description": "Il sera déconnecté partout et devra utiliser le nouveau mot de passe.",
+    "submit": "Réinitialiser"
+  },
+  "confirm": {
+    "disableTitle": "Désactiver {name} ?",
+    "disableDescription": "Il est déconnecté immédiatement et ne peut plus se connecter tant qu’il n’est pas réactivé.",
+    "deleteTitle": "Supprimer {name} ?",
+    "deleteDescription": "Le compte, ses sessions et sa double authentification sont supprimés définitivement. Le journal d’audit est conservé.",
+    "resetTwoFactorTitle": "Réinitialiser la double authentification de {name} ?",
+    "resetTwoFactorDescription": "Son application et ses codes de secours sont supprimés et il est déconnecté. Il pourra la reconfigurer après connexion.",
+    "revokeSessionsTitle": "Déconnecter {name} partout ?",
+    "revokeSessionsDescription": "Toutes les sessions de ce compte prennent fin maintenant."
+  },
+  "toasts": {
+    "created": "Utilisateur créé",
+    "updated": "Utilisateur modifié",
+    "disabled": "Utilisateur désactivé",
+    "enabled": "Utilisateur activé",
+    "deleted": "Utilisateur supprimé",
+    "passwordReset": "Mot de passe réinitialisé",
+    "twoFactorReset": "Double authentification réinitialisée",
+    "sessionsRevoked": "Déconnecté partout"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "metaTitle": "Usuarios",
+  "title": "Usuarios",
+  "description": "Las personas que pueden iniciar sesión en Canopy y sus roles.",
+  "search": "Buscar por nombre, usuario o correo",
+  "add": "Nuevo usuario",
+  "columns": {
+    "user": "Usuario",
+    "roles": "Roles",
+    "status": "Estado",
+    "lastActive": "Última actividad"
+  },
+  "status": {
+    "active": "Activo",
+    "disabled": "Desactivado"
+  },
+  "twoFactor": "2FA",
+  "noRoles": "Sin rol",
+  "never": "Nunca",
+  "you": "Tú",
+  "empty": {
+    "title": "Ningún usuario coincide",
+    "description": "Prueba otra búsqueda."
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "summary": "Página {page} de {pages} · {total} usuarios"
+  },
+  "actions": {
+    "menu": "Acciones para {name}",
+    "edit": "Editar",
+    "resetPassword": "Restablecer contraseña",
+    "resetTwoFactor": "Restablecer verificación en dos pasos",
+    "revokeSessions": "Cerrar sesión en todas partes",
+    "disable": "Desactivar",
+    "enable": "Activar",
+    "delete": "Eliminar"
+  },
+  "form": {
+    "createTitle": "Nuevo usuario",
+    "createDescription": "Puede iniciar sesión ya con esta contraseña y cambiarla desde su página de cuenta.",
+    "editTitle": "Editar {name}",
+    "editDescription": "El nombre de usuario no se puede cambiar.",
+    "username": "Nombre de usuario",
+    "displayName": "Nombre visible",
+    "contactEmail": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "roles": "Roles",
+    "rolesHint": "Los roles se suman. Los grupos pueden conceder más.",
+    "save": "Guardar",
+    "create": "Crear usuario",
+    "errors": {
+      "username": "Usa de 3 a 32 caracteres: letras, números, puntos, guiones o guiones bajos.",
+      "displayName": "Introduce un nombre de 64 caracteres como máximo.",
+      "contactEmail": "Introduce un correo válido o déjalo vacío.",
+      "password": "Usa entre {min} y 256 caracteres.",
+      "confirmPassword": "Las contraseñas no coinciden."
+    }
+  },
+  "resetPassword": {
+    "title": "Restablecer la contraseña de {name}",
+    "description": "Se cerrará su sesión en todas partes y deberá usar la nueva contraseña.",
+    "submit": "Restablecer"
+  },
+  "confirm": {
+    "disableTitle": "¿Desactivar a {name}?",
+    "disableDescription": "Se cierra su sesión al instante y no podrá entrar hasta que se active de nuevo.",
+    "deleteTitle": "¿Eliminar a {name}?",
+    "deleteDescription": "La cuenta, sus sesiones y su verificación en dos pasos se eliminan definitivamente. El registro de auditoría se conserva.",
+    "resetTwoFactorTitle": "¿Restablecer la verificación en dos pasos de {name}?",
+    "resetTwoFactorDescription": "Se eliminan su aplicación y sus códigos de recuperación y se cierra su sesión. Podrá configurarla de nuevo al entrar.",
+    "revokeSessionsTitle": "¿Cerrar la sesión de {name} en todas partes?",
+    "revokeSessionsDescription": "Todas las sesiones de esta cuenta terminan ahora."
+  },
+  "toasts": {
+    "created": "Usuario creado",
+    "updated": "Usuario actualizado",
+    "disabled": "Usuario desactivado",
+    "enabled": "Usuario activado",
+    "deleted": "Usuario eliminado",
+    "passwordReset": "Contraseña restablecida",
+    "twoFactorReset": "Verificación en dos pasos restablecida",
+    "sessionsRevoked": "Sesión cerrada en todas partes"
+  }
+}

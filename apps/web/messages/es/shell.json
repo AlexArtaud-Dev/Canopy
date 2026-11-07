@@ -6,7 +6,8 @@
   },
   "nav": {
     "files": "Archivos",
-    "system": "Estado del sistema"
+    "system": "Estado del sistema",
+    "users": "Usuarios"
   },
   "preferences": {
     "appearance": "Apariencia",

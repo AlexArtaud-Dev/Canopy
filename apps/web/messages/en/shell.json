@@ -6,7 +6,8 @@
   },
   "nav": {
     "files": "Files",
-    "system": "System status"
+    "system": "System status",
+    "users": "Users"
   },
   "preferences": {
     "appearance": "Appearance",
