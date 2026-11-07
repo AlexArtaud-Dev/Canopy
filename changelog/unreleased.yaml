@@ -69,3 +69,10 @@ entries:
       en: Account page to edit your profile, change your password and sign out other devices
       fr: Page Compte pour modifier votre profil, changer votre mot de passe et déconnecter vos autres appareils
       es: Página de cuenta para editar tu perfil, cambiar tu contraseña y cerrar sesión en otros dispositivos
+  - type: fix
+    scope: auth
+    issue: 29
+    text:
+      en: Addresses that fail to sign in too often are blocked for an hour, and the password reveal button no longer jumps when pressed
+      fr: Les adresses qui échouent trop souvent à se connecter sont bloquées une heure, et le bouton d’affichage du mot de passe ne saute plus au clic
+      es: Las direcciones que fallan demasiadas veces al iniciar sesión se bloquean durante una hora, y el botón para mostrar la contraseña ya no salta al pulsarlo

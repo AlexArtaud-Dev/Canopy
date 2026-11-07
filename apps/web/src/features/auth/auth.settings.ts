@@ -19,6 +19,9 @@ export const authSettings = defineSettings({
     /** Failed sign-ins on one account before it is locked. */
     lockoutThreshold: z.number().int().min(3).max(100).default(5),
     lockoutMinutes: z.number().int().min(1).max(1440).default(15),
+    /** Failed sign-ins or codes from one address, across all accounts, before it is blocked. */
+    ipBlockThreshold: z.number().int().min(5).max(1000).default(20),
+    ipBlockMinutes: z.number().int().min(1).max(1440).default(60),
     /**
      * Reject passwords found in public breaches (Have I Been Pwned, k-anonymity: only the first
      * 5 hex chars of the SHA-1 leave the server). Off by default: it calls an external service.
@@ -31,6 +34,8 @@ export const authSettings = defineSettings({
     passwordMinLength: { group: 'passwords' },
     lockoutThreshold: { group: 'protection' },
     lockoutMinutes: { group: 'protection' },
+    ipBlockThreshold: { group: 'protection' },
+    ipBlockMinutes: { group: 'protection' },
     checkBreachedPasswords: { group: 'passwords' },
   },
 });

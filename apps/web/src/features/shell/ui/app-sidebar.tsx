@@ -28,17 +28,14 @@ import { BrandMark } from './brand-mark';
 interface AppSidebarProps {
   footer: ReactNode;
   /** Permissions of the signed-in user; entries needing anything else are hidden (UX only). */
-  grantedPermissions?: readonly GlobalPermission[];
+  grantedPermissions: readonly GlobalPermission[];
 }
 
 export function AppSidebar({ footer, grantedPermissions }: AppSidebarProps) {
   const t = useTranslations('shell');
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
-  // Until authentication lands (M3/M4) there is no user, so every entry is shown.
-  const navGroups = appRegistry.navigation(
-    (permission) => grantedPermissions?.includes(permission) ?? true,
-  );
+  const navGroups = appRegistry.navigation((permission) => grantedPermissions.includes(permission));
   // On phones the sidebar is a sheet: close it once a destination is picked.
   const closeOnMobile = () => {
     if (isMobile) setOpenMobile(false);

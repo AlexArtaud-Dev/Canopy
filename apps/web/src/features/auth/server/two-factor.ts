@@ -16,6 +16,7 @@ import {
   getSessionState,
   requireSession,
 } from './current-session';
+import { assertAddressAllowed, recordAddressFailure } from './ip-block';
 import { assertCurrentPassword } from './reauthenticate';
 import {
   createPendingFactor,
@@ -47,6 +48,7 @@ export async function verifyTwoFactor(
       throw new AppBaseError('auth.second_factor_expired', 'no pending sign-in');
     }
     const { policy } = await getConfiguredAuth();
+    await assertAddressAllowed(policy);
     const rule = { limit: policy.lockoutThreshold, windowSeconds: policy.lockoutMinutes * 60 };
     const lockout = await readLockout(lockoutScope, state.userId, rule);
     if (lockout.locked) {
@@ -57,6 +59,7 @@ export async function verifyTwoFactor(
 
     const candidate = classifyCode(code);
     if (!(await verifySecondFactor(state.userId, candidate))) {
+      await recordAddressFailure(policy);
       await consume(lockoutScope, state.userId, rule);
       await audit({
         action: 'auth.two_factor',
