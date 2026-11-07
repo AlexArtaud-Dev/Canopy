@@ -2,12 +2,25 @@
   "status": {
     "title": "Services",
     "description": "Health of the components Canopy depends on.",
-    "checkedAt": "Checked at {time}"
+    "checkedAt": "Checked at <time></time>"
   },
   "services": {
-    "web": { "name": "Web app", "description": "Interface, accounts and settings" },
-    "engine": { "name": "Engine", "description": "File operations and background jobs" },
-    "database": { "name": "Database", "description": "PostgreSQL, reached through the engine" }
+    "web": {
+      "name": "Web app",
+      "description": "Interface, accounts and settings"
+    },
+    "engine": {
+      "name": "Engine",
+      "description": "File operations and background jobs"
+    },
+    "database": {
+      "name": "Database",
+      "description": "PostgreSQL, reached through the engine"
+    }
   },
-  "states": { "up": "Operational", "down": "Unavailable", "unknown": "Unknown" }
+  "states": {
+    "up": "Operational",
+    "down": "Unavailable",
+    "unknown": "Unknown"
+  }
 }

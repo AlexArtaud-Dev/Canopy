@@ -2,10 +2,13 @@
   "status": {
     "title": "Servicios",
     "description": "Estado de los componentes de los que depende Canopy.",
-    "checkedAt": "Comprobado a las {time}"
+    "checkedAt": "Comprobado a las <time></time>"
   },
   "services": {
-    "web": { "name": "Aplicación web", "description": "Interfaz, cuentas y ajustes" },
+    "web": {
+      "name": "Aplicación web",
+      "description": "Interfaz, cuentas y ajustes"
+    },
     "engine": {
       "name": "Engine",
       "description": "Operaciones con archivos y tareas en segundo plano"
@@ -15,5 +18,9 @@
       "description": "PostgreSQL, consultada a través del engine"
     }
   },
-  "states": { "up": "Operativo", "down": "No disponible", "unknown": "Desconocido" }
+  "states": {
+    "up": "Operativo",
+    "down": "No disponible",
+    "unknown": "Desconocido"
+  }
 }

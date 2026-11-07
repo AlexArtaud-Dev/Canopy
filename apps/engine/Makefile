@@ -5,7 +5,7 @@ GOLANGCI := $(shell command -v golangci-lint 2>/dev/null || echo docker run --rm
 .PHONY: build test cover cover-gate lint fmt run
 
 # Pure-logic packages must stay fully covered; I/O edges (database, main) are tested by integration.
-FULL_COVERAGE_PKGS := ./internal/config ./internal/httpapi ./internal/logging
+FULL_COVERAGE_PKGS := ./internal/config ./internal/healthcheck ./internal/httpapi ./internal/logging
 
 build:
 	go build -trimpath -o bin/engine ./cmd/engine
