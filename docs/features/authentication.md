@@ -11,6 +11,12 @@ Local accounts only (Better Auth, username + password). No public sign-up.
 - **Brute force**: 10 sign-ins per minute per IP, and an account locks after
   `auth.lockoutThreshold` failures (default 5) for `auth.lockoutMinutes` (default 15); a success
   clears its counter. Wrong username and wrong password get the same answer and the same timing.
+  Failed sign-ins and codes are also counted per address across all accounts: after
+  `auth.ipBlockThreshold` (default 20) within `auth.ipBlockMinutes` (default 60) the address is
+  blocked for the rest of that window (`auth.ip_block` audited).
+- **Administrator**: the setup wizard's account (`is_admin`) holds every declared permission
+  (`permissionsOf`); pages and actions check with `authorize('<module>:<action>')`, which audits
+  refusals. Roles and groups for everyone else arrive in M4.
 - **Email is optional**: Better Auth needs a unique email, so `auth.users.email` holds an
   undeliverable `<uuid>@users.canopy.invalid`; the real address is `contact_email`.
 - **Sessions**: httpOnly SameSite=Lax cookie (`canopy.session_token`, `__Secure-` on https).

@@ -11,6 +11,7 @@ export {
   setupBlocker,
   type CurrentSession,
 } from './server/current-session';
+export { authorize, permissionsOf } from './server/authorize';
 export { signOut } from './server/sign-out';
 export { SetupContainer } from './setup.container';
 export { TotpContainer } from './totp.container';

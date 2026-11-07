@@ -28,6 +28,8 @@
     "invalid_password": "The password is incorrect.",
     "totp_already_enabled": "Two-factor authentication is already on.",
     "totp_not_enabled": "Two-factor authentication is off.",
-    "cannot_revoke_current": "Use “Sign out” in the account menu to end this session."
+    "cannot_revoke_current": "Use “Sign out” in the account menu to end this session.",
+    "forbidden": "You don't have permission to do this. Ask an administrator for access.",
+    "ip_blocked": "Too many failed attempts from your network. Try again in {minutes, plural, one {# minute} other {# minutes}}."
   }
 }

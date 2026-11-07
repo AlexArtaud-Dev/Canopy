@@ -28,6 +28,8 @@
     "invalid_password": "Le mot de passe est incorrect.",
     "totp_already_enabled": "La double authentification est déjà activée.",
     "totp_not_enabled": "La double authentification est désactivée.",
-    "cannot_revoke_current": "Utilisez « Se déconnecter » dans le menu du compte pour fermer cette session."
+    "cannot_revoke_current": "Utilisez « Se déconnecter » dans le menu du compte pour fermer cette session.",
+    "forbidden": "Vous n’avez pas l’autorisation de faire cela. Demandez l’accès à un administrateur.",
+    "ip_blocked": "Trop de tentatives échouées depuis votre réseau. Réessayez dans {minutes, plural, one {# minute} other {# minutes}}."
   }
 }

@@ -15,6 +15,7 @@ import { audit } from '@/features/audit/server/audit-writer';
 
 import { safeRedirectPath, signInInputSchema } from '../auth.utils';
 import { authRequestHeaders, getConfiguredAuth } from './current-session';
+import { assertAddressAllowed, recordAddressFailure } from './ip-block';
 import { hasTotpEnabled } from './totp-factor';
 
 /** Per client IP, whatever the account: slows down password spraying. */
@@ -43,6 +44,7 @@ export async function signIn(input: unknown): Promise<ActionResult<{ redirectTo:
       authRequestHeaders(),
     ]);
     // Failures are counted per account name, so one attacker cannot hide behind many IPs.
+    await assertAddressAllowed(policy);
     const account = username.toLowerCase();
     const lockoutRule = {
       limit: policy.lockoutThreshold,
@@ -64,6 +66,7 @@ export async function signIn(input: unknown): Promise<ActionResult<{ redirectTo:
       userId = result.user.id;
     } catch (error) {
       if (!isAPIError(error)) throw error;
+      await recordAddressFailure(policy);
       const failures = await consume(lockoutScope, account, lockoutRule);
       const nowLocked = failures.remaining === 0;
       // Same answer for unknown user and wrong password; the attempted name is kept for admins.

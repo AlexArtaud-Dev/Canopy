@@ -16,5 +16,7 @@ export const authModule = defineModule({
     'auth.profile_update',
     'auth.password_change',
     'auth.session_revoke',
+    'auth.access_denied',
+    'auth.ip_block',
   ],
 });

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
-import { requireSession } from '@/features/auth';
+import { authorize } from '@/features/auth';
 import { PageHeader } from '@/features/shell';
 import { getSystemStatus, SystemStatusCard } from '@/features/system';
 
@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SystemPage() {
-  await requireSession();
+  await authorize('system:read');
   const [nav, status] = await Promise.all([getTranslations('shell.nav'), getSystemStatus()]);
 
   return (
