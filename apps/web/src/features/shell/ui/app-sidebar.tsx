@@ -19,13 +19,26 @@ import {
   useSidebar,
 } from '@/shared/ui/sidebar';
 
-import { isNavItemActive, navGroups } from '../shell.nav';
+import { appRegistry } from '@/modules';
+import type { GlobalPermission } from '@/shared/modules/module.types';
+
+import { isNavItemActive } from '../shell.nav';
 import { BrandMark } from './brand-mark';
 
-export function AppSidebar({ footer }: { footer: ReactNode }) {
+interface AppSidebarProps {
+  footer: ReactNode;
+  /** Permissions of the signed-in user; entries needing anything else are hidden (UX only). */
+  grantedPermissions?: readonly GlobalPermission[];
+}
+
+export function AppSidebar({ footer, grantedPermissions }: AppSidebarProps) {
   const t = useTranslations('shell');
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
+  // Until authentication lands (M3/M4) there is no user, so every entry is shown.
+  const navGroups = appRegistry.navigation(
+    (permission) => grantedPermissions?.includes(permission) ?? true,
+  );
   // On phones the sidebar is a sheet: close it once a destination is picked.
   const closeOnMobile = () => {
     if (isMobile) setOpenMobile(false);
@@ -52,8 +65,8 @@ export function AppSidebar({ footer }: { footer: ReactNode }) {
       </SidebarHeader>
       <SidebarContent>
         {navGroups.map((group) => (
-          <SidebarGroup key={group.labelKey}>
-            <SidebarGroupLabel>{t(`groups.${group.labelKey}`)}</SidebarGroupLabel>
+          <SidebarGroup key={group.id}>
+            <SidebarGroupLabel>{t(`groups.${group.id}`)}</SidebarGroupLabel>
             <SidebarMenu>
               {group.items.map((item) => {
                 const label = t(`nav.${item.labelKey}`);

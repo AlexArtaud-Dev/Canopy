@@ -1,4 +1,4 @@
-import { isNavItemActive, navGroups } from './shell.nav';
+import { isNavItemActive } from './shell.nav';
 
 describe('isNavItemActive', () => {
   it.each([
@@ -9,12 +9,5 @@ describe('isNavItemActive', () => {
     ['/system', '/systems', false],
   ])('href %s at %s → %s', (href, pathname, expected) => {
     expect(isNavItemActive(href, pathname)).toBe(expected);
-  });
-});
-
-describe('navGroups', () => {
-  it('declares unique hrefs', () => {
-    const hrefs = navGroups.flatMap((group) => group.items.map((item) => item.href));
-    expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 });

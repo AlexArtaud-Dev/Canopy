@@ -17,6 +17,13 @@ export interface CanopyModule<TSettings extends z.ZodObject<z.ZodRawShape>> {
 Registering a module automatically wires: the permission matrix, the settings page, navigation
 entries (filtered by permissions) and audit action labels.
 
+- Declare it in `features/<domain>/<domain>.module.ts` with `defineModule({...})`
+  (`shared/modules/module.types.ts`) and add it to `src/modules.ts`, the single registration point.
+- `createRegistry()` validates declarations at startup: kebab-case ids, unique ids and hrefs,
+  actions in `snake_case`, audit actions named `<module>.<action>`, navigation permissions declared.
+- Module files are imported by the client navigation: keep them free of server-only imports.
+- Navigation labels live under `shell.nav.<labelKey>`, groups under `shell.groups.<group>`.
+
 ## Settings
 
 - Defined as a Zod object with `.default()` on every field — sensible defaults, the app works with zero config.
