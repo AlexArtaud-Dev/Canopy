@@ -6,6 +6,7 @@ import {
   effectivePermissions,
   entityIdSchema,
   groupInputSchema,
+  groupMembersInputSchema,
   permissionMatrix,
   roleInputSchema,
   sanitizeRolePermissions,
@@ -96,5 +97,11 @@ describe('input schemas', () => {
       }).success,
     ).toBe(true);
     expect(entityIdSchema.safeParse({ id: 'not-a-uuid' }).success).toBe(false);
+    expect(
+      groupMembersInputSchema.safeParse({
+        groupId: '2b1f5c1e-8a7d-4c1b-9f0e-3d2a1b0c9e8f',
+        userIds: [],
+      }).success,
+    ).toBe(false);
   });
 });
