@@ -5,6 +5,9 @@
     "bad_request": "The request was not valid. Refresh the page and try again.",
     "internal": "The server could not complete this request. Try again in a moment.",
     "database_unavailable": "The database is unreachable. Canopy will recover as soon as it is back.",
-    "database_not_configured": "The database connection is not configured. Ask your administrator to set CANOPY_DATABASE_URL."
+    "database_not_configured": "The database connection is not configured. Ask your administrator to set CANOPY_DATABASE_URL.",
+    "encryption_key_missing": "Secret storage is not configured. Ask your administrator to set CANOPY_ENCRYPTION_KEY.",
+    "encryption_key_invalid": "The encryption key is invalid. It must be 32 random bytes encoded in base64.",
+    "secret_undecryptable": "A stored secret could not be read. It may have been encrypted with a key that is no longer configured."
   }
 }
