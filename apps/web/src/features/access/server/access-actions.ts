@@ -1,9 +1,10 @@
 'use server';
 
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import type { z } from 'zod';
 
 import { appRegistry } from '@/modules';
+import { getDb } from '@/shared/db/client';
 import { runAction, type ActionResult } from '@/shared/lib/action';
 import { AppBaseError } from '@/shared/lib/errors';
 import { audit } from '@/features/audit/server/audit-writer';
@@ -13,6 +14,7 @@ import { usersTable } from '@/features/auth/server/auth.schema';
 import {
   entityIdSchema,
   groupInputSchema,
+  groupMembersInputSchema,
   roleInputSchema,
   sanitizeRolePermissions,
 } from '../access.utils';
@@ -124,30 +126,16 @@ export async function saveGroup(input: unknown): Promise<ActionResult<{ id: stri
         }
         const target = groupId;
         await tx.delete(groupRolesTable).where(eq(groupRolesTable.groupId, target));
-        await tx.delete(groupMembersTable).where(eq(groupMembersTable.groupId, target));
-        const [roles, members] = await Promise.all([
-          draft.roleIds.length
-            ? tx
-                .select({ id: rolesTable.id })
-                .from(rolesTable)
-                .where(inArray(rolesTable.id, draft.roleIds))
-            : Promise.resolve([]),
-          draft.memberIds.length
-            ? tx
-                .select({ id: usersTable.id })
-                .from(usersTable)
-                .where(inArray(usersTable.id, draft.memberIds))
-            : Promise.resolve([]),
-        ]);
+        const roles = draft.roleIds.length
+          ? await tx
+              .select({ id: rolesTable.id })
+              .from(rolesTable)
+              .where(inArray(rolesTable.id, draft.roleIds))
+          : [];
         if (roles.length) {
           await tx
             .insert(groupRolesTable)
             .values(roles.map((role) => ({ groupId: target, roleId: role.id })));
-        }
-        if (members.length) {
-          await tx
-            .insert(groupMembersTable)
-            .values(members.map((member) => ({ groupId: target, userId: member.id })));
         }
         return target;
       }),
@@ -161,7 +149,6 @@ export async function saveGroup(input: unknown): Promise<ActionResult<{ id: stri
         name: draft.name,
         requireTwoFactor: draft.requireTwoFactor,
         roleIds: draft.roleIds,
-        memberCount: draft.memberIds.length,
       },
     });
     return { id };
@@ -174,6 +161,54 @@ export async function deleteGroup(input: unknown): Promise<ActionResult<null>> {
     const { user } = await authorize('groups:delete');
     await withAdminGuard((tx) => tx.delete(groupsTable).where(eq(groupsTable.id, id)));
     await audit({ action: 'groups.delete', result: 'success', actorId: user.id, target: id });
+    return null;
+  });
+}
+
+export async function addGroupMembers(input: unknown): Promise<ActionResult<null>> {
+  return runAction(async () => {
+    const { groupId, userIds } = parse(groupMembersInputSchema, input);
+    const { user } = await authorize('groups:update');
+    const existing = await getDb()
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(inArray(usersTable.id, userIds));
+    if (existing.length > 0) {
+      await getDb()
+        .insert(groupMembersTable)
+        .values(existing.map((member) => ({ groupId, userId: member.id })))
+        .onConflictDoNothing();
+    }
+    await audit({
+      action: 'groups.members_add',
+      result: 'success',
+      actorId: user.id,
+      target: groupId,
+      meta: { userIds: existing.map((member) => member.id) },
+    });
+    return null;
+  });
+}
+
+export async function removeGroupMember(input: unknown): Promise<ActionResult<null>> {
+  return runAction(async () => {
+    const { groupId, userIds } = parse(groupMembersInputSchema, input);
+    const { user } = await authorize('groups:update');
+    // Leaving a group can drop admin rights: never below one active administrator.
+    await withAdminGuard((tx) =>
+      tx
+        .delete(groupMembersTable)
+        .where(
+          and(eq(groupMembersTable.groupId, groupId), inArray(groupMembersTable.userId, userIds)),
+        ),
+    );
+    await audit({
+      action: 'groups.members_remove',
+      result: 'success',
+      actorId: user.id,
+      target: groupId,
+      meta: { userIds },
+    });
     return null;
   });
 }

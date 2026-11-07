@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState, type SubmitEvent } from 'react';
+import type { SubmitEvent } from 'react';
 
 import { FormError, type FormErrorContent } from '@/shared/errors/form-error';
 import { formText } from '@/shared/lib/form';
@@ -33,13 +33,11 @@ export interface GroupFormValues {
   description: string;
   requireTwoFactor: boolean;
   roleIds: string[];
-  memberIds: string[];
 }
 
 interface Option {
   id: string;
   label: string;
-  hint?: string;
 }
 
 interface GroupDialogProps {
@@ -47,7 +45,6 @@ interface GroupDialogProps {
   /** Null to create. */
   editing: GroupFormValues | null;
   roles: readonly Option[];
-  people: readonly Option[];
   pending: boolean;
   invalidFields: ReadonlySet<string>;
   error: FormErrorContent | null;
@@ -59,7 +56,6 @@ export function GroupDialog({
   open,
   editing,
   roles,
-  people,
   pending,
   invalidFields,
   error,
@@ -67,24 +63,7 @@ export function GroupDialog({
   onOpenChange,
 }: GroupDialogProps) {
   const t = useTranslations('access.groups');
-  const [members, setMembers] = useState<ReadonlySet<string>>(new Set(editing?.memberIds));
-  const [filter, setFilter] = useState('');
   const invalid = (field: string) => invalidFields.has(field) || undefined;
-  const needle = filter.trim().toLowerCase();
-  const visiblePeople = needle
-    ? people.filter((person) =>
-        `${person.label} ${person.hint ?? ''}`.toLowerCase().includes(needle),
-      )
-    : people;
-
-  const toggleMember = (id: string, checked: boolean) => {
-    setMembers((current) => {
-      const next = new Set(current);
-      if (checked) next.add(id);
-      else next.delete(id);
-      return next;
-    });
-  };
 
   const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -94,8 +73,6 @@ export function GroupDialog({
       description: formText(form, 'description'),
       requireTwoFactor: form.get('requireTwoFactor') === 'on',
       roleIds: form.getAll('roleIds').filter((value) => typeof value === 'string'),
-      // Kept in state: the filter hides rows, which must not drop their selection.
-      memberIds: [...members],
     });
   };
 
@@ -158,39 +135,6 @@ export function GroupDialog({
                     />
                     <FieldLabel htmlFor={`group-role-${role.id}`} className="font-normal">
                       {role.label}
-                    </FieldLabel>
-                  </Field>
-                ))}
-              </div>
-            </FieldSet>
-            <FieldSet>
-              <FieldLegend variant="label">
-                {t('form.members')} · {members.size}
-              </FieldLegend>
-              <Input
-                type="search"
-                value={filter}
-                onChange={(event) => {
-                  setFilter(event.target.value);
-                }}
-                placeholder={t('form.searchMembers')}
-                aria-label={t('form.searchMembers')}
-              />
-              <div className="max-h-56 overflow-y-auto rounded-lg border p-2">
-                {visiblePeople.map((person) => (
-                  <Field key={person.id} orientation="horizontal" className="rounded-md p-1.5">
-                    <Checkbox
-                      id={`member-${person.id}`}
-                      checked={members.has(person.id)}
-                      onCheckedChange={(checked) => {
-                        toggleMember(person.id, checked === true);
-                      }}
-                    />
-                    <FieldLabel htmlFor={`member-${person.id}`} className="font-normal">
-                      {person.label}
-                      {person.hint && (
-                        <span className="text-muted-foreground text-xs">{person.hint}</span>
-                      )}
                     </FieldLabel>
                   </Field>
                 ))}

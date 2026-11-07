@@ -1,13 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
-import {
-  GroupsContainer,
-  isBuiltInRoleKey,
-  listGroups,
-  listMemberOptions,
-  listRoles,
-} from '@/features/access';
+import { GroupsContainer, isBuiltInRoleKey, listGroups, listRoles } from '@/features/access';
 import { authorizePage } from '@/features/auth';
 import { AccessDenied, PageHeader } from '@/features/shell';
 
@@ -18,11 +12,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function GroupsPage() {
   if (!(await authorizePage('groups:read'))) return <AccessDenied />;
-  const [t, groups, roles, people] = await Promise.all([
+  const [t, groups, roles] = await Promise.all([
     getTranslations('access'),
     listGroups(),
     listRoles(),
-    listMemberOptions(),
   ]);
 
   return (
@@ -35,11 +28,6 @@ export default async function GroupsPage() {
           roles={roles.map((role) => ({
             id: role.id,
             label: isBuiltInRoleKey(role.key) ? t(`builtInRoles.${role.key}`) : role.name,
-          }))}
-          people={people.map((person) => ({
-            id: person.id,
-            label: person.name,
-            hint: `@${person.username}`,
           }))}
         />
       </main>

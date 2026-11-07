@@ -97,3 +97,10 @@ entries:
       en: Pages you are not allowed to open now show a clear “Access denied” message
       fr: Les pages que vous n’êtes pas autorisé à ouvrir affichent désormais un message « Accès refusé » clair
       es: Las páginas que no puedes abrir muestran ahora un mensaje claro de «Acceso denegado»
+  - type: feat
+    scope: admin
+    issue: 87
+    text:
+      en: Group members are managed on a dedicated page, separate from the group settings
+      fr: Les membres d’un groupe se gèrent sur une page dédiée, séparée des réglages du groupe
+      es: Los miembros de un grupo se gestionan en una página propia, separada de los ajustes del grupo

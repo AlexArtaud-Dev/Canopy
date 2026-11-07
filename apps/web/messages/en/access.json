@@ -80,8 +80,6 @@
       "requireTwoFactor": "Require two-factor authentication",
       "requireTwoFactorHint": "Members without it must set it up at their next page load.",
       "roles": "Roles",
-      "members": "Members",
-      "searchMembers": "Filter people",
       "save": "Save",
       "create": "Create group",
       "errors": {
@@ -96,6 +94,24 @@
     "toasts": {
       "saved": "Group saved",
       "deleted": "Group deleted"
+    },
+    "manageMembers": "Manage members",
+    "membersPage": {
+      "back": "All groups",
+      "addTitle": "Add people",
+      "addDescription": "Search by name or username, then add them to this group.",
+      "search": "Search people",
+      "noMatch": "Nobody else matches.",
+      "add": "Add",
+      "membersTitle": "Members ({count})",
+      "remove": "Remove",
+      "removeLabel": "Remove {name} from the group",
+      "added": "Member added",
+      "removed": "Member removed",
+      "empty": {
+        "title": "No member yet",
+        "description": "Add people above to apply this group's roles and requirements."
+      }
     }
   }
 }

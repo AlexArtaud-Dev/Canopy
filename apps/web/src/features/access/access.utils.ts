@@ -73,7 +73,11 @@ export const groupInputSchema = z.object({
   description: z.string().trim().max(200),
   requireTwoFactor: z.boolean(),
   roleIds: z.array(z.uuid()).max(50),
-  memberIds: z.array(z.string().min(1).max(64)).max(5000),
+});
+
+export const groupMembersInputSchema = z.object({
+  groupId: z.uuid(),
+  userIds: z.array(z.string().min(1).max(64)).min(1).max(500),
 });
 
 export const entityIdSchema = z.object({ id: z.uuid() });
