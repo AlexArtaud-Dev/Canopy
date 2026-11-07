@@ -13,7 +13,7 @@ web :3000  (Next.js) ──────────────► PostgreSQL
   │   settings, audit viewer, BFF                 engine, river      (owned by engine)
   │
   ├── JSON API + signed engine token ──► engine :8080 (Go, internal network only)
-  └── /engine/* rewrite (streamed): uploads (tus), downloads,     │
+  └── /engine/* stream proxy (Node pipeline): uploads, downloads, │
       media streaming, SSE job progress                           ▼
                                                    /srv/canopy/root  (all volumes mounted here)
 ```
@@ -93,8 +93,9 @@ The engine DB role has read-only access to `app` (grants, settings) and INSERT-o
 
 Env values win over DB settings and show as read-only in the admin UI.
 
-## Known risk — validate in milestone 1
+## Streaming (validated in milestone 1)
 
-Multi-GB uploads/downloads and long SSE streams through Next.js rewrites must be proven to stream
-without buffering. Fallback (documented, not shipped as config): the reverse proxy routes `/engine/*`
-straight to the engine container.
+Multi-GB transfers and SSE go through a single Pages Router API route that pipes raw Node streams
+to the engine and injects the engine token. Next.js rewrites and App Router Route Handlers buffer
+request bodies and must not carry uploads. Measurements, decision and fallback (reverse proxy
+straight to the engine): [streaming.md](streaming.md).

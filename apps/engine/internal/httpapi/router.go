@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/spike"
 )
 
 const readinessTimeout = 2 * time.Second
@@ -37,6 +38,7 @@ func NewRouter(deps Deps) http.Handler {
 
 	r.Get("/healthz", handleLiveness)
 	r.Get("/readyz", handleReadiness(deps))
+	r.Mount("/spike", spike.Routes(deps.Logger))
 
 	return r
 }

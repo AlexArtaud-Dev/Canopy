@@ -24,7 +24,7 @@ import { BrandMark } from './brand-mark';
 
 export function AppSidebar({ footer }: { footer: ReactNode }) {
   const t = useTranslations('shell');
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '/'; // spike: pages dir widens the type
   const { isMobile, setOpenMobile } = useSidebar();
   // On phones the sidebar is a sheet: close it once a destination is picked.
   const closeOnMobile = () => {
