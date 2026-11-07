@@ -20,5 +20,6 @@ export const authModule = defineModule({
     'auth.ip_block',
     'auth.password_reset_request',
     'auth.password_set',
+    'auth.data_export',
   ],
 });

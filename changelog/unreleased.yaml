@@ -146,3 +146,10 @@ entries:
       en: Maintenance mode, switched on from the local network, shows a maintenance page to everyone else
       fr: Le mode maintenance, activable depuis le réseau local, affiche une page de maintenance à tous les autres
       es: El modo mantenimiento, activable desde la red local, muestra una página de mantenimiento a todos los demás
+  - type: feat
+    scope: privacy
+    issue: 42
+    text:
+      en: Download your personal data from the Account page; administrators can export it for anyone, and old emails are deleted after a retention period
+      fr: Téléchargement de vos données personnelles depuis la page Compte ; les administrateurs peuvent les exporter pour chacun, et les anciens e-mails sont supprimés après une durée de conservation
+      es: Descarga tus datos personales desde la página Cuenta; los administradores pueden exportarlos de cualquiera y los correos antiguos se borran tras un periodo de conservación

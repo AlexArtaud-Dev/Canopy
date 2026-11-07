@@ -135,3 +135,17 @@ export async function deliverDueMail(): Promise<void> {
     lock.release();
   }
 }
+
+/** Deletes delivered or abandoned emails older than the retention (they hold personal data). */
+export async function purgeOldMail(retentionDays: number): Promise<number> {
+  const deleted = await getDb()
+    .delete(mailOutboxTable)
+    .where(
+      and(
+        sql`${mailOutboxTable.status} <> 'queued'`,
+        lte(mailOutboxTable.createdAt, sql`now() - make_interval(days => ${retentionDays})`),
+      ),
+    )
+    .returning({ id: mailOutboxTable.id });
+  return deleted.length;
+}

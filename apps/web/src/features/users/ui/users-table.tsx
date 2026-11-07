@@ -31,6 +31,7 @@ export type UserAction =
   | 'edit'
   | 'resetPassword'
   | 'resetLink'
+  | 'exportData'
   | 'resetTwoFactor'
   | 'revokeSessions'
   | 'disable'
@@ -152,6 +153,13 @@ export function UsersTable({
                         }}
                       >
                         {t('invitation.resetLink')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => {
+                          onAction('exportData', user);
+                        }}
+                      >
+                        {t('privacy.export')}
                       </DropdownMenuItem>
                       {user.twoFactor && (
                         <DropdownMenuItem

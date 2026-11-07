@@ -25,5 +25,6 @@ export const usersModule = defineModule({
     'users.two_factor_reset',
     'users.invite',
     'users.reset_link',
+    'users.data_export',
   ],
 });
