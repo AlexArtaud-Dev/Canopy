@@ -78,7 +78,7 @@ describeWithDb('auth (integration)', () => {
   });
 
   it('creates a local account with an argon2id credential and a synthetic login email', async () => {
-    const { id } = await createAccount({ username: 'Ada', password, isAdmin: true });
+    const { id } = await createAccount({ username: 'Ada', password, roleKeys: ['admin'] });
     const [row] = await getConnection().sql<
       { username: string; display_username: string; email: string; hash: string }[]
     >`SELECT u.username, u.display_username, u.email, a.password AS hash
@@ -91,7 +91,7 @@ describeWithDb('auth (integration)', () => {
   });
 
   it('rejects a username that is already taken, whatever its case', async () => {
-    await expect(createAccount({ username: 'ADA', password, isAdmin: false })).rejects.toEqual(
+    await expect(createAccount({ username: 'ADA', password, roleKeys: [] })).rejects.toEqual(
       expect.objectContaining<Partial<AppBaseError>>({ code: 'auth.username_taken' }),
     );
   });
@@ -139,7 +139,7 @@ describeWithDb('auth (integration)', () => {
     let secret: Buffer;
 
     beforeAll(async () => {
-      ({ id: userId } = await createAccount({ username: 'grace', password, isAdmin: false }));
+      ({ id: userId } = await createAccount({ username: 'grace', password, roleKeys: [] }));
       secret = base32Decode(await createPendingFactor(userId));
     });
 

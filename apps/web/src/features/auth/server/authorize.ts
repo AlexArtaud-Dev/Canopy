@@ -1,18 +1,14 @@
 import 'server-only';
 
-import { appRegistry } from '@/modules';
 import { AppBaseError } from '@/shared/lib/errors';
 import type { GlobalPermission } from '@/shared/modules/module.types';
 import { audit } from '@/features/audit/server/audit-writer';
 
 import { requireSession, type CurrentSession, type SessionUser } from './current-session';
 
-/**
- * Global permissions held by a user. The instance administrator (created by the setup wizard)
- * holds every declared permission; roles and groups grant the rest from M4.
- */
+/** Global permissions held by a user (resolved from roles when the session was read). */
 export function permissionsOf(user: SessionUser): readonly GlobalPermission[] {
-  return user.isAdmin ? appRegistry.globalPermissions : [];
+  return user.permissions;
 }
 
 /** Server-side gate for pages and actions; a refusal is audited and shown as `auth.forbidden`. */

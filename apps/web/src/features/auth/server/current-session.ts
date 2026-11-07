@@ -8,6 +8,9 @@ import { cache } from 'react';
 import { getDb } from '@/shared/db/client';
 import { getRequestContext, isLocalRequest } from '@/shared/request/request-context';
 import { getSettings } from '@/features/settings/server/settings-store';
+import { adminPermission } from '@/features/access/access.utils';
+import { loadPermissions } from '@/features/access/server/permissions';
+import type { GlobalPermission } from '@/shared/modules/module.types';
 
 import { authSettings } from '../auth.settings';
 import { activityGranularitySeconds, evaluateSession } from '../auth.utils';
@@ -19,6 +22,9 @@ export interface SessionUser {
   username: string;
   name: string;
   contactEmail: string | null;
+  /** Global permissions from roles (direct and through groups). */
+  permissions: readonly GlobalPermission[];
+  /** Holds `system:admin`. */
   isAdmin: boolean;
 }
 
@@ -93,11 +99,18 @@ export const getSessionState = cache(async (): Promise<SessionState> => {
     await getDb().delete(sessionsTable).where(eq(sessionsTable.id, result.session.id));
     return { kind: 'none' };
   }
+  if (result.user.disabled === true) {
+    // Disabling ends sessions, but never trust that alone.
+    await getDb().delete(sessionsTable).where(eq(sessionsTable.id, result.session.id));
+    return { kind: 'none' };
+  }
   if (verdict === 'pending') {
     return { kind: 'pending', sessionId: result.session.id, userId: result.user.id };
   }
-  await recordActivity(result.session.id);
-
+  const [permissions] = await Promise.all([
+    loadPermissions(result.user.id),
+    recordActivity(result.session.id),
+  ]);
   const { user } = result;
   return {
     kind: 'active',
@@ -107,7 +120,8 @@ export const getSessionState = cache(async (): Promise<SessionState> => {
       username: user.username ?? '',
       name: user.name,
       contactEmail: user.contactEmail ?? null,
-      isAdmin: user.isAdmin === true,
+      permissions,
+      isAdmin: permissions.includes(adminPermission),
     },
   };
 });

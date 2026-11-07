@@ -21,8 +21,8 @@ export const usersTable = authSchema.table('users', {
   username: text('username').notNull().unique(),
   displayUsername: text('display_username'),
   contactEmail: text('contact_email'),
-  /** Instance owner created by the setup wizard; roles and groups refine this in M4. */
-  isAdmin: boolean('is_admin').notNull().default(false),
+  /** Disabled accounts cannot sign in; their sessions are ended when disabled. */
+  disabled: boolean('disabled').notNull().default(false),
   ...timestamps,
 });
 

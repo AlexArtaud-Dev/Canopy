@@ -12,6 +12,18 @@
 - **Path grant**: `(subjectType, subjectId, virtualPath, actions[], effect: allow | deny)`.
 - `system:admin` bypasses path grants (still fully audited).
 
+## Implementation (web)
+
+- Tables in `auth`: `roles` (`permissions text[]`, `*` = everything, built-in `key` admin/editor/
+  viewer), `groups` (`require_two_factor`), `group_members`, `user_roles`, `group_roles`.
+- `loadPermissions(userId)` (`features/access/server/permissions.ts`) unions direct and group
+  roles, expanded against the registry (`effectivePermissions`, pure). The session carries them;
+  `isAdmin` means holding `system:admin`.
+- Server: `authorize('<module>:<action>')` (`features/auth`) — audits refusals as
+  `auth.access_denied` and fails with `auth.forbidden`.
+- UI: `PermissionsProvider` in the app layout, `useCan()` / `<Can permission>` (`shared/permissions`).
+- The setup wizard's account gets the `admin` role; disabled accounts get no session.
+
 ## Path resolution (engine `authz`, pure, 100% tested)
 
 1. Collect grants of the user and of all their groups.

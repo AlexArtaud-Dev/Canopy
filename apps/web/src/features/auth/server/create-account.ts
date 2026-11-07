@@ -3,6 +3,7 @@ import 'server-only';
 import { randomUUID } from 'node:crypto';
 
 import { AppBaseError } from '@/shared/lib/errors';
+import { assignBuiltInRoles } from '@/features/access/server/permissions';
 
 import { syntheticEmail } from '../auth.utils';
 import { getConfiguredAuth } from './current-session';
@@ -13,7 +14,8 @@ export interface AccountDraft {
   displayName?: string | undefined;
   contactEmail?: string | undefined;
   password: string;
-  isAdmin: boolean;
+  /** Built-in role keys to assign (`admin` for the setup wizard's account). */
+  roleKeys: readonly string[];
 }
 
 /**
@@ -41,7 +43,6 @@ export async function createAccount(draft: AccountDraft): Promise<{ id: string }
       username,
       displayUsername: draft.username,
       contactEmail: draft.contactEmail ?? null,
-      isAdmin: draft.isAdmin,
     },
     { method: 'admin' },
   );
@@ -51,5 +52,6 @@ export async function createAccount(draft: AccountDraft): Promise<{ id: string }
     accountId: user.id,
     password: await hashPassword(draft.password),
   });
+  await assignBuiltInRoles(user.id, draft.roleKeys);
   return { id: user.id };
 }

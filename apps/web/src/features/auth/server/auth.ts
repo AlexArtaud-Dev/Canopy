@@ -3,6 +3,7 @@ import 'server-only';
 import { randomUUID } from 'node:crypto';
 
 import { betterAuth } from 'better-auth';
+import { eq } from 'drizzle-orm';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
 import { username } from 'better-auth/plugins/username';
@@ -15,6 +16,14 @@ import { usernameSchema } from '../auth.utils';
 import { accountsTable, sessionsTable, usersTable, verificationsTable } from './auth.schema';
 import { hashPassword, verifyPassword } from './password';
 import { hasTotpEnabled } from './totp-factor';
+
+async function isDisabled(userId: string): Promise<boolean> {
+  const [row] = await getDb()
+    .select({ disabled: usersTable.disabled })
+    .from(usersTable)
+    .where(eq(usersTable.id, userId));
+  return row?.disabled !== false;
+}
 
 /** Request header carrying the client IP we resolved; anything the client sent is overwritten. */
 export const clientIpHeader = 'x-canopy-client-ip';
@@ -49,7 +58,7 @@ function createAuth(lifetimeSeconds: number) {
     user: {
       additionalFields: {
         contactEmail: { type: 'string', required: false, input: false },
-        isAdmin: { type: 'boolean', required: false, defaultValue: false, input: false },
+        disabled: { type: 'boolean', required: false, defaultValue: false, input: false },
       },
     },
     session: {
@@ -66,9 +75,13 @@ function createAuth(lifetimeSeconds: number) {
         create: {
           // Decided when the row is written, so a 2FA account never has a usable session before
           // its second factor, even for a moment.
-          before: async (session) => ({
-            data: { ...session, twoFactorPending: await hasTotpEnabled(session.userId) },
-          }),
+          // Returning false refuses the session: disabled accounts cannot sign in.
+          before: async (session) => {
+            if (await isDisabled(session.userId)) return false;
+            return {
+              data: { ...session, twoFactorPending: await hasTotpEnabled(session.userId) },
+            };
+          },
         },
       },
     },
