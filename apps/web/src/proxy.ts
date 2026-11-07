@@ -99,7 +99,7 @@ export const config = {
        * matched request has its body cloned and buffered (10 MiB cap), which breaks uploads.
        * See docs/dev/streaming.md.
        */
-      source: '/((?!engine|api/engine|api/health|_next/static|_next/image|favicon.ico).*)',
+      source: '/((?!engine|api/engine|api/health|_next/static|_next/image|favicon.ico|icon.svg).*)',
       missing: [{ type: 'header', key: 'next-router-prefetch' }],
     },
   ],
