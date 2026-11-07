@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
+import { createCipheriv, createDecipheriv, createHash, hkdfSync, randomBytes } from 'node:crypto';
 
 import { AppBaseError } from '@/shared/lib/errors';
 
@@ -97,4 +97,13 @@ export function decrypt(envelope: string, associatedData: string, keyring: Keyri
 /** True when the value was sealed with a retired key and should be re-encrypted. */
 export function needsRotation(envelope: string, keyring: Keyring): boolean {
   return envelope.split('.')[1] !== keyring.current.id;
+}
+
+/**
+ * Derives an independent 32-byte subkey (HKDF-SHA256) from the current key, so features that need
+ * their own secret (cookie signing) do not ask admins for one more variable. Rotating the main
+ * key rotates every derived key too.
+ */
+export function deriveSubkey(keyring: Keyring, info: string): Buffer {
+  return Buffer.from(hkdfSync('sha256', keyring.current.key, Buffer.alloc(0), info, keyBytes));
 }

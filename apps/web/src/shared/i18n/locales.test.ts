@@ -1,4 +1,11 @@
-import { defaultLocale, isLocale, localeCookieName, locales, resolveLocale } from './locales';
+import {
+  defaultLocale,
+  isLocale,
+  localeCookieName,
+  localeNames,
+  locales,
+  resolveLocale,
+} from './locales';
 
 describe('locale constants', () => {
   it('ships English as source plus French and Spanish', () => {
@@ -44,5 +51,15 @@ describe('resolveLocale', () => {
     expect(resolveLocale(undefined, null)).toBe(defaultLocale);
     expect(resolveLocale(undefined, '')).toBe(defaultLocale);
     expect(resolveLocale(undefined, 'de, ja')).toBe(defaultLocale);
+  });
+});
+
+describe('localeNames', () => {
+  it('names every locale in its own language', () => {
+    expect(locales.map((locale) => localeNames[locale])).toEqual([
+      'English',
+      'Français',
+      'Español',
+    ]);
   });
 });

@@ -34,3 +34,17 @@ entries:
       en: Strict Content Security Policy, hardened HTTP headers and rate limiting
       fr: Politique de sécurité du contenu stricte, en-têtes HTTP renforcés et limitation du débit
       es: Política de seguridad de contenido estricta, cabeceras HTTP reforzadas y limitación de peticiones
+  - type: feat
+    scope: auth
+    issue: 27
+    text:
+      en: Sign in with a username and password; sessions expire after inactivity and after a maximum lifetime
+      fr: Connexion par nom d’utilisateur et mot de passe ; les sessions expirent après inactivité et au-delà d’une durée maximale
+      es: Inicio de sesión con nombre de usuario y contraseña; las sesiones caducan por inactividad y tras una duración máxima
+  - type: feat
+    scope: auth
+    issue: 28
+    text:
+      en: First-run setup wizard to create the administrator, available only from the local network
+      fr: Assistant de premier lancement pour créer l’administrateur, accessible uniquement depuis le réseau local
+      es: Asistente de primer arranque para crear el administrador, disponible solo desde la red local

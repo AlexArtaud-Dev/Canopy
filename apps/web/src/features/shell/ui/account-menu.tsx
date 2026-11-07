@@ -1,12 +1,15 @@
 'use client';
 
-import { ChevronsUpDown, Languages, Monitor, Moon, Settings2, Sun } from 'lucide-react';
+import { ChevronsUpDown, Languages, LogOut } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { locales, type Locale } from '@/shared/i18n/locales';
+import { localeNames, locales, type Locale } from '@/shared/i18n/locales';
+import { themeChoices, themeIcons, type ThemeChoice } from '@/shared/theme/theme-choices';
+import { Avatar, AvatarFallback } from '@/shared/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -15,46 +18,64 @@ import {
 } from '@/shared/ui/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/shared/ui/sidebar';
 
-export const themeChoices = ['light', 'dark', 'system'] as const;
-export type ThemeChoice = (typeof themeChoices)[number];
+export interface AccountSummary {
+  name: string;
+  username: string;
+  initials: string;
+  isAdmin: boolean;
+}
 
-const themeIcons = { light: Sun, dark: Moon, system: Monitor } as const;
-
-/** Endonyms: a language is always listed in its own language so users can find it. */
-const localeNames: Record<Locale, string> = { en: 'English', fr: 'Français', es: 'Español' };
-
-interface PreferencesMenuProps {
+interface AccountMenuProps {
+  account: AccountSummary;
   theme: ThemeChoice;
   locale: Locale;
   pending: boolean;
   onThemeChange: (theme: ThemeChoice) => void;
   onLocaleChange: (locale: Locale) => void;
+  onSignOut: () => void;
 }
 
-export function PreferencesMenu({
+export function AccountMenu({
+  account,
   theme,
   locale,
   pending,
   onThemeChange,
   onLocaleChange,
-}: PreferencesMenuProps) {
+  onSignOut,
+}: AccountMenuProps) {
   const t = useTranslations('shell.preferences');
+  const accountT = useTranslations('auth.account');
+
+  const identity = (
+    <>
+      <Avatar className="size-8 rounded-lg">
+        <AvatarFallback className="rounded-lg text-xs font-medium">
+          {account.initials}
+        </AvatarFallback>
+      </Avatar>
+      <span className="grid flex-1 text-left leading-tight">
+        <span className="truncate text-sm font-medium">{account.name}</span>
+        <span className="text-muted-foreground truncate text-xs">
+          @{account.username}
+          {account.isAdmin && ` · ${accountT('administrator')}`}
+        </span>
+      </span>
+    </>
+  );
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="lg" tooltip={t('title')} aria-busy={pending}>
-              <span className="bg-muted flex aspect-square size-8 items-center justify-center rounded-lg">
-                <Settings2 className="size-4" aria-hidden />
-              </span>
-              <span className="grid flex-1 text-left leading-tight">
-                <span className="truncate text-sm font-medium">{t('title')}</span>
-                <span className="text-muted-foreground truncate text-xs">
-                  {t(`themes.${theme}`)} · {localeNames[locale]}
-                </span>
-              </span>
+            <SidebarMenuButton
+              size="lg"
+              tooltip={accountT('menu')}
+              aria-label={accountT('menu')}
+              aria-busy={pending}
+            >
+              {identity}
               <ChevronsUpDown className="ml-auto size-4" aria-hidden />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -63,6 +84,10 @@ export function PreferencesMenu({
             align="start"
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
           >
+            <DropdownMenuLabel className="flex items-center gap-2 font-normal">
+              {identity}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
             <DropdownMenuLabel>{t('appearance')}</DropdownMenuLabel>
             <DropdownMenuRadioGroup
               value={theme}
@@ -104,6 +129,11 @@ export function PreferencesMenu({
                 </DropdownMenuRadioItem>
               ))}
             </DropdownMenuRadioGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={onSignOut}>
+              <LogOut aria-hidden />
+              {accountT('signOut')}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

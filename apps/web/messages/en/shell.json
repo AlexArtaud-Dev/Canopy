@@ -1,11 +1,20 @@
 {
   "tagline": "File manager",
-  "groups": { "workspace": "Workspace", "administration": "Administration" },
-  "nav": { "files": "Files", "system": "System status" },
+  "groups": {
+    "workspace": "Workspace",
+    "administration": "Administration"
+  },
+  "nav": {
+    "files": "Files",
+    "system": "System status"
+  },
   "preferences": {
-    "title": "Preferences",
     "appearance": "Appearance",
     "language": "Language",
-    "themes": { "light": "Light", "dark": "Dark", "system": "System" }
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
   }
 }

@@ -26,4 +26,28 @@ const config = {
   coverageThreshold: { global: { branches: 100, functions: 100, lines: 100, statements: 100 } },
 };
 
-export default createJestConfig(config);
+/** Packages shipped as ESM only that SWC must compile for Jest, on top of next.config's list. */
+const esmOnlyPackages = [
+  'better-auth',
+  '@better-auth',
+  'better-call',
+  '@better-fetch',
+  'jose',
+  'nanostores',
+  '@noble',
+  'rou3',
+  'defu',
+  'kysely',
+  'set-cookie-parser',
+];
+
+export default async function jestConfig() {
+  const resolved = await createJestConfig(config)();
+  return {
+    ...resolved,
+    // next/jest only allow-lists `transpilePackages`; extend its patterns rather than replace them.
+    transformIgnorePatterns: resolved.transformIgnorePatterns.map((pattern) =>
+      pattern.replaceAll('(postgres|', `(postgres|${esmOnlyPackages.join('|')}|`),
+    ),
+  };
+}
