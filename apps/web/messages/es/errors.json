@@ -11,7 +11,8 @@
     "secret_undecryptable": "No se pudo leer un secreto guardado. Puede que se haya cifrado con una clave que ya no está configurada.",
     "rate_limited": "Demasiados intentos. Espere {retryAfter, plural, one {# segundo} other {# segundos}} e inténtelo de nuevo.",
     "engine_unavailable": "El motor de archivos no responde. Inténtalo de nuevo en un momento.",
-    "engine_key_missing": "El motor de archivos no está configurado. Pide a tu administrador que defina las claves del motor."
+    "engine_key_missing": "El motor de archivos no está configurado. Pide a tu administrador que defina las claves del motor.",
+    "maintenance": "Canopy está en mantenimiento. Inténtalo más tarde."
   },
   "settings": {
     "unknown_key": "Este ajuste no existe («{key}»).",

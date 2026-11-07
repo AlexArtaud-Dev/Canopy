@@ -22,5 +22,9 @@
     "up": "Operational",
     "down": "Unavailable",
     "unknown": "Unknown"
+  },
+  "maintenance": {
+    "title": "Under maintenance",
+    "description": "Canopy is temporarily unavailable while an administrator works on it. Please come back in a little while."
   }
 }

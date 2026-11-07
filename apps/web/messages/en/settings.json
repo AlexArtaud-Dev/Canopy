@@ -19,13 +19,15 @@
   },
   "modules": {
     "auth": "Sign-in & sessions",
-    "audit": "Audit log"
+    "audit": "Audit log",
+    "system": "System"
   },
   "groups": {
     "sessions": "Sessions",
     "passwords": "Passwords",
     "protection": "Brute-force protection",
-    "retention": "Retention"
+    "retention": "Retention",
+    "maintenance": "Maintenance"
   },
   "fields": {
     "auth": {
@@ -70,6 +72,12 @@
       "retentionDays": {
         "label": "Keep events for (days)",
         "description": "Older events are deleted once a day; the purge itself is recorded."
+      }
+    },
+    "system": {
+      "maintenance": {
+        "label": "Maintenance mode",
+        "description": "Only the local network can use Canopy; everyone else sees a maintenance page. Can only be changed from the local network."
       }
     }
   }

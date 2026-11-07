@@ -139,3 +139,10 @@ entries:
       en: Browse the audit log with filters, export it as CSV, and keep it only as long as the retention setting says
       fr: Consultation du journal d’audit avec filtres, export CSV, et conservation limitée à la durée réglée
       es: Consulta el registro de auditoría con filtros, expórtalo en CSV y consérvalo solo el tiempo configurado
+  - type: feat
+    scope: system
+    issue: 41
+    text:
+      en: Maintenance mode, switched on from the local network, shows a maintenance page to everyone else
+      fr: Le mode maintenance, activable depuis le réseau local, affiche une page de maintenance à tous les autres
+      es: El modo mantenimiento, activable desde la red local, muestra una página de mantenimiento a todos los demás
