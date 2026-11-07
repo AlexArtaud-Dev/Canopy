@@ -2,6 +2,7 @@ import 'server-only';
 
 import { and, eq, lt, sql } from 'drizzle-orm';
 import { headers } from 'next/headers';
+import { getLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 
@@ -117,6 +118,7 @@ export const getSessionState = cache(async (): Promise<SessionState> => {
     recordActivity(result.session.id),
   ]);
   const { user } = result;
+  await rememberLocale(user.id, user.locale ?? null);
   return {
     kind: 'active',
     sessionId: result.session.id,
@@ -131,6 +133,13 @@ export const getSessionState = cache(async (): Promise<SessionState> => {
     },
   };
 });
+
+/** Keeps the user's last UI language so emails use it (written only when it changes). */
+async function rememberLocale(userId: string, stored: string | null): Promise<void> {
+  const locale = await getLocale();
+  if (locale === stored) return;
+  await getDb().update(usersTable).set({ locale }).where(eq(usersTable.id, userId));
+}
 
 /** The fully signed-in user for this request, or null (a pending 2FA session counts as none). */
 export async function getCurrentSession(): Promise<CurrentSession | null> {

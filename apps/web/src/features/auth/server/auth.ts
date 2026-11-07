@@ -59,6 +59,7 @@ function createAuth(lifetimeSeconds: number) {
       additionalFields: {
         contactEmail: { type: 'string', required: false, input: false },
         disabled: { type: 'boolean', required: false, defaultValue: false, input: false },
+        locale: { type: 'string', required: false, input: false },
       },
     },
     session: {

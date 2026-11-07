@@ -46,7 +46,13 @@ export function safeRedirectPath(candidate: string | null | undefined): string {
   if (!candidate?.startsWith('/') || candidate.startsWith('//') || candidate.includes('\\')) {
     return '/';
   }
-  if (candidate.startsWith('/login') || candidate.startsWith('/setup')) return '/';
+  if (
+    ['/login', '/setup', '/set-password', '/forgot-password'].some((prefix) =>
+      candidate.startsWith(prefix),
+    )
+  ) {
+    return '/';
+  }
   return candidate;
 }
 

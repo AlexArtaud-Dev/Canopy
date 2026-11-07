@@ -9,6 +9,7 @@ import { runMigrations } from '@/shared/db/migrate';
 import type { AppBaseError } from '@/shared/lib/errors';
 
 import { base32Decode, hotp, timeStep } from '../totp.utils';
+import { consumeActionToken, isActionTokenUsable, issueActionToken } from './action-tokens';
 import { createAccount } from './create-account';
 import {
   completeSecondFactor,
@@ -29,6 +30,7 @@ import {
 let requestHeaders = new Headers();
 
 jest.mock('server-only', () => ({}));
+jest.mock('next-intl/server', () => ({ getLocale: () => Promise.resolve('en') }));
 jest.mock('next/headers', () => ({
   headers: () => Promise.resolve(requestHeaders),
   cookies: () => Promise.resolve({ set: jest.fn(), get: jest.fn() }),
@@ -178,5 +180,21 @@ describeWithDb('auth (integration)', () => {
       secret = base32Decode(await createPendingFactor(userId));
       return enableFactor(userId, hotp(secret, timeStep(new Date())));
     }
+  });
+
+  it('accepts a one-time link exactly once', async () => {
+    process.env.CANOPY_PUBLIC_URL = 'https://files.example.com';
+    const [row] = await getConnection().sql<{ id: string }[]>`
+      SELECT id FROM auth.users WHERE username = 'ada'`;
+    if (!row) throw new Error('fixture missing');
+    const first = await issueActionToken(row.id, 'password_reset');
+    const { link } = await issueActionToken(row.id, 'password_reset');
+    const token = new URL(link).searchParams.get('token') ?? '';
+    const stale = new URL(first.link).searchParams.get('token') ?? '';
+
+    expect(await isActionTokenUsable(stale)).toBe(false);
+    expect(await isActionTokenUsable(token)).toBe(true);
+    expect(await consumeActionToken(token)).toEqual({ userId: row.id, purpose: 'password_reset' });
+    expect(await consumeActionToken(token)).toBeNull();
   });
 });

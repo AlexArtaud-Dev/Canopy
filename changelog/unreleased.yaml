@@ -118,3 +118,10 @@ entries:
       en: Configure SMTP from Administration › Email, send a test message and follow recent deliveries
       fr: Configuration du SMTP dans Administration › E-mail, envoi d’un message de test et suivi des envois récents
       es: Configura el SMTP en Administración › Correo, envía un mensaje de prueba y sigue los envíos recientes
+  - type: feat
+    scope: mail
+    issue: 38
+    text:
+      en: Invitation and password reset emails, a forgot-password page, and security notices for password, two-factor and new sign-ins
+      fr: E-mails d’invitation et de réinitialisation de mot de passe, page « mot de passe oublié », et alertes de sécurité pour le mot de passe, la double authentification et les nouvelles connexions
+      es: Correos de invitación y de restablecimiento de contraseña, página de contraseña olvidada y avisos de seguridad sobre contraseña, verificación en dos pasos y nuevos inicios de sesión

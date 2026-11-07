@@ -1,6 +1,9 @@
 'use server';
 
+import { randomBytes } from 'node:crypto';
+
 import { and, eq } from 'drizzle-orm';
+import { getLocale } from 'next-intl/server';
 import type { z } from 'zod';
 
 import { getDb } from '@/shared/db/client';
@@ -9,14 +12,19 @@ import { AppBaseError } from '@/shared/lib/errors';
 import { audit } from '@/features/audit/server/audit-writer';
 import { authorize, getConfiguredAuth } from '@/features/auth';
 import { accountsTable, sessionsTable, usersTable } from '@/features/auth/server/auth.schema';
+import { issueActionToken } from '@/features/auth/server/action-tokens';
 import { createAccount } from '@/features/auth/server/create-account';
 import { hashPassword } from '@/features/auth/server/password';
 import { assertPasswordAllowed } from '@/features/auth/server/password-policy';
+import { notifySecurity } from '@/features/auth/server/security-notices';
 import { removeFactor } from '@/features/auth/server/totp-factor';
+import { sendMail } from '@/features/mail/server/mailer';
+import { invitationEmail, passwordResetEmail } from '@/features/mail/templates/templates';
 
 import {
   createUserSchema,
   editUserSchema,
+  inviteUserSchema,
   removesLastAdmin,
   resetPasswordSchema,
   userTargetSchema,
@@ -25,6 +33,8 @@ import { activeAdminIds } from '@/features/access/server/admin-guard';
 import { pathGrantsTable } from '@/features/files/server/files.schema';
 
 import { rolesGrantAdmin, setUserRoles } from './users-store';
+
+const adminLinkLifetimeMs = 24 * 60 * 60 * 1000;
 
 function parse<T>(schema: z.ZodType<T>, input: unknown): T {
   const parsed = schema.safeParse(input);
@@ -49,22 +59,69 @@ async function endSessions(userId: string): Promise<void> {
   await getDb().delete(sessionsTable).where(eq(sessionsTable.userId, userId));
 }
 
-export async function createUser(input: unknown): Promise<ActionResult<{ id: string }>> {
+/** `link` is set when the invitation could not be emailed: the admin shares it instead. */
+export async function createUser(
+  input: unknown,
+): Promise<ActionResult<{ id: string; link: string | null }>> {
   return runAction(async () => {
     const { user: actor } = await authorize('users:create');
     const { policy } = await getConfiguredAuth();
-    const draft = parse(createUserSchema(policy.passwordMinLength), input);
-    await assertPasswordAllowed(draft.password, policy);
+    const invited = inviteUserSchema.safeParse(input);
+    const draft = invited.success
+      ? { ...invited.data, password: randomBytes(32).toString('base64url') }
+      : parse(createUserSchema(policy.passwordMinLength), input);
+    if (!invited.success) await assertPasswordAllowed(draft.password, policy);
     const { id } = await createAccount({ ...draft, roleKeys: [] });
     await setUserRoles(id, draft.roleIds);
     await audit({
-      action: 'users.create',
+      action: invited.success ? 'users.invite' : 'users.create',
       result: 'success',
       actorId: actor.id,
       target: id,
       meta: { username: draft.username, roleIds: draft.roleIds },
     });
-    return { id };
+    if (!invited.success) return { id, link: null };
+    const { link } = await issueActionToken(id, 'invitation');
+    const email = await invitationEmail(await getLocale(), {
+      name: draft.displayName ?? draft.username,
+      link,
+    });
+    const outcome = await sendMail({ kind: 'invitation', to: invited.data.contactEmail, ...email });
+    return { id, link: outcome.ok ? null : link };
+  });
+}
+
+/** Emails a reset link when possible, otherwise returns it for the admin to share. */
+export async function sendUserResetLink(
+  input: unknown,
+): Promise<ActionResult<{ link: string | null }>> {
+  return runAction(async () => {
+    const { user: actor } = await authorize('users:update');
+    const { userId } = parse(userTargetSchema, input);
+    assertNotSelf(actor.id, userId);
+    const [target] = await getDb()
+      .select({ name: usersTable.name, email: usersTable.contactEmail, locale: usersTable.locale })
+      .from(usersTable)
+      .where(eq(usersTable.id, userId));
+    if (!target) throw new AppBaseError('system.not_found', 'user not found');
+    // Longer than a self-service reset: the admin may relay it by another channel.
+    const { link } = await issueActionToken(userId, 'password_reset', adminLinkLifetimeMs);
+    let emailed = false;
+    if (target.email) {
+      const email = await passwordResetEmail(target.locale ?? (await getLocale()), {
+        name: target.name,
+        link,
+      });
+      emailed = (await sendMail({ kind: 'password_reset', to: target.email, ...email })).ok;
+    }
+    await audit({
+      action: 'users.reset_link',
+      result: 'success',
+      actorId: actor.id,
+      target: userId,
+      meta: { emailed },
+    });
+    return { link: emailed ? null : link };
   });
 }
 
@@ -151,6 +208,7 @@ export async function resetUserPassword(input: unknown): Promise<ActionResult<nu
       actorId: actor.id,
       target: userId,
     });
+    await notifySecurity(userId, 'password_changed');
     return null;
   });
 }
@@ -185,6 +243,7 @@ export async function resetUserTwoFactor(input: unknown): Promise<ActionResult<n
       actorId: actor.id,
       target: userId,
     });
+    await notifySecurity(userId, 'two_factor_disabled');
     return null;
   });
 }

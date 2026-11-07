@@ -28,7 +28,14 @@ export interface UserListItem {
 }
 
 export type UserAction =
-  'edit' | 'resetPassword' | 'resetTwoFactor' | 'revokeSessions' | 'disable' | 'enable' | 'delete';
+  | 'edit'
+  | 'resetPassword'
+  | 'resetLink'
+  | 'resetTwoFactor'
+  | 'revokeSessions'
+  | 'disable'
+  | 'enable'
+  | 'delete';
 
 interface UsersTableProps {
   users: readonly UserListItem[];
@@ -138,6 +145,13 @@ export function UsersTable({
                         }}
                       >
                         {t('actions.resetPassword')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => {
+                          onAction('resetLink', user);
+                        }}
+                      >
+                        {t('invitation.resetLink')}
                       </DropdownMenuItem>
                       {user.twoFactor && (
                         <DropdownMenuItem

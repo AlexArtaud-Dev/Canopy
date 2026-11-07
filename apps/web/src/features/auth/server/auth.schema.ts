@@ -23,6 +23,8 @@ export const usersTable = authSchema.table('users', {
   contactEmail: text('contact_email'),
   /** Disabled accounts cannot sign in; their sessions are ended when disabled. */
   disabled: boolean('disabled').notNull().default(false),
+  /** Last UI language, so emails reach people in their own language. */
+  locale: text('locale'),
   ...timestamps,
 });
 
@@ -103,4 +105,24 @@ export const recoveryCodesTable = authSchema.table(
     usedAt: timestamp('used_at', { withTimezone: true }),
   },
   (table) => [index('recovery_codes_user_id_idx').on(table.userId)],
+);
+
+/**
+ * One-time links (invitation, password reset). Only the SHA-256 of the token is stored: a
+ * database leak does not hand out working links.
+ */
+export const actionTokensTable = authSchema.table(
+  'action_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => usersTable.id, { onDelete: 'cascade' }),
+    purpose: text('purpose', { enum: ['invitation', 'password_reset'] }).notNull(),
+    tokenHash: text('token_hash').notNull().unique(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    usedAt: timestamp('used_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('action_tokens_user_id_idx').on(table.userId)],
 );

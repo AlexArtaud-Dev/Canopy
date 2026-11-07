@@ -84,5 +84,17 @@
     "passwordReset": "Mot de passe réinitialisé",
     "twoFactorReset": "Double authentification réinitialisée",
     "sessionsRevoked": "Déconnecté partout"
+  },
+  "invitation": {
+    "invite": "Envoyer une invitation au lieu de définir un mot de passe",
+    "inviteHint": "La personne choisit son mot de passe. Nécessite une adresse e-mail.",
+    "emailRequired": "Une adresse e-mail est nécessaire pour inviter.",
+    "linkTitle": "Partagez ce lien",
+    "linkDescription": "L’e-mail n’est pas configuré : transmettez vous-même ce lien à usage unique.",
+    "copy": "Copier le lien",
+    "copied": "Lien copié",
+    "invited": "Invitation envoyée",
+    "resetLink": "Envoyer un lien de réinitialisation",
+    "resetSent": "Lien de réinitialisation envoyé"
   }
 }

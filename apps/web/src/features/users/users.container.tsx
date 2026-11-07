@@ -22,14 +22,21 @@ import {
   deleteUser,
   resetUserPassword,
   resetUserTwoFactor,
+  sendUserResetLink,
   revokeUserSessions,
   setUserDisabled,
   updateUser,
 } from './server/user-actions';
+import { LinkDialog } from './ui/link-dialog';
 import { ResetPasswordDialog } from './ui/reset-password-dialog';
 import { UserFormDialog, type RoleChoice, type UserFormValues } from './ui/user-form-dialog';
 import { UsersTable, type UserAction, type UserListItem } from './ui/users-table';
-import { createUserSchema, editUserSchema, resetPasswordSchema } from './users.utils';
+import {
+  createUserSchema,
+  editUserSchema,
+  inviteUserSchema,
+  resetPasswordSchema,
+} from './users.utils';
 
 export interface EditableUser extends UserListItem {
   contactEmail: string | null;
@@ -76,6 +83,7 @@ export function UsersContainer({
     null,
   );
   const [invalid, setInvalid] = useState<ReadonlySet<string>>(new Set());
+  const [shareLink, setShareLink] = useState<string | null>(null);
   const [error, setError] = useState<FormErrorContent | null>(null);
 
   // Debounced search kept in the URL, so it survives reloads and can be shared.
@@ -125,7 +133,11 @@ export function UsersContainer({
 
   const submitForm = (values: UserFormValues) => {
     const payload = editing ? { ...values, userId: editing.id } : values;
-    const schema = editing ? editUserSchema : createUserSchema(passwordMinLength);
+    const schema = editing
+      ? editUserSchema
+      : values.invite
+        ? inviteUserSchema
+        : createUserSchema(passwordMinLength);
     const found = invalidFields(schema, payload);
     setInvalid(found);
     if (found.size > 0) return;
@@ -133,11 +145,24 @@ export function UsersContainer({
       setFormOpen(false);
       setEditing(null);
     };
-    run(
-      () => (editing ? updateUser(payload) : createUser(payload)),
-      editing ? t('toasts.updated') : t('toasts.created'),
-      close,
-    );
+    if (editing) {
+      run(() => updateUser(payload), t('toasts.updated'), close);
+      return;
+    }
+    startTransition(async () => {
+      const result = await createUser(payload);
+      if (!result.ok) {
+        setError(toFormError(result.error));
+        return;
+      }
+      toast.success(
+        values.invite && !result.data.link ? t('invitation.invited') : t('toasts.created'),
+      );
+      close();
+      resetForm();
+      setShareLink(result.data.link);
+      router.refresh();
+    });
   };
 
   const submitReset = (values: { password: string; confirmPassword: string }) => {
@@ -179,6 +204,16 @@ export function UsersContainer({
       setFormOpen(true);
     } else if (action === 'resetPassword') {
       setResetting(user);
+    } else if (action === 'resetLink') {
+      startTransition(async () => {
+        const result = await sendUserResetLink({ userId: user.id });
+        if (!result.ok) {
+          toast.error(toFormError(result.error).message);
+          return;
+        }
+        if (result.data.link) setShareLink(result.data.link);
+        else toast.success(t('invitation.resetSent'));
+      });
     } else if (action === 'enable') {
       // Re-enabling is harmless: no confirmation needed.
       run(
@@ -292,6 +327,12 @@ export function UsersContainer({
         onOpenChange={(open) => {
           setFormOpen(open);
           if (!open) setEditing(null);
+        }}
+      />
+      <LinkDialog
+        link={shareLink}
+        onClose={() => {
+          setShareLink(null);
         }}
       />
       <ResetPasswordDialog

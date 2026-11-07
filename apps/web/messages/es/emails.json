@@ -8,5 +8,46 @@
     "title": "El correo funciona",
     "preheader": "Tu configuración SMTP es correcta.",
     "body": "Esta prueba confirma que Canopy puede enviar correos con la configuración actual."
+  },
+  "invitation": {
+    "subject": "Te invitan a Canopy",
+    "title": "Bienvenido, {name}",
+    "preheader": "Elige tu contraseña para empezar.",
+    "body": "Un administrador te creó una cuenta de Canopy. Elige una contraseña para iniciar sesión.",
+    "expiry": "Este enlace funciona una vez y caduca en 7 días.",
+    "action": "Elegir mi contraseña"
+  },
+  "reset": {
+    "subject": "Restablece tu contraseña de Canopy",
+    "title": "Restablecimiento para {name}",
+    "preheader": "Elige una contraseña nueva.",
+    "body": "Alguien pidió restablecer la contraseña de tu cuenta de Canopy. Elige una nueva con el botón de abajo.",
+    "expiry": "Este enlace funciona una vez y caduca en 1 hora.",
+    "ignore": "Si no lo pediste, ignora este correo: tu contraseña no cambia.",
+    "action": "Elegir una contraseña nueva"
+  },
+  "security": {
+    "details": "Dispositivo: {device} · Dirección: {ipAddress}",
+    "notYou": "Si no fuiste tú, cambia tu contraseña y contacta con tu administrador.",
+    "password_changed": {
+      "subject": "Tu contraseña de Canopy cambió",
+      "title": "Contraseña cambiada, {name}",
+      "body": "La contraseña de tu cuenta de Canopy acaba de cambiar y se cerraron tus demás sesiones."
+    },
+    "two_factor_enabled": {
+      "subject": "Verificación en dos pasos activada",
+      "title": "Verificación en dos pasos activada, {name}",
+      "body": "Iniciar sesión en tu cuenta de Canopy ahora pide también un código de tu aplicación de autenticación."
+    },
+    "two_factor_disabled": {
+      "subject": "Verificación en dos pasos desactivada",
+      "title": "Verificación en dos pasos desactivada, {name}",
+      "body": "Iniciar sesión en tu cuenta de Canopy ya no pide un código de autenticación."
+    },
+    "new_sign_in": {
+      "subject": "Nuevo inicio de sesión en Canopy",
+      "title": "Nuevo inicio de sesión, {name}",
+      "body": "Tu cuenta de Canopy se acaba de usar para iniciar sesión desde un dispositivo o una dirección poco habituales."
+    }
   }
 }

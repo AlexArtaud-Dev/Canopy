@@ -19,6 +19,7 @@ import {
 } from './current-session';
 import { assertAddressAllowed, recordAddressFailure } from './ip-block';
 import { assertCurrentPassword } from './reauthenticate';
+import { notifySecurity } from './security-notices';
 import {
   createPendingFactor,
   enableFactor,
@@ -114,6 +115,7 @@ export async function confirmTotpEnrollment(
       throw new AppBaseError('auth.invalid_code', 'enrolment code rejected');
     }
     await audit({ action: 'auth.totp_enable', result: 'success', actorId: user.id });
+    await notifySecurity(user.id, 'two_factor_enabled');
     return { recoveryCodes };
   });
 }
@@ -129,6 +131,7 @@ export async function disableTotp(input: unknown): Promise<ActionResult<null>> {
     }
     await removeFactor(user.id);
     await audit({ action: 'auth.totp_disable', result: 'success', actorId: user.id });
+    await notifySecurity(user.id, 'two_factor_disabled');
     return null;
   });
 }

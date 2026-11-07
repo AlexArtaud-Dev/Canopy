@@ -35,7 +35,8 @@
     "ip_blocked": "Too many failed attempts from your network. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
     "two_factor_required": "One of your groups requires two-factor authentication, so it cannot be turned off.",
     "engine_token_missing": "Your session could not be passed to the file engine. Reload the page.",
-    "engine_token_invalid": "Your session expired for the file engine. Reload the page."
+    "engine_token_invalid": "Your session expired for the file engine. Reload the page.",
+    "link_invalid": "This link is invalid, already used or expired. Ask your administrator for a new one."
   },
   "users": {
     "last_admin": "Canopy needs at least one active administrator. Give another account the Admin role first.",

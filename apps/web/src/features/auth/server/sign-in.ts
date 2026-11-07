@@ -16,6 +16,7 @@ import { audit } from '@/features/audit/server/audit-writer';
 import { safeRedirectPath, signInInputSchema } from '../auth.utils';
 import { authRequestHeaders, getConfiguredAuth } from './current-session';
 import { assertAddressAllowed, recordAddressFailure } from './ip-block';
+import { notifyIfNewDevice } from './security-notices';
 import { hasTotpEnabled } from './totp-factor';
 
 /** Per client IP, whatever the account: slows down password spraying. */
@@ -88,6 +89,7 @@ export async function signIn(input: unknown): Promise<ActionResult<{ redirectTo:
       actorId: userId,
       meta: secondFactor ? { secondFactor: 'pending' } : {},
     });
+    if (policy.notifyNewSignIn) await notifyIfNewDevice(userId);
     const destination = safeRedirectPath(next);
     if (!secondFactor) return { redirectTo: destination };
     const query = destination === '/' ? '' : `?next=${encodeURIComponent(destination)}`;

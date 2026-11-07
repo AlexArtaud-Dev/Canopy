@@ -2,6 +2,8 @@ export { AccountContainer } from './account.container';
 export { authModule } from './auth.module';
 export { initialsOf, safeRedirectPath } from './auth.utils';
 export { LoginContainer } from './login.container';
+export { ForgotPasswordContainer, SetPasswordContainer } from './password-links.container';
+export { isActionTokenUsable } from './server/action-tokens';
 export {
   getConfiguredAuth,
   getCurrentSession,

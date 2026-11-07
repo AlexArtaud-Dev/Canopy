@@ -84,5 +84,17 @@
     "passwordReset": "Contraseña restablecida",
     "twoFactorReset": "Verificación en dos pasos restablecida",
     "sessionsRevoked": "Sesión cerrada en todas partes"
+  },
+  "invitation": {
+    "invite": "Enviar una invitación en lugar de fijar una contraseña",
+    "inviteHint": "La persona elige su contraseña. Necesita un correo.",
+    "emailRequired": "Hace falta un correo para invitar.",
+    "linkTitle": "Comparte este enlace",
+    "linkDescription": "El correo no está configurado: envía tú mismo este enlace de un solo uso.",
+    "copy": "Copiar enlace",
+    "copied": "Enlace copiado",
+    "invited": "Invitación enviada",
+    "resetLink": "Enviar un enlace de restablecimiento",
+    "resetSent": "Enlace de restablecimiento enviado"
   }
 }

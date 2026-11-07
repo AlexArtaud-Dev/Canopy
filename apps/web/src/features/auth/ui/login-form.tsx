@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { SubmitEvent } from 'react';
 
@@ -26,6 +27,7 @@ interface LoginFormProps {
 
 export function LoginForm({ pending, error, onSubmit }: LoginFormProps) {
   const t = useTranslations('auth.login');
+  const forgot = useTranslations('auth.forgot');
 
   const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -54,7 +56,15 @@ export function LoginForm({ pending, error, onSubmit }: LoginFormProps) {
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="password">{t('password')}</FieldLabel>
+          <div className="flex items-center justify-between gap-2">
+            <FieldLabel htmlFor="password">{t('password')}</FieldLabel>
+            <Link
+              href="/forgot-password"
+              className="text-muted-foreground hover:text-foreground text-xs underline-offset-4 hover:underline"
+            >
+              {forgot('link')}
+            </Link>
+          </div>
           <PasswordInput
             id="password"
             name="password"

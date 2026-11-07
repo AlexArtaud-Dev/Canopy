@@ -15,6 +15,7 @@ import { getConfiguredAuth, requireSession } from './current-session';
 import { hashPassword } from './password';
 import { assertPasswordAllowed } from './password-policy';
 import { assertCurrentPassword } from './reauthenticate';
+import { notifySecurity } from './security-notices';
 
 function parse<T>(schema: z.ZodType<T>, input: unknown): T {
   const parsed = schema.safeParse(input);
@@ -65,6 +66,7 @@ export async function changePassword(
       actorId: user.id,
       meta: { endedSessions },
     });
+    await notifySecurity(user.id, 'password_changed');
     return { endedSessions };
   });
 }
