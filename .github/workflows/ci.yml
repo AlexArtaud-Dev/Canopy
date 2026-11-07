@@ -95,6 +95,7 @@ jobs:
             echo "CANOPY_WEB_DB_PASSWORD=ci-web"
             echo "CANOPY_ENGINE_DB_PASSWORD=ci-engine"
             echo "CANOPY_ENCRYPTION_KEY=$(openssl rand -base64 32)"
+            node scripts/dev/engine-keys.mjs
             echo "PUID=$(id -u)"
             echo "PGID=$(id -g)"
           } > docker/.env

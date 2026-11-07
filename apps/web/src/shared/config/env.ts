@@ -12,6 +12,8 @@ const serverEnvSchema = z.object({
   CANOPY_ENCRYPTION_KEY: z.string().optional(),
   /** Retired keys, comma-separated, still accepted for decryption during a rotation. */
   CANOPY_ENCRYPTION_KEY_PREVIOUS: z.string().default(''),
+  /** Raw Ed25519 seed (base64url) signing engine tokens; generate with scripts/dev/engine-keys.mjs. */
+  CANOPY_ENGINE_PRIVATE_KEY: z.string().optional(),
   /** External URL users type in their browser; `https` turns on Secure cookies. */
   CANOPY_PUBLIC_URL: z.url().default('http://localhost:3000'),
   /** CIDRs considered "local": first-run setup, maintenance toggle, local-only settings. */

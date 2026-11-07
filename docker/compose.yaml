@@ -36,6 +36,8 @@ services:
     environment:
       CANOPY_DATABASE_URL: postgres://canopy_engine:${CANOPY_ENGINE_DB_PASSWORD}@postgres:5432/canopy
       CANOPY_LOG_LEVEL: ${CANOPY_LOG_LEVEL:-info}
+      # Verifies web-signed tokens; the private half stays in the web container.
+      CANOPY_ENGINE_PUBLIC_KEY: ${CANOPY_ENGINE_PUBLIC_KEY:?run node scripts/dev/engine-keys.mjs}
       UMASK: ${UMASK:-022}
     volumes:
       # Mount every host folder INSIDE the root; no host symlinks needed. Examples:
@@ -63,6 +65,7 @@ services:
       CANOPY_TRUSTED_PROXIES: ${CANOPY_TRUSTED_PROXIES:-}
       CANOPY_ENCRYPTION_KEY: ${CANOPY_ENCRYPTION_KEY:?set it in docker/.env (openssl rand -base64 32)}
       CANOPY_ENCRYPTION_KEY_PREVIOUS: ${CANOPY_ENCRYPTION_KEY_PREVIOUS:-}
+      CANOPY_ENGINE_PRIVATE_KEY: ${CANOPY_ENGINE_PRIVATE_KEY:?run node scripts/dev/engine-keys.mjs}
       CANOPY_PUBLIC_URL: ${CANOPY_PUBLIC_URL:-http://localhost:3000}
       CANOPY_LOCAL_NETWORKS: ${CANOPY_LOCAL_NETWORKS:-127.0.0.0/8,::1/128,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fc00::/7}
     ports:
