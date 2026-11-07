@@ -167,6 +167,7 @@ entries:
       en: The browser tab shows the Canopy logo
       fr: L’onglet du navigateur affiche le logo Canopy
       es: La pestaña del navegador muestra el logo de Canopy
+  - type: feat
     scope: files
     issue: 100
     text:
