@@ -1,0 +1,16 @@
+# Normalize line endings: the engine, scripts and YAML must stay LF even on Windows checkouts.
+* text=auto eol=lf
+
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+
+# Generated code: collapse in diffs, exclude from language stats.
+packages/contracts/gen/** linguist-generated=true -diff
+apps/engine/internal/api/gen/** linguist-generated=true -diff
+pnpm-lock.yaml linguist-generated=true -diff

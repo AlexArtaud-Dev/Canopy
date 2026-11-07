@@ -1,0 +1,50 @@
+# Permissions
+
+## Model
+
+- **Subjects**: users and groups (a user belongs to any number of groups).
+- **Roles**: named bundles of permissions. Built-in `Admin`, `Editor`, `Viewer` (editable); custom roles allowed.
+  Roles are assigned to users or groups.
+- **Two scopes**, declared by each module's manifest:
+  1. **Global** permissions `<module>:<action>` — e.g. `users:create`, `settings:update`, `audit:read`.
+  2. **Path** permissions for the `files` module, granted per path:
+     `read, upload, create, update, move, copy, delete, download, share, execute`.
+- **Path grant**: `(subjectType, subjectId, virtualPath, actions[], effect: allow | deny)`.
+- `system:admin` bypasses path grants (still fully audited).
+
+## Path resolution (engine `authz`, pure, 100% tested)
+
+1. Collect grants of the user and of all their groups.
+2. Keep grants whose path is the target or one of its ancestors.
+3. The most specific (deepest) path wins.
+4. At equal depth: `deny` beats `allow`; then user-level beats group-level.
+5. No matching grant → no access (default deny).
+
+| Grants                                                  | `/media/kids` | `/media/private` |
+| ------------------------------------------------------- | ------------- | ---------------- |
+| group Family: allow read `/media`                       | read          | read             |
+| + group Family: deny read `/media/private`              | read          | —                |
+| + user Alice: allow read `/media/private`               | read          | read (Alice)     |
+
+## Generic module interface
+
+```ts
+export interface PermissionManifest<TAction extends string = string> {
+  module: ModuleId;                 // "users"
+  scope: 'global' | 'path';
+  actions: readonly TAction[];      // ["read", "create", "update", "delete"]
+  labelKey: string;                 // i18n prefix for the admin matrix
+}
+```
+
+- Each module exports its manifest via its `CanopyModule` declaration; a registry aggregates them.
+- The admin permission matrix (roles × actions) is generated from the registry — no hand-written screens.
+- Server guard: `authorize(ctx, 'users:create')` at the top of every server action / route handler.
+- UI helper: `<Can permission="users:create">` hides or disables controls (UX only).
+- Engine operations declare their required path actions; the HTTP layer enforces them.
+
+## Admin UX
+
+- Groups and users editors, role editor, path grants editor with a folder picker.
+- "Effective access" explainer: for a user + path, shows the result and the exact grant that decided it.
+- Every permission change is audited.
