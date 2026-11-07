@@ -141,3 +141,14 @@ export async function rolesGrantAdmin(roleIds: readonly string[]): Promise<boole
     );
   return rows.length > 0;
 }
+
+/** Identity of one user (for per-user admin pages); undefined when missing. */
+export async function getUserIdentity(
+  userId: string,
+): Promise<{ id: string; username: string; name: string } | undefined> {
+  const [row] = await getDb()
+    .select({ id: usersTable.id, username: usersTable.username, name: usersTable.name })
+    .from(usersTable)
+    .where(eq(usersTable.id, userId));
+  return row;
+}

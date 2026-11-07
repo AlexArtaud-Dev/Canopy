@@ -54,3 +54,12 @@ export async function groupsRequireTwoFactor(userId: string): Promise<boolean> {
     .where(eq(groupMembersTable.userId, userId));
   return twoFactorRequired(rows.map((row) => ({ requireTwoFactor: row.require })));
 }
+
+/** Ids of the user's groups (carried in engine tokens for group path grants). */
+export async function loadGroupIds(userId: string): Promise<string[]> {
+  const rows = await getDb()
+    .select({ id: groupMembersTable.groupId })
+    .from(groupMembersTable)
+    .where(eq(groupMembersTable.userId, userId));
+  return rows.map((row) => row.id);
+}

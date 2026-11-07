@@ -1,0 +1,53 @@
+{
+  "grants": {
+    "title": "Accès aux dossiers",
+    "description": {
+      "user": "Les dossiers accessibles à cette personne, en plus de ceux de ses groupes.",
+      "group": "Les dossiers accessibles à tous les membres de ce groupe."
+    },
+    "add": "Ajouter un accès",
+    "remove": "Retirer",
+    "removeLabel": "Retirer l’accès à {path}",
+    "added": "Accès ajouté",
+    "removed": "Accès retiré",
+    "empty": {
+      "title": "Aucun accès",
+      "description": "Sans règle, rien n’est visible (les administrateurs voient tout)."
+    },
+    "dialogTitle": "Ajouter un accès à un dossier",
+    "dialogDescription": "Choisissez un dossier ; la règle s’applique aussi à tout son contenu. Une règle plus profonde la remplace.",
+    "folder": "Dossier",
+    "root": "Tous les volumes",
+    "loading": "Chargement des dossiers…",
+    "noSubfolders": "Aucun sous-dossier ici.",
+    "selected": "S’applique à",
+    "effect": "Règle",
+    "effects": {
+      "allow": "Autoriser",
+      "deny": "Interdire"
+    },
+    "actions": "Actions",
+    "presets": {
+      "readOnly": "Lecture seule",
+      "readWrite": "Lecture et écriture",
+      "full": "Contrôle total"
+    },
+    "confirmRemove": {
+      "title": "Retirer l’accès à {path} ?",
+      "description": "Le changement s’applique à la prochaine requête des personnes concernées."
+    },
+    "pageDescription": "Ce que cette personne peut atteindre dans les dossiers gérés.",
+    "actionNames": {
+      "read": "Voir",
+      "download": "Télécharger",
+      "upload": "Envoyer",
+      "create": "Créer des dossiers",
+      "update": "Modifier",
+      "move": "Déplacer",
+      "copy": "Copier",
+      "delete": "Supprimer",
+      "share": "Partager",
+      "execute": "Exécuter des commandes"
+    }
+  }
+}

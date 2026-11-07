@@ -1,6 +1,7 @@
 'use client';
 
 import { MoreHorizontal, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
 import { useFormatter, useTranslations } from 'next-intl';
 
 import { Avatar, AvatarFallback } from '@/shared/ui/avatar';
@@ -127,6 +128,9 @@ export function UsersTable({
                         }}
                       >
                         {t('actions.edit')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/admin/users/${user.id}`}>{t('actions.folderAccess')}</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onSelect={() => {

@@ -14,6 +14,9 @@ import (
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/config"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/database"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/grantstore"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/healthcheck"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/httpapi"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
@@ -79,9 +82,26 @@ func run() error {
 		return err
 	}
 
+	resolver, err := fsx.OpenResolver(cfg.Root)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = resolver.Close() }()
+
+	verifier, err := newVerifier(cfg.PublicKey, logger)
+	if err != nil {
+		return err
+	}
+
 	server := &http.Server{
-		Addr:              cfg.Addr,
-		Handler:           httpapi.NewRouter(httpapi.Deps{Logger: logger, Database: pool}),
+		Addr: cfg.Addr,
+		Handler: httpapi.NewRouter(httpapi.Deps{
+			Logger:   logger,
+			Database: pool,
+			Files:    resolver,
+			Grants:   grantstore.NewStore(pool),
+			Verifier: verifier,
+		}),
 		ReadHeaderTimeout: readHeaderTimeout,
 		// No read/write timeouts: multi-GB transfers and SSE streams are legitimately long.
 	}
@@ -107,4 +127,18 @@ func run() error {
 		return fmt.Errorf("shutdown: %w", err)
 	}
 	return nil
+}
+
+// newVerifier parses the public key; without one the engine still starts (health checks work)
+// but refuses every /v1 request.
+func newVerifier(encoded string, logger *slog.Logger) (*enginetoken.Verifier, error) {
+	if encoded == "" {
+		logger.Warn("CANOPY_ENGINE_PUBLIC_KEY not set: the file API is disabled")
+		return nil, nil
+	}
+	key, err := enginetoken.ParsePublicKey(encoded)
+	if err != nil {
+		return nil, fmt.Errorf("CANOPY_ENGINE_PUBLIC_KEY: %w", err)
+	}
+	return enginetoken.NewVerifier(key, time.Now), nil
 }

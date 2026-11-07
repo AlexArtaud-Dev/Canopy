@@ -26,6 +26,46 @@ export type Error = {
   requestId: string;
 };
 
+export type PathAction =
+  | 'read'
+  | 'upload'
+  | 'create'
+  | 'update'
+  | 'move'
+  | 'copy'
+  | 'delete'
+  | 'download'
+  | 'share'
+  | 'execute';
+
+export type DirectoryEntry = {
+  name: string;
+  /**
+   * Virtual path of the entry.
+   */
+  path: string;
+  kind: 'file' | 'directory';
+  /**
+   * Bytes (0 for folders).
+   */
+  size: number;
+  modified: string;
+  actions: Array<PathAction>;
+};
+
+export type DirectoryListing = {
+  path: string;
+  entries: Array<DirectoryEntry>;
+  /**
+   * Visible entries in the whole folder (for pagination).
+   */
+  total: number;
+  /**
+   * Path actions the caller holds on the listed folder itself.
+   */
+  actions: Array<PathAction>;
+};
+
 export type GetLivenessData = {
   body?: never;
   path?: never;
@@ -66,3 +106,53 @@ export type GetReadinessResponses = {
 };
 
 export type GetReadinessResponse = GetReadinessResponses[keyof GetReadinessResponses];
+
+export type ListDirectoryData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Virtual POSIX path (`/media/photos`).
+     */
+    path: string;
+    /**
+     * Only folders (folder pickers).
+     */
+    dirsOnly?: boolean;
+    sort?: 'name' | 'size' | 'modified';
+    order?: 'asc' | 'desc';
+    offset?: number;
+    limit?: number;
+  };
+  url: '/v1/fs/list';
+};
+
+export type ListDirectoryErrors = {
+  /**
+   * Invalid path or parameters (`files.invalid_path`, `system.bad_request`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * The caller may not see this folder (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such folder (`files.not_found`, `files.not_a_directory`).
+   */
+  404: Error;
+};
+
+export type ListDirectoryError = ListDirectoryErrors[keyof ListDirectoryErrors];
+
+export type ListDirectoryResponses = {
+  /**
+   * One page of the directory.
+   */
+  200: DirectoryListing;
+};
+
+export type ListDirectoryResponse = ListDirectoryResponses[keyof ListDirectoryResponses];

@@ -35,7 +35,8 @@
     "revokeSessions": "Cerrar sesión en todas partes",
     "disable": "Desactivar",
     "enable": "Activar",
-    "delete": "Eliminar"
+    "delete": "Eliminar",
+    "folderAccess": "Acceso a carpetas"
   },
   "form": {
     "createTitle": "Nuevo usuario",

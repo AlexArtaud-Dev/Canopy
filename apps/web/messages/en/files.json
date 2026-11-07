@@ -1,0 +1,53 @@
+{
+  "grants": {
+    "title": "Folder access",
+    "description": {
+      "user": "Folders this person can reach, on top of their groups' access.",
+      "group": "Folders every member of this group can reach."
+    },
+    "add": "Add access",
+    "remove": "Remove",
+    "removeLabel": "Remove access to {path}",
+    "added": "Access added",
+    "removed": "Access removed",
+    "empty": {
+      "title": "No folder access",
+      "description": "Without a rule, nothing is visible (administrators see everything)."
+    },
+    "dialogTitle": "Add folder access",
+    "dialogDescription": "Pick a folder; the rule also applies to everything inside it. A deeper rule overrides it.",
+    "folder": "Folder",
+    "root": "All volumes",
+    "loading": "Loading folders…",
+    "noSubfolders": "No sub-folder here.",
+    "selected": "Applies to",
+    "effect": "Rule",
+    "effects": {
+      "allow": "Allow",
+      "deny": "Deny"
+    },
+    "actions": "Actions",
+    "presets": {
+      "readOnly": "Read only",
+      "readWrite": "Read & write",
+      "full": "Full control"
+    },
+    "confirmRemove": {
+      "title": "Remove access to {path}?",
+      "description": "The change applies at the next request of the people concerned."
+    },
+    "pageDescription": "What this person can reach in the managed folders.",
+    "actionNames": {
+      "read": "View",
+      "download": "Download",
+      "upload": "Upload",
+      "create": "Create folders",
+      "update": "Edit",
+      "move": "Move",
+      "copy": "Copy",
+      "delete": "Delete",
+      "share": "Share",
+      "execute": "Run commands"
+    }
+  }
+}

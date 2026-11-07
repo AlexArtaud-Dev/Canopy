@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/api"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
 )
 
@@ -33,6 +34,10 @@ type Pinger interface {
 type Deps struct {
 	Logger   *slog.Logger
 	Database Pinger
+	Files    Files
+	Grants   Grants
+	// Verifier checks engine tokens; nil refuses every /v1 request (no key configured).
+	Verifier *enginetoken.Verifier
 }
 
 // NewRouter builds the HTTP handler tree.
@@ -41,6 +46,7 @@ func NewRouter(deps Deps) http.Handler {
 	r.Use(middleware.RequestID)
 	r.Use(logging.Middleware(deps.Logger))
 	r.Use(middleware.Recoverer)
+	r.Use(requireToken(deps.Verifier, deps.Logger))
 
 	strict := api.NewStrictHandlerWithOptions(&server{deps: deps}, nil, api.StrictHTTPServerOptions{
 		RequestErrorHandlerFunc:  errorHandler(deps.Logger, http.StatusBadRequest, codeBadRequest),

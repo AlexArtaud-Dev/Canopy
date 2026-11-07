@@ -35,7 +35,8 @@
     "revokeSessions": "Sign out everywhere",
     "disable": "Disable",
     "enable": "Enable",
-    "delete": "Delete"
+    "delete": "Delete",
+    "folderAccess": "Folder access"
   },
   "form": {
     "createTitle": "New user",

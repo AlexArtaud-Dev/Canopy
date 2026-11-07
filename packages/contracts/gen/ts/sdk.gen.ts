@@ -10,8 +10,16 @@ import type {
   GetReadinessData,
   GetReadinessErrors,
   GetReadinessResponses,
+  ListDirectoryData,
+  ListDirectoryErrors,
+  ListDirectoryResponses,
 } from './types.gen';
-import { zGetLivenessResponse, zGetReadinessResponse } from './zod.gen';
+import {
+  zGetLivenessResponse,
+  zGetReadinessResponse,
+  zListDirectoryQuery,
+  zListDirectoryResponse,
+} from './zod.gen';
 
 export type Options<
   TData extends TDataShape = TDataShape,
@@ -70,5 +78,28 @@ export const getReadiness = <ThrowOnError extends boolean = false>(
         .parseAsync(data),
     responseValidator: async (data) => await zGetReadinessResponse.parseAsync(data),
     url: '/readyz',
+    ...options,
+  });
+
+/**
+ * List a directory the caller may see
+ *
+ * Entries the caller may read (or traverse towards a granted folder), sorted folders first. Each entry carries the path actions the caller holds on it, so the UI never re-implements permission logic. Host paths never appear.
+ */
+export const listDirectory = <ThrowOnError extends boolean = false>(
+  options: Options<ListDirectoryData, ThrowOnError>,
+): RequestResult<ListDirectoryResponses, ListDirectoryErrors, ThrowOnError> =>
+  (options.client ?? client).get<ListDirectoryResponses, ListDirectoryErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: zListDirectoryQuery,
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zListDirectoryResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/fs/list',
     ...options,
   });
