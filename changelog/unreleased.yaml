@@ -132,3 +132,10 @@ entries:
       en: Administration › Settings lets administrators search and change instance settings, see what was modified and reset to defaults
       fr: Administration › Réglages permet de rechercher et modifier les réglages de l’instance, de voir ce qui a été modifié et de revenir aux valeurs par défaut
       es: Administración › Ajustes permite buscar y cambiar los ajustes de la instancia, ver qué se modificó y volver a los valores por defecto
+  - type: feat
+    scope: audit
+    issue: 40
+    text:
+      en: Browse the audit log with filters, export it as CSV, and keep it only as long as the retention setting says
+      fr: Consultation du journal d’audit avec filtres, export CSV, et conservation limitée à la durée réglée
+      es: Consulta el registro de auditoría con filtros, expórtalo en CSV y consérvalo solo el tiempo configurado

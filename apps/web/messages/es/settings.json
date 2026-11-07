@@ -18,12 +18,14 @@
     "mail": "Los ajustes de correo (SMTP) están en la página Correo."
   },
   "modules": {
-    "auth": "Inicio de sesión y sesiones"
+    "auth": "Inicio de sesión y sesiones",
+    "audit": "Registro de auditoría"
   },
   "groups": {
     "sessions": "Sesiones",
     "passwords": "Contraseñas",
-    "protection": "Protección contra fuerza bruta"
+    "protection": "Protección contra fuerza bruta",
+    "retention": "Conservación"
   },
   "fields": {
     "auth": {
@@ -62,6 +64,12 @@
       "notifyNewSignIn": {
         "label": "Correo al iniciar sesión desde algo nuevo",
         "description": "Los usuarios con correo reciben un aviso al iniciar sesión desde un dispositivo o dirección nuevos."
+      }
+    },
+    "audit": {
+      "retentionDays": {
+        "label": "Conservar eventos (días)",
+        "description": "Los eventos más antiguos se borran una vez al día; la purga queda registrada."
       }
     }
   }

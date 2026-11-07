@@ -11,7 +11,8 @@
     "groups": "Groupes",
     "roles": "Rôles",
     "email": "E-mail",
-    "settings": "Réglages"
+    "settings": "Réglages",
+    "audit": "Journal d’audit"
   },
   "preferences": {
     "appearance": "Apparence",

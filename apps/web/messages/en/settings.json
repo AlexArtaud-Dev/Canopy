@@ -18,12 +18,14 @@
     "mail": "Email (SMTP) settings are on the Email page."
   },
   "modules": {
-    "auth": "Sign-in & sessions"
+    "auth": "Sign-in & sessions",
+    "audit": "Audit log"
   },
   "groups": {
     "sessions": "Sessions",
     "passwords": "Passwords",
-    "protection": "Brute-force protection"
+    "protection": "Brute-force protection",
+    "retention": "Retention"
   },
   "fields": {
     "auth": {
@@ -62,6 +64,12 @@
       "notifyNewSignIn": {
         "label": "Email on new sign-in",
         "description": "Users with an email get a notice when they sign in from a new device or address."
+      }
+    },
+    "audit": {
+      "retentionDays": {
+        "label": "Keep events for (days)",
+        "description": "Older events are deleted once a day; the purge itself is recorded."
       }
     }
   }

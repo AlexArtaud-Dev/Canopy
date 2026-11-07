@@ -8,6 +8,7 @@ export async function register(): Promise<void> {
   const { runMigrations } = await import('@/shared/db/migrate');
   await runMigrations();
   await startMailSweep();
+  await startAuditRetention();
 }
 
 const mailSweepIntervalMs = 60_000;
@@ -25,6 +26,23 @@ async function startMailSweep(): Promise<void> {
   }, mailSweepIntervalMs);
   // Never keep the process alive just for the sweep.
   timer.unref();
+}
+
+const auditPurgeIntervalMs = 24 * 60 * 60 * 1000;
+
+/** Purges audit events past their retention once at start, then daily. */
+async function startAuditRetention(): Promise<void> {
+  const [{ purgeExpiredAuditEvents }, { logger }] = await Promise.all([
+    import('@/features/audit/server/audit-retention'),
+    import('@/shared/lib/logger'),
+  ]);
+  const run = () => {
+    purgeExpiredAuditEvents().catch((error: unknown) => {
+      logger.error('audit purge failed', { module: 'audit', error });
+    });
+  };
+  run();
+  setInterval(run, auditPurgeIntervalMs).unref();
 }
 
 /**

@@ -1,0 +1,46 @@
+{
+  "title": "Journal d’audit",
+  "metaTitle": "Journal d’audit",
+  "description": "Chaque modification, connexion et tentative refusée, des plus récentes aux plus anciennes.",
+  "filters": {
+    "actor": "Personne",
+    "actorPlaceholder": "Identifiant",
+    "action": "Action",
+    "anyAction": "Toutes les actions",
+    "result": "Résultat",
+    "anyResult": "Tous les résultats",
+    "target": "Cible",
+    "from": "Du",
+    "to": "Au",
+    "apply": "Appliquer",
+    "clear": "Effacer"
+  },
+  "results": {
+    "success": "Réussi",
+    "denied": "Refusé",
+    "error": "Erreur"
+  },
+  "columns": {
+    "when": "Date",
+    "actor": "Personne",
+    "action": "Action",
+    "result": "Résultat",
+    "target": "Cible",
+    "address": "Adresse"
+  },
+  "system": "Système",
+  "anonymous": "Anonyme",
+  "details": "Détails",
+  "request": "Requête {id}",
+  "empty": {
+    "title": "Aucun événement ne correspond",
+    "description": "Modifiez ou effacez les filtres."
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "summary": "Page {page} sur {pages} · {total} événements"
+  },
+  "export": "Exporter en CSV",
+  "exported": "{count, plural, one {# événement exporté} other {# événements exportés}}"
+}
