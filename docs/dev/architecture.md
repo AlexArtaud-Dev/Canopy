@@ -28,13 +28,13 @@ web :3000  (Next.js) ──────────────► PostgreSQL
 
 ## Data ownership
 
-| Schema   | Owner  | Content                                        | Migrations  |
-| -------- | ------ | ---------------------------------------------- | ----------- |
-| `auth`   | web    | users, sessions, 2FA                           | Drizzle     |
-| `app`    | web    | groups, roles, path grants, settings, plugins registry | Drizzle |
-| `audit`  | web    | append-only events (engine role: INSERT only)  | Drizzle     |
-| `engine` | engine | jobs metadata, job logs, trash index, thumbnails cache | goose |
-| `river`  | engine | River queue tables                             | River       |
+| Schema   | Owner  | Content                                                | Migrations |
+| -------- | ------ | ------------------------------------------------------ | ---------- |
+| `auth`   | web    | users, sessions, 2FA                                   | Drizzle    |
+| `app`    | web    | groups, roles, path grants, settings, plugins registry | Drizzle    |
+| `audit`  | web    | append-only events (engine role: INSERT only)          | Drizzle    |
+| `engine` | engine | jobs metadata, job logs, trash index, thumbnails cache | goose      |
+| `river`  | engine | River queue tables                                     | River      |
 
 The engine DB role has read-only access to `app` (grants, settings) and INSERT-only on `audit.events`.
 
@@ -76,17 +76,17 @@ The engine DB role has read-only access to `app` (grants, settings) and INSERT-o
 
 ## Environment (bootstrap only — everything else is an admin setting)
 
-| Variable                    | Purpose                                              |
-| --------------------------- | ---------------------------------------------------- |
-| `CANOPY_PUBLIC_URL`         | External URL (cookies, links)                        |
-| `CANOPY_DATABASE_URL`       | Postgres DSN (one per app role)                      |
-| `CANOPY_ENCRYPTION_KEY`     | AES-256-GCM key for secrets at rest                  |
-| `CANOPY_ENGINE_SIGNING_KEY` | Ed25519 private key (web) / public key (engine)      |
-| `CANOPY_ROOT`               | File root inside the engine container                |
-| `CANOPY_TRUSTED_PROXIES`    | CIDR list allowed to set forwarded headers           |
-| `CANOPY_LOCAL_NETWORKS`     | CIDR list considered "local" (maintenance mode)      |
-| `CANOPY_MAINTENANCE`        | `true` forces maintenance mode                       |
-| `PUID` / `PGID` / `UMASK`   | File ownership for the engine                        |
+| Variable                    | Purpose                                         |
+| --------------------------- | ----------------------------------------------- |
+| `CANOPY_PUBLIC_URL`         | External URL (cookies, links)                   |
+| `CANOPY_DATABASE_URL`       | Postgres DSN (one per app role)                 |
+| `CANOPY_ENCRYPTION_KEY`     | AES-256-GCM key for secrets at rest             |
+| `CANOPY_ENGINE_SIGNING_KEY` | Ed25519 private key (web) / public key (engine) |
+| `CANOPY_ROOT`               | File root inside the engine container           |
+| `CANOPY_TRUSTED_PROXIES`    | CIDR list allowed to set forwarded headers      |
+| `CANOPY_LOCAL_NETWORKS`     | CIDR list considered "local" (maintenance mode) |
+| `CANOPY_MAINTENANCE`        | `true` forces maintenance mode                  |
+| `PUID` / `PGID` / `UMASK`   | File ownership for the engine                   |
 
 Env values win over DB settings and show as read-only in the admin UI.
 

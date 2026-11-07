@@ -31,19 +31,19 @@ entries (filtered by permissions) and audit action labels.
 
 ## Default values (initial proposal)
 
-| Setting                         | Default            |
-| ------------------------------- | ------------------ |
-| Trash retention                 | 30 days            |
-| Trash purge schedule            | daily 03:00        |
-| Trash bypass threshold          | 10 GiB             |
-| Max concurrent jobs             | 2 (1 per user)     |
-| Copy verification across volumes| size only          |
-| Upload chunk size               | 8 MiB (resumable)  |
-| Session lifetime / idle timeout | 7 days / 24 h      |
-| Login lockout                   | 5 attempts / 15 min|
-| 2FA                             | optional           |
-| Audit retention                 | 365 days           |
-| Advanced mode                   | off                |
-| Thumbnails                      | on                 |
-| Default theme / locale          | system / en        |
-| Share links default expiry      | 7 days             |
+| Setting                          | Default             |
+| -------------------------------- | ------------------- |
+| Trash retention                  | 30 days             |
+| Trash purge schedule             | daily 03:00         |
+| Trash bypass threshold           | 10 GiB              |
+| Max concurrent jobs              | 2 (1 per user)      |
+| Copy verification across volumes | size only           |
+| Upload chunk size                | 8 MiB (resumable)   |
+| Session lifetime / idle timeout  | 7 days / 24 h       |
+| Login lockout                    | 5 attempts / 15 min |
+| 2FA                              | optional            |
+| Audit retention                  | 365 days            |
+| Advanced mode                    | off                 |
+| Thumbnails                       | on                  |
+| Default theme / locale           | system / en         |
+| Share links default expiry       | 7 days              |

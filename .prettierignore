@@ -1,0 +1,10 @@
+pnpm-lock.yaml
+LICENSE
+.logs/
+.next/
+dist/
+coverage/
+playwright-report/
+test-results/
+**/gen/
+*.go
