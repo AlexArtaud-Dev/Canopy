@@ -35,7 +35,8 @@
     "revokeSessions": "Déconnecter partout",
     "disable": "Désactiver",
     "enable": "Activer",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "folderAccess": "Accès aux dossiers"
   },
   "form": {
     "createTitle": "Nouvel utilisateur",

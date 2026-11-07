@@ -1,0 +1,53 @@
+{
+  "grants": {
+    "title": "Acceso a carpetas",
+    "description": {
+      "user": "Carpetas a las que puede llegar esta persona, además de las de sus grupos.",
+      "group": "Carpetas a las que pueden llegar todos los miembros de este grupo."
+    },
+    "add": "Añadir acceso",
+    "remove": "Quitar",
+    "removeLabel": "Quitar el acceso a {path}",
+    "added": "Acceso añadido",
+    "removed": "Acceso quitado",
+    "empty": {
+      "title": "Sin acceso a carpetas",
+      "description": "Sin regla no se ve nada (los administradores lo ven todo)."
+    },
+    "dialogTitle": "Añadir acceso a una carpeta",
+    "dialogDescription": "Elige una carpeta; la regla se aplica también a todo su contenido. Una regla más profunda la sustituye.",
+    "folder": "Carpeta",
+    "root": "Todos los volúmenes",
+    "loading": "Cargando carpetas…",
+    "noSubfolders": "No hay subcarpetas aquí.",
+    "selected": "Se aplica a",
+    "effect": "Regla",
+    "effects": {
+      "allow": "Permitir",
+      "deny": "Denegar"
+    },
+    "actions": "Acciones",
+    "presets": {
+      "readOnly": "Solo lectura",
+      "readWrite": "Lectura y escritura",
+      "full": "Control total"
+    },
+    "confirmRemove": {
+      "title": "¿Quitar el acceso a {path}?",
+      "description": "El cambio se aplica en la próxima petición de las personas afectadas."
+    },
+    "pageDescription": "Lo que esta persona puede alcanzar en las carpetas gestionadas.",
+    "actionNames": {
+      "read": "Ver",
+      "download": "Descargar",
+      "upload": "Subir",
+      "create": "Crear carpetas",
+      "update": "Editar",
+      "move": "Mover",
+      "copy": "Copiar",
+      "delete": "Eliminar",
+      "share": "Compartir",
+      "execute": "Ejecutar comandos"
+    }
+  }
+}

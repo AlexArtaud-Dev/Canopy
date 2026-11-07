@@ -9,7 +9,9 @@
     "encryption_key_missing": "Secret storage is not configured. Ask your administrator to set CANOPY_ENCRYPTION_KEY.",
     "encryption_key_invalid": "The encryption key is invalid. It must be 32 random bytes encoded in base64.",
     "secret_undecryptable": "A stored secret could not be read. It may have been encrypted with a key that is no longer configured.",
-    "rate_limited": "Too many attempts. Wait {retryAfter, plural, one {# second} other {# seconds}} and try again."
+    "rate_limited": "Too many attempts. Wait {retryAfter, plural, one {# second} other {# seconds}} and try again.",
+    "engine_unavailable": "The file engine is unreachable. Try again in a moment.",
+    "engine_key_missing": "The file engine is not configured. Ask your administrator to set the engine keys."
   },
   "settings": {
     "unknown_key": "This setting does not exist (“{key}”).",
@@ -31,7 +33,9 @@
     "cannot_revoke_current": "Use “Sign out” in the account menu to end this session.",
     "forbidden": "You don't have permission to do this. Ask an administrator for access.",
     "ip_blocked": "Too many failed attempts from your network. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
-    "two_factor_required": "One of your groups requires two-factor authentication, so it cannot be turned off."
+    "two_factor_required": "One of your groups requires two-factor authentication, so it cannot be turned off.",
+    "engine_token_missing": "Your session could not be passed to the file engine. Reload the page.",
+    "engine_token_invalid": "Your session expired for the file engine. Reload the page."
   },
   "users": {
     "last_admin": "Canopy needs at least one active administrator. Give another account the Admin role first.",
@@ -40,5 +44,11 @@
   "access": {
     "name_taken": "This name is already used.",
     "built_in_role": "Built-in roles can be edited but not deleted."
+  },
+  "files": {
+    "forbidden": "You don't have access to this folder.",
+    "not_found": "This item no longer exists or was moved.",
+    "invalid_path": "This path is not valid.",
+    "not_a_directory": "This is a file, not a folder."
   }
 }

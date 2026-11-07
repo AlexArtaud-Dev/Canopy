@@ -19,6 +19,42 @@ export const zError = z.object({
   requestId: z.string(),
 });
 
+export const zPathAction = z.enum([
+  'read',
+  'upload',
+  'create',
+  'update',
+  'move',
+  'copy',
+  'delete',
+  'download',
+  'share',
+  'execute',
+]);
+
+export const zDirectoryEntry = z.object({
+  name: z.string(),
+  path: z.string(),
+  kind: z.enum(['file', 'directory']),
+  size: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    }),
+  modified: z.iso.datetime(),
+  actions: z.array(zPathAction),
+});
+
+export const zDirectoryListing = z.object({
+  path: z.string(),
+  entries: z.array(zDirectoryEntry),
+  total: z.int(),
+  actions: z.array(zPathAction),
+});
+
 /**
  * The process is running.
  */
@@ -28,3 +64,17 @@ export const zGetLivenessResponse = zLivenessStatus;
  * The engine can serve requests.
  */
 export const zGetReadinessResponse = zReadinessStatus;
+
+export const zListDirectoryQuery = z.object({
+  path: z.string().max(4096),
+  dirsOnly: z.boolean().optional().default(false),
+  sort: z.enum(['name', 'size', 'modified']).optional().default('name'),
+  order: z.enum(['asc', 'desc']).optional().default('asc'),
+  offset: z.int().gte(0).optional().default(0),
+  limit: z.int().gte(1).lte(500).optional().default(100),
+});
+
+/**
+ * One page of the directory.
+ */
+export const zListDirectoryResponse = zDirectoryListing;

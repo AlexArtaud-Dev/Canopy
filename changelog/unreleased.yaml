@@ -104,3 +104,10 @@ entries:
       en: Group members are managed on a dedicated page, separate from the group settings
       fr: Les membres d’un groupe se gèrent sur une page dédiée, séparée des réglages du groupe
       es: Los miembros de un grupo se gestionan en una página propia, separada de los ajustes del grupo
+  - type: feat
+    scope: files
+    issue: 54
+    text:
+      en: Administrators decide which folders each user and group can reach, and what they may do there
+      fr: Les administrateurs décident des dossiers accessibles à chaque utilisateur et groupe, et de ce qu’ils peuvent y faire
+      es: Los administradores deciden a qué carpetas llega cada usuario y grupo, y qué pueden hacer en ellas

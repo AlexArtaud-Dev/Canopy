@@ -7,11 +7,32 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/oapi-codegen/runtime"
 )
+
+// Defines values for DirectoryEntryKind.
+const (
+	Directory DirectoryEntryKind = "directory"
+	File      DirectoryEntryKind = "file"
+)
+
+// Valid indicates whether the value is a known member of the DirectoryEntryKind enum.
+func (e DirectoryEntryKind) Valid() bool {
+	switch e {
+	case Directory:
+		return true
+	case File:
+		return true
+	default:
+		return false
+	}
+}
 
 // Defines values for LivenessStatusStatus.
 const (
@@ -22,6 +43,48 @@ const (
 func (e LivenessStatusStatus) Valid() bool {
 	switch e {
 	case Ok:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PathAction.
+const (
+	Copy     PathAction = "copy"
+	Create   PathAction = "create"
+	Delete   PathAction = "delete"
+	Download PathAction = "download"
+	Execute  PathAction = "execute"
+	Move     PathAction = "move"
+	Read     PathAction = "read"
+	Share    PathAction = "share"
+	Update   PathAction = "update"
+	Upload   PathAction = "upload"
+)
+
+// Valid indicates whether the value is a known member of the PathAction enum.
+func (e PathAction) Valid() bool {
+	switch e {
+	case Copy:
+		return true
+	case Create:
+		return true
+	case Delete:
+		return true
+	case Download:
+		return true
+	case Execute:
+		return true
+	case Move:
+		return true
+	case Read:
+		return true
+	case Share:
+		return true
+	case Update:
+		return true
+	case Upload:
 		return true
 	default:
 		return false
@@ -43,6 +106,73 @@ func (e ReadinessStatusStatus) Valid() bool {
 	}
 }
 
+// Defines values for ListDirectoryParamsSort.
+const (
+	Modified ListDirectoryParamsSort = "modified"
+	Name     ListDirectoryParamsSort = "name"
+	Size     ListDirectoryParamsSort = "size"
+)
+
+// Valid indicates whether the value is a known member of the ListDirectoryParamsSort enum.
+func (e ListDirectoryParamsSort) Valid() bool {
+	switch e {
+	case Modified:
+		return true
+	case Name:
+		return true
+	case Size:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ListDirectoryParamsOrder.
+const (
+	Asc  ListDirectoryParamsOrder = "asc"
+	Desc ListDirectoryParamsOrder = "desc"
+)
+
+// Valid indicates whether the value is a known member of the ListDirectoryParamsOrder enum.
+func (e ListDirectoryParamsOrder) Valid() bool {
+	switch e {
+	case Asc:
+		return true
+	case Desc:
+		return true
+	default:
+		return false
+	}
+}
+
+// DirectoryEntry defines model for DirectoryEntry.
+type DirectoryEntry struct {
+	Actions  []PathAction       `json:"actions"`
+	Kind     DirectoryEntryKind `json:"kind"`
+	Modified time.Time          `json:"modified"`
+	Name     string             `json:"name"`
+
+	// Path Virtual path of the entry.
+	Path string `json:"path"`
+
+	// Size Bytes (0 for folders).
+	Size int64 `json:"size"`
+}
+
+// DirectoryEntryKind defines model for DirectoryEntry.Kind.
+type DirectoryEntryKind string
+
+// DirectoryListing defines model for DirectoryListing.
+type DirectoryListing struct {
+	// Actions Path actions the caller holds on the listed folder itself.
+	Actions []PathAction     `json:"actions"`
+	Entries []DirectoryEntry `json:"entries"`
+	Path    string           `json:"path"`
+
+	// Total Visible entries in the whole folder (for pagination).
+	Total int `json:"total"`
+}
+
 // Error Shared error model. `code` is namespaced `<module>.<error>` and translated by the UI (`errors.<code>`); no human message is ever sent.
 type Error struct {
 	// Code Examples: system.database_unavailable
@@ -61,6 +191,9 @@ type LivenessStatus struct {
 // LivenessStatusStatus defines model for LivenessStatus.Status.
 type LivenessStatusStatus string
 
+// PathAction defines model for PathAction.
+type PathAction string
+
 // ReadinessStatus defines model for ReadinessStatus.
 type ReadinessStatus struct {
 	Status ReadinessStatusStatus `json:"status"`
@@ -68,6 +201,25 @@ type ReadinessStatus struct {
 
 // ReadinessStatusStatus defines model for ReadinessStatus.Status.
 type ReadinessStatusStatus string
+
+// ListDirectoryParams defines parameters for ListDirectory.
+type ListDirectoryParams struct {
+	// Path Virtual POSIX path (`/media/photos`).
+	Path string `form:"path" json:"path"`
+
+	// DirsOnly Only folders (folder pickers).
+	DirsOnly *bool                     `form:"dirsOnly,omitempty" json:"dirsOnly,omitempty"`
+	Sort     *ListDirectoryParamsSort  `form:"sort,omitempty" json:"sort,omitempty"`
+	Order    *ListDirectoryParamsOrder `form:"order,omitempty" json:"order,omitempty"`
+	Offset   *int                      `form:"offset,omitempty" json:"offset,omitempty"`
+	Limit    *int                      `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// ListDirectoryParamsSort defines parameters for ListDirectory.
+type ListDirectoryParamsSort string
+
+// ListDirectoryParamsOrder defines parameters for ListDirectory.
+type ListDirectoryParamsOrder string
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -77,6 +229,9 @@ type ServerInterface interface {
 	// GetReadiness Readiness of the engine and its database
 	// (GET /readyz)
 	GetReadiness(w http.ResponseWriter, r *http.Request)
+	// ListDirectory List a directory the caller may see
+	// (GET /v1/fs/list)
+	ListDirectory(w http.ResponseWriter, r *http.Request, params ListDirectoryParams)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -92,6 +247,12 @@ func (_ Unimplemented) GetLiveness(w http.ResponseWriter, r *http.Request) {
 // GetReadiness Readiness of the engine and its database
 // (GET /readyz)
 func (_ Unimplemented) GetReadiness(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListDirectory List a directory the caller may see
+// (GET /v1/fs/list)
+func (_ Unimplemented) ListDirectory(w http.ResponseWriter, r *http.Request, params ListDirectoryParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -123,6 +284,104 @@ func (siw *ServerInterfaceWrapper) GetReadiness(w http.ResponseWriter, r *http.R
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetReadiness(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListDirectory operation middleware
+func (siw *ServerInterfaceWrapper) ListDirectory(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListDirectoryParams
+
+	// ------------- Required query parameter "path" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "path", r.URL.Query(), &params.Path, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "path"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "path", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "dirsOnly" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "dirsOnly", r.URL.Query(), &params.DirsOnly, runtime.BindQueryParameterOptions{Type: "boolean", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "dirsOnly"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "dirsOnly", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "sort", r.URL.Query(), &params.Sort, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "sort"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sort", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "order" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "order", r.URL.Query(), &params.Order, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "order"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "order", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "offset", r.URL.Query(), &params.Offset, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "offset"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "limit", r.URL.Query(), &params.Limit, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListDirectory(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -251,6 +510,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/readyz", wrapper.GetReadiness)
 	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/fs/list", wrapper.ListDirectory)
+	})
 
 	return r
 }
@@ -311,6 +573,84 @@ func (response GetReadiness503JSONResponse) VisitGetReadinessResponse(w http.Res
 	return err
 }
 
+type ListDirectoryRequestObject struct {
+	Params ListDirectoryParams
+}
+
+type ListDirectoryResponseObject interface {
+	VisitListDirectoryResponse(w http.ResponseWriter) error
+}
+
+type ListDirectory200JSONResponse DirectoryListing
+
+func (response ListDirectory200JSONResponse) VisitListDirectoryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListDirectory400JSONResponse Error
+
+func (response ListDirectory400JSONResponse) VisitListDirectoryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListDirectory401JSONResponse Error
+
+func (response ListDirectory401JSONResponse) VisitListDirectoryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListDirectory403JSONResponse Error
+
+func (response ListDirectory403JSONResponse) VisitListDirectoryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListDirectory404JSONResponse Error
+
+func (response ListDirectory404JSONResponse) VisitListDirectoryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// GetLiveness Liveness of the engine process
@@ -319,6 +659,9 @@ type StrictServerInterface interface {
 	// GetReadiness Readiness of the engine and its database
 	// (GET /readyz)
 	GetReadiness(ctx context.Context, request GetReadinessRequestObject) (GetReadinessResponseObject, error)
+	// ListDirectory List a directory the caller may see
+	// (GET /v1/fs/list)
+	ListDirectory(ctx context.Context, request ListDirectoryRequestObject) (ListDirectoryResponseObject, error)
 }
 
 type StrictHandlerFunc func(ctx context.Context, w http.ResponseWriter, r *http.Request, request any) (any, error)
@@ -401,6 +744,32 @@ func (sh *strictHandler) GetReadiness(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetReadinessResponseObject); ok {
 		if err := validResponse.VisitGetReadinessResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListDirectory operation middleware
+func (sh *strictHandler) ListDirectory(w http.ResponseWriter, r *http.Request, params ListDirectoryParams) {
+	var request ListDirectoryRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListDirectory(ctx, request.(ListDirectoryRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListDirectory")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListDirectoryResponseObject); ok {
+		if err := validResponse.VisitListDirectoryResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

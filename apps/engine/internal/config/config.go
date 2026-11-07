@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -22,7 +23,9 @@ type Config struct {
 	Addr        string
 	DatabaseURL string
 	Root        string
-	LogLevel    slog.Level
+	// PublicKey verifies web-signed engine tokens; empty disables the /v1 API.
+	PublicKey string
+	LogLevel  slog.Level
 	// Umask applies to every file the engine creates (linuxserver-style UMASK, octal).
 	Umask int
 }
@@ -52,6 +55,7 @@ func Load(getenv func(string) string) (Config, error) {
 		Addr:        valueOr(getenv("CANOPY_ENGINE_ADDR"), defaultAddr),
 		DatabaseURL: strings.TrimSpace(getenv("CANOPY_DATABASE_URL")),
 		Root:        valueOr(getenv("CANOPY_ROOT"), defaultRoot),
+		PublicKey:   strings.TrimSpace(getenv("CANOPY_ENGINE_PUBLIC_KEY")),
 		LogLevel:    defaultLogLevel,
 		Umask:       defaultUmask,
 	}
@@ -60,10 +64,11 @@ func Load(getenv func(string) string) (Config, error) {
 		return Config{}, &Error{Code: CodeMissing, Key: "CANOPY_DATABASE_URL"}
 	}
 
-	if !path.IsAbs(cfg.Root) {
+	// The root is a host path: POSIX in containers, a drive path when developing on Windows.
+	if !path.IsAbs(cfg.Root) && !filepath.IsAbs(cfg.Root) {
 		return Config{}, &Error{Code: CodeInvalid, Key: "CANOPY_ROOT"}
 	}
-	cfg.Root = path.Clean(cfg.Root)
+	cfg.Root = filepath.ToSlash(filepath.Clean(cfg.Root))
 
 	if raw := strings.TrimSpace(getenv("CANOPY_LOG_LEVEL")); raw != "" {
 		if err := cfg.LogLevel.UnmarshalText([]byte(raw)); err != nil {

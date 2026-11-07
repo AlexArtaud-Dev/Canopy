@@ -9,7 +9,9 @@
     "encryption_key_missing": "El almacenamiento de secretos no está configurado. Pida a su administrador que defina CANOPY_ENCRYPTION_KEY.",
     "encryption_key_invalid": "La clave de cifrado no es válida. Debe tener 32 bytes aleatorios codificados en base64.",
     "secret_undecryptable": "No se pudo leer un secreto guardado. Puede que se haya cifrado con una clave que ya no está configurada.",
-    "rate_limited": "Demasiados intentos. Espere {retryAfter, plural, one {# segundo} other {# segundos}} e inténtelo de nuevo."
+    "rate_limited": "Demasiados intentos. Espere {retryAfter, plural, one {# segundo} other {# segundos}} e inténtelo de nuevo.",
+    "engine_unavailable": "El motor de archivos no responde. Inténtalo de nuevo en un momento.",
+    "engine_key_missing": "El motor de archivos no está configurado. Pide a tu administrador que defina las claves del motor."
   },
   "settings": {
     "unknown_key": "Este ajuste no existe («{key}»).",
@@ -31,7 +33,9 @@
     "cannot_revoke_current": "Usa «Cerrar sesión» en el menú de la cuenta para terminar esta sesión.",
     "forbidden": "No tienes permiso para hacer esto. Pide acceso a un administrador.",
     "ip_blocked": "Demasiados intentos fallidos desde tu red. Vuelve a intentarlo en {minutes, plural, one {# minuto} other {# minutos}}.",
-    "two_factor_required": "Uno de tus grupos exige la verificación en dos pasos, así que no se puede desactivar."
+    "two_factor_required": "Uno de tus grupos exige la verificación en dos pasos, así que no se puede desactivar.",
+    "engine_token_missing": "No se pudo pasar tu sesión al motor de archivos. Recarga la página.",
+    "engine_token_invalid": "Tu sesión caducó para el motor de archivos. Recarga la página."
   },
   "users": {
     "last_admin": "Canopy necesita al menos un administrador activo. Da antes el rol Administrador a otra cuenta.",
@@ -40,5 +44,11 @@
   "access": {
     "name_taken": "Este nombre ya está en uso.",
     "built_in_role": "Los roles integrados se pueden editar pero no eliminar."
+  },
+  "files": {
+    "forbidden": "No tienes acceso a esta carpeta.",
+    "not_found": "Este elemento ya no existe o se movió.",
+    "invalid_path": "Esta ruta no es válida.",
+    "not_a_directory": "Es un archivo, no una carpeta."
   }
 }

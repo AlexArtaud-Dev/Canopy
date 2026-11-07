@@ -21,5 +21,5 @@ export const filesModule = defineModule({
     ],
   },
   navigation: [{ href: '/', labelKey: 'files', icon: FolderTree, group: 'workspace' }],
-  auditActions: [],
+  auditActions: ['files.grant_add', 'files.grant_remove'],
 });

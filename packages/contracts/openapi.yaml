@@ -42,7 +42,94 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/fs/list:
+    get:
+      operationId: listDirectory
+      summary: List a directory the caller may see
+      description: >-
+        Entries the caller may read (or traverse towards a granted folder), sorted folders first.
+        Each entry carries the path actions the caller holds on it, so the UI never re-implements
+        permission logic. Host paths never appear.
+      tags: [files]
+      security:
+        - engineToken: []
+      parameters:
+        - name: path
+          in: query
+          required: true
+          description: Virtual POSIX path (`/media/photos`).
+          schema:
+            type: string
+            maxLength: 4096
+        - name: dirsOnly
+          in: query
+          description: Only folders (folder pickers).
+          schema:
+            type: boolean
+            default: false
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [name, size, modified]
+            default: name
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+      responses:
+        '200':
+          description: One page of the directory.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryListing'
+        '400':
+          description: Invalid path or parameters (`files.invalid_path`, `system.bad_request`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The caller may not see this folder (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such folder (`files.not_found`, `files.not_a_directory`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
+  securitySchemes:
+    engineToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Short-lived Ed25519 token signed by the web app (never by browsers).
   schemas:
     LivenessStatus:
       type: object
@@ -75,3 +162,47 @@ components:
           additionalProperties: true
         requestId:
           type: string
+    PathAction:
+      type: string
+      enum: [read, upload, create, update, move, copy, delete, download, share, execute]
+    DirectoryEntry:
+      type: object
+      required: [name, path, kind, size, modified, actions]
+      properties:
+        name:
+          type: string
+        path:
+          description: Virtual path of the entry.
+          type: string
+        kind:
+          type: string
+          enum: [file, directory]
+        size:
+          description: Bytes (0 for folders).
+          type: integer
+          format: int64
+        modified:
+          type: string
+          format: date-time
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PathAction'
+    DirectoryListing:
+      type: object
+      required: [path, entries, total, actions]
+      properties:
+        path:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/DirectoryEntry'
+        total:
+          description: Visible entries in the whole folder (for pagination).
+          type: integer
+        actions:
+          description: Path actions the caller holds on the listed folder itself.
+          type: array
+          items:
+            $ref: '#/components/schemas/PathAction'
