@@ -15,6 +15,7 @@ import { audit } from '@/features/audit/server/audit-writer';
 
 import { safeRedirectPath, signInInputSchema } from '../auth.utils';
 import { authRequestHeaders, getConfiguredAuth } from './current-session';
+import { hasTotpEnabled } from './totp-factor';
 
 /** Per client IP, whatever the account: slows down password spraying. */
 const perIpRule = { limit: 10, windowSeconds: 60 };
@@ -57,10 +58,10 @@ export async function signIn(input: unknown): Promise<ActionResult<{ redirectTo:
       throw lockedError(lockout.retryAfterSeconds);
     }
 
+    let userId: string;
     try {
       const result = await auth.api.signInUsername({ body: { username, password }, headers });
-      await clearRateLimit(lockoutScope, account);
-      await audit({ action: 'auth.sign_in', result: 'success', actorId: result.user.id });
+      userId = result.user.id;
     } catch (error) {
       if (!isAPIError(error)) throw error;
       const failures = await consume(lockoutScope, account, lockoutRule);
@@ -74,6 +75,19 @@ export async function signIn(input: unknown): Promise<ActionResult<{ redirectTo:
       if (nowLocked) throw lockedError(lockoutRule.windowSeconds);
       throw new AppBaseError('auth.invalid_credentials', 'sign-in rejected', { cause: error });
     }
-    return { redirectTo: safeRedirectPath(next) };
+
+    await clearRateLimit(lockoutScope, account);
+    // The session hook already marked the session pending when the account uses 2FA.
+    const secondFactor = await hasTotpEnabled(userId);
+    await audit({
+      action: 'auth.sign_in',
+      result: 'success',
+      actorId: userId,
+      meta: secondFactor ? { secondFactor: 'pending' } : {},
+    });
+    const destination = safeRedirectPath(next);
+    if (!secondFactor) return { redirectTo: destination };
+    const query = destination === '/' ? '' : `?next=${encodeURIComponent(destination)}`;
+    return { redirectTo: `/login/verify${query}` };
   });
 }

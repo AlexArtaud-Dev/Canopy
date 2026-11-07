@@ -8,8 +8,23 @@ import { getConnection } from '@/shared/db/client';
 import { runMigrations } from '@/shared/db/migrate';
 import type { AppBaseError } from '@/shared/lib/errors';
 
+import { base32Decode, hotp, timeStep } from '../totp.utils';
 import { createAccount } from './create-account';
-import { getConfiguredAuth, getCurrentSession, hasAnyUser, setupBlocker } from './current-session';
+import {
+  completeSecondFactor,
+  getConfiguredAuth,
+  getCurrentSession,
+  getSessionState,
+  hasAnyUser,
+  setupBlocker,
+} from './current-session';
+import {
+  createPendingFactor,
+  enableFactor,
+  hasTotpEnabled,
+  remainingRecoveryCodes,
+  verifySecondFactor,
+} from './totp-factor';
 
 let requestHeaders = new Headers();
 
@@ -117,5 +132,51 @@ describeWithDb('auth (integration)', () => {
     expect(await getCurrentSession()).toBeNull();
     requestHeaders = new Headers({ cookie: 'canopy.session_token=forged.value' });
     expect(await getCurrentSession()).toBeNull();
+  });
+
+  describe('two-factor', () => {
+    let userId: string;
+    let secret: Buffer;
+
+    beforeAll(async () => {
+      ({ id: userId } = await createAccount({ username: 'grace', password, isAdmin: false }));
+      secret = base32Decode(await createPendingFactor(userId));
+    });
+
+    it('enables only with a valid first code and returns ten recovery codes', async () => {
+      expect(await enableFactor(userId, '000000')).toBeNull();
+      const codes = await enableFactor(userId, hotp(secret, timeStep(new Date())));
+      expect(codes).toHaveLength(10);
+      expect(await hasTotpEnabled(userId)).toBe(true);
+    });
+
+    it('holds the session as pending until the second factor is verified', async () => {
+      requestHeaders = new Headers({ cookie: await signIn('grace') });
+      const state = await getSessionState();
+      expect(state.kind).toBe('pending');
+      expect(await getCurrentSession()).toBeNull();
+      if (state.kind !== 'pending') throw new Error('expected pending');
+
+      // The enrolment code's step was consumed: the next step is needed (no replay).
+      const replay = hotp(secret, timeStep(new Date()));
+      expect(await verifySecondFactor(userId, { kind: 'totp', code: replay })).toBe(false);
+      const next = hotp(secret, timeStep(new Date()) + 1);
+      expect(await verifySecondFactor(userId, { kind: 'totp', code: next })).toBe(true);
+      await completeSecondFactor(state.sessionId);
+      expect((await getCurrentSession())?.user.username).toBe('grace');
+    });
+
+    it('accepts each recovery code once', async () => {
+      const codes = (await enableFactorAgain()) ?? [];
+      const first = codes[0] ?? '';
+      expect(await verifySecondFactor(userId, { kind: 'recovery', code: first })).toBe(true);
+      expect(await verifySecondFactor(userId, { kind: 'recovery', code: first })).toBe(false);
+      expect(await remainingRecoveryCodes(userId)).toBe(9);
+    });
+
+    async function enableFactorAgain() {
+      secret = base32Decode(await createPendingFactor(userId));
+      return enableFactor(userId, hotp(secret, timeStep(new Date())));
+    }
   });
 });

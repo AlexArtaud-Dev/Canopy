@@ -55,3 +55,10 @@ entries:
       en: Accounts lock for a while after repeated failed sign-ins, and the password policy is configurable
       fr: Les comptes sont bloqués un moment après plusieurs échecs de connexion, et la politique de mot de passe est configurable
       es: Las cuentas se bloquean un tiempo tras varios intentos fallidos y la política de contraseñas es configurable
+  - type: feat
+    scope: auth
+    issue: 30
+    text:
+      en: Two-factor authentication with an authenticator app, plus one-time recovery codes
+      fr: Double authentification avec une application d’authentification, et codes de secours à usage unique
+      es: Verificación en dos pasos con una aplicación de autenticación y códigos de recuperación de un solo uso

@@ -22,6 +22,11 @@
     "setup_already_done": "Canopy ya está configurado. Inicia sesión con una cuenta existente.",
     "setup_not_local": "El primer administrador solo puede crearse desde la red local.",
     "locked": "Demasiados intentos fallidos. Esta cuenta está bloqueada durante {minutes, plural, one {# minuto} other {# minutos}}.",
-    "password_breached": "Esta contraseña aparece en una filtración de datos pública. Elige otra."
+    "password_breached": "Esta contraseña aparece en una filtración de datos pública. Elige otra.",
+    "invalid_code": "Este código no es válido. Comprueba la hora de tu aplicación e inténtalo de nuevo.",
+    "second_factor_expired": "Este inicio de sesión tardó demasiado. Empieza de nuevo.",
+    "invalid_password": "La contraseña es incorrecta.",
+    "totp_already_enabled": "La verificación en dos pasos ya está activada.",
+    "totp_not_enabled": "La verificación en dos pasos está desactivada."
   }
 }

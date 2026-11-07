@@ -7,14 +7,19 @@ export interface SessionTimes {
   createdAt: Date;
   /** Last recorded activity (refreshed at most every `activityGranularitySeconds`). */
   updatedAt: Date;
+  /** Password accepted, second factor still expected. */
+  twoFactorPending: boolean;
 }
+
+/** Time allowed to type the second factor after the password. */
+export const pendingSecondFactorMinutes = 10;
 
 export interface SessionPolicy {
   sessionLifetimeDays: number;
   idleTimeoutMinutes: number;
 }
 
-export type SessionVerdict = 'active' | 'expired' | 'idle';
+export type SessionVerdict = 'active' | 'pending' | 'expired' | 'idle';
 
 /** Applies the absolute lifetime and the idle timeout to a session. */
 export function evaluateSession(
@@ -22,8 +27,12 @@ export function evaluateSession(
   policy: SessionPolicy,
   now: Date,
 ): SessionVerdict {
+  const ageMs = now.getTime() - session.createdAt.getTime();
+  if (session.twoFactorPending) {
+    return ageMs >= pendingSecondFactorMinutes * 60 * 1000 ? 'expired' : 'pending';
+  }
   const lifetimeMs = policy.sessionLifetimeDays * 24 * 60 * 60 * 1000;
-  if (now.getTime() - session.createdAt.getTime() >= lifetimeMs) return 'expired';
+  if (ageMs >= lifetimeMs) return 'expired';
   const idleMs = policy.idleTimeoutMinutes * 60 * 1000;
   if (now.getTime() - session.updatedAt.getTime() >= idleMs) return 'idle';
   return 'active';

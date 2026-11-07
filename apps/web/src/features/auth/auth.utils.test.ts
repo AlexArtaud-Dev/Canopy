@@ -6,6 +6,7 @@ import {
   invalidAccountFields,
   newAccountSchema,
   passwordSchema,
+  pendingSecondFactorMinutes,
   safeRedirectPath,
   signInInputSchema,
   syntheticEmail,
@@ -19,19 +20,46 @@ const minutesAgo = (minutes: number) => new Date(now.getTime() - minutes * 60_00
 describe('evaluateSession', () => {
   it('keeps a recent, recently used session', () => {
     expect(
-      evaluateSession({ createdAt: minutesAgo(120), updatedAt: minutesAgo(5) }, policy, now),
+      evaluateSession(
+        { createdAt: minutesAgo(120), updatedAt: minutesAgo(5), twoFactorPending: false },
+        policy,
+        now,
+      ),
     ).toBe('active');
   });
 
   it('ends a session past its absolute lifetime even if active', () => {
     const createdAt = minutesAgo(30 * 24 * 60);
-    expect(evaluateSession({ createdAt, updatedAt: minutesAgo(1) }, policy, now)).toBe('expired');
+    expect(
+      evaluateSession(
+        { createdAt, updatedAt: minutesAgo(1), twoFactorPending: false },
+        policy,
+        now,
+      ),
+    ).toBe('expired');
   });
 
   it('ends a session unused for the idle timeout', () => {
     expect(
-      evaluateSession({ createdAt: minutesAgo(120), updatedAt: minutesAgo(60) }, policy, now),
+      evaluateSession(
+        { createdAt: minutesAgo(120), updatedAt: minutesAgo(60), twoFactorPending: false },
+        policy,
+        now,
+      ),
     ).toBe('idle');
+  });
+});
+
+describe('evaluateSession with a pending second factor', () => {
+  const pending = (createdMinutesAgo: number) => ({
+    createdAt: minutesAgo(createdMinutesAgo),
+    updatedAt: minutesAgo(createdMinutesAgo),
+    twoFactorPending: true,
+  });
+
+  it('waits for the code for a few minutes, then expires', () => {
+    expect(evaluateSession(pending(2), policy, now)).toBe('pending');
+    expect(evaluateSession(pending(pendingSecondFactorMinutes), policy, now)).toBe('expired');
   });
 });
 
