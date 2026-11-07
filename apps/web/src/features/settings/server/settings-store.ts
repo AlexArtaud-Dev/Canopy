@@ -6,6 +6,7 @@ import type { z } from 'zod';
 import { getConnection, getDb } from '@/shared/db/client';
 import { logger } from '@/shared/lib/logger';
 import type { SettingsDefinition } from '@/shared/modules/settings.types';
+import { audit } from '@/features/audit/server/audit-writer';
 import { openSecret, sealSecret } from '@/shared/secrets/secrets';
 
 import {
@@ -105,12 +106,30 @@ export async function updateSetting<T extends z.ZodRawShape>(
       set: { value: stored, updatedBy: actorId, updatedAt: new Date() },
     });
   await getConnection().sql.notify(notifyChannel, moduleId);
+  await audit({
+    action: 'settings.update',
+    result: 'success',
+    actorId,
+    target: `${moduleId}.${key}`,
+    // Sensitive values never reach the audit log, even sealed.
+    meta: definition.fields[key]?.sensitive ? {} : { value: parsed },
+  });
 }
 
 /** Back to the default: the row is deleted, not overwritten with the default value. */
-export async function resetSetting(moduleId: string, key: string): Promise<void> {
+export async function resetSetting(
+  moduleId: string,
+  key: string,
+  actorId: string | null,
+): Promise<void> {
   await getDb()
     .delete(settingsTable)
     .where(and(eq(settingsTable.module, moduleId), eq(settingsTable.key, key)));
   await getConnection().sql.notify(notifyChannel, moduleId);
+  await audit({
+    action: 'settings.reset',
+    result: 'success',
+    actorId,
+    target: `${moduleId}.${key}`,
+  });
 }
