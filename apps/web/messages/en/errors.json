@@ -1,0 +1,10 @@
+{
+  "system": {
+    "unexpected": "Something unexpected happened on our side. Try again; if it keeps failing, share the reference below with your administrator.",
+    "not_found": "This item no longer exists or was moved.",
+    "bad_request": "The request was not valid. Refresh the page and try again.",
+    "internal": "The server could not complete this request. Try again in a moment.",
+    "database_unavailable": "The database is unreachable. Canopy will recover as soon as it is back.",
+    "database_not_configured": "The database connection is not configured. Ask your administrator to set CANOPY_DATABASE_URL."
+  }
+}

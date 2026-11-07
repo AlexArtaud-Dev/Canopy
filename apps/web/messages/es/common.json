@@ -15,5 +15,17 @@
   "a11y": {
     "navigation": "Navegación",
     "navigationDescription": "Navegación principal de Canopy"
+  },
+  "errorState": {
+    "title": "Algo salió mal",
+    "retry": "Reintentar",
+    "reference": "Referencia {reference}",
+    "copyReference": "Copiar la referencia {reference}",
+    "copied": "Referencia copiada"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "description": "La página que busca no existe o no tiene acceso a ella.",
+    "backHome": "Volver a los archivos"
   }
 }
