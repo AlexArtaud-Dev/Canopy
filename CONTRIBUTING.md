@@ -5,7 +5,9 @@ released under the same license.
 
 ## Prerequisites
 
-Node.js LTS, pnpm, Go (latest stable), Docker + Docker Compose.
+Node.js ≥ 22.12 (CI uses the version in `.node-version`), pnpm 12 (pinned in `package.json` →
+`packageManager`; run `pnpm self-update 12` if needed), Go (version in `apps/engine/go.mod`),
+Docker + Docker Compose.
 
 ## Getting started
 

@@ -1,3 +1,28 @@
 CLAUDE.md
 .claude/
 .logs/
+
+# Dependencies and build output
+node_modules/
+.pnpm-store/
+dist/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Test artifacts
+playwright-report/
+test-results/
+
+# Go
+apps/engine/bin/
+apps/engine/tmp/
+
+# Env and OS
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db

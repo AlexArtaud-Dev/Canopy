@@ -45,5 +45,5 @@ timeout: 24h
 - Safety: download only from admin-allowlisted repos over HTTPS, checksum verified before
   activation, no install scripts ever run, executable bit set by the engine.
 - Reference integration: **mrename** (C). Requires published release binaries (linux amd64/arm64)
-  + checksums. Its CLI arguments must be documented before implementing — ask, do not guess.
+  - checksums. Its CLI arguments must be documented before implementing — ask, do not guess.
 - Third-party guide: `docs/integrations/writing-a-plugin.md` (written when the feature ships).

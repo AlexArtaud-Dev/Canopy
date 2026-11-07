@@ -20,11 +20,11 @@
 4. At equal depth: `deny` beats `allow`; then user-level beats group-level.
 5. No matching grant → no access (default deny).
 
-| Grants                                                  | `/media/kids` | `/media/private` |
-| ------------------------------------------------------- | ------------- | ---------------- |
-| group Family: allow read `/media`                       | read          | read             |
-| + group Family: deny read `/media/private`              | read          | —                |
-| + user Alice: allow read `/media/private`               | read          | read (Alice)     |
+| Grants                                     | `/media/kids` | `/media/private` |
+| ------------------------------------------ | ------------- | ---------------- |
+| group Family: allow read `/media`          | read          | read             |
+| + group Family: deny read `/media/private` | read          | —                |
+| + user Alice: allow read `/media/private`  | read          | read (Alice)     |
 
 ## Generic module interface
 
