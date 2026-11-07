@@ -1,5 +1,6 @@
 // The one place features are registered. It imports each slice's `*.module.ts` directly (not its
 // index) because module declarations must stay client-safe for the navigation.
+import { groupsModule, rolesModule, usersModule } from '@/features/access/access.module';
 import { auditModule } from '@/features/audit/audit.module';
 import { authModule } from '@/features/auth/auth.module';
 import { filesModule } from '@/features/files/files.module';
@@ -10,6 +11,9 @@ import { createRegistry } from '@/shared/modules/registry';
 export const appRegistry = createRegistry([
   filesModule,
   authModule,
+  usersModule,
+  groupsModule,
+  rolesModule,
   settingsModule,
   auditModule,
   systemModule,

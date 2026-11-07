@@ -43,7 +43,7 @@ export async function completeSetup(input: unknown): Promise<ActionResult<null>>
         displayName,
         contactEmail,
         password,
-        isAdmin: true,
+        roleKeys: ['admin'],
       });
       await audit({ action: 'auth.setup', result: 'success', actorId: id, target: id });
 
