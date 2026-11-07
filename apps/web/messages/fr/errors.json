@@ -16,7 +16,8 @@
   "settings": {
     "unknown_key": "Ce paramètre n’existe pas (« {key} »).",
     "invalid_value": "La valeur de « {key} » n’est pas valide.",
-    "locked_by_env": "« {key} » est défini par la variable d’environnement {env} et ne peut pas être modifié ici."
+    "locked_by_env": "« {key} » est défini par la variable d’environnement {env} et ne peut pas être modifié ici.",
+    "local_only": "« {key} » ne peut être modifié que depuis le réseau local."
   },
   "auth": {
     "invalid_credentials": "Nom d’utilisateur ou mot de passe incorrect.",

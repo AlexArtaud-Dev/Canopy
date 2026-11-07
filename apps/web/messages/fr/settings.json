@@ -1,0 +1,68 @@
+{
+  "metaTitle": "Réglages",
+  "title": "Réglages",
+  "description": "Réglages de toute l’instance. Chaque champ a une valeur par défaut raisonnable : ne changez que le nécessaire.",
+  "search": "Rechercher un réglage",
+  "empty": "Aucun réglage ne correspond.",
+  "modified": "Modifié",
+  "default": "Par défaut : {value}",
+  "locked": "Défini par {env}",
+  "localOnly": "Réseau local uniquement",
+  "localOnlyHint": "Ouvrez Canopy depuis le réseau local pour le modifier.",
+  "restart": "Redémarrage nécessaire",
+  "save": "Enregistrer",
+  "reset": "Rétablir la valeur par défaut",
+  "saved": "Réglage enregistré",
+  "resetDone": "Valeur par défaut rétablie",
+  "ownPage": {
+    "mail": "Les réglages e-mail (SMTP) sont sur la page E-mail."
+  },
+  "modules": {
+    "auth": "Connexion et sessions"
+  },
+  "groups": {
+    "sessions": "Sessions",
+    "passwords": "Mots de passe",
+    "protection": "Protection contre le brute-force"
+  },
+  "fields": {
+    "auth": {
+      "sessionLifetimeDays": {
+        "label": "Durée de vie d’une session (jours)",
+        "description": "Une session prend fin après ce délai depuis la connexion, même si elle est utilisée."
+      },
+      "idleTimeoutMinutes": {
+        "label": "Délai d’inactivité (minutes)",
+        "description": "Une session inutilisée pendant ce délai prend fin."
+      },
+      "passwordMinLength": {
+        "label": "Longueur minimale du mot de passe",
+        "description": "S’applique aux nouveaux mots de passe ; les existants restent valides."
+      },
+      "checkBreachedPasswords": {
+        "label": "Refuser les mots de passe compromis",
+        "description": "Vérifie les nouveaux mots de passe auprès de Have I Been Pwned (seuls 5 caractères d’une empreinte quittent le serveur)."
+      },
+      "lockoutThreshold": {
+        "label": "Échecs avant blocage",
+        "description": "Échecs consécutifs sur un compte avant son blocage."
+      },
+      "lockoutMinutes": {
+        "label": "Durée du blocage (minutes)",
+        "description": "Durée pendant laquelle un compte bloqué le reste."
+      },
+      "ipBlockThreshold": {
+        "label": "Échecs avant blocage d’une adresse",
+        "description": "Échecs de connexion et de code depuis une adresse, tous comptes confondus."
+      },
+      "ipBlockMinutes": {
+        "label": "Fenêtre de blocage d’adresse (minutes)",
+        "description": "Fenêtre de comptage des échecs, et durée du blocage de l’adresse."
+      },
+      "notifyNewSignIn": {
+        "label": "E-mail lors d’une nouvelle connexion",
+        "description": "Les utilisateurs avec un e-mail sont prévenus d’une connexion depuis un nouvel appareil ou une nouvelle adresse."
+      }
+    }
+  }
+}

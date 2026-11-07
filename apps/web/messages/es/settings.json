@@ -1,0 +1,68 @@
+{
+  "metaTitle": "Ajustes",
+  "title": "Ajustes",
+  "description": "Ajustes de toda la instancia. Cada campo tiene un valor por defecto razonable: cambia solo lo necesario.",
+  "search": "Buscar ajustes",
+  "empty": "Ningún ajuste coincide.",
+  "modified": "Modificado",
+  "default": "Por defecto: {value}",
+  "locked": "Definido por {env}",
+  "localOnly": "Solo red local",
+  "localOnlyHint": "Abre Canopy desde la red local para cambiarlo.",
+  "restart": "Requiere reinicio",
+  "save": "Guardar",
+  "reset": "Restablecer valor por defecto",
+  "saved": "Ajuste guardado",
+  "resetDone": "Valor por defecto restablecido",
+  "ownPage": {
+    "mail": "Los ajustes de correo (SMTP) están en la página Correo."
+  },
+  "modules": {
+    "auth": "Inicio de sesión y sesiones"
+  },
+  "groups": {
+    "sessions": "Sesiones",
+    "passwords": "Contraseñas",
+    "protection": "Protección contra fuerza bruta"
+  },
+  "fields": {
+    "auth": {
+      "sessionLifetimeDays": {
+        "label": "Duración de la sesión (días)",
+        "description": "Una sesión termina tras este tiempo desde el inicio, aunque se use."
+      },
+      "idleTimeoutMinutes": {
+        "label": "Tiempo de inactividad (minutos)",
+        "description": "Una sesión sin uso durante este tiempo termina."
+      },
+      "passwordMinLength": {
+        "label": "Longitud mínima de contraseña",
+        "description": "Se aplica a contraseñas nuevas; las existentes siguen valiendo."
+      },
+      "checkBreachedPasswords": {
+        "label": "Rechazar contraseñas filtradas",
+        "description": "Comprueba las contraseñas nuevas en Have I Been Pwned (solo salen del servidor 5 caracteres de un hash)."
+      },
+      "lockoutThreshold": {
+        "label": "Fallos antes del bloqueo",
+        "description": "Fallos seguidos en una cuenta antes de bloquearla."
+      },
+      "lockoutMinutes": {
+        "label": "Duración del bloqueo (minutos)",
+        "description": "Cuánto tiempo sigue bloqueada una cuenta."
+      },
+      "ipBlockThreshold": {
+        "label": "Fallos antes de bloquear una dirección",
+        "description": "Fallos de inicio de sesión y de código desde una dirección, todas las cuentas juntas."
+      },
+      "ipBlockMinutes": {
+        "label": "Ventana de bloqueo de dirección (minutos)",
+        "description": "Ventana en la que se cuentan los fallos y duración del bloqueo."
+      },
+      "notifyNewSignIn": {
+        "label": "Correo al iniciar sesión desde algo nuevo",
+        "description": "Los usuarios con correo reciben un aviso al iniciar sesión desde un dispositivo o dirección nuevos."
+      }
+    }
+  }
+}

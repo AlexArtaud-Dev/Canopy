@@ -10,7 +10,8 @@
     "users": "Utilisateurs",
     "groups": "Groupes",
     "roles": "Rôles",
-    "email": "E-mail"
+    "email": "E-mail",
+    "settings": "Réglages"
   },
   "preferences": {
     "appearance": "Apparence",
