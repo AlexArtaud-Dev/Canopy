@@ -3,5 +3,99 @@
     "admin": "Administrateur",
     "editor": "Éditeur",
     "viewer": "Lecteur"
+  },
+  "modules": {
+    "users": "Utilisateurs",
+    "groups": "Groupes",
+    "roles": "Rôles",
+    "settings": "Réglages",
+    "audit": "Journal d’audit",
+    "system": "Système"
+  },
+  "actions": {
+    "read": "Voir",
+    "create": "Créer",
+    "update": "Modifier",
+    "delete": "Supprimer",
+    "export": "Exporter",
+    "admin": "Administrer"
+  },
+  "roles": {
+    "metaTitle": "Rôles",
+    "title": "Rôles",
+    "description": "Les rôles regroupent des permissions. Attribuez-les aux utilisateurs directement ou via des groupes.",
+    "add": "Nouveau rôle",
+    "allPermissions": "Toutes les permissions",
+    "permissionCount": "{count, plural, one {# permission} other {# permissions}}",
+    "usage": "{users, plural, one {# utilisateur} other {# utilisateurs}} · {groups, plural, one {# groupe} other {# groupes}}",
+    "builtIn": "Intégré",
+    "menu": "Actions pour {name}",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "form": {
+      "createTitle": "Nouveau rôle",
+      "editTitle": "Modifier {name}",
+      "name": "Nom",
+      "builtInName": "Les rôles intégrés gardent leur nom.",
+      "description": "Description",
+      "fullAccess": "Accès complet",
+      "fullAccessHint": "Toutes les permissions, y compris celles des modules ajoutés plus tard. Inclut l’administration de Canopy.",
+      "permissions": "Permissions",
+      "save": "Enregistrer",
+      "create": "Créer le rôle",
+      "errors": {
+        "name": "Saisissez un nom de 64 caractères maximum.",
+        "description": "La description doit faire moins de 200 caractères."
+      }
+    },
+    "confirmDelete": {
+      "title": "Supprimer le rôle {name} ?",
+      "description": "Les utilisateurs et groupes qui l’ont perdent ses permissions immédiatement."
+    },
+    "toasts": {
+      "saved": "Rôle enregistré",
+      "deleted": "Rôle supprimé"
+    }
+  },
+  "groups": {
+    "metaTitle": "Groupes",
+    "title": "Groupes",
+    "description": "Les groupes rassemblent des utilisateurs pour leur appliquer des rôles et des exigences en une fois.",
+    "add": "Nouveau groupe",
+    "empty": {
+      "title": "Aucun groupe",
+      "description": "Créez un groupe pour gérer plusieurs personnes à la fois."
+    },
+    "members": "{count, plural, one {# membre} other {# membres}}",
+    "requireTwoFactor": "2FA obligatoire",
+    "noRoles": "Aucun rôle",
+    "menu": "Actions pour {name}",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "form": {
+      "createTitle": "Nouveau groupe",
+      "editTitle": "Modifier {name}",
+      "name": "Nom",
+      "description": "Description",
+      "requireTwoFactor": "Exiger la double authentification",
+      "requireTwoFactorHint": "Les membres qui ne l’ont pas devront la configurer au prochain chargement de page.",
+      "roles": "Rôles",
+      "members": "Membres",
+      "searchMembers": "Filtrer les personnes",
+      "save": "Enregistrer",
+      "create": "Créer le groupe",
+      "errors": {
+        "name": "Saisissez un nom de 64 caractères maximum.",
+        "description": "La description doit faire moins de 200 caractères."
+      }
+    },
+    "confirmDelete": {
+      "title": "Supprimer le groupe {name} ?",
+      "description": "Les membres gardent leur compte mais perdent les rôles et exigences de ce groupe."
+    },
+    "toasts": {
+      "saved": "Groupe enregistré",
+      "deleted": "Groupe supprimé"
+    }
   }
 }

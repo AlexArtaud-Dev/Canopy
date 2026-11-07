@@ -83,3 +83,10 @@ entries:
       en: Administrators can create, edit, disable and delete users, reset their password or two-factor, and assign roles
       fr: Les administrateurs peuvent créer, modifier, désactiver et supprimer des utilisateurs, réinitialiser leur mot de passe ou leur double authentification, et attribuer des rôles
       es: Los administradores pueden crear, editar, desactivar y eliminar usuarios, restablecer su contraseña o su verificación en dos pasos y asignar roles
+  - type: feat
+    scope: admin
+    issue: 34
+    text:
+      en: Manage roles with a permission matrix and groups of users, including groups that require two-factor authentication
+      fr: Gestion des rôles avec une matrice de permissions et des groupes d’utilisateurs, y compris des groupes qui exigent la double authentification
+      es: Gestión de roles con una matriz de permisos y de grupos de usuarios, incluidos grupos que exigen la verificación en dos pasos

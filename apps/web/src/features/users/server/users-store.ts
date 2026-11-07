@@ -3,12 +3,7 @@ import 'server-only';
 import { asc, count, eq, ilike, inArray, isNotNull, max, or, sql } from 'drizzle-orm';
 
 import { getDb } from '@/shared/db/client';
-import {
-  groupMembersTable,
-  groupRolesTable,
-  rolesTable,
-  userRolesTable,
-} from '@/features/access/server/access.schema';
+import { rolesTable, userRolesTable } from '@/features/access/server/access.schema';
 import { sessionsTable, totpFactorsTable, usersTable } from '@/features/auth/server/auth.schema';
 
 import { likePattern, usersPageSize, type UsersQuery } from '../users.utils';
@@ -119,18 +114,6 @@ export function listRoleOptions(): Promise<RoleOption[]> {
     .select({ id: rolesTable.id, key: rolesTable.key, name: rolesTable.name })
     .from(rolesTable)
     .orderBy(asc(rolesTable.name));
-}
-
-/** Enabled users holding `system:admin` (or `*`) directly or through a group. */
-export async function activeAdminIds(): Promise<string[]> {
-  const rows = await getDb().execute<{ id: string }>(sql`
-    SELECT DISTINCT u.id FROM ${usersTable} u
-    LEFT JOIN ${userRolesTable} ur ON ur.user_id = u.id
-    LEFT JOIN ${groupMembersTable} gm ON gm.user_id = u.id
-    LEFT JOIN ${groupRolesTable} gr ON gr.group_id = gm.group_id
-    JOIN ${rolesTable} r ON r.id = ur.role_id OR r.id = gr.role_id
-    WHERE NOT u.disabled AND r.permissions && ARRAY['*', 'system:admin']::text[]`);
-  return rows.map((row) => row.id);
 }
 
 /** Replaces the user's direct roles; unknown role ids are ignored by the foreign key filter. */

@@ -3,5 +3,99 @@
     "admin": "Admin",
     "editor": "Editor",
     "viewer": "Viewer"
+  },
+  "modules": {
+    "users": "Users",
+    "groups": "Groups",
+    "roles": "Roles",
+    "settings": "Settings",
+    "audit": "Audit log",
+    "system": "System"
+  },
+  "actions": {
+    "read": "View",
+    "create": "Create",
+    "update": "Edit",
+    "delete": "Delete",
+    "export": "Export",
+    "admin": "Administer"
+  },
+  "roles": {
+    "metaTitle": "Roles",
+    "title": "Roles",
+    "description": "Roles bundle permissions. Give them to users directly or through groups.",
+    "add": "New role",
+    "allPermissions": "All permissions",
+    "permissionCount": "{count, plural, one {# permission} other {# permissions}}",
+    "usage": "{users, plural, one {# user} other {# users}} · {groups, plural, one {# group} other {# groups}}",
+    "builtIn": "Built-in",
+    "menu": "Actions for {name}",
+    "edit": "Edit",
+    "delete": "Delete",
+    "form": {
+      "createTitle": "New role",
+      "editTitle": "Edit {name}",
+      "name": "Name",
+      "builtInName": "Built-in roles keep their name.",
+      "description": "Description",
+      "fullAccess": "Full access",
+      "fullAccessHint": "Every permission, including those of modules added later. Includes administering Canopy.",
+      "permissions": "Permissions",
+      "save": "Save",
+      "create": "Create role",
+      "errors": {
+        "name": "Enter a name of 64 characters or fewer.",
+        "description": "Keep the description under 200 characters."
+      }
+    },
+    "confirmDelete": {
+      "title": "Delete the role {name}?",
+      "description": "Users and groups that hold it lose its permissions right away."
+    },
+    "toasts": {
+      "saved": "Role saved",
+      "deleted": "Role deleted"
+    }
+  },
+  "groups": {
+    "metaTitle": "Groups",
+    "title": "Groups",
+    "description": "Groups gather users so roles and requirements apply to all of them at once.",
+    "add": "New group",
+    "empty": {
+      "title": "No group yet",
+      "description": "Create a group to manage several people at once."
+    },
+    "members": "{count, plural, one {# member} other {# members}}",
+    "requireTwoFactor": "2FA required",
+    "noRoles": "No role",
+    "menu": "Actions for {name}",
+    "edit": "Edit",
+    "delete": "Delete",
+    "form": {
+      "createTitle": "New group",
+      "editTitle": "Edit {name}",
+      "name": "Name",
+      "description": "Description",
+      "requireTwoFactor": "Require two-factor authentication",
+      "requireTwoFactorHint": "Members without it must set it up at their next page load.",
+      "roles": "Roles",
+      "members": "Members",
+      "searchMembers": "Filter people",
+      "save": "Save",
+      "create": "Create group",
+      "errors": {
+        "name": "Enter a name of 64 characters or fewer.",
+        "description": "Keep the description under 200 characters."
+      }
+    },
+    "confirmDelete": {
+      "title": "Delete the group {name}?",
+      "description": "Members keep their accounts but lose the roles and requirements of this group."
+    },
+    "toasts": {
+      "saved": "Group saved",
+      "deleted": "Group deleted"
+    }
   }
 }

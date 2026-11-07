@@ -4,6 +4,10 @@ import {
   adminPermission,
   allPermissions,
   effectivePermissions,
+  entityIdSchema,
+  groupInputSchema,
+  permissionMatrix,
+  roleInputSchema,
   sanitizeRolePermissions,
   twoFactorRequired,
 } from './access.utils';
@@ -50,5 +54,48 @@ describe('twoFactorRequired', () => {
 
   it('names system:admin as the administrator permission', () => {
     expect(adminPermission).toBe('system:admin');
+  });
+});
+
+describe('permissionMatrix', () => {
+  it('groups permissions by module, keeping declaration order', () => {
+    expect(permissionMatrix(declared)).toEqual([
+      {
+        module: 'users',
+        actions: [
+          { action: 'read', permission: 'users:read' },
+          { action: 'create', permission: 'users:create' },
+        ],
+      },
+      {
+        module: 'system',
+        actions: [
+          { action: 'read', permission: 'system:read' },
+          { action: 'admin', permission: 'system:admin' },
+        ],
+      },
+    ]);
+  });
+});
+
+describe('input schemas', () => {
+  it('validates roles, groups and entity ids', () => {
+    expect(
+      roleInputSchema.safeParse({ name: ' Ops ', description: '', permissions: ['users:read'] })
+        .success,
+    ).toBe(true);
+    expect(roleInputSchema.safeParse({ name: '', description: '', permissions: [] }).success).toBe(
+      false,
+    );
+    expect(
+      groupInputSchema.safeParse({
+        name: 'Family',
+        description: '',
+        requireTwoFactor: true,
+        roleIds: [],
+        memberIds: ['u1'],
+      }).success,
+    ).toBe(true);
+    expect(entityIdSchema.safeParse({ id: 'not-a-uuid' }).success).toBe(false);
   });
 });

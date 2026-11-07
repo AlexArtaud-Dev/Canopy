@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { runAction, type ActionResult } from '@/shared/lib/action';
 import { AppBaseError } from '@/shared/lib/errors';
 import { clearRateLimit, consume, readLockout } from '@/shared/rate-limit/rate-limit';
+import { groupsRequireTwoFactor } from '@/features/access/server/permissions';
 import { audit } from '@/features/audit/server/audit-writer';
 
 import { safeRedirectPath } from '../auth.utils';
@@ -86,7 +87,8 @@ export async function startTotpEnrollment(): Promise<
   ActionResult<{ qrCode: string; secret: string }>
 > {
   return runAction(async () => {
-    const { user } = await requireSession();
+    // Allowed while a group forces 2FA setup: this is how the user satisfies it.
+    const { user } = await requireSession({ allowTwoFactorSetup: true });
     if (await hasTotpEnabled(user.id)) {
       throw new AppBaseError('auth.totp_already_enabled', 'two-factor already on');
     }
@@ -106,7 +108,7 @@ export async function confirmTotpEnrollment(
 ): Promise<ActionResult<{ recoveryCodes: string[] }>> {
   return runAction(async () => {
     const { code } = parse(codeInput, input);
-    const { user } = await requireSession();
+    const { user } = await requireSession({ allowTwoFactorSetup: true });
     const recoveryCodes = await enableFactor(user.id, code.replace(/\s/g, ''));
     if (!recoveryCodes) {
       throw new AppBaseError('auth.invalid_code', 'enrolment code rejected');
@@ -122,6 +124,9 @@ export async function disableTotp(input: unknown): Promise<ActionResult<null>> {
     const { password } = parse(passwordInput, input);
     const { user } = await requireSession();
     await assertCurrentPassword(user.id, password);
+    if (await groupsRequireTwoFactor(user.id)) {
+      throw new AppBaseError('auth.two_factor_required', 'a group requires two-factor');
+    }
     await removeFactor(user.id);
     await audit({ action: 'auth.totp_disable', result: 'success', actorId: user.id });
     return null;

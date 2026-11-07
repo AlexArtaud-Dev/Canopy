@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
 import { authorize, getConfiguredAuth, initialsOf } from '@/features/auth';
-import { isBuiltInRoleKey } from '@/features/access/role-label';
+import { isBuiltInRoleKey } from '@/features/access';
 import { PageHeader } from '@/features/shell';
 import {
   listRoleOptions,
