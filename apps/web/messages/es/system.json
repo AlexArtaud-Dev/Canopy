@@ -22,5 +22,9 @@
     "up": "Operativo",
     "down": "No disponible",
     "unknown": "Desconocido"
+  },
+  "maintenance": {
+    "title": "En mantenimiento",
+    "description": "Canopy no está disponible temporalmente mientras un administrador trabaja en él. Vuelve dentro de un rato."
   }
 }

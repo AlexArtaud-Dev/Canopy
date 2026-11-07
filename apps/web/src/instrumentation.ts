@@ -1,48 +1,12 @@
 import type { Instrumentation } from 'next';
 
-// Runs once when the server process starts, before any request is served.
+// Runs once when the server process starts, before any request is served. The positive
+// NEXT_RUNTIME check (inlined at build time) keeps Node-only code out of the Edge bundle.
 export async function register(): Promise<void> {
-  if (process.env.NEXT_RUNTIME !== 'nodejs' || !process.env.CANOPY_DATABASE_URL) {
-    return;
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    const { startNodeServer } = await import('./instrumentation-node');
+    await startNodeServer();
   }
-  const { runMigrations } = await import('@/shared/db/migrate');
-  await runMigrations();
-  await startMailSweep();
-  await startAuditRetention();
-}
-
-const mailSweepIntervalMs = 60_000;
-
-/** Retries queued emails every minute (instances coordinate through an advisory lock). */
-async function startMailSweep(): Promise<void> {
-  const [{ deliverDueMail }, { logger }] = await Promise.all([
-    import('@/features/mail/server/mailer'),
-    import('@/shared/lib/logger'),
-  ]);
-  const timer = setInterval(() => {
-    deliverDueMail().catch((error: unknown) => {
-      logger.error('mail sweep failed', { module: 'mail', error });
-    });
-  }, mailSweepIntervalMs);
-  // Never keep the process alive just for the sweep.
-  timer.unref();
-}
-
-const auditPurgeIntervalMs = 24 * 60 * 60 * 1000;
-
-/** Purges audit events past their retention once at start, then daily. */
-async function startAuditRetention(): Promise<void> {
-  const [{ purgeExpiredAuditEvents }, { logger }] = await Promise.all([
-    import('@/features/audit/server/audit-retention'),
-    import('@/shared/lib/logger'),
-  ]);
-  const run = () => {
-    purgeExpiredAuditEvents().catch((error: unknown) => {
-      logger.error('audit purge failed', { module: 'audit', error });
-    });
-  };
-  run();
-  setInterval(run, auditPurgeIntervalMs).unref();
 }
 
 /**

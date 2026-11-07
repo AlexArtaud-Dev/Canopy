@@ -28,6 +28,12 @@
 - When enabled, any request whose real IP is outside `CANOPY_LOCAL_NETWORKS` receives only the
   static, translated maintenance page; every other route and `/engine/*` returns 503.
 - Toggle from the admin UI (only from a local IP) or forced with `CANOPY_MAINTENANCE=true`.
+- Implementation: `system.maintenance` setting (`localOnly`, env `CANOPY_MAINTENANCE`), read by
+  `src/proxy.ts` (Node runtime) with a 5 s cache; the decision is pure
+  (`shared/maintenance/maintenance.utils.ts`). Non-local visitors are rewritten to `/maintenance`
+  (503), API calls get `system.maintenance` (503, `Retry-After`). If the database is unreachable the
+  last known state is kept. Routes the proxy must not match (uploads under `/api/engine`) check the
+  flag themselves.
 
 ## Authentication
 

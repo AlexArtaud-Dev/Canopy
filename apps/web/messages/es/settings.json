@@ -19,13 +19,15 @@
   },
   "modules": {
     "auth": "Inicio de sesión y sesiones",
-    "audit": "Registro de auditoría"
+    "audit": "Registro de auditoría",
+    "system": "Sistema"
   },
   "groups": {
     "sessions": "Sesiones",
     "passwords": "Contraseñas",
     "protection": "Protección contra fuerza bruta",
-    "retention": "Conservación"
+    "retention": "Conservación",
+    "maintenance": "Mantenimiento"
   },
   "fields": {
     "auth": {
@@ -70,6 +72,12 @@
       "retentionDays": {
         "label": "Conservar eventos (días)",
         "description": "Los eventos más antiguos se borran una vez al día; la purga queda registrada."
+      }
+    },
+    "system": {
+      "maintenance": {
+        "label": "Modo mantenimiento",
+        "description": "Solo la red local puede usar Canopy; los demás ven una página de mantenimiento. Solo se puede cambiar desde la red local."
       }
     }
   }

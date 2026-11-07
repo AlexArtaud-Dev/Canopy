@@ -1,6 +1,7 @@
 /**
  * @jest-environment node
  */
+import { randomUUID } from 'node:crypto';
 // Runs only against a disposable database: CANOPY_TEST_WEB_DATABASE_URL (canopy_web role).
 import { getConnection } from '@/shared/db/client';
 import { runMigrations } from '@/shared/db/migrate';
@@ -75,13 +76,16 @@ describeWithDb('audit log (Postgres)', () => {
 
   it('purges only events older than the retention, through the purge transaction', async () => {
     const { sql } = getConnection();
+    // The log is append-only: unique ids keep reruns independent.
+    const run = randomUUID();
+    const [oldId, newId] = [`old-${run}`, `new-${run}`];
     await sql`
       INSERT INTO audit.events (action, result, request_id, occurred_at)
-      VALUES ('settings.update', 'success', 'old-event', now() - interval '400 days'),
-             ('settings.update', 'success', 'new-event', now())`;
+      VALUES ('settings.update', 'success', ${oldId}, now() - interval '400 days'),
+             ('settings.update', 'success', ${newId}, now())`;
     expect(await purgeAuditEvents(365)).toBeGreaterThanOrEqual(1);
     const left = await sql<{ request_id: string }[]>`
-      SELECT request_id FROM audit.events WHERE request_id IN ('old-event', 'new-event')`;
-    expect(left.map((row) => row.request_id)).toEqual(['new-event']);
+      SELECT request_id FROM audit.events WHERE request_id IN (${oldId}, ${newId})`;
+    expect(left.map((row) => row.request_id)).toEqual([newId]);
   });
 });
