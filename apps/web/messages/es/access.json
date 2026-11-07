@@ -80,8 +80,6 @@
       "requireTwoFactor": "Exigir verificación en dos pasos",
       "requireTwoFactorHint": "Los miembros que no la tengan deberán configurarla en la próxima carga de página.",
       "roles": "Roles",
-      "members": "Miembros",
-      "searchMembers": "Filtrar personas",
       "save": "Guardar",
       "create": "Crear grupo",
       "errors": {
@@ -96,6 +94,24 @@
     "toasts": {
       "saved": "Grupo guardado",
       "deleted": "Grupo eliminado"
+    },
+    "manageMembers": "Gestionar miembros",
+    "membersPage": {
+      "back": "Todos los grupos",
+      "addTitle": "Añadir personas",
+      "addDescription": "Busca por nombre o usuario y añádelas a este grupo.",
+      "search": "Buscar personas",
+      "noMatch": "No coincide nadie más.",
+      "add": "Añadir",
+      "membersTitle": "Miembros ({count})",
+      "remove": "Quitar",
+      "removeLabel": "Quitar a {name} del grupo",
+      "added": "Miembro añadido",
+      "removed": "Miembro quitado",
+      "empty": {
+        "title": "Todavía no hay miembros",
+        "description": "Añade personas arriba para aplicarles los roles y requisitos de este grupo."
+      }
     }
   }
 }

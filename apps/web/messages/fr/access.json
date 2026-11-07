@@ -80,8 +80,6 @@
       "requireTwoFactor": "Exiger la double authentification",
       "requireTwoFactorHint": "Les membres qui ne l’ont pas devront la configurer au prochain chargement de page.",
       "roles": "Rôles",
-      "members": "Membres",
-      "searchMembers": "Filtrer les personnes",
       "save": "Enregistrer",
       "create": "Créer le groupe",
       "errors": {
@@ -96,6 +94,24 @@
     "toasts": {
       "saved": "Groupe enregistré",
       "deleted": "Groupe supprimé"
+    },
+    "manageMembers": "Gérer les membres",
+    "membersPage": {
+      "back": "Tous les groupes",
+      "addTitle": "Ajouter des personnes",
+      "addDescription": "Recherchez par nom ou identifiant, puis ajoutez-les à ce groupe.",
+      "search": "Rechercher des personnes",
+      "noMatch": "Personne d’autre ne correspond.",
+      "add": "Ajouter",
+      "membersTitle": "Membres ({count})",
+      "remove": "Retirer",
+      "removeLabel": "Retirer {name} du groupe",
+      "added": "Membre ajouté",
+      "removed": "Membre retiré",
+      "empty": {
+        "title": "Aucun membre",
+        "description": "Ajoutez des personnes ci-dessus pour leur appliquer les rôles et exigences de ce groupe."
+      }
     }
   }
 }

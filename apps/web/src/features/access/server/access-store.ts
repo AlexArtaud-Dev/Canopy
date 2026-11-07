@@ -29,7 +29,7 @@ export interface GroupSummary {
   description: string;
   requireTwoFactor: boolean;
   roleIds: string[];
-  memberIds: string[];
+  memberCount: number;
 }
 
 export interface MemberOption {
@@ -87,7 +87,7 @@ export async function listGroups(): Promise<GroupSummary[]> {
   return groups.map((group) => ({
     ...group,
     roleIds: roles.filter((row) => row.groupId === group.id).map((row) => row.roleId),
-    memberIds: members.filter((row) => row.groupId === group.id).map((row) => row.userId),
+    memberCount: members.filter((row) => row.groupId === group.id).length,
   }));
 }
 
@@ -105,4 +105,19 @@ export async function roleKey(roleId: string): Promise<string | null | undefined
     .from(rolesTable)
     .where(eq(rolesTable.id, roleId));
   return row ? row.key : undefined;
+}
+
+/** One group with its members, for the members page; undefined when it does not exist. */
+export async function getGroup(
+  groupId: string,
+): Promise<(GroupSummary & { members: MemberOption[] }) | undefined> {
+  const group = (await listGroups()).find((candidate) => candidate.id === groupId);
+  if (!group) return undefined;
+  const members = await getDb()
+    .select({ id: usersTable.id, username: usersTable.username, name: usersTable.name })
+    .from(groupMembersTable)
+    .innerJoin(usersTable, eq(usersTable.id, groupMembersTable.userId))
+    .where(eq(groupMembersTable.groupId, groupId))
+    .orderBy(asc(usersTable.username));
+  return { ...group, members };
 }

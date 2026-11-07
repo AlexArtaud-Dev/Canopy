@@ -93,7 +93,6 @@ describe('input schemas', () => {
         description: '',
         requireTwoFactor: true,
         roleIds: [],
-        memberIds: ['u1'],
       }).success,
     ).toBe(true);
     expect(entityIdSchema.safeParse({ id: 'not-a-uuid' }).success).toBe(false);

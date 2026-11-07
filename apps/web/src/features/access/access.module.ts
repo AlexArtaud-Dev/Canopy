@@ -16,7 +16,13 @@ export const groupsModule = defineModule({
       permission: 'groups:read',
     },
   ],
-  auditActions: ['groups.create', 'groups.update', 'groups.delete'],
+  auditActions: [
+    'groups.create',
+    'groups.update',
+    'groups.delete',
+    'groups.members_add',
+    'groups.members_remove',
+  ],
 });
 
 export const rolesModule = defineModule({

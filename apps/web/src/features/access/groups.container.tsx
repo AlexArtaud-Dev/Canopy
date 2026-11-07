@@ -1,6 +1,7 @@
 'use client';
 
 import { MoreHorizontal, Plus, ShieldCheck, UsersRound } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
@@ -27,22 +28,20 @@ import { GroupDialog, type GroupFormValues } from './ui/group-dialog';
 
 export interface GroupItem extends GroupFormValues {
   id: string;
+  memberCount: number;
 }
 
 interface Option {
   id: string;
   label: string;
-  hint?: string;
 }
 
 export function GroupsContainer({
   groups,
   roles,
-  people,
 }: {
   groups: readonly GroupItem[];
   roles: readonly Option[];
-  people: readonly Option[];
 }) {
   const t = useTranslations('access.groups');
   const router = useRouter();
@@ -123,7 +122,9 @@ export function GroupsContainer({
               </span>
               <div className="grid min-w-0 flex-1 gap-1.5">
                 <p className="flex items-center gap-2 font-medium">
-                  <span className="truncate">{group.name}</span>
+                  <Link href={`/admin/groups/${group.id}`} className="truncate hover:underline">
+                    {group.name}
+                  </Link>
                   {group.requireTwoFactor && (
                     <Badge variant="outline" className="gap-1">
                       <ShieldCheck aria-hidden />
@@ -136,7 +137,7 @@ export function GroupsContainer({
                 )}
                 <div className="flex flex-wrap items-center gap-1">
                   <span className="text-muted-foreground mr-1 text-xs">
-                    {t('members', { count: group.memberIds.length })}
+                    {t('members', { count: group.memberCount })}
                   </span>
                   {group.roleIds.length === 0 ? (
                     <span className="text-muted-foreground text-xs">· {t('noRoles')}</span>
@@ -149,7 +150,7 @@ export function GroupsContainer({
                   )}
                 </div>
               </div>
-              {(canUpdate || canDelete) && (
+              {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -161,6 +162,9 @@ export function GroupsContainer({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/admin/groups/${group.id}`}>{t('manageMembers')}</Link>
+                    </DropdownMenuItem>
                     {canUpdate && (
                       <DropdownMenuItem
                         onSelect={() => {
@@ -182,7 +186,7 @@ export function GroupsContainer({
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
-              )}
+              }
             </li>
           ))}
         </ul>
@@ -191,9 +195,15 @@ export function GroupsContainer({
         <GroupDialog
           key={dialog.group?.id ?? 'new'}
           open
-          editing={dialog.group}
+          editing={
+            dialog.group && {
+              name: dialog.group.name,
+              description: dialog.group.description,
+              requireTwoFactor: dialog.group.requireTwoFactor,
+              roleIds: dialog.group.roleIds,
+            }
+          }
           roles={roles}
-          people={people}
           pending={pending}
           invalidFields={invalid}
           error={error}
