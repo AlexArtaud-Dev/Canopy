@@ -1,5 +1,6 @@
 import {
   browserHref,
+  browserPageSize,
   browserQuerySchema,
   emptySelection,
   fileKind,
@@ -7,8 +8,10 @@ import {
   gridColumns,
   moveFocus,
   nextSort,
+  pageJump,
   parentPath,
   reduceSelection,
+  sortKeys,
 } from './browser.utils';
 
 describe('browserQuerySchema', () => {
@@ -99,6 +102,7 @@ describe('moveFocus', () => {
     expect(moveFocus(0, 'ArrowDown', 10, 1)).toBe(1);
     expect(moveFocus(0, 'ArrowUp', 10, 1)).toBe(0);
     expect(moveFocus(0, 'ArrowRight', 10, 1)).toBeNull();
+    expect(moveFocus(3, 'ArrowLeft', 10, 1)).toBeNull();
     expect(moveFocus(1, 'ArrowDown', 10, 4)).toBe(5);
     expect(moveFocus(9, 'ArrowDown', 10, 4)).toBe(9);
     expect(moveFocus(5, 'ArrowLeft', 10, 4)).toBe(4);
@@ -138,5 +142,13 @@ describe('fileKind', () => {
     expect(fileKind('.bashrc', false)).toBe('file');
     expect(fileKind('Makefile', false)).toBe('file');
     expect(fileKind('data.bin', false)).toBe('file');
+  });
+});
+
+describe('constants', () => {
+  it('pages by 500, jumps by 10 and sorts by name, size or date', () => {
+    expect(browserPageSize).toBe(500);
+    expect(pageJump).toBe(10);
+    expect(sortKeys).toEqual(['name', 'size', 'modified']);
   });
 });
