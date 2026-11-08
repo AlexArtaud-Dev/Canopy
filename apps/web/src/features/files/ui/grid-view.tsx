@@ -1,0 +1,100 @@
+'use client';
+
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useLocale } from 'next-intl';
+import { useEffect } from 'react';
+
+import { cn } from 'cn';
+
+import { fileKind, formatBytes } from '../browser.utils';
+import { EntryIcon } from './entry-icon';
+import { EntryMenu } from './entry-menu';
+import { modifiersOf, type EntryViewProps } from './view-props';
+
+export const tileMinWidth = 132;
+export const tileGap = 12;
+const tileHeight = 128;
+
+export function GridView(props: EntryViewProps & { columns: number }) {
+  const { entries, selected, focusIndex, scrollRef, onRendered, columns } = props;
+  const locale = useLocale();
+  const rowCount = Math.ceil(entries.length / columns);
+  // TanStack Virtual returns mutable state the React Compiler cannot memoize; it skips this view.
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const virtualizer = useVirtualizer({
+    count: rowCount,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => tileHeight + tileGap,
+    overscan: 4,
+  });
+  const rows = virtualizer.getVirtualItems();
+  const lastIndex = Math.min(((rows.at(-1)?.index ?? 0) + 1) * columns, entries.length) - 1;
+
+  useEffect(() => {
+    onRendered(lastIndex);
+  }, [lastIndex, onRendered]);
+
+  useEffect(() => {
+    if (focusIndex >= 0)
+      virtualizer.scrollToIndex(Math.floor(focusIndex / columns), { align: 'auto' });
+  }, [focusIndex, columns, virtualizer]);
+
+  return (
+    <div className="relative w-full" style={{ height: virtualizer.getTotalSize() }}>
+      {rows.map((row) => (
+        <div
+          key={row.key}
+          className="absolute inset-x-0 top-0 grid"
+          style={{
+            transform: `translateY(${row.start}px)`,
+            gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+            gap: tileGap,
+            height: tileHeight,
+          }}
+        >
+          {entries
+            .slice(row.index * columns, row.index * columns + columns)
+            .map((entry, offset) => {
+              const index = row.index * columns + offset;
+              const isSelected = selected.has(entry.path);
+              return (
+                <EntryMenu key={entry.path} entry={entry} {...props.menu}>
+                  <div
+                    id={props.idOf(index)}
+                    role="option"
+                    aria-selected={isSelected}
+                    title={entry.name}
+                    className={cn(
+                      'flex cursor-default flex-col items-center justify-center gap-2 rounded-xl border p-3 text-center text-sm select-none',
+                      isSelected
+                        ? 'border-primary bg-accent text-accent-foreground'
+                        : 'hover:bg-muted/60',
+                      index === focusIndex && 'ring-ring ring-2',
+                    )}
+                    onClick={(event) => {
+                      props.onClick(index, modifiersOf(event));
+                    }}
+                    onDoubleClick={() => {
+                      props.onOpen(index);
+                    }}
+                  >
+                    <EntryIcon
+                      kind={fileKind(entry.name, entry.isDirectory)}
+                      className="size-10"
+                      strokeWidth={1.5}
+                    />
+                    <span className="line-clamp-2 w-full font-medium break-all">{entry.name}</span>
+                    {!entry.isDirectory && (
+                      <span className="text-muted-foreground text-xs tabular-nums">
+                        {formatBytes(entry.size, locale)}
+                      </span>
+                    )}
+                  </div>
+                </EntryMenu>
+              );
+            })}
+        </div>
+      ))}
+    </div>
+  );
+}

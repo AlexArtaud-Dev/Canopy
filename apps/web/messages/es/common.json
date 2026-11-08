@@ -7,12 +7,6 @@
     "close": "Cerrar",
     "cancel": "Cancelar"
   },
-  "files": {
-    "empty": {
-      "title": "Todavía no hay volúmenes",
-      "description": "Monte una carpeta dentro de la raíz del engine y aparecerá aquí, lista para explorar."
-    }
-  },
   "a11y": {
     "navigation": "Navegación",
     "navigationDescription": "Navegación principal de Canopy"

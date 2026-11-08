@@ -188,3 +188,10 @@ entries:
       en: Long operations run as background jobs with live progress, cancellation and per-person limits configurable in Settings
       fr: Les opérations longues s’exécutent en tâches de fond, avec progression en direct, annulation et limites par personne réglables dans les Réglages
       es: Las operaciones largas se ejecutan como tareas en segundo plano, con progreso en directo, cancelación y límites por persona configurables en Ajustes
+  - type: feat
+    scope: files
+    issue: 49
+    text:
+      en: Browse your folders in a list or grid that stays fast with thousands of files, with sorting, multi-selection, keyboard shortcuts and a right-click menu
+      fr: Parcourez vos dossiers en liste ou en grille, fluide même avec des milliers de fichiers, avec tri, sélection multiple, raccourcis clavier et menu contextuel
+      es: Explora tus carpetas en lista o cuadrícula, fluida incluso con miles de archivos, con orden, selección múltiple, atajos de teclado y menú contextual

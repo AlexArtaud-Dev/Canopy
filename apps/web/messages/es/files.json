@@ -52,5 +52,58 @@
     "save": "Guardar",
     "updated": "Acceso actualizado",
     "editLabel": "Editar el acceso a {path}"
+  },
+  "browser": {
+    "root": "Todos los volúmenes",
+    "breadcrumbs": "Ruta de la carpeta",
+    "view": "Vista",
+    "listView": "Lista",
+    "gridView": "Cuadrícula",
+    "refresh": "Actualizar",
+    "ascending": "Ascendente",
+    "descending": "Descendente",
+    "sort": {
+      "name": "Nombre",
+      "size": "Tamaño",
+      "modified": "Modificado"
+    },
+    "entriesLabel": "Contenido de {path}",
+    "selectEntry": "Seleccionar {name}",
+    "loadingMore": "Cargando más…",
+    "count": "{count, plural, one {# elemento} other {# elementos}}",
+    "selected": "{count, plural, one {# seleccionado} other {# seleccionados}}",
+    "clearSelection": "Borrar la selección",
+    "pathCopied": "Ruta copiada",
+    "backToRoot": "Volver a todos los volúmenes",
+    "emptyFolder": {
+      "title": "Esta carpeta está vacía",
+      "description": "Aún no hay nada, o nada a lo que tengas acceso."
+    },
+    "noVolumes": {
+      "title": "Ningún volumen",
+      "description": "Monta una carpeta en la raíz del motor o pide acceso a un administrador."
+    },
+    "menu": {
+      "open": "Abrir",
+      "copyPath": "Copiar la ruta",
+      "selectAll": "Seleccionar todo",
+      "refresh": "Actualizar"
+    },
+    "shortcuts": {
+      "title": "Atajos de teclado",
+      "description": "Haz clic primero en la lista de archivos y luego:",
+      "keys": {
+        "move": "Moverse entre elementos",
+        "jump": "Primero, último, página arriba y abajo",
+        "open": "Abrir la carpeta",
+        "up": "Ir a la carpeta superior",
+        "select": "Seleccionar o deseleccionar",
+        "extend": "Ampliar la selección",
+        "selectAll": "Seleccionar todo",
+        "clear": "Borrar la selección",
+        "menu": "Abrir el menú del elemento",
+        "help": "Mostrar estos atajos"
+      }
+    }
   }
 }

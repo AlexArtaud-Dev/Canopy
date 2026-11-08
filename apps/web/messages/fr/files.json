@@ -52,5 +52,58 @@
     "save": "Enregistrer",
     "updated": "Accès modifié",
     "editLabel": "Modifier l’accès à {path}"
+  },
+  "browser": {
+    "root": "Tous les volumes",
+    "breadcrumbs": "Chemin du dossier",
+    "view": "Affichage",
+    "listView": "Liste",
+    "gridView": "Grille",
+    "refresh": "Actualiser",
+    "ascending": "Croissant",
+    "descending": "Décroissant",
+    "sort": {
+      "name": "Nom",
+      "size": "Taille",
+      "modified": "Modifié"
+    },
+    "entriesLabel": "Contenu de {path}",
+    "selectEntry": "Sélectionner {name}",
+    "loadingMore": "Chargement de la suite…",
+    "count": "{count, plural, one {# élément} other {# éléments}}",
+    "selected": "{count, plural, one {# sélectionné} other {# sélectionnés}}",
+    "clearSelection": "Effacer la sélection",
+    "pathCopied": "Chemin copié",
+    "backToRoot": "Retour à tous les volumes",
+    "emptyFolder": {
+      "title": "Ce dossier est vide",
+      "description": "Rien ici pour l’instant, ou rien auquel vous avez accès."
+    },
+    "noVolumes": {
+      "title": "Aucun volume",
+      "description": "Montez un dossier dans la racine du moteur, ou demandez l’accès à un administrateur."
+    },
+    "menu": {
+      "open": "Ouvrir",
+      "copyPath": "Copier le chemin",
+      "selectAll": "Tout sélectionner",
+      "refresh": "Actualiser"
+    },
+    "shortcuts": {
+      "title": "Raccourcis clavier",
+      "description": "Cliquez d’abord dans la liste des fichiers, puis :",
+      "keys": {
+        "move": "Passer d’un élément à l’autre",
+        "jump": "Premier, dernier, page précédente et suivante",
+        "open": "Ouvrir le dossier",
+        "up": "Aller au dossier parent",
+        "select": "Sélectionner ou désélectionner",
+        "extend": "Étendre la sélection",
+        "selectAll": "Tout sélectionner",
+        "clear": "Effacer la sélection",
+        "menu": "Ouvrir le menu de l’élément",
+        "help": "Afficher ces raccourcis"
+      }
+    }
   }
 }
