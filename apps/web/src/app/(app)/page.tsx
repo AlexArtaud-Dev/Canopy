@@ -28,7 +28,8 @@ export default async function FilesPage({ searchParams }: FilesPageProps) {
   return (
     <>
       <PageHeader title={nav('files')} />
-      <main className="flex min-h-0 flex-1 flex-col">
+      {/* Exactly the viewport below the 3.5 rem header: the file list scrolls, not the window. */}
+      <main className="flex h-[calc(100svh-3.5rem)] min-h-0 flex-col">
         {firstPage.ok ? (
           <FileBrowserContainer
             key={JSON.stringify(query)}

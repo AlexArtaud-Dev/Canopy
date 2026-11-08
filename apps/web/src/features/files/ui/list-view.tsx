@@ -11,7 +11,7 @@ import { Checkbox } from '@/shared/ui/checkbox';
 import { fileKind, formatBytes, type SortKey, type SortOrder } from '../browser.utils';
 import { EntryIcon } from './entry-icon';
 import { EntryMenu } from './entry-menu';
-import { modifiersOf, type EntryViewProps } from './view-props';
+import { initialViewport, modifiersOf, type EntryViewProps } from './view-props';
 
 /** Rows are 44 px: the minimum touch target. */
 const rowHeight = 44;
@@ -29,6 +29,8 @@ export function ListView(props: EntryViewProps) {
     count: entries.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => rowHeight,
+    // The server cannot measure: render a screenful so the first paint is not empty.
+    initialRect: initialViewport,
     overscan: 12,
   });
   const items = virtualizer.getVirtualItems();

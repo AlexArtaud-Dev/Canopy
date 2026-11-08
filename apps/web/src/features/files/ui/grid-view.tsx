@@ -9,7 +9,7 @@ import { cn } from 'cn';
 import { fileKind, formatBytes } from '../browser.utils';
 import { EntryIcon } from './entry-icon';
 import { EntryMenu } from './entry-menu';
-import { modifiersOf, type EntryViewProps } from './view-props';
+import { initialViewport, modifiersOf, type EntryViewProps } from './view-props';
 
 export const tileMinWidth = 132;
 export const tileGap = 12;
@@ -25,6 +25,8 @@ export function GridView(props: EntryViewProps & { columns: number }) {
     count: rowCount,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => tileHeight + tileGap,
+    // The server cannot measure: render a screenful so the first paint is not empty.
+    initialRect: initialViewport,
     overscan: 4,
   });
   const rows = virtualizer.getVirtualItems();

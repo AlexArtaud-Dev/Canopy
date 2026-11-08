@@ -35,3 +35,6 @@ export function modifiersOf(event: MouseEvent): ClickModifiers {
     touch: native.pointerType === 'touch',
   };
 }
+
+/** Assumed scroll area before it can be measured (server render, first client frame). */
+export const initialViewport = { width: 1024, height: 900 };
