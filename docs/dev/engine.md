@@ -12,6 +12,8 @@
 - Reject NUL bytes, non-UTF-8, absolute host paths; clean before use.
 - All opens go through `os.Root` (Go ≥ 1.24): symlinks or `..` escaping the root fail by construction.
 - Real host paths never leave the engine (not in responses, not in logs shown to users).
+- Names starting with `.canopy-` are reserved for the engine (upload staging, trash): never listed
+  or walked, and `fsx.Clean` refuses any path containing one.
 
 ## Native operations
 

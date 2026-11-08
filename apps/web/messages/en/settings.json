@@ -22,7 +22,8 @@
     "audit": "Audit log",
     "system": "System",
     "appearance": "Appearance",
-    "jobs": "Background jobs"
+    "jobs": "Background jobs",
+    "uploads": "Uploads"
   },
   "groups": {
     "sessions": "Sessions",
@@ -112,6 +113,16 @@
       "perUser": {
         "label": "Active jobs per person",
         "description": "New jobs are refused while someone already has this many queued or running."
+      }
+    },
+    "uploads": {
+      "maxFileSizeMb": {
+        "label": "Largest file (MB)",
+        "description": "Uploads bigger than this are refused before any byte is sent. 0 means no limit."
+      },
+      "blockedExtensions": {
+        "label": "Blocked file types",
+        "description": "Extensions refused, separated by commas, for example: exe, bat. Leave empty to accept everything."
       }
     }
   },

@@ -58,6 +58,8 @@ verifies.
     engine accepts that audience on streaming routes only; the relay allowlists routes and
     methods (`server/engine-stream.utils.mjs`) and forwards the ticket as a bearer token, never
     the browser's cookies.
+  - Uploads use tus through the same relay (`/api/engine/stream/v1/uploads/`): the relay
+    rewrites tusd's `Location` to the relay path and refuses cross-origin writes.
   - New tickets are only issued through the App Router (maintenance and session checked there);
     an issued ticket lasts at most 2 minutes.
 

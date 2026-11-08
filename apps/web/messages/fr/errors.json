@@ -60,7 +60,11 @@
     "same_location": "Ces éléments sont déjà dans ce dossier.",
     "duplicate_names": "Deux éléments sélectionnés portent le même nom ; ils ne peuvent pas aller dans le même dossier.",
     "no_space": "Il n’y a pas assez d’espace libre à la destination.",
-    "verify_failed": "Un fichier copié ne correspondait pas à l’original : la source a été conservée."
+    "verify_failed": "Un fichier copié ne correspondait pas à l’original : la source a été conservée.",
+    "too_large": "Ce fichier dépasse la taille autorisée par l’administrateur.",
+    "blocked_type": "Ce type de fichier n’est pas accepté ici.",
+    "invalid_upload": "Cet import n’est pas valide. Réessayez.",
+    "upload_not_found": "Cet import n’existe plus. Relancez-le."
   },
   "mail": {
     "not_configured": "L’e-mail n’est pas configuré. Configurez le SMTP dans Administration › E-mail.",

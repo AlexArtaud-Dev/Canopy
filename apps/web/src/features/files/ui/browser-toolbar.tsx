@@ -4,11 +4,14 @@ import {
   ArrowDown,
   ArrowUp,
   ChevronRight,
+  FilePlus,
   FolderPlus,
+  FolderUp,
   Keyboard,
   LayoutGrid,
   List,
   RefreshCw,
+  Upload,
 } from 'lucide-react';
 import Link from 'next/link';
 import type { Route } from 'next';
@@ -18,6 +21,7 @@ import { Button } from '@/shared/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
@@ -46,6 +50,10 @@ interface BrowserToolbarProps {
   /** Shown only when the person may create items in this folder. */
   canCreate: boolean;
   onNewFolder: () => void;
+  /** Shown only when the person may upload into this folder. */
+  canUpload: boolean;
+  onUploadFiles: () => void;
+  onUploadFolder: () => void;
 }
 
 export function BrowserToolbar(props: BrowserToolbarProps) {
@@ -85,6 +93,26 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
         })}
       </nav>
       <div className="flex items-center gap-1">
+        {props.canUpload && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm">
+                <Upload aria-hidden data-icon="inline-start" />
+                {t('ops.upload')}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onSelect={props.onUploadFiles}>
+                <FilePlus aria-hidden />
+                {t('ops.uploadFiles')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={props.onUploadFolder}>
+                <FolderUp aria-hidden />
+                {t('ops.uploadFolder')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         {props.canCreate && (
           <Button variant="outline" size="sm" onClick={props.onNewFolder}>
             <FolderPlus aria-hidden data-icon="inline-start" />

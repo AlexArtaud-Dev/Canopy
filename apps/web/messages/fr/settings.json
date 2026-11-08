@@ -22,7 +22,8 @@
     "audit": "Journal d’audit",
     "system": "Système",
     "appearance": "Apparence",
-    "jobs": "Tâches de fond"
+    "jobs": "Tâches de fond",
+    "uploads": "Imports"
   },
   "groups": {
     "sessions": "Sessions",
@@ -112,6 +113,16 @@
       "perUser": {
         "label": "Tâches actives par personne",
         "description": "Les nouvelles tâches sont refusées tant qu’une personne en a déjà autant en attente ou en cours."
+      }
+    },
+    "uploads": {
+      "maxFileSizeMb": {
+        "label": "Fichier le plus gros (Mo)",
+        "description": "Les imports plus gros sont refusés avant tout envoi. 0 signifie sans limite."
+      },
+      "blockedExtensions": {
+        "label": "Types de fichiers bloqués",
+        "description": "Extensions refusées, séparées par des virgules, par exemple : exe, bat. Laissez vide pour tout accepter."
       }
     }
   },

@@ -41,6 +41,8 @@ type Deps struct {
 	Verifier *enginetoken.Verifier
 	Jobs     Jobs
 	Audit    Auditor
+	// Uploads is the tus endpoint (nil disables uploads, e.g. in tests).
+	Uploads http.Handler
 	// StreamsDone closes when the server shuts down, ending event streams that would otherwise
 	// hold the shutdown open.
 	StreamsDone <-chan struct{}
@@ -59,6 +61,9 @@ func NewRouter(deps Deps) http.Handler {
 	r.Get(routeDownload, srv.download)
 	r.Head(routeDownload, srv.download)
 	r.Get(routeArchive, srv.archive)
+	if deps.Uploads != nil {
+		r.Handle(routeUploads+"*", deps.Uploads)
+	}
 	strict := api.NewStrictHandlerWithOptions(srv, nil, api.StrictHTTPServerOptions{
 		RequestErrorHandlerFunc:  errorHandler(deps.Logger, http.StatusBadRequest, codeBadRequest),
 		ResponseErrorHandlerFunc: errorHandler(deps.Logger, http.StatusInternalServerError, codeInternal),

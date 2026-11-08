@@ -32,6 +32,20 @@
     },
     "transferResult": "{items, plural, one {# élément} other {# éléments}} · {size}",
     "transferSkipped": "{count, plural, one {# ignoré} other {# ignorés}}",
-    "transferRenamed": "{count, plural, one {# gardé en copie} other {# gardés en copie}}"
+    "transferRenamed": "{count, plural, one {# gardé en copie} other {# gardés en copie}}",
+    "uploadFailed": "Échec de l’import : {name}"
+  },
+  "uploads": {
+    "upload": "Import",
+    "cancel": "Annuler l’import de {name}",
+    "retry": "Reprendre l’import de {name}",
+    "dismiss": "Masquer {name}",
+    "progress": "Progression de l’import de {name}",
+    "queued": "En attente de démarrage",
+    "rate": "{rate}/s",
+    "done": "Importé · {size}",
+    "storedAs": "Enregistré sous « {name} »",
+    "skipped": "Ignoré : le nom est déjà pris",
+    "cancelled": "Annulé"
   }
 }

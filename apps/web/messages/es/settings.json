@@ -22,7 +22,8 @@
     "audit": "Registro de auditoría",
     "system": "Sistema",
     "appearance": "Apariencia",
-    "jobs": "Tareas en segundo plano"
+    "jobs": "Tareas en segundo plano",
+    "uploads": "Subidas"
   },
   "groups": {
     "sessions": "Sesiones",
@@ -112,6 +113,16 @@
       "perUser": {
         "label": "Tareas activas por persona",
         "description": "Se rechazan nuevas tareas mientras alguien ya tenga este número en cola o en curso."
+      }
+    },
+    "uploads": {
+      "maxFileSizeMb": {
+        "label": "Archivo más grande (MB)",
+        "description": "Las subidas más grandes se rechazan antes de enviar nada. 0 significa sin límite."
+      },
+      "blockedExtensions": {
+        "label": "Tipos de archivo bloqueados",
+        "description": "Extensiones rechazadas, separadas por comas, por ejemplo: exe, bat. Déjalo vacío para aceptarlo todo."
       }
     }
   },

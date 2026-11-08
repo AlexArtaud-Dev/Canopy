@@ -32,6 +32,20 @@
     },
     "transferResult": "{items, plural, one {# elemento} other {# elementos}} · {size}",
     "transferSkipped": "{count, plural, one {# omitido} other {# omitidos}}",
-    "transferRenamed": "{count, plural, one {# conservado como copia} other {# conservados como copia}}"
+    "transferRenamed": "{count, plural, one {# conservado como copia} other {# conservados como copia}}",
+    "uploadFailed": "Falló la subida: {name}"
+  },
+  "uploads": {
+    "upload": "Subida",
+    "cancel": "Cancelar la subida de {name}",
+    "retry": "Reanudar la subida de {name}",
+    "dismiss": "Ocultar {name}",
+    "progress": "Progreso de la subida de {name}",
+    "queued": "Esperando para empezar",
+    "rate": "{rate}/s",
+    "done": "Subido · {size}",
+    "storedAs": "Guardado como «{name}»",
+    "skipped": "Omitido: el nombre ya existe",
+    "cancelled": "Cancelado"
   }
 }

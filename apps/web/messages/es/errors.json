@@ -60,7 +60,11 @@
     "same_location": "Estos elementos ya están en esta carpeta.",
     "duplicate_names": "Dos elementos seleccionados tienen el mismo nombre; no pueden ir a la misma carpeta.",
     "no_space": "No hay suficiente espacio libre en el destino.",
-    "verify_failed": "Un archivo copiado no coincidía con el original, así que se conservó el origen."
+    "verify_failed": "Un archivo copiado no coincidía con el original, así que se conservó el origen.",
+    "too_large": "Este archivo supera el tamaño que permite el administrador.",
+    "blocked_type": "Este tipo de archivo no se acepta aquí.",
+    "invalid_upload": "Esta subida no es válida. Inténtalo de nuevo.",
+    "upload_not_found": "Esta subida ya no existe. Vuelve a empezarla."
   },
   "mail": {
     "not_configured": "El correo no está configurado. Configura el SMTP en Administración › Correo.",

@@ -8,6 +8,9 @@ export const ticketCookie = 'canopy_stream';
 const routes = [
   { methods: ['GET', 'HEAD'], path: /^\/v1\/fs\/download$/ },
   { methods: ['GET'], path: /^\/v1\/fs\/archive$/ },
+  // tus: create an upload, then resume (HEAD), send bytes (PATCH) or cancel (DELETE) it.
+  { methods: ['POST'], path: /^\/v1\/uploads\/$/ },
+  { methods: ['HEAD', 'PATCH', 'DELETE'], path: /^\/v1\/uploads\/[0-9a-f]{16,64}$/ },
 ];
 
 /** Engine path and query for a relayed URL, or null when the route is not allowed. */
@@ -32,7 +35,20 @@ export function readCookie(header, name) {
   return null;
 }
 
-const requestHeaders = ['accept', 'range', 'if-range', 'if-modified-since', 'if-none-match'];
+const requestHeaders = [
+  'accept',
+  'range',
+  'if-range',
+  'if-modified-since',
+  'if-none-match',
+  'content-type',
+  'content-length',
+  'tus-resumable',
+  'upload-length',
+  'upload-offset',
+  'upload-metadata',
+  'upload-defer-length',
+];
 const responseHeaders = [
   'content-type',
   'content-length',
@@ -43,6 +59,15 @@ const responseHeaders = [
   'etag',
   'x-content-type-options',
   'cache-control',
+  'tus-resumable',
+  'tus-version',
+  'tus-extension',
+  'tus-max-size',
+  'upload-offset',
+  'upload-length',
+  'upload-expires',
+  'x-canopy-path',
+  'x-canopy-result',
 ];
 
 function pick(headers, names) {
@@ -63,7 +88,33 @@ export function upstreamHeaders(incoming, ticket, requestId) {
   };
 }
 
-/** Headers returned to the browser: content and range metadata only. */
+/** Headers returned to the browser: content, range and upload metadata only. */
 export function downstreamHeaders(engine) {
-  return { ...pick(engine, responseHeaders), 'x-accel-buffering': 'no' };
+  const headers = { ...pick(engine, responseHeaders), 'x-accel-buffering': 'no' };
+  const location = relayLocation(engine.location);
+  if (location) headers.location = location;
+  return headers;
+}
+
+/** tus answers with the engine's own URL for a new upload; the browser must use the relay. */
+export function relayLocation(location) {
+  if (typeof location !== 'string') return null;
+  const path = new URL(location, 'http://canopy.invalid').pathname;
+  return path.startsWith('/v1/uploads/') ? streamPrefix + path : null;
+}
+
+const safeMethods = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+/**
+ * Writes must come from this origin. SameSite=Strict already keeps the ticket cookie off
+ * cross-site requests; this refuses them even if a browser got that wrong.
+ */
+export function sameOrigin(method, origin, host) {
+  if (safeMethods.has(method ?? '')) return true;
+  if (!origin || !host) return false;
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
 }

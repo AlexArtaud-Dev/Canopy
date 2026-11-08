@@ -60,7 +60,11 @@
     "same_location": "These items are already in this folder.",
     "duplicate_names": "Two selected items have the same name; they cannot go into the same folder.",
     "no_space": "There is not enough free space at the destination.",
-    "verify_failed": "A copied file did not match the original, so the source was kept."
+    "verify_failed": "A copied file did not match the original, so the source was kept.",
+    "too_large": "This file is larger than the administrator allows.",
+    "blocked_type": "This type of file is not accepted here.",
+    "invalid_upload": "This upload is not valid. Try again.",
+    "upload_not_found": "This upload no longer exists. Start it again."
   },
   "mail": {
     "not_configured": "Email is not configured. Set up SMTP in Administration › Email.",

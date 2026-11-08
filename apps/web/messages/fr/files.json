@@ -155,7 +155,10 @@
       "conflictsTruncated": "Plus de noms sont pris que ceux listés ; le choix « Pour tous » s’y applique.",
       "copiedToClipboard": "{count, plural, one {# élément prêt à coller} other {# éléments prêts à coller}} (Ctrl+V)",
       "cutToClipboard": "{count, plural, one {# élément prêt à déplacer} other {# éléments prêts à déplacer}} (Ctrl+V)",
-      "dragging": "{count, plural, one {# élément} other {# éléments}}"
+      "dragging": "{count, plural, one {# élément} other {# éléments}}",
+      "upload": "Importer",
+      "uploadFiles": "Des fichiers",
+      "uploadFolder": "Un dossier"
     }
   }
 }

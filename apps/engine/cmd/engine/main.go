@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -26,6 +27,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/uploads"
 )
 
 const (
@@ -106,6 +108,11 @@ func run() error {
 	}
 	go jobService.hub.Listen(ctx, pool, logger)
 
+	uploadService, err := startUploads(ctx, cfg.Root, resolver, grants, pool, logger)
+	if err != nil {
+		return err
+	}
+
 	streamsDone := make(chan struct{})
 	server := &http.Server{
 		Addr: cfg.Addr,
@@ -119,6 +126,7 @@ func run() error {
 			Jobs:        jobService,
 			Audit:       audit.NewWriter(pool),
 			StreamsDone: streamsDone,
+			Uploads:     uploadService,
 		}),
 		ReadHeaderTimeout: readHeaderTimeout,
 		// No read/write timeouts: multi-GB transfers and SSE streams are legitimately long.
@@ -165,6 +173,42 @@ func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, gra
 		return nil, err
 	}
 	return &jobService{runner: runner, hub: jobs.NewHub()}, nil
+}
+
+// startUploads prepares the staging folder inside the root and the tus endpoint, and purges
+// uploads abandoned for a day, every hour.
+func startUploads(ctx context.Context, root string, resolver *fsx.Resolver, grants *grantstore.Store, pool *pgxpool.Pool, logger *slog.Logger) (*uploads.Service, error) {
+	staging, err := resolver.EnsureStaging()
+	if err != nil {
+		return nil, err
+	}
+	service, err := uploads.New(uploads.Config{
+		HostDir: filepath.Join(root, staging),
+		Files:   resolver,
+		Grants:  grants,
+		Audit:   audit.NewWriter(pool),
+		Limits:  func(ctx context.Context) (uploads.Limits, error) { return uploads.LoadLimits(ctx, pool) },
+		Logger:  logger,
+		Now:     time.Now,
+	})
+	if err != nil {
+		return nil, err
+	}
+	go func() {
+		ticker := time.NewTicker(time.Hour)
+		defer ticker.Stop()
+		for {
+			if purged := service.PurgeStale(24 * time.Hour); purged > 0 {
+				logger.Info("abandoned uploads purged", slog.Int("count", purged))
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+		}
+	}()
+	return service, nil
 }
 
 // newVerifier parses the public key; without one the engine still starts (health checks work)

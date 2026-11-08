@@ -19,12 +19,14 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { toast } from 'sonner';
 
+import { cn } from 'cn';
 import { ErrorState } from '@/shared/errors/error-state';
 import { useErrorMessage } from '@/shared/errors/use-error-message';
 import { Button } from '@/shared/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty';
 import { Spinner } from '@/shared/ui/spinner';
 import { startFolderSize } from '@/features/jobs';
+import { filesFromDrop, filesFromInput, useUploadFlow } from '@/features/uploads';
 
 import {
   browserHref,
@@ -181,6 +183,19 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     paths.every((path) => entryByPath.get(path)?.actions.includes(operation) === true);
   const selectedPaths = [...selection.selected];
 
+  // Uploads: names already here (and whether they are folders) feed the conflict check.
+  const existingNames = useMemo(
+    () => new Map(entries.map((entry) => [entry.name, entry.isDirectory])),
+    [entries],
+  );
+  const uploads = useUploadFlow(query.path, existingNames);
+  const canUpload = folder.actions.includes('upload');
+  const filesInput = useRef<HTMLInputElement>(null);
+  const folderInput = useRef<HTMLInputElement>(null);
+  const [dropActive, setDropActive] = useState(false);
+  const dragsFiles = (event: React.DragEvent) =>
+    canUpload && Array.from(event.dataTransfer.types).includes('Files');
+
   const openMenuAtFocus = () => {
     const element = document.getElementById(idOf(focusIndex));
     if (!element) return;
@@ -318,6 +333,9 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     >
       <div className="flex min-h-0 flex-1 flex-col">
         <BrowserToolbar
+          canUpload={canUpload}
+          onUploadFiles={() => filesInput.current?.click()}
+          onUploadFolder={() => folderInput.current?.click()}
           canCreate={folder.actions.includes('create')}
           onNewFolder={ops.openNewFolder}
           path={query.path}
@@ -353,11 +371,29 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           }
           tabIndex={0}
           onKeyDown={onKeyDown}
-          className={
-            view === 'grid'
-              ? 'min-h-0 flex-1 overflow-y-auto p-4 outline-none'
-              : 'min-h-0 flex-1 overflow-y-auto outline-none'
-          }
+          // Files dragged from the desktop (native drag and drop, apart from dnd-kit's moves).
+          onDragOver={(event) => {
+            if (!dragsFiles(event)) return;
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'copy';
+            setDropActive(true);
+          }}
+          onDragLeave={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null))
+              setDropActive(false);
+          }}
+          onDrop={(event) => {
+            if (!dragsFiles(event)) return;
+            event.preventDefault();
+            setDropActive(false);
+            void filesFromDrop(event.dataTransfer).then(uploads.start);
+          }}
+          className={cn(
+            'min-h-0 flex-1 overflow-y-auto outline-none',
+            view === 'grid' && 'p-4',
+            // Files dragged from the desktop: the whole folder is the drop target.
+            dropActive && 'bg-primary/5 ring-primary ring-2 ring-inset',
+          )}
         >
           {folder.error && entries.length === 0 ? (
             <ErrorState
@@ -441,6 +477,38 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           )}
         </footer>
         <ShortcutsDialog open={helpOpen} onOpenChange={setHelpOpen} />
+        <input
+          ref={filesInput}
+          type="file"
+          multiple
+          hidden
+          onChange={(event) => {
+            uploads.start(filesFromInput(event.currentTarget.files));
+            event.currentTarget.value = '';
+          }}
+        />
+        <input
+          ref={folderInput}
+          type="file"
+          hidden
+          // Non-standard but supported by every current browser: picks a whole folder.
+          {...{ webkitdirectory: '' }}
+          onChange={(event) => {
+            uploads.start(filesFromInput(event.currentTarget.files));
+            event.currentTarget.value = '';
+          }}
+        />
+        {uploads.conflicts.length > 0 && (
+          <ConflictDialog
+            open
+            onOpenChange={uploads.cancel}
+            operation="copy"
+            conflicts={uploads.conflicts}
+            truncated={false}
+            confirmLabel={t('ops.upload')}
+            onConfirm={uploads.confirm}
+          />
+        )}
         {dialog.kind === 'newFolder' && (
           <NameDialog
             open
