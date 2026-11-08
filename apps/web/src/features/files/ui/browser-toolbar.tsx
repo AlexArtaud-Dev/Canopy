@@ -4,6 +4,7 @@ import {
   ArrowDown,
   ArrowUp,
   ChevronRight,
+  FolderPlus,
   Keyboard,
   LayoutGrid,
   List,
@@ -28,6 +29,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip';
 
 import { sortKeys, type BrowserView, type SortKey, type SortOrder } from '../browser.utils';
 import { breadcrumbs } from '../files.utils';
+import { DropCrumb } from './dnd';
 
 interface BrowserToolbarProps {
   path: string;
@@ -41,6 +43,9 @@ interface BrowserToolbarProps {
   refreshing: boolean;
   onRefresh: () => void;
   onShowShortcuts: () => void;
+  /** Shown only when the person may create items in this folder. */
+  canCreate: boolean;
+  onNewFolder: () => void;
 }
 
 export function BrowserToolbar(props: BrowserToolbarProps) {
@@ -64,11 +69,13 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
                   {label}
                 </span>
               ) : (
-                <Button asChild variant="ghost" size="sm" className="max-w-40 min-w-0">
-                  <Link href={props.hrefFor(crumb.path) as Route}>
-                    <span className="truncate">{label}</span>
-                  </Link>
-                </Button>
+                <DropCrumb path={crumb.path}>
+                  <Button asChild variant="ghost" size="sm" className="max-w-40 min-w-0">
+                    <Link href={props.hrefFor(crumb.path) as Route}>
+                      <span className="truncate">{label}</span>
+                    </Link>
+                  </Button>
+                </DropCrumb>
               )}
               {!current && (
                 <ChevronRight className="text-muted-foreground size-3.5 shrink-0" aria-hidden />
@@ -78,6 +85,12 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
         })}
       </nav>
       <div className="flex items-center gap-1">
+        {props.canCreate && (
+          <Button variant="outline" size="sm" onClick={props.onNewFolder}>
+            <FolderPlus aria-hidden data-icon="inline-start" />
+            {t('ops.newFolder')}
+          </Button>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm">

@@ -167,6 +167,9 @@ func (Args) Kind() string { return Kind }
 // JobID implements jobs.Args.
 func (a Args) JobID() string { return a.Job }
 
+// Label implements jobs.Labeled: people see a copy or a move, not a "transfer".
+func (a Args) Label() string { return a.Operation }
+
 // Handler runs a copy or move: totals first (for progress and the space check), then each source.
 func Handler(files Files, grants Grants) jobs.Handler[Args] {
 	return func(ctx context.Context, args Args, report *jobs.Reporter) (map[string]any, error) {

@@ -88,7 +88,10 @@
       "copyPath": "Copiar la ruta",
       "selectAll": "Seleccionar todo",
       "refresh": "Actualizar",
-      "folderSize": "Calcular el tamaño"
+      "folderSize": "Calcular el tamaño",
+      "rename": "Cambiar nombre",
+      "copyTo": "Copiar a…",
+      "moveTo": "Mover a…"
     },
     "shortcuts": {
       "title": "Atajos de teclado",
@@ -103,8 +106,54 @@
         "selectAll": "Seleccionar todo",
         "clear": "Borrar la selección",
         "menu": "Abrir el menú del elemento",
-        "help": "Mostrar estos atajos"
+        "help": "Mostrar estos atajos",
+        "rename": "Cambiar nombre",
+        "copy": "Copiar la selección",
+        "cut": "Cortar la selección",
+        "paste": "Pegar en esta carpeta",
+        "dragCopy": "Copiar en lugar de mover al soltar"
       }
+    },
+    "ops": {
+      "name": "Nombre",
+      "cancel": "Cancelar",
+      "create": "Crear",
+      "rename": "Cambiar nombre",
+      "newFolder": "Nueva carpeta",
+      "newFolderTitle": "Nueva carpeta",
+      "newFolderDescription": "Crear una carpeta aquí.",
+      "defaultFolderName": "Nueva carpeta",
+      "renameTitle": "Cambiar nombre",
+      "renameDescription": "Elige un nuevo nombre para «{name}».",
+      "folderCreated": "Carpeta «{name}» creada",
+      "renamed": "Renombrado a «{name}»",
+      "copyTitle": "Copiar a…",
+      "moveTitle": "Mover a…",
+      "pickDescription": "Elige dónde poner {count, plural, one {# elemento} other {# elementos}}.",
+      "loadingFolders": "Cargando carpetas…",
+      "noSubfolders": "No hay subcarpetas aquí.",
+      "cannotDropHere": "Los elementos no pueden ir aquí (sin permiso, o ya están aquí).",
+      "copyHere": "Copiar aquí",
+      "moveHere": "Mover aquí",
+      "copyNow": "Copiar",
+      "moveNow": "Mover",
+      "conflictsTitle": "{count, plural, one {# nombre ya está en uso} other {# nombres ya están en uso}}",
+      "conflictsDescription": "Elige qué pasa con los elementos cuyo nombre ya existe en el destino. Nada se reemplaza sin tu elección.",
+      "forAll": "Para todos:",
+      "choiceFor": "Qué hacer con {name}",
+      "strategies": {
+        "skip": "Omitir",
+        "overwrite": "Reemplazar",
+        "keep_both": "Conservar ambos"
+      },
+      "fileConflict": "Ya existe un archivo con este nombre",
+      "folderConflict": "La carpeta existe: «Reemplazar» combina el contenido",
+      "kindConflict": "Un archivo y una carpeta comparten este nombre",
+      "selfConflict": "Copia en la misma carpeta: se crea una copia numerada",
+      "conflictsTruncated": "Hay más nombres en uso que los listados; se les aplica la elección «Para todos».",
+      "copiedToClipboard": "{count, plural, one {# elemento listo para pegar} other {# elementos listos para pegar}} (Ctrl+V)",
+      "cutToClipboard": "{count, plural, one {# elemento listo para mover} other {# elementos listos para mover}} (Ctrl+V)",
+      "dragging": "{count, plural, one {# elemento} other {# elementos}}"
     }
   }
 }

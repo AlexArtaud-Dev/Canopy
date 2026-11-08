@@ -6,6 +6,8 @@ import { useEffect, useRef } from 'react';
 import type { Job, JobState } from '@canopy/contracts';
 import { zJob } from '@canopy/contracts/zod';
 
+import { filesystemQueryRoot } from '@/shared/query/query-keys';
+
 import { finishedTransition, upsertJob } from '../jobs.utils';
 import { listMyJobs } from '../server/jobs-actions';
 
@@ -52,7 +54,11 @@ export function useJobs(onFinished: (job: Job, state: JobState) => void) {
       const finished = finishedTransition(lastStates.current.get(job.id) ?? 'queued', job);
       lastStates.current.set(job.id, job.state);
       queryClient.setQueryData<Job[]>(jobsQueryKey, (jobs) => upsertJob(jobs ?? [], job));
-      if (finished) finishedRef.current(job, finished);
+      if (finished) {
+        // Whatever the job changed on disk, open folders show it now.
+        void queryClient.invalidateQueries({ queryKey: [filesystemQueryRoot] });
+        finishedRef.current(job, finished);
+      }
     });
     // After a reconnect (lifetime reached, network blip) events may have been missed: resync.
     source.addEventListener('open', () => {

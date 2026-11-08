@@ -111,16 +111,14 @@ func (s *Store) LockOwner(ctx context.Context, owner string) error {
 	return nil
 }
 
-// Create inserts a queued job and returns its id.
-func (s *Store) Create(ctx context.Context, kind, owner, target string) (string, error) {
-	var id string
-	err := s.db.QueryRow(ctx, `INSERT INTO engine.jobs (kind, owner_id, target)
-VALUES ($1, $2, $3) RETURNING id::text`,
-		kind, owner, target).Scan(&id)
+// Create inserts a queued job.
+func (s *Store) Create(ctx context.Context, id, kind, owner, target string) error {
+	_, err := s.db.Exec(ctx, `INSERT INTO engine.jobs (id, kind, owner_id, target)
+VALUES ($1, $2, $3, $4)`, id, kind, owner, target)
 	if err != nil {
-		return "", fmt.Errorf("create job: %w", err)
+		return fmt.Errorf("create job: %w", err)
 	}
-	return id, nil
+	return nil
 }
 
 // SetRiverID links the job to the River row executing it.

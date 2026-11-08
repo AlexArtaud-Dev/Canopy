@@ -124,3 +124,17 @@ func TestHub(t *testing.T) {
 	cancelAll()
 	hub.Publish(notice)
 }
+
+type plainArgs struct{}
+
+func (plainArgs) Kind() string { return "plain" }
+
+type labeledArgs struct{ plainArgs }
+
+func (labeledArgs) Label() string { return "special" }
+
+func TestDisplayKind(t *testing.T) {
+	if DisplayKind(plainArgs{}) != "plain" || DisplayKind(labeledArgs{}) != "special" {
+		t.Fatal("labels win over River kinds")
+	}
+}
