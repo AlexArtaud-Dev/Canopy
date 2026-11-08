@@ -5,9 +5,18 @@ import * as z from 'zod';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
 import type {
+  CancelJobData,
+  CancelJobErrors,
+  CancelJobResponses,
   ExplainAccessData,
   ExplainAccessErrors,
   ExplainAccessResponses,
+  GetJobData,
+  GetJobErrors,
+  GetJobLogsData,
+  GetJobLogsErrors,
+  GetJobLogsResponses,
+  GetJobResponses,
   GetLivenessData,
   GetLivenessResponses,
   GetReadinessData,
@@ -16,14 +25,31 @@ import type {
   ListDirectoryData,
   ListDirectoryErrors,
   ListDirectoryResponses,
+  ListJobsData,
+  ListJobsErrors,
+  ListJobsResponses,
+  StartFolderSizeData,
+  StartFolderSizeErrors,
+  StartFolderSizeResponses,
 } from './types.gen';
 import {
+  zCancelJobPath,
+  zCancelJobResponse,
   zExplainAccessBody,
   zExplainAccessResponse,
+  zGetJobLogsPath,
+  zGetJobLogsQuery,
+  zGetJobLogsResponse,
+  zGetJobPath,
+  zGetJobResponse,
   zGetLivenessResponse,
   zGetReadinessResponse,
   zListDirectoryQuery,
   zListDirectoryResponse,
+  zListJobsQuery,
+  zListJobsResponse,
+  zStartFolderSizeBody,
+  zStartFolderSizeResponse,
 } from './zod.gen';
 
 export type Options<
@@ -134,4 +160,121 @@ export const explainAccess = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Measure a folder in the background
+ *
+ * Starts a job adding up the size of every file the caller may read under the folder. Subfolders the caller may not read are skipped. Progress streams on `GET /v1/jobs/events` (Server-Sent Events, `event: job`, data is a `Job`).
+ */
+export const startFolderSize = <ThrowOnError extends boolean = false>(
+  options: Options<StartFolderSizeData, ThrowOnError>,
+): RequestResult<StartFolderSizeResponses, StartFolderSizeErrors, ThrowOnError> =>
+  (options.client ?? client).post<StartFolderSizeResponses, StartFolderSizeErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zStartFolderSizeBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zStartFolderSizeResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs/folder-size',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Recent jobs of the caller
+ *
+ * Newest first. Administrators see every job.
+ */
+export const listJobs = <ThrowOnError extends boolean = false>(
+  options?: Options<ListJobsData, ThrowOnError>,
+): RequestResult<ListJobsResponses, ListJobsErrors, ThrowOnError> =>
+  (options?.client ?? client).get<ListJobsResponses, ListJobsErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: zListJobsQuery.optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zListJobsResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs',
+    ...options,
+  });
+
+/**
+ * One job
+ */
+export const getJob = <ThrowOnError extends boolean = false>(
+  options: Options<GetJobData, ThrowOnError>,
+): RequestResult<GetJobResponses, GetJobErrors, ThrowOnError> =>
+  (options.client ?? client).get<GetJobResponses, GetJobErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: zGetJobPath,
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zGetJobResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs/{jobId}',
+    ...options,
+  });
+
+/**
+ * Cancel a queued or running job
+ *
+ * A queued job is cancelled at once; a running one stops as soon as it notices (its final state arrives on the event stream).
+ */
+export const cancelJob = <ThrowOnError extends boolean = false>(
+  options: Options<CancelJobData, ThrowOnError>,
+): RequestResult<CancelJobResponses, CancelJobErrors, ThrowOnError> =>
+  (options.client ?? client).post<CancelJobResponses, CancelJobErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: zCancelJobPath,
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zCancelJobResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs/{jobId}/cancel',
+    ...options,
+  });
+
+/**
+ * Output lines of a job
+ *
+ * The last lines kept (capped per job), after an optional sequence number.
+ */
+export const getJobLogs = <ThrowOnError extends boolean = false>(
+  options: Options<GetJobLogsData, ThrowOnError>,
+): RequestResult<GetJobLogsResponses, GetJobLogsErrors, ThrowOnError> =>
+  (options.client ?? client).get<GetJobLogsResponses, GetJobLogsErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: zGetJobLogsPath,
+          query: zGetJobLogsQuery.optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zGetJobLogsResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs/{jobId}/logs',
+    ...options,
   });

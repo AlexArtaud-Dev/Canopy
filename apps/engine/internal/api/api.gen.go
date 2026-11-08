@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 // Defines values for DecidingGrantEffect.
@@ -64,6 +65,54 @@ func (e DirectoryEntryKind) Valid() bool {
 	case Directory:
 		return true
 	case File:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for JobLogLineLevel.
+const (
+	JobLogLineLevelError JobLogLineLevel = "error"
+	JobLogLineLevelInfo  JobLogLineLevel = "info"
+	JobLogLineLevelWarn  JobLogLineLevel = "warn"
+)
+
+// Valid indicates whether the value is a known member of the JobLogLineLevel enum.
+func (e JobLogLineLevel) Valid() bool {
+	switch e {
+	case JobLogLineLevelError:
+		return true
+	case JobLogLineLevelInfo:
+		return true
+	case JobLogLineLevelWarn:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for JobState.
+const (
+	Cancelled JobState = "cancelled"
+	Failed    JobState = "failed"
+	Queued    JobState = "queued"
+	Running   JobState = "running"
+	Succeeded JobState = "succeeded"
+)
+
+// Valid indicates whether the value is a known member of the JobState enum.
+func (e JobState) Valid() bool {
+	switch e {
+	case Cancelled:
+		return true
+	case Failed:
+		return true
+	case Queued:
+		return true
+	case Running:
+		return true
+	case Succeeded:
 		return true
 	default:
 		return false
@@ -259,6 +308,66 @@ type ExplainResponse struct {
 	Path      string           `json:"path"`
 }
 
+// FolderSizeRequest defines model for FolderSizeRequest.
+type FolderSizeRequest struct {
+	Path string `json:"path"`
+}
+
+// Job defines model for Job.
+type Job struct {
+	BytesDone int64 `json:"bytesDone"`
+
+	// BytesTotal Absent while still unknown.
+	BytesTotal  *int64    `json:"bytesTotal,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
+	CurrentPath *string   `json:"currentPath,omitempty"`
+
+	// ErrorCode Set when the job failed; translated by the web app.
+	ErrorCode  *string            `json:"errorCode,omitempty"`
+	EtaSeconds *int               `json:"etaSeconds,omitempty"`
+	FinishedAt *time.Time         `json:"finishedAt,omitempty"`
+	Id         openapi_types.UUID `json:"id"`
+	ItemsDone  int64              `json:"itemsDone"`
+	ItemsTotal *int64             `json:"itemsTotal,omitempty"`
+
+	// Kind What the job does (`folder_size`, later copy, move, delete…).
+	Kind    string `json:"kind"`
+	OwnerId string `json:"ownerId"`
+	RateBps *int64 `json:"rateBps,omitempty"`
+
+	// Result Human-readable outcome, shape depends on the kind.
+	Result    *map[string]interface{} `json:"result,omitempty"`
+	StartedAt *time.Time              `json:"startedAt,omitempty"`
+	State     JobState                `json:"state"`
+
+	// Target Virtual path the job works on.
+	Target *string `json:"target,omitempty"`
+}
+
+// JobList defines model for JobList.
+type JobList struct {
+	Items []Job `json:"items"`
+}
+
+// JobLogLine defines model for JobLogLine.
+type JobLogLine struct {
+	At    time.Time       `json:"at"`
+	Level JobLogLineLevel `json:"level"`
+	Line  string          `json:"line"`
+	Seq   int             `json:"seq"`
+}
+
+// JobLogLineLevel defines model for JobLogLine.Level.
+type JobLogLineLevel string
+
+// JobLogList defines model for JobLogList.
+type JobLogList struct {
+	Items []JobLogLine `json:"items"`
+}
+
+// JobState defines model for JobState.
+type JobState string
+
 // LivenessStatus defines model for LivenessStatus.
 type LivenessStatus struct {
 	Status LivenessStatusStatus `json:"status"`
@@ -297,8 +406,21 @@ type ListDirectoryParamsSort string
 // ListDirectoryParamsOrder defines parameters for ListDirectory.
 type ListDirectoryParamsOrder string
 
+// ListJobsParams defines parameters for ListJobs.
+type ListJobsParams struct {
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// GetJobLogsParams defines parameters for GetJobLogs.
+type GetJobLogsParams struct {
+	After *int `form:"after,omitempty" json:"after,omitempty"`
+}
+
 // ExplainAccessJSONRequestBody defines body for ExplainAccess for application/json ContentType.
 type ExplainAccessJSONRequestBody = ExplainRequest
+
+// StartFolderSizeJSONRequestBody defines body for StartFolderSize for application/json ContentType.
+type StartFolderSizeJSONRequestBody = FolderSizeRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -314,6 +436,21 @@ type ServerInterface interface {
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(w http.ResponseWriter, r *http.Request, params ListDirectoryParams)
+	// ListJobs Recent jobs of the caller
+	// (GET /v1/jobs)
+	ListJobs(w http.ResponseWriter, r *http.Request, params ListJobsParams)
+	// StartFolderSize Measure a folder in the background
+	// (POST /v1/jobs/folder-size)
+	StartFolderSize(w http.ResponseWriter, r *http.Request)
+	// GetJob One job
+	// (GET /v1/jobs/{jobId})
+	GetJob(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID)
+	// CancelJob Cancel a queued or running job
+	// (POST /v1/jobs/{jobId}/cancel)
+	CancelJob(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID)
+	// GetJobLogs Output lines of a job
+	// (GET /v1/jobs/{jobId}/logs)
+	GetJobLogs(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID, params GetJobLogsParams)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -341,6 +478,36 @@ func (_ Unimplemented) ExplainAccess(w http.ResponseWriter, r *http.Request) {
 // ListDirectory List a directory the caller may see
 // (GET /v1/fs/list)
 func (_ Unimplemented) ListDirectory(w http.ResponseWriter, r *http.Request, params ListDirectoryParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListJobs Recent jobs of the caller
+// (GET /v1/jobs)
+func (_ Unimplemented) ListJobs(w http.ResponseWriter, r *http.Request, params ListJobsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// StartFolderSize Measure a folder in the background
+// (POST /v1/jobs/folder-size)
+func (_ Unimplemented) StartFolderSize(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// GetJob One job
+// (GET /v1/jobs/{jobId})
+func (_ Unimplemented) GetJob(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// CancelJob Cancel a queued or running job
+// (POST /v1/jobs/{jobId}/cancel)
+func (_ Unimplemented) CancelJob(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// GetJobLogs Output lines of a job
+// (GET /v1/jobs/{jobId}/logs)
+func (_ Unimplemented) GetJobLogs(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID, params GetJobLogsParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -493,6 +660,147 @@ func (siw *ServerInterfaceWrapper) ListDirectory(w http.ResponseWriter, r *http.
 	handler.ServeHTTP(w, r)
 }
 
+// ListJobs operation middleware
+func (siw *ServerInterfaceWrapper) ListJobs(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListJobsParams
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "limit", r.URL.Query(), &params.Limit, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListJobs(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// StartFolderSize operation middleware
+func (siw *ServerInterfaceWrapper) StartFolderSize(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.StartFolderSize(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetJob operation middleware
+func (siw *ServerInterfaceWrapper) GetJob(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "jobId" -------------
+	var jobId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "jobId", chi.URLParam(r, "jobId"), &jobId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "jobId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetJob(w, r, jobId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CancelJob operation middleware
+func (siw *ServerInterfaceWrapper) CancelJob(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "jobId" -------------
+	var jobId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "jobId", chi.URLParam(r, "jobId"), &jobId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "jobId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CancelJob(w, r, jobId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetJobLogs operation middleware
+func (siw *ServerInterfaceWrapper) GetJobLogs(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "jobId" -------------
+	var jobId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "jobId", chi.URLParam(r, "jobId"), &jobId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "jobId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetJobLogsParams
+
+	// ------------- Optional query parameter "after" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "after", r.URL.Query(), &params.After, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "after"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "after", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetJobLogs(w, r, jobId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 type UnescapedCookieParamError struct {
 	ParamName string
 	Err       error
@@ -617,6 +925,21 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/v1/authz/explain", wrapper.ExplainAccess)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/jobs/folder-size", wrapper.StartFolderSize)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/jobs", wrapper.ListJobs)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/jobs/{jobId}", wrapper.GetJob)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/jobs/{jobId}/cancel", wrapper.CancelJob)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/jobs/{jobId}/logs", wrapper.GetJobLogs)
 	})
 
 	return r
@@ -820,6 +1143,299 @@ func (response ListDirectory404JSONResponse) VisitListDirectoryResponse(w http.R
 	return err
 }
 
+type ListJobsRequestObject struct {
+	Params ListJobsParams
+}
+
+type ListJobsResponseObject interface {
+	VisitListJobsResponse(w http.ResponseWriter) error
+}
+
+type ListJobs200JSONResponse JobList
+
+func (response ListJobs200JSONResponse) VisitListJobsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListJobs401JSONResponse Error
+
+func (response ListJobs401JSONResponse) VisitListJobsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartFolderSizeRequestObject struct {
+	Body *StartFolderSizeJSONRequestBody
+}
+
+type StartFolderSizeResponseObject interface {
+	VisitStartFolderSizeResponse(w http.ResponseWriter) error
+}
+
+type StartFolderSize202JSONResponse Job
+
+func (response StartFolderSize202JSONResponse) VisitStartFolderSizeResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartFolderSize400JSONResponse Error
+
+func (response StartFolderSize400JSONResponse) VisitStartFolderSizeResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartFolderSize401JSONResponse Error
+
+func (response StartFolderSize401JSONResponse) VisitStartFolderSizeResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartFolderSize403JSONResponse Error
+
+func (response StartFolderSize403JSONResponse) VisitStartFolderSizeResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartFolderSize404JSONResponse Error
+
+func (response StartFolderSize404JSONResponse) VisitStartFolderSizeResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartFolderSize429JSONResponse Error
+
+func (response StartFolderSize429JSONResponse) VisitStartFolderSizeResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(429)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetJobRequestObject struct {
+	JobId openapi_types.UUID `json:"jobId"`
+}
+
+type GetJobResponseObject interface {
+	VisitGetJobResponse(w http.ResponseWriter) error
+}
+
+type GetJob200JSONResponse Job
+
+func (response GetJob200JSONResponse) VisitGetJobResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetJob401JSONResponse Error
+
+func (response GetJob401JSONResponse) VisitGetJobResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetJob404JSONResponse Error
+
+func (response GetJob404JSONResponse) VisitGetJobResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CancelJobRequestObject struct {
+	JobId openapi_types.UUID `json:"jobId"`
+}
+
+type CancelJobResponseObject interface {
+	VisitCancelJobResponse(w http.ResponseWriter) error
+}
+
+type CancelJob202JSONResponse Job
+
+func (response CancelJob202JSONResponse) VisitCancelJobResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CancelJob401JSONResponse Error
+
+func (response CancelJob401JSONResponse) VisitCancelJobResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CancelJob404JSONResponse Error
+
+func (response CancelJob404JSONResponse) VisitCancelJobResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CancelJob409JSONResponse Error
+
+func (response CancelJob409JSONResponse) VisitCancelJobResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetJobLogsRequestObject struct {
+	JobId  openapi_types.UUID `json:"jobId"`
+	Params GetJobLogsParams
+}
+
+type GetJobLogsResponseObject interface {
+	VisitGetJobLogsResponse(w http.ResponseWriter) error
+}
+
+type GetJobLogs200JSONResponse JobLogList
+
+func (response GetJobLogs200JSONResponse) VisitGetJobLogsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetJobLogs401JSONResponse Error
+
+func (response GetJobLogs401JSONResponse) VisitGetJobLogsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetJobLogs404JSONResponse Error
+
+func (response GetJobLogs404JSONResponse) VisitGetJobLogsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// GetLiveness Liveness of the engine process
@@ -834,6 +1450,21 @@ type StrictServerInterface interface {
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(ctx context.Context, request ListDirectoryRequestObject) (ListDirectoryResponseObject, error)
+	// ListJobs Recent jobs of the caller
+	// (GET /v1/jobs)
+	ListJobs(ctx context.Context, request ListJobsRequestObject) (ListJobsResponseObject, error)
+	// StartFolderSize Measure a folder in the background
+	// (POST /v1/jobs/folder-size)
+	StartFolderSize(ctx context.Context, request StartFolderSizeRequestObject) (StartFolderSizeResponseObject, error)
+	// GetJob One job
+	// (GET /v1/jobs/{jobId})
+	GetJob(ctx context.Context, request GetJobRequestObject) (GetJobResponseObject, error)
+	// CancelJob Cancel a queued or running job
+	// (POST /v1/jobs/{jobId}/cancel)
+	CancelJob(ctx context.Context, request CancelJobRequestObject) (CancelJobResponseObject, error)
+	// GetJobLogs Output lines of a job
+	// (GET /v1/jobs/{jobId}/logs)
+	GetJobLogs(ctx context.Context, request GetJobLogsRequestObject) (GetJobLogsResponseObject, error)
 }
 
 type StrictHandlerFunc func(ctx context.Context, w http.ResponseWriter, r *http.Request, request any) (any, error)
@@ -973,6 +1604,142 @@ func (sh *strictHandler) ListDirectory(w http.ResponseWriter, r *http.Request, p
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(ListDirectoryResponseObject); ok {
 		if err := validResponse.VisitListDirectoryResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListJobs operation middleware
+func (sh *strictHandler) ListJobs(w http.ResponseWriter, r *http.Request, params ListJobsParams) {
+	var request ListJobsRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListJobs(ctx, request.(ListJobsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListJobs")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListJobsResponseObject); ok {
+		if err := validResponse.VisitListJobsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// StartFolderSize operation middleware
+func (sh *strictHandler) StartFolderSize(w http.ResponseWriter, r *http.Request) {
+	var request StartFolderSizeRequestObject
+
+	var body StartFolderSizeJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.StartFolderSize(ctx, request.(StartFolderSizeRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "StartFolderSize")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(StartFolderSizeResponseObject); ok {
+		if err := validResponse.VisitStartFolderSizeResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetJob operation middleware
+func (sh *strictHandler) GetJob(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID) {
+	var request GetJobRequestObject
+
+	request.JobId = jobId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetJob(ctx, request.(GetJobRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetJob")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetJobResponseObject); ok {
+		if err := validResponse.VisitGetJobResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CancelJob operation middleware
+func (sh *strictHandler) CancelJob(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID) {
+	var request CancelJobRequestObject
+
+	request.JobId = jobId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CancelJob(ctx, request.(CancelJobRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CancelJob")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CancelJobResponseObject); ok {
+		if err := validResponse.VisitCancelJobResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetJobLogs operation middleware
+func (sh *strictHandler) GetJobLogs(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID, params GetJobLogsParams) {
+	var request GetJobLogsRequestObject
+
+	request.JobId = jobId
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetJobLogs(ctx, request.(GetJobLogsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetJobLogs")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetJobLogsResponseObject); ok {
+		if err := validResponse.VisitGetJobLogsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

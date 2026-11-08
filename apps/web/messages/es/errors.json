@@ -61,5 +61,12 @@
     "invalid_recipient": "El servidor SMTP rechazó la dirección del destinatario.",
     "tls_failed": "Falló la conexión segura con el servidor SMTP. Prueba otro modo de cifrado.",
     "send_failed": "No se pudo enviar el correo."
+  },
+  "jobs": {
+    "not_found": "Esta tarea ya no existe.",
+    "too_many": "Ya tienes demasiadas operaciones en curso. Espera a que termine una.",
+    "not_cancellable": "Esta operación ya terminó.",
+    "failed": "La operación falló.",
+    "interrupted": "La operación se interrumpió porque el motor de archivos se reinició."
   }
 }

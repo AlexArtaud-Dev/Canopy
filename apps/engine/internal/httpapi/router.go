@@ -38,6 +38,11 @@ type Deps struct {
 	Grants   Grants
 	// Verifier checks engine tokens; nil refuses every /v1 request (no key configured).
 	Verifier *enginetoken.Verifier
+	Jobs     Jobs
+	Audit    Auditor
+	// StreamsDone closes when the server shuts down, ending event streams that would otherwise
+	// hold the shutdown open.
+	StreamsDone <-chan struct{}
 }
 
 // NewRouter builds the HTTP handler tree.
@@ -48,7 +53,9 @@ func NewRouter(deps Deps) http.Handler {
 	r.Use(middleware.Recoverer)
 	r.Use(requireToken(deps.Verifier, deps.Logger))
 
-	strict := api.NewStrictHandlerWithOptions(&server{deps: deps}, nil, api.StrictHTTPServerOptions{
+	srv := &server{deps: deps}
+	r.Get("/v1/jobs/events", srv.jobEvents)
+	strict := api.NewStrictHandlerWithOptions(srv, nil, api.StrictHTTPServerOptions{
 		RequestErrorHandlerFunc:  errorHandler(deps.Logger, http.StatusBadRequest, codeBadRequest),
 		ResponseErrorHandlerFunc: errorHandler(deps.Logger, http.StatusInternalServerError, codeInternal),
 	})

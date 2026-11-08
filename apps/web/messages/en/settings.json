@@ -21,7 +21,8 @@
     "auth": "Sign-in & sessions",
     "audit": "Audit log",
     "system": "System",
-    "appearance": "Appearance"
+    "appearance": "Appearance",
+    "jobs": "Background jobs"
   },
   "groups": {
     "sessions": "Sessions",
@@ -31,7 +32,8 @@
     "maintenance": "Maintenance",
     "privacy": "Privacy",
     "theme": "Theme",
-    "language": "Language"
+    "language": "Language",
+    "limits": "Limits"
   },
   "fields": {
     "auth": {
@@ -100,6 +102,16 @@
       "defaultLocale": {
         "label": "Default language",
         "description": "Used when a visitor has not chosen a language and their browser's languages are not available."
+      }
+    },
+    "jobs": {
+      "maxConcurrent": {
+        "label": "Jobs running at once",
+        "description": "Other jobs wait in the queue. Applies after the engine restarts."
+      },
+      "perUser": {
+        "label": "Active jobs per person",
+        "description": "New jobs are refused while someone already has this many queued or running."
       }
     }
   },
