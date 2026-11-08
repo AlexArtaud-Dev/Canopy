@@ -52,5 +52,58 @@
     "save": "Save",
     "updated": "Access updated",
     "editLabel": "Edit access to {path}"
+  },
+  "browser": {
+    "root": "All volumes",
+    "breadcrumbs": "Folder path",
+    "view": "View",
+    "listView": "List",
+    "gridView": "Grid",
+    "refresh": "Refresh",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "sort": {
+      "name": "Name",
+      "size": "Size",
+      "modified": "Modified"
+    },
+    "entriesLabel": "Contents of {path}",
+    "selectEntry": "Select {name}",
+    "loadingMore": "Loading more…",
+    "count": "{count, plural, one {# item} other {# items}}",
+    "selected": "{count, plural, one {# selected} other {# selected}}",
+    "clearSelection": "Clear selection",
+    "pathCopied": "Path copied",
+    "backToRoot": "Back to all volumes",
+    "emptyFolder": {
+      "title": "This folder is empty",
+      "description": "Nothing here yet, or nothing you have access to."
+    },
+    "noVolumes": {
+      "title": "No volumes yet",
+      "description": "Mount a folder inside the engine root, or ask an administrator for access to one."
+    },
+    "menu": {
+      "open": "Open",
+      "copyPath": "Copy path",
+      "selectAll": "Select all",
+      "refresh": "Refresh"
+    },
+    "shortcuts": {
+      "title": "Keyboard shortcuts",
+      "description": "Click the file list first, then:",
+      "keys": {
+        "move": "Move between items",
+        "jump": "First, last, page up and down",
+        "open": "Open the folder",
+        "up": "Go to the parent folder",
+        "select": "Select or unselect",
+        "extend": "Extend the selection",
+        "selectAll": "Select everything",
+        "clear": "Clear the selection",
+        "menu": "Open the item menu",
+        "help": "Show these shortcuts"
+      }
+    }
   }
 }

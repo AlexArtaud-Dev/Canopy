@@ -172,10 +172,10 @@ jobs:
         with:
           go-version-file: apps/engine/go.mod
           cache-dependency-path: apps/engine/go.sum
-      - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
-        with:
-          version: v2.15.0
-          working-directory: apps/engine
+      # The pinned Docker image (version in the Makefile), as locally: pulled from Docker Hub, so a
+      # GitHub release-download outage cannot block the lint.
+      - name: Lint
+        run: make lint
       - name: Start Postgres
         working-directory: .
         run: |
