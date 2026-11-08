@@ -9,7 +9,9 @@ import {
   useSensors,
   type DragEndEvent,
   type DragStartEvent,
+  type Modifier,
 } from '@dnd-kit/core';
+import { createPortal } from 'react-dom';
 import { CopyPlus, FolderInput, FolderOpen, FolderTree, X } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
@@ -42,6 +44,7 @@ import {
   canDropInto,
   dropOperation,
   operationTargets,
+  pointerBadgeOffset,
   stemLength,
   type TransferOperation,
 } from './operations.utils';
@@ -56,6 +59,15 @@ import { ListHeader, ListView } from './ui/list-view';
 import { NameDialog } from './ui/name-dialog';
 import { ShortcutsDialog } from './ui/shortcuts-dialog';
 import type { ClickModifiers } from './ui/view-props';
+
+/** Keeps the drag badge beside the pointer instead of at the dragged row's corner. */
+const followPointer: Modifier = ({ activatorEvent, activeNodeRect, transform }) => {
+  const offset = pointerBadgeOffset(
+    activatorEvent instanceof MouseEvent ? activatorEvent : null,
+    activeNodeRect,
+  );
+  return { ...transform, x: transform.x + offset.x, y: transform.y + offset.y };
+};
 
 /** Start fetching the next page this many entries before the end of what is loaded. */
 const prefetchMargin = 100;
@@ -462,13 +474,17 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           />
         )}
       </div>
-      <DragOverlay dropAnimation={null}>
-        {dragCount > 0 && (
-          <span className="bg-primary text-primary-foreground rounded-md px-2.5 py-1 text-xs font-medium shadow-lg">
-            {t('ops.dragging', { count: dragCount })}
-          </span>
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <DragOverlay dropAnimation={null} modifiers={[followPointer]}>
+            {dragCount > 0 && (
+              <span className="bg-primary text-primary-foreground rounded-md px-2.5 py-1 text-xs font-medium shadow-lg">
+                {t('ops.dragging', { count: dragCount })}
+              </span>
+            )}
+          </DragOverlay>,
+          document.body,
         )}
-      </DragOverlay>
     </DndContext>
   );
 }

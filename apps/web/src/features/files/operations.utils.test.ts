@@ -2,9 +2,11 @@ import {
   canDropInto,
   childPath,
   conflictStrategies,
+  dragBadgeGap,
   dropOperation,
   entryNameSchema,
   operationTargets,
+  pointerBadgeOffset,
   sourceAction,
   stemLength,
   strategiesFor,
@@ -106,5 +108,16 @@ describe('conflict decisions', () => {
       'skip',
       'keep_both',
     ]);
+  });
+});
+
+describe('pointerBadgeOffset', () => {
+  it('puts the badge beside the grab point', () => {
+    expect(pointerBadgeOffset({ clientX: 300, clientY: 120 }, { left: 0, top: 100 })).toEqual({
+      x: 300 + dragBadgeGap.x,
+      y: 20 + dragBadgeGap.y,
+    });
+    expect(pointerBadgeOffset(null, { left: 0, top: 0 })).toEqual({ x: 0, y: 0 });
+    expect(pointerBadgeOffset({ clientX: 1, clientY: 1 }, null)).toEqual({ x: 0, y: 0 });
   });
 });

@@ -48,7 +48,9 @@ Rules:
   a copy onto itself can only keep both, a file never replaces a folder).
 - **Keyboard**: Ctrl+C / Ctrl+X then Ctrl+V pastes into the current folder.
 - **Drag and drop** (mouse): drop items on a folder or a breadcrumb to move them; hold Ctrl (or
-  Option) to copy. The target under the pointer is highlighted. Touch screens use the menu
+  Option) to copy. The target under the pointer is highlighted; the badge follows the pointer.
+  List rows are positioned with `top` (not a transform): dnd-kit measures drop targets without
+  their own transform. Touch screens use the menu
   instead, so dragging never fights scrolling.
 - Copies and moves run as jobs in the operations panel (labelled Copy or Move, with items, size,
   skipped and kept-both counts). When any job finishes, open folders refresh.

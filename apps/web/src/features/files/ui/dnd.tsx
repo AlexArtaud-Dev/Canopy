@@ -1,7 +1,7 @@
 'use client';
 
 import { useDraggable, useDroppable } from '@dnd-kit/core';
-import type { ReactNode } from 'react';
+import { useCallback, type ReactNode } from 'react';
 
 import { cn } from 'cn';
 
@@ -25,21 +25,26 @@ interface DndEntryProps {
 
 /** Makes a row or tile draggable, and a drop target when it is a folder. */
 export function DndEntry({ entry, draggable, children }: DndEntryProps) {
-  const drag = useDraggable({ id: entry.path, disabled: !draggable });
-  const drop = useDroppable({
+  const {
+    setNodeRef: setDragRef,
+    listeners,
+    isDragging,
+  } = useDraggable({ id: entry.path, disabled: !draggable });
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
     id: `drop:${entry.path}`,
     disabled: !entry.isDirectory,
     data: { path: entry.path } satisfies DropData,
   });
-  return children({
-    ref: (element) => {
-      drag.setNodeRef(element);
-      drop.setNodeRef(element);
+  // Must stay the same function across renders: a new ref callback detaches and re-attaches the
+  // node on every render during a drag, and dnd-kit then drops this folder from its targets.
+  const ref = useCallback(
+    (element: HTMLElement | null) => {
+      setDragRef(element);
+      setDropRef(element);
     },
-    listeners: drag.listeners,
-    isOver: drop.isOver,
-    isDragging: drag.isDragging,
-  });
+    [setDragRef, setDropRef],
+  );
+  return children({ ref, listeners, isOver, isDragging });
 }
 
 /** A breadcrumb segment that accepts drops (move or copy up the tree). */
