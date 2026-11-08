@@ -1,0 +1,32 @@
+{
+  "dock": {
+    "title": "Operations",
+    "active": "{count, plural, one {# in progress} other {# in progress}}",
+    "failedCount": "{count, plural, one {# failed} other {# failed}}",
+    "doneCount": "{count, plural, one {# done} other {# done}}",
+    "clear": "Clear",
+    "collapse": "Collapse operations",
+    "expand": "Expand operations",
+    "cancel": "Cancel {name}",
+    "retry": "Run {name} again",
+    "dismiss": "Dismiss {name}",
+    "progress": "Progress of {name}",
+    "queued": "Waiting to start",
+    "items": "{count, plural, one {# item} other {# items}}",
+    "rate": "{rate}/s",
+    "etaHours": "{hours} h {minutes} min left",
+    "etaMinutes": "{minutes} min {seconds} s left",
+    "etaSeconds": "{seconds} s left",
+    "cancelled": "Cancelled",
+    "done": "Done",
+    "folderSizeResult": "{size} in {files, plural, one {# file} other {# files}} and {folders, plural, one {# folder} other {# folders}}",
+    "skipped": "{count, plural, one {# not counted (no access)} other {# not counted (no access)}}",
+    "finished": "Finished: {name}",
+    "failed": "Failed: {name}",
+    "started": "Started: {name}",
+    "kinds": {
+      "folder_size": "Folder size",
+      "other": "Operation"
+    }
+  }
+}

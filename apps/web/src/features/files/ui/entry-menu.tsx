@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCheck, Copy, FolderOpen, RefreshCw } from 'lucide-react';
+import { CheckCheck, Copy, FolderOpen, HardDrive, RefreshCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 
@@ -18,6 +18,8 @@ import type { BrowserEntry } from '../server/browse';
 export interface EntryMenuHandlers {
   onOpen: (entry: BrowserEntry) => void;
   onCopyPath: (entry: BrowserEntry) => void;
+  /** Starts a background job measuring the folder; it shows up in the operations panel. */
+  onFolderSize: (entry: BrowserEntry) => void;
   onSelectAll: () => void;
   onRefresh: () => void;
   /** Right-click (or long-press) on an unselected entry selects it first. */
@@ -49,6 +51,16 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
             <FolderOpen aria-hidden />
             {t('open')}
             <ContextMenuShortcut>↵</ContextMenuShortcut>
+          </ContextMenuItem>
+        )}
+        {entry.isDirectory && (
+          <ContextMenuItem
+            onSelect={() => {
+              handlers.onFolderSize(entry);
+            }}
+          >
+            <HardDrive aria-hidden />
+            {t('folderSize')}
           </ContextMenuItem>
         )}
         <ContextMenuItem

@@ -81,14 +81,16 @@ export type SessionState =
   | { kind: 'pending'; sessionId: string; userId: string }
   | ({ kind: 'active' } & CurrentSession);
 
-/** Session state for this request (signed out, waiting for 2FA, or active). Memoized. */
-export const getSessionState = cache(async (): Promise<SessionState> => {
-  const [{ auth, policy }, requestHeaders] = await Promise.all([
-    getConfiguredAuth(),
-    authRequestHeaders(),
-  ]);
+/**
+ * Session state from raw request headers (signed out, waiting for 2FA, or active). Used directly
+ * by routes outside the App Router (the engine stream proxy); pages go through getSessionState.
+ */
+export async function resolveSession(
+  requestHeaders: Headers,
+): Promise<{ state: SessionState; locale: string | null }> {
+  const { auth, policy } = await getConfiguredAuth();
   const result = await readSession(auth, requestHeaders);
-  if (!result) return { kind: 'none' };
+  if (!result) return { state: { kind: 'none' }, locale: null };
 
   const verdict = evaluateSession(
     {
@@ -101,15 +103,18 @@ export const getSessionState = cache(async (): Promise<SessionState> => {
   );
   if (verdict === 'expired' || verdict === 'idle') {
     await getDb().delete(sessionsTable).where(eq(sessionsTable.id, result.session.id));
-    return { kind: 'none' };
+    return { state: { kind: 'none' }, locale: null };
   }
   if (result.user.disabled === true) {
     // Disabling ends sessions, but never trust that alone.
     await getDb().delete(sessionsTable).where(eq(sessionsTable.id, result.session.id));
-    return { kind: 'none' };
+    return { state: { kind: 'none' }, locale: null };
   }
   if (verdict === 'pending') {
-    return { kind: 'pending', sessionId: result.session.id, userId: result.user.id };
+    return {
+      state: { kind: 'pending', sessionId: result.session.id, userId: result.user.id },
+      locale: null,
+    };
   }
   const [permissions, groupRequires2fa, totpEnabled] = await Promise.all([
     loadPermissions(result.user.id),
@@ -118,20 +123,29 @@ export const getSessionState = cache(async (): Promise<SessionState> => {
     recordActivity(result.session.id),
   ]);
   const { user } = result;
-  await rememberLocale(user.id, user.locale ?? null);
   return {
-    kind: 'active',
-    sessionId: result.session.id,
-    user: {
-      id: user.id,
-      username: user.username ?? '',
-      name: user.name,
-      contactEmail: user.contactEmail ?? null,
-      permissions,
-      isAdmin: permissions.includes(adminPermission),
-      twoFactorSetupRequired: groupRequires2fa && !totpEnabled,
+    locale: user.locale ?? null,
+    state: {
+      kind: 'active',
+      sessionId: result.session.id,
+      user: {
+        id: user.id,
+        username: user.username ?? '',
+        name: user.name,
+        contactEmail: user.contactEmail ?? null,
+        permissions,
+        isAdmin: permissions.includes(adminPermission),
+        twoFactorSetupRequired: groupRequires2fa && !totpEnabled,
+      },
     },
   };
+}
+
+/** Session state for this request (signed out, waiting for 2FA, or active). Memoized. */
+export const getSessionState = cache(async (): Promise<SessionState> => {
+  const { state, locale } = await resolveSession(await authRequestHeaders());
+  if (state.kind === 'active') await rememberLocale(state.user.id, locale);
+  return state;
 });
 
 /** Keeps the user's last UI language so emails use it (written only when it changes). */

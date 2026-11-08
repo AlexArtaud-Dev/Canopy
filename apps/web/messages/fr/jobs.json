@@ -1,0 +1,32 @@
+{
+  "dock": {
+    "title": "Opérations",
+    "active": "{count, plural, one {# en cours} other {# en cours}}",
+    "failedCount": "{count, plural, one {# en échec} other {# en échec}}",
+    "doneCount": "{count, plural, one {# terminée} other {# terminées}}",
+    "clear": "Effacer",
+    "collapse": "Réduire les opérations",
+    "expand": "Afficher les opérations",
+    "cancel": "Annuler {name}",
+    "retry": "Relancer {name}",
+    "dismiss": "Masquer {name}",
+    "progress": "Progression de {name}",
+    "queued": "En attente de démarrage",
+    "items": "{count, plural, one {# élément} other {# éléments}}",
+    "rate": "{rate}/s",
+    "etaHours": "encore {hours} h {minutes} min",
+    "etaMinutes": "encore {minutes} min {seconds} s",
+    "etaSeconds": "encore {seconds} s",
+    "cancelled": "Annulée",
+    "done": "Terminée",
+    "folderSizeResult": "{size} dans {files, plural, one {# fichier} other {# fichiers}} et {folders, plural, one {# dossier} other {# dossiers}}",
+    "skipped": "{count, plural, one {# non compté (sans accès)} other {# non comptés (sans accès)}}",
+    "finished": "Terminé : {name}",
+    "failed": "Échec : {name}",
+    "started": "Lancé : {name}",
+    "kinds": {
+      "folder_size": "Taille du dossier",
+      "other": "Opération"
+    }
+  }
+}

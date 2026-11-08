@@ -87,7 +87,8 @@
       "open": "Ouvrir",
       "copyPath": "Copier le chemin",
       "selectAll": "Tout sélectionner",
-      "refresh": "Actualiser"
+      "refresh": "Actualiser",
+      "folderSize": "Calculer la taille"
     },
     "shortcuts": {
       "title": "Raccourcis clavier",

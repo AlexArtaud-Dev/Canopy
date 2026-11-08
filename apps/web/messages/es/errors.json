@@ -38,7 +38,8 @@
     "two_factor_required": "Uno de tus grupos exige la verificación en dos pasos, así que no se puede desactivar.",
     "engine_token_missing": "No se pudo pasar tu sesión al motor de archivos. Recarga la página.",
     "engine_token_invalid": "Tu sesión caducó para el motor de archivos. Recarga la página.",
-    "link_invalid": "Este enlace no es válido, ya se usó o caducó. Pide uno nuevo a tu administrador."
+    "link_invalid": "Este enlace no es válido, ya se usó o caducó. Pide uno nuevo a tu administrador.",
+    "signed_out": "Tu sesión terminó. Vuelve a iniciar sesión."
   },
   "users": {
     "last_admin": "Canopy necesita al menos un administrador activo. Da antes el rol Administrador a otra cuenta.",

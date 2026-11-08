@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { JobsDockContainer } from '@/features/jobs';
 import { initialsOf, permissionsOf, requireSession, signOut } from '@/features/auth';
 import { AccountContainer, AppSidebar } from '@/features/shell';
 import { PermissionsProvider } from '@/shared/permissions/can';
@@ -28,6 +29,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
             }
           />
           <SidebarInset>{children}</SidebarInset>
+          <JobsDockContainer />
         </SidebarProvider>
       </QueryProvider>
     </PermissionsProvider>

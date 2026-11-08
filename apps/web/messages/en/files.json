@@ -87,7 +87,8 @@
       "open": "Open",
       "copyPath": "Copy path",
       "selectAll": "Select all",
-      "refresh": "Refresh"
+      "refresh": "Refresh",
+      "folderSize": "Calculate size"
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
