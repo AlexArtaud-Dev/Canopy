@@ -8,6 +8,9 @@ import {
   engineTokenIssuer,
   engineTokenLifetimeSeconds,
   pkcs8FromSeed,
+  streamTicketAudience,
+  streamTicketCookie,
+  streamTicketPath,
 } from './engine-token.utils';
 
 describe('pkcs8FromSeed', () => {
@@ -27,5 +30,13 @@ describe('pkcs8FromSeed', () => {
   it('matches the claims the engine expects', () => {
     expect([engineTokenIssuer, engineTokenAudience]).toEqual(['canopy-web', 'canopy-engine']);
     expect(engineTokenLifetimeSeconds).toBeLessThanOrEqual(300);
+  });
+});
+
+describe('stream tickets', () => {
+  it('use their own audience, cookie and path', () => {
+    expect(streamTicketAudience).toBe('canopy-engine-stream');
+    expect(streamTicketCookie).toBe('canopy_stream');
+    expect(streamTicketPath).toBe('/api/engine/stream');
   });
 });

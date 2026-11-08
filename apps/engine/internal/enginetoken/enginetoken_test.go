@@ -150,16 +150,24 @@ func TestMiddleware(t *testing.T) {
 		{"not bearer", verifier, "Basic abc", http.StatusUnauthorized, CodeMissing},
 		{"invalid", verifier, "Bearer nope", http.StatusUnauthorized, CodeInvalid},
 		{"valid", verifier, "Bearer " + sign(t, private, valid()), http.StatusNoContent, ""},
+		{"stream ticket off a stream route", verifier, "Bearer " + sign(t, private, stream()), http.StatusForbidden, CodeInvalid},
+		{"stream ticket on a stream route", verifier, "Bearer " + sign(t, private, stream()), http.StatusNoContent, ""},
+		{"unknown audience", verifier, "Bearer " + sign(t, private, otherAudience()), http.StatusUnauthorized, CodeInvalid},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			gotCode = ""
-			request := httptest.NewRequest(http.MethodGet, "/v1/fs", nil)
+			target := "/v1/fs"
+			if tc.name == "stream ticket on a stream route" {
+				target = "/v1/stream"
+			}
+			request := httptest.NewRequest(http.MethodGet, target, nil)
 			if tc.header != "" {
 				request.Header.Set("Authorization", tc.header)
 			}
 			recorder := httptest.NewRecorder()
-			Middleware(tc.verifier, fail)(next).ServeHTTP(recorder, request)
+			streamRoute := func(r *http.Request) bool { return r.URL.Path == "/v1/stream" }
+			Middleware(tc.verifier, fail, streamRoute)(next).ServeHTTP(recorder, request)
 			if recorder.Code != tc.status || gotCode != tc.code {
 				t.Fatalf("got %d %q, want %d %q", recorder.Code, gotCode, tc.status, tc.code)
 			}
@@ -171,4 +179,16 @@ func TestMiddleware(t *testing.T) {
 	if _, ok := FromContext(httptest.NewRequest(http.MethodGet, "/", nil).Context()); ok {
 		t.Fatal("empty context returned a principal")
 	}
+}
+
+func stream() tokenOptions {
+	opts := valid()
+	opts.audience = StreamAudience
+	return opts
+}
+
+func otherAudience() tokenOptions {
+	opts := valid()
+	opts.audience = "someone-else"
+	return opts
 }

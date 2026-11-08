@@ -14,3 +14,11 @@ export const engineTokenIssuer = 'canopy-web';
 export const engineTokenAudience = 'canopy-engine';
 /** Short enough that a leaked token is nearly useless; the engine refuses anything over 5 min. */
 export const engineTokenLifetimeSeconds = 120;
+
+/**
+ * Stream tickets (downloads, uploads) live in an HttpOnly cookie the browser sends to
+ * `/api/engine/stream/*`; the engine accepts this audience on streaming routes only.
+ */
+export const streamTicketAudience = 'canopy-engine-stream';
+export const streamTicketCookie = 'canopy_stream';
+export const streamTicketPath = '/api/engine/stream';

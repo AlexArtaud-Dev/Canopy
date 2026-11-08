@@ -7,3 +7,11 @@ export function downloadText(filename: string, text: string, type: string): void
   link.click();
   URL.revokeObjectURL(url);
 }
+
+/** Lets the browser download a URL itself (streamed to disk, never held in page memory). */
+export function downloadUrl(url: string): void {
+  const link = document.createElement('a');
+  link.href = url;
+  link.rel = 'noopener';
+  link.click();
+}

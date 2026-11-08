@@ -126,3 +126,18 @@ export function pointerBadgeOffset(
     y: grab.clientY - rect.top + dragBadgeGap.y,
   };
 }
+
+const streamRoot = '/api/engine/stream/v1/fs';
+
+/** Where the browser fetches a selection: the file itself, or a zip of folders or several items. */
+export function downloadHref(
+  items: readonly { path: string; isDirectory: boolean }[],
+): string | null {
+  const [first] = items;
+  if (!first) return null;
+  if (items.length === 1 && !first.isDirectory) {
+    return `${streamRoot}/download?path=${encodeURIComponent(first.path)}`;
+  }
+  const query = items.map((item) => `path=${encodeURIComponent(item.path)}`).join('&');
+  return `${streamRoot}/archive?${query}`;
+}

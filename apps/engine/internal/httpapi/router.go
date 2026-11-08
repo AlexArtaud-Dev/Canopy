@@ -56,6 +56,9 @@ func NewRouter(deps Deps) http.Handler {
 
 	srv := &server{deps: deps}
 	r.Get("/v1/jobs/events", srv.jobEvents)
+	r.Get(routeDownload, srv.download)
+	r.Head(routeDownload, srv.download)
+	r.Get(routeArchive, srv.archive)
 	strict := api.NewStrictHandlerWithOptions(srv, nil, api.StrictHTTPServerOptions{
 		RequestErrorHandlerFunc:  errorHandler(deps.Logger, http.StatusBadRequest, codeBadRequest),
 		ResponseErrorHandlerFunc: errorHandler(deps.Logger, http.StatusInternalServerError, codeInternal),

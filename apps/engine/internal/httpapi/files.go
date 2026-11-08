@@ -120,7 +120,7 @@ func optionsOf(params api.ListDirectoryParams) listing.Options {
 func requireToken(verifier *enginetoken.Verifier, logger *slog.Logger) func(http.Handler) http.Handler {
 	guard := enginetoken.Middleware(verifier, func(w http.ResponseWriter, r *http.Request, status int, code string) {
 		errorHandler(logger, status, code)(w, r, errors.New(code))
-	})
+	}, isStreamRoute)
 	return func(next http.Handler) http.Handler {
 		guarded := guard(next)
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

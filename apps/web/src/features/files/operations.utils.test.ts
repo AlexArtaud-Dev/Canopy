@@ -3,6 +3,7 @@ import {
   childPath,
   conflictStrategies,
   dragBadgeGap,
+  downloadHref,
   dropOperation,
   entryNameSchema,
   operationTargets,
@@ -119,5 +120,23 @@ describe('pointerBadgeOffset', () => {
     });
     expect(pointerBadgeOffset(null, { left: 0, top: 0 })).toEqual({ x: 0, y: 0 });
     expect(pointerBadgeOffset({ clientX: 1, clientY: 1 }, null)).toEqual({ x: 0, y: 0 });
+  });
+});
+
+describe('downloadHref', () => {
+  it('downloads one file directly and zips anything else', () => {
+    expect(downloadHref([{ path: '/a b.txt', isDirectory: false }])).toBe(
+      '/api/engine/stream/v1/fs/download?path=%2Fa%20b.txt',
+    );
+    expect(downloadHref([{ path: '/photos', isDirectory: true }])).toBe(
+      '/api/engine/stream/v1/fs/archive?path=%2Fphotos',
+    );
+    expect(
+      downloadHref([
+        { path: '/a', isDirectory: false },
+        { path: '/b', isDirectory: false },
+      ]),
+    ).toBe('/api/engine/stream/v1/fs/archive?path=%2Fa&path=%2Fb');
+    expect(downloadHref([])).toBeNull();
   });
 });

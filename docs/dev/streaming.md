@@ -44,13 +44,22 @@ verifies.
 
 ## As built
 
-- `/api/engine/*` is an App Router route handler for **GET event streams only** (no request body,
-  so the buffering issue of variant B does not apply). Warm first event: ~60 ms. It checks
-  maintenance and the session itself and relays only allowlisted routes
-  (`features/files/engine-routes.utils.ts`).
-- Pages Router API routes cannot import `server-only` modules (no `react-server` condition), and
-  the session, token and database code all carry that guard. Uploads (variant D) therefore need
-  those pieces reachable without it before they can ship; decide this with the upload slice.
+- **Event streams** (`/api/engine/*`, GET only): App Router route handler. No request body, so
+  variant B's buffering does not apply; warm first event ~60 ms. It checks maintenance and the
+  session itself and relays allowlisted routes only (`features/files/engine-routes.utils.ts`).
+- **Downloads and uploads** (`/api/engine/stream/*`): Pages Router API routes cannot import
+  `server-only` modules (session, token, database all carry that guard), so variant D ships as a
+  Node preload instead: `apps/web/server/engine-stream.mjs` (loaded with `--import`, like
+  `peer-address.mjs`) answers these requests before Next and pipes them to the engine with
+  `stream.pipeline`. Next never sees the bytes.
+  - Authentication is a **stream ticket**: an engine token with its own audience
+    (`canopy-engine-stream`), set by the `refreshStreamTicket` server action as an HttpOnly,
+    SameSite=Strict cookie on `/api/engine/stream`, 2 minutes. JavaScript never reads it. The
+    engine accepts that audience on streaming routes only; the relay allowlists routes and
+    methods (`server/engine-stream.utils.mjs`) and forwards the ticket as a bearer token, never
+    the browser's cookies.
+  - New tickets are only issued through the App Router (maintenance and session checked there);
+    an issued ticket lasts at most 2 minutes.
 
 ## Rules that follow
 
