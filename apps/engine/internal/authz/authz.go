@@ -23,6 +23,7 @@ const (
 
 // Grant is one row of app.path_grants (path already clean).
 type Grant struct {
+	ID          string
 	SubjectType string
 	SubjectID   string
 	Path        string
@@ -72,11 +73,20 @@ func outranks(a, b Grant) bool {
 	return ae > be
 }
 
-// Allowed decides one action on one clean virtual path. Administrators bypass grants; otherwise
-// the most specific matching grant decides, and no grant means no access.
-func Allowed(grants []Grant, subject Subject, target, action string) bool {
+// Decision explains one action on one path: whether it is allowed and why.
+type Decision struct {
+	Allowed bool
+	// ByAdmin is true when system:admin decided (grants ignored).
+	ByAdmin bool
+	// Grant is the deciding rule; nil when no rule matched (default deny).
+	Grant *Grant
+}
+
+// Explain decides one action on one clean virtual path and names what decided it.
+// Administrators bypass grants; otherwise the most specific matching grant decides.
+func Explain(grants []Grant, subject Subject, target, action string) Decision {
 	if subject.Admin {
-		return true
+		return Decision{Allowed: true, ByAdmin: true}
 	}
 	var decisive *Grant
 	for i := range grants {
@@ -89,7 +99,12 @@ func Allowed(grants []Grant, subject Subject, target, action string) bool {
 			decisive = &grants[i]
 		}
 	}
-	return decisive != nil && decisive.Effect == EffectAllow
+	return Decision{Allowed: decisive != nil && decisive.Effect == EffectAllow, Grant: decisive}
+}
+
+// Allowed decides one action on one clean virtual path (no grant means no access).
+func Allowed(grants []Grant, subject Subject, target, action string) bool {
+	return Explain(grants, subject, target, action).Allowed
 }
 
 // Capabilities lists the actions allowed on a path, for per-entry UI affordances.

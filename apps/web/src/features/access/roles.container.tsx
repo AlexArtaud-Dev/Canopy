@@ -137,7 +137,7 @@ export function RolesContainer({
                     <MoreHorizontal aria-hidden />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-64">
                   {canUpdate && (
                     <DropdownMenuItem
                       onSelect={() => {

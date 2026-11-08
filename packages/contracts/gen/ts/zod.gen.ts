@@ -55,6 +55,33 @@ export const zDirectoryListing = z.object({
   actions: z.array(zPathAction),
 });
 
+export const zExplainRequest = z.object({
+  userId: z.string(),
+  groups: z.array(z.string()),
+  admin: z.boolean(),
+  path: z.string().max(4096),
+});
+
+export const zDecidingGrant = z.object({
+  id: z.string(),
+  subjectType: z.enum(['user', 'group']),
+  subjectId: z.string(),
+  path: z.string(),
+  effect: z.enum(['allow', 'deny']),
+});
+
+export const zAccessDecision = z.object({
+  action: zPathAction,
+  allowed: z.boolean(),
+  byAdmin: z.boolean(),
+  grant: zDecidingGrant.optional(),
+});
+
+export const zExplainResponse = z.object({
+  path: z.string(),
+  decisions: z.array(zAccessDecision),
+});
+
 /**
  * The process is running.
  */
@@ -78,3 +105,10 @@ export const zListDirectoryQuery = z.object({
  * One page of the directory.
  */
 export const zListDirectoryResponse = zDirectoryListing;
+
+export const zExplainAccessBody = zExplainRequest;
+
+/**
+ * One decision per action.
+ */
+export const zExplainAccessResponse = zExplainResponse;

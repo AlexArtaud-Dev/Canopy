@@ -174,3 +174,10 @@ entries:
       en: Folder access rules can be edited, not only added and removed
       fr: Les règles d’accès aux dossiers peuvent être modifiées, et plus seulement ajoutées ou retirées
       es: Las reglas de acceso a carpetas se pueden editar, no solo añadir y quitar
+  - type: feat
+    scope: admin
+    issue: 103
+    text:
+      en: Each user has an access page tracing their permissions to roles and groups, with a folder check showing which rule decides; groups have separate members and folder access pages
+      fr: Chaque utilisateur a une page d’accès qui relie ses permissions à ses rôles et groupes, avec une vérification de dossier montrant quelle règle décide ; les groupes ont des pages séparées pour les membres et l’accès aux dossiers
+      es: Cada usuario tiene una página de acceso que relaciona sus permisos con sus roles y grupos, con una comprobación de carpeta que muestra qué regla decide; los grupos tienen páginas separadas para miembros y acceso a carpetas

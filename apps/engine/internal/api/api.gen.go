@@ -16,6 +16,42 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// Defines values for DecidingGrantEffect.
+const (
+	Allow DecidingGrantEffect = "allow"
+	Deny  DecidingGrantEffect = "deny"
+)
+
+// Valid indicates whether the value is a known member of the DecidingGrantEffect enum.
+func (e DecidingGrantEffect) Valid() bool {
+	switch e {
+	case Allow:
+		return true
+	case Deny:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DecidingGrantSubjectType.
+const (
+	Group DecidingGrantSubjectType = "group"
+	User  DecidingGrantSubjectType = "user"
+)
+
+// Valid indicates whether the value is a known member of the DecidingGrantSubjectType enum.
+func (e DecidingGrantSubjectType) Valid() bool {
+	switch e {
+	case Group:
+		return true
+	case User:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DirectoryEntryKind.
 const (
 	Directory DirectoryEntryKind = "directory"
@@ -145,6 +181,29 @@ func (e ListDirectoryParamsOrder) Valid() bool {
 	}
 }
 
+// AccessDecision defines model for AccessDecision.
+type AccessDecision struct {
+	Action  PathAction     `json:"action"`
+	Allowed bool           `json:"allowed"`
+	ByAdmin bool           `json:"byAdmin"`
+	Grant   *DecidingGrant `json:"grant,omitempty"`
+}
+
+// DecidingGrant defines model for DecidingGrant.
+type DecidingGrant struct {
+	Effect      DecidingGrantEffect      `json:"effect"`
+	Id          string                   `json:"id"`
+	Path        string                   `json:"path"`
+	SubjectId   string                   `json:"subjectId"`
+	SubjectType DecidingGrantSubjectType `json:"subjectType"`
+}
+
+// DecidingGrantEffect defines model for DecidingGrant.Effect.
+type DecidingGrantEffect string
+
+// DecidingGrantSubjectType defines model for DecidingGrant.SubjectType.
+type DecidingGrantSubjectType string
+
 // DirectoryEntry defines model for DirectoryEntry.
 type DirectoryEntry struct {
 	Actions  []PathAction       `json:"actions"`
@@ -181,6 +240,23 @@ type Error struct {
 	// Params Interpolation values for the translated message (strings or numbers).
 	Params    map[string]interface{} `json:"params"`
 	RequestId string                 `json:"requestId"`
+}
+
+// ExplainRequest defines model for ExplainRequest.
+type ExplainRequest struct {
+	// Admin The person holds `system:admin` (bypasses rules).
+	Admin bool `json:"admin"`
+
+	// Groups Ids of the person's groups.
+	Groups []string `json:"groups"`
+	Path   string   `json:"path"`
+	UserId string   `json:"userId"`
+}
+
+// ExplainResponse defines model for ExplainResponse.
+type ExplainResponse struct {
+	Decisions []AccessDecision `json:"decisions"`
+	Path      string           `json:"path"`
 }
 
 // LivenessStatus defines model for LivenessStatus.
@@ -221,6 +297,9 @@ type ListDirectoryParamsSort string
 // ListDirectoryParamsOrder defines parameters for ListDirectory.
 type ListDirectoryParamsOrder string
 
+// ExplainAccessJSONRequestBody defines body for ExplainAccess for application/json ContentType.
+type ExplainAccessJSONRequestBody = ExplainRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// GetLiveness Liveness of the engine process
@@ -229,6 +308,9 @@ type ServerInterface interface {
 	// GetReadiness Readiness of the engine and its database
 	// (GET /readyz)
 	GetReadiness(w http.ResponseWriter, r *http.Request)
+	// ExplainAccess Explain a person's access to a folder
+	// (POST /v1/authz/explain)
+	ExplainAccess(w http.ResponseWriter, r *http.Request)
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(w http.ResponseWriter, r *http.Request, params ListDirectoryParams)
@@ -247,6 +329,12 @@ func (_ Unimplemented) GetLiveness(w http.ResponseWriter, r *http.Request) {
 // GetReadiness Readiness of the engine and its database
 // (GET /readyz)
 func (_ Unimplemented) GetReadiness(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ExplainAccess Explain a person's access to a folder
+// (POST /v1/authz/explain)
+func (_ Unimplemented) ExplainAccess(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -284,6 +372,20 @@ func (siw *ServerInterfaceWrapper) GetReadiness(w http.ResponseWriter, r *http.R
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetReadiness(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ExplainAccess operation middleware
+func (siw *ServerInterfaceWrapper) ExplainAccess(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ExplainAccess(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -513,6 +615,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/v1/fs/list", wrapper.ListDirectory)
 	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/authz/explain", wrapper.ExplainAccess)
+	})
 
 	return r
 }
@@ -569,6 +674,70 @@ func (response GetReadiness503JSONResponse) VisitGetReadinessResponse(w http.Res
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(503)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ExplainAccessRequestObject struct {
+	Body *ExplainAccessJSONRequestBody
+}
+
+type ExplainAccessResponseObject interface {
+	VisitExplainAccessResponse(w http.ResponseWriter) error
+}
+
+type ExplainAccess200JSONResponse ExplainResponse
+
+func (response ExplainAccess200JSONResponse) VisitExplainAccessResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ExplainAccess400JSONResponse Error
+
+func (response ExplainAccess400JSONResponse) VisitExplainAccessResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ExplainAccess401JSONResponse Error
+
+func (response ExplainAccess401JSONResponse) VisitExplainAccessResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ExplainAccess403JSONResponse Error
+
+func (response ExplainAccess403JSONResponse) VisitExplainAccessResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -659,6 +828,9 @@ type StrictServerInterface interface {
 	// GetReadiness Readiness of the engine and its database
 	// (GET /readyz)
 	GetReadiness(ctx context.Context, request GetReadinessRequestObject) (GetReadinessResponseObject, error)
+	// ExplainAccess Explain a person's access to a folder
+	// (POST /v1/authz/explain)
+	ExplainAccess(ctx context.Context, request ExplainAccessRequestObject) (ExplainAccessResponseObject, error)
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(ctx context.Context, request ListDirectoryRequestObject) (ListDirectoryResponseObject, error)
@@ -744,6 +916,37 @@ func (sh *strictHandler) GetReadiness(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetReadinessResponseObject); ok {
 		if err := validResponse.VisitGetReadinessResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ExplainAccess operation middleware
+func (sh *strictHandler) ExplainAccess(w http.ResponseWriter, r *http.Request) {
+	var request ExplainAccessRequestObject
+
+	var body ExplainAccessJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ExplainAccess(ctx, request.(ExplainAccessRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ExplainAccess")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ExplainAccessResponseObject); ok {
+		if err := validResponse.VisitExplainAccessResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

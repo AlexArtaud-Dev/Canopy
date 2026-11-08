@@ -66,6 +66,39 @@ export type DirectoryListing = {
   actions: Array<PathAction>;
 };
 
+export type ExplainRequest = {
+  userId: string;
+  /**
+   * Ids of the person's groups.
+   */
+  groups: Array<string>;
+  /**
+   * The person holds `system:admin` (bypasses rules).
+   */
+  admin: boolean;
+  path: string;
+};
+
+export type DecidingGrant = {
+  id: string;
+  subjectType: 'user' | 'group';
+  subjectId: string;
+  path: string;
+  effect: 'allow' | 'deny';
+};
+
+export type AccessDecision = {
+  action: PathAction;
+  allowed: boolean;
+  byAdmin: boolean;
+  grant?: DecidingGrant;
+};
+
+export type ExplainResponse = {
+  path: string;
+  decisions: Array<AccessDecision>;
+};
+
 export type GetLivenessData = {
   body?: never;
   path?: never;
@@ -156,3 +189,36 @@ export type ListDirectoryResponses = {
 };
 
 export type ListDirectoryResponse = ListDirectoryResponses[keyof ListDirectoryResponses];
+
+export type ExplainAccessData = {
+  body: ExplainRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/authz/explain';
+};
+
+export type ExplainAccessErrors = {
+  /**
+   * Invalid path (`files.invalid_path`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * The caller may not inspect access (`auth.forbidden`).
+   */
+  403: Error;
+};
+
+export type ExplainAccessError = ExplainAccessErrors[keyof ExplainAccessErrors];
+
+export type ExplainAccessResponses = {
+  /**
+   * One decision per action.
+   */
+  200: ExplainResponse;
+};
+
+export type ExplainAccessResponse = ExplainAccessResponses[keyof ExplainAccessResponses];

@@ -112,6 +112,41 @@
         "title": "Todavía no hay miembros",
         "description": "Añade personas arriba para aplicarles los roles y requisitos de este grupo."
       }
+    },
+    "tabs": {
+      "members": "Miembros",
+      "access": "Acceso a carpetas",
+      "label": "Secciones del grupo"
+    },
+    "folderAccess": "Acceso a carpetas"
+  },
+  "userAccess": {
+    "title": "Acceso",
+    "description": "lo que esta persona puede hacer en Canopy, y por qué.",
+    "administrator": "Administrador",
+    "noGroups": "En ningún grupo",
+    "permissionsTitle": "Permisos",
+    "permissionsDescription": "Derechos de administración, con el rol (y el grupo) que concede cada uno.",
+    "noPermissions": "Ningún derecho de administración.",
+    "direct": "{role}",
+    "viaGroup": "{role} vía {group}",
+    "inheritedTitle": "Reglas de carpetas de los grupos",
+    "inheritedDescription": "Reglas de los grupos de esta persona. Edítalas en la página de acceso a carpetas de cada grupo.",
+    "noInherited": "Ninguna regla viene de un grupo.",
+    "fromGroup": "de {group}",
+    "checkTitle": "Comprobar una carpeta",
+    "checkDescription": "Elige una carpeta para ver, acción por acción, si esta persona puede hacerla y qué regla decidió, tal como lo aplica el motor.",
+    "checkButton": "Comprobar {path}",
+    "allowed": "Permitido",
+    "denied": "Denegado",
+    "byAdmin": "Administrador: las reglas no se aplican",
+    "noRule": "Ninguna regla: denegado por defecto",
+    "ownRule": "Regla propia",
+    "groupRule": "Regla de {group}",
+    "columns": {
+      "action": "Acción",
+      "result": "Resultado",
+      "decidedBy": "Decidido por"
     }
   }
 }

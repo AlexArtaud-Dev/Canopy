@@ -36,7 +36,6 @@
       "title": "Remove access to {path}?",
       "description": "The change applies at the next request of the people concerned."
     },
-    "pageDescription": "What this person can reach in the managed folders.",
     "actionNames": {
       "read": "View",
       "download": "Download",

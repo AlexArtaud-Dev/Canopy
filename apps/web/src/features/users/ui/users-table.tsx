@@ -129,7 +129,7 @@ export function UsersTable({
                         <MoreHorizontal aria-hidden />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="w-64">
                       <DropdownMenuItem
                         onSelect={() => {
                           onAction('edit', user);

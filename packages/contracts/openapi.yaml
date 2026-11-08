@@ -123,6 +123,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/authz/explain:
+    post:
+      operationId: explainAccess
+      summary: Explain a person's access to a folder
+      description: >-
+        For each path action, whether the given person (and their groups) may do it on the path
+        and which rule decided. Only for callers holding `users:read`; used by the user access
+        page so administrators can trace permissions with the engine's own resolution.
+      tags: [authz]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExplainRequest'
+      responses:
+        '200':
+          description: One decision per action.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExplainResponse'
+        '400':
+          description: Invalid path (`files.invalid_path`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The caller may not inspect access (`auth.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     engineToken:
@@ -206,3 +248,58 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PathAction'
+    ExplainRequest:
+      type: object
+      required: [userId, groups, admin, path]
+      properties:
+        userId:
+          type: string
+        groups:
+          description: Ids of the person's groups.
+          type: array
+          items:
+            type: string
+        admin:
+          description: The person holds `system:admin` (bypasses rules).
+          type: boolean
+        path:
+          type: string
+          maxLength: 4096
+    DecidingGrant:
+      type: object
+      required: [id, subjectType, subjectId, path, effect]
+      properties:
+        id:
+          type: string
+        subjectType:
+          type: string
+          enum: [user, group]
+        subjectId:
+          type: string
+        path:
+          type: string
+        effect:
+          type: string
+          enum: [allow, deny]
+    AccessDecision:
+      type: object
+      required: [action, allowed, byAdmin]
+      properties:
+        action:
+          $ref: '#/components/schemas/PathAction'
+        allowed:
+          type: boolean
+        byAdmin:
+          type: boolean
+        grant:
+          $ref: '#/components/schemas/DecidingGrant'
+    ExplainResponse:
+      type: object
+      required: [path, decisions]
+      properties:
+        path:
+          type: string
+        decisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessDecision'

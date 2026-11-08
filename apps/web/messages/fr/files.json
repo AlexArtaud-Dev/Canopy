@@ -36,7 +36,6 @@
       "title": "Retirer l’accès à {path} ?",
       "description": "Le changement s’applique à la prochaine requête des personnes concernées."
     },
-    "pageDescription": "Ce que cette personne peut atteindre dans les dossiers gérés.",
     "actionNames": {
       "read": "Voir",
       "download": "Télécharger",
