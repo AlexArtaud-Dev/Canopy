@@ -38,7 +38,8 @@
     "two_factor_required": "L’un de vos groupes exige la double authentification : elle ne peut pas être désactivée.",
     "engine_token_missing": "Votre session n’a pas pu être transmise au moteur de fichiers. Rechargez la page.",
     "engine_token_invalid": "Votre session a expiré pour le moteur de fichiers. Rechargez la page.",
-    "link_invalid": "Ce lien est invalide, déjà utilisé ou expiré. Demandez-en un nouveau à votre administrateur."
+    "link_invalid": "Ce lien est invalide, déjà utilisé ou expiré. Demandez-en un nouveau à votre administrateur.",
+    "signed_out": "Votre session a pris fin. Reconnectez-vous."
   },
   "users": {
     "last_admin": "Canopy a besoin d’au moins un administrateur actif. Donnez d’abord le rôle Administrateur à un autre compte.",

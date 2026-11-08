@@ -88,11 +88,13 @@ func (f *fakeAudit) Record(_ context.Context, event audit.Event) error {
 func sampleJob() jobs.Job {
 	target := "/docs"
 	eta := int32(4)
+	started := time.Unix(10, 0).In(time.FixedZone("CET", 3600))
 	return jobs.Job{
 		ID: jobID, Kind: "folder_size", OwnerID: "bob", State: jobs.StateRunning, Target: &target,
 		Snapshot:  jobs.Snapshot{Progress: jobs.Progress{BytesDone: 10, CurrentPath: "/docs/a"}, EtaSeconds: &eta},
 		Result:    map[string]any{"bytes": 10},
-		CreatedAt: time.Unix(0, 0).UTC(),
+		CreatedAt: time.Unix(0, 0).In(time.FixedZone("CET", 3600)),
+		StartedAt: &started,
 	}
 }
 
@@ -286,6 +288,9 @@ func TestJobEvents(t *testing.T) {
 	var job api.Job
 	if err := json.Unmarshal([]byte(strings.TrimPrefix(data, "data: ")), &job); err != nil || job.Id.String() != jobID {
 		t.Fatalf("event data %q: %v", data, err)
+	}
+	if !strings.Contains(data, `"createdAt":"1970-01-01T00:00:00Z"`) || !strings.Contains(data, `"startedAt":"1970-01-01T00:00:10Z"`) {
+		t.Fatalf("times must be UTC: %s", data)
 	}
 
 	// A notice whose job cannot be loaded is skipped; the stream stays open.

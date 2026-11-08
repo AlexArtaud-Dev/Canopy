@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"time"
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/uuid"
@@ -196,7 +197,7 @@ func (s *server) GetJobLogs(ctx context.Context, request api.GetJobLogsRequestOb
 	items := make([]api.JobLogLine, 0, len(lines))
 	for _, line := range lines {
 		items = append(items, api.JobLogLine{
-			Seq: line.Seq, At: line.At, Level: api.JobLogLineLevel(line.Level), Line: line.Line,
+			Seq: line.Seq, At: line.At.UTC(), Level: api.JobLogLineLevel(line.Level), Line: line.Line,
 		})
 	}
 	return api.GetJobLogs200JSONResponse{Items: items}, nil
@@ -212,8 +213,8 @@ func toAPIJob(job jobs.Job) (api.Job, error) {
 		Id: id, Kind: job.Kind, OwnerId: job.OwnerID, State: api.JobState(job.State),
 		Target: job.Target, BytesDone: job.Snapshot.BytesDone, BytesTotal: job.Snapshot.BytesTotal,
 		ItemsDone: job.Snapshot.ItemsDone, ItemsTotal: job.Snapshot.ItemsTotal,
-		RateBps: job.Snapshot.RateBps, ErrorCode: job.ErrorCode, CreatedAt: job.CreatedAt,
-		StartedAt: job.StartedAt, FinishedAt: job.FinishedAt,
+		RateBps: job.Snapshot.RateBps, ErrorCode: job.ErrorCode, CreatedAt: job.CreatedAt.UTC(),
+		StartedAt: utc(job.StartedAt), FinishedAt: utc(job.FinishedAt),
 	}
 	if job.Snapshot.CurrentPath != "" {
 		current := job.Snapshot.CurrentPath
@@ -235,4 +236,13 @@ func derefOr(value *string) string {
 		return ""
 	}
 	return *value
+}
+
+// utc keeps every timestamp in UTC: the contract's date-time validation rejects local offsets.
+func utc(value *time.Time) *time.Time {
+	if value == nil {
+		return nil
+	}
+	converted := value.UTC()
+	return &converted
 }

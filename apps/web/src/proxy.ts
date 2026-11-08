@@ -1,15 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { parseServerEnv } from '@/shared/config/env';
 import { isMaintenanceOn } from '@/shared/maintenance/maintenance-state';
 import { maintenanceDecision } from '@/shared/maintenance/maintenance.utils';
-import {
-  isInNetworks,
-  parseTrustedNetworks,
-  readPeerHeader,
-  resolveClientIp,
-  type TrustedNetworks,
-} from '@/shared/request/client-ip';
+import { isLocalRequest } from '@/shared/request/local-request';
 import { resolveRequestId } from '@/shared/request/request-id';
 import { buildContentSecurityPolicy } from '@/shared/security/csp';
 
@@ -20,37 +13,12 @@ function isPublic(pathname: string): boolean {
   return publicPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
-let networks: { trusted: TrustedNetworks; local: TrustedNetworks } | undefined;
-
-function getNetworks() {
-  if (!networks) {
-    const env = parseServerEnv(process.env);
-    networks = {
-      trusted: parseTrustedNetworks(env.CANOPY_TRUSTED_PROXIES),
-      local: parseTrustedNetworks(env.CANOPY_LOCAL_NETWORKS),
-    };
-  }
-  return networks;
-}
-
-/** Same resolution as `getRequestContext`, before any page code runs. */
-function isLocal(request: NextRequest): boolean {
-  const { trusted, local } = getNetworks();
-  const ip = resolveClientIp({
-    peer: readPeerHeader(request.headers.get('x-canopy-peer'), process.env.CANOPY_PEER_NONCE),
-    forwardedFor: request.headers.get('x-forwarded-for'),
-    cfConnectingIp: request.headers.get('cf-connecting-ip'),
-    trusted,
-  });
-  return ip !== undefined && isInNetworks(ip, local);
-}
-
 // Next.js 16 "proxy" (formerly middleware). Keep it cheap: it runs before every matched request.
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const { pathname, search } = request.nextUrl;
   const decision = maintenanceDecision({
     enabled: await isMaintenanceOn(),
-    local: isLocal(request),
+    local: isLocalRequest(request.headers),
     pathname,
   });
   if (decision === 'unavailable') {

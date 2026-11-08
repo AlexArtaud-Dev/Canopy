@@ -195,3 +195,10 @@ entries:
       en: Browse your folders in a list or grid that stays fast with thousands of files, with sorting, multi-selection, keyboard shortcuts and a right-click menu
       fr: Parcourez vos dossiers en liste ou en grille, fluide même avec des milliers de fichiers, avec tri, sélection multiple, raccourcis clavier et menu contextuel
       es: Explora tus carpetas en lista o cuadrícula, fluida incluso con miles de archivos, con orden, selección múltiple, atajos de teclado y menú contextual
+  - type: feat
+    scope: files
+    issue: 50
+    text:
+      en: An operations panel follows long tasks live (progress, speed, time left, current file) with cancel and retry, and folders can be measured from their menu
+      fr: Un panneau des opérations suit les tâches longues en direct (progression, vitesse, temps restant, fichier en cours) avec annulation et relance, et la taille d’un dossier se calcule depuis son menu
+      es: Un panel de operaciones sigue las tareas largas en directo (progreso, velocidad, tiempo restante, archivo actual) con cancelación y reintento, y el tamaño de una carpeta se calcula desde su menú

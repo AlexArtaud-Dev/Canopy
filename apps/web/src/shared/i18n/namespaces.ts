@@ -10,6 +10,7 @@ export const namespaces = [
   'common',
   'errors',
   'files',
+  'jobs',
   'mail',
   'settings',
   'shell',

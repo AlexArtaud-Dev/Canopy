@@ -4,6 +4,7 @@ import type auth from '../../../messages/en/auth.json';
 import type common from '../../../messages/en/common.json';
 import type errors from '../../../messages/en/errors.json';
 import type files from '../../../messages/en/files.json';
+import type jobs from '../../../messages/en/jobs.json';
 import type mail from '../../../messages/en/mail.json';
 import type settings from '../../../messages/en/settings.json';
 import type shell from '../../../messages/en/shell.json';
@@ -22,6 +23,7 @@ declare module 'next-intl' {
       common: typeof common;
       errors: typeof errors;
       files: typeof files;
+      jobs: typeof jobs;
       mail: typeof mail;
       settings: typeof settings;
       shell: typeof shell;

@@ -8,9 +8,11 @@ import { useCallback, useMemo, useRef, useState, type KeyboardEvent } from 'reac
 import { toast } from 'sonner';
 
 import { ErrorState } from '@/shared/errors/error-state';
+import { useErrorMessage } from '@/shared/errors/use-error-message';
 import { Button } from '@/shared/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty';
 import { Spinner } from '@/shared/ui/spinner';
+import { startFolderSize } from '@/features/jobs';
 
 import {
   browserHref,
@@ -45,6 +47,8 @@ interface FileBrowserProps {
 /** The Files page: one folder, list or grid, with selection, keyboard and context menu. */
 export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   const t = useTranslations('files.browser');
+  const jobsT = useTranslations('jobs.dock');
+  const errorMessage = useErrorMessage();
   const router = useRouter();
   const folder = useFolder(query, firstPage);
   const { entries, hasMore, loadingMore, loadMore } = folder;
@@ -161,6 +165,12 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     onOpen: open,
     onCopyPath: (entry: BrowserEntry) => {
       void navigator.clipboard.writeText(entry.path).then(() => toast.success(t('pathCopied')));
+    },
+    onFolderSize: (entry: BrowserEntry) => {
+      void startFolderSize({ path: entry.path }).then((result) => {
+        if (result.ok) toast(jobsT('started', { name: entry.name }));
+        else toast.error(errorMessage(result.error.code, result.error.params));
+      });
     },
     onSelectAll: () => {
       dispatch({ type: 'all' });

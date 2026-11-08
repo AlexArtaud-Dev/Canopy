@@ -42,6 +42,16 @@ engine with `stream.pipeline`. App Router stays the default for everything else.
 has to travel with the browser request (path-scoped HttpOnly cookie), which the engine already
 verifies.
 
+## As built
+
+- `/api/engine/*` is an App Router route handler for **GET event streams only** (no request body,
+  so the buffering issue of variant B does not apply). Warm first event: ~60 ms. It checks
+  maintenance and the session itself and relays only allowlisted routes
+  (`features/files/engine-routes.utils.ts`).
+- Pages Router API routes cannot import `server-only` modules (no `react-server` condition), and
+  the session, token and database code all carry that guard. Uploads (variant D) therefore need
+  those pieces reachable without it before they can ship; decide this with the upload slice.
+
 ## Rules that follow
 
 - Never route uploads through `next.config` rewrites or an App Router Route Handler.
