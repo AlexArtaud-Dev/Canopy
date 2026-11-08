@@ -202,3 +202,10 @@ entries:
       en: An operations panel follows long tasks live (progress, speed, time left, current file) with cancel and retry, and folders can be measured from their menu
       fr: Un panneau des opérations suit les tâches longues en direct (progression, vitesse, temps restant, fichier en cours) avec annulation et relance, et la taille d’un dossier se calcule depuis son menu
       es: Un panel de operaciones sigue las tareas largas en directo (progreso, velocidad, tiempo restante, archivo actual) con cancelación y reintento, y el tamaño de una carpeta se calcula desde su menú
+  - type: feat
+    scope: files
+    issue: 51
+    text:
+      en: Create folders, rename, and copy or move items with a folder picker, Ctrl+C/X/V or drag and drop; taken names are never overwritten without your choice
+      fr: Créez des dossiers, renommez, et copiez ou déplacez des éléments via un sélecteur de dossier, Ctrl+C/X/V ou le glisser-déposer ; un nom déjà pris n’est jamais écrasé sans votre choix
+      es: Crea carpetas, cambia nombres y copia o mueve elementos con un selector de carpetas, Ctrl+C/X/V o arrastrando; un nombre ya usado nunca se sobrescribe sin tu elección

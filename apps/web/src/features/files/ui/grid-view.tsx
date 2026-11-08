@@ -8,6 +8,7 @@ import { cn } from 'cn';
 
 import { fileKind, formatBytes } from '../browser.utils';
 import { EntryIcon } from './entry-icon';
+import { DndEntry, dropHighlight } from './dnd';
 import { EntryMenu } from './entry-menu';
 import { initialViewport, modifiersOf, type EntryViewProps } from './view-props';
 
@@ -60,39 +61,48 @@ export function GridView(props: EntryViewProps & { columns: number }) {
               const index = row.index * columns + offset;
               const isSelected = selected.has(entry.path);
               return (
-                <EntryMenu key={entry.path} entry={entry} {...props.menu}>
-                  <div
-                    id={props.idOf(index)}
-                    role="option"
-                    aria-selected={isSelected}
-                    title={entry.name}
-                    className={cn(
-                      'flex cursor-default flex-col items-center justify-center gap-2 rounded-xl border p-3 text-center text-sm select-none',
-                      isSelected
-                        ? 'border-primary bg-accent text-accent-foreground'
-                        : 'hover:bg-muted/60',
-                      index === focusIndex && 'ring-ring ring-2',
-                    )}
-                    onClick={(event) => {
-                      props.onClick(index, modifiersOf(event));
-                    }}
-                    onDoubleClick={() => {
-                      props.onOpen(index);
-                    }}
-                  >
-                    <EntryIcon
-                      kind={fileKind(entry.name, entry.isDirectory)}
-                      className="size-10"
-                      strokeWidth={1.5}
-                    />
-                    <span className="line-clamp-2 w-full font-medium break-all">{entry.name}</span>
-                    {!entry.isDirectory && (
-                      <span className="text-muted-foreground text-xs tabular-nums">
-                        {formatBytes(entry.size, locale)}
-                      </span>
-                    )}
-                  </div>
-                </EntryMenu>
+                <DndEntry key={entry.path} entry={entry} draggable={props.canDrag(entry)}>
+                  {(dnd) => (
+                    <EntryMenu entry={entry} {...props.menu}>
+                      <div
+                        ref={dnd.ref}
+                        {...dnd.listeners}
+                        id={props.idOf(index)}
+                        role="option"
+                        aria-selected={isSelected}
+                        title={entry.name}
+                        className={cn(
+                          'flex cursor-default flex-col items-center justify-center gap-2 rounded-xl border p-3 text-center text-sm select-none',
+                          isSelected
+                            ? 'border-primary bg-accent text-accent-foreground'
+                            : 'hover:bg-muted/60',
+                          index === focusIndex && 'ring-ring ring-2',
+                          dropHighlight(dnd.isOver, dnd.isDragging),
+                        )}
+                        onClick={(event) => {
+                          props.onClick(index, modifiersOf(event));
+                        }}
+                        onDoubleClick={() => {
+                          props.onOpen(index);
+                        }}
+                      >
+                        <EntryIcon
+                          kind={fileKind(entry.name, entry.isDirectory)}
+                          className="size-10"
+                          strokeWidth={1.5}
+                        />
+                        <span className="line-clamp-2 w-full font-medium break-all">
+                          {entry.name}
+                        </span>
+                        {!entry.isDirectory && (
+                          <span className="text-muted-foreground text-xs tabular-nums">
+                            {formatBytes(entry.size, locale)}
+                          </span>
+                        )}
+                      </div>
+                    </EntryMenu>
+                  )}
+                </DndEntry>
               );
             })}
         </div>

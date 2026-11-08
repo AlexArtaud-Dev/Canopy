@@ -26,7 +26,12 @@
     "started": "Iniciado: {name}",
     "kinds": {
       "folder_size": "Tamaño de la carpeta",
-      "other": "Operación"
-    }
+      "other": "Operación",
+      "copy": "Copia",
+      "move": "Traslado"
+    },
+    "transferResult": "{items, plural, one {# elemento} other {# elementos}} · {size}",
+    "transferSkipped": "{count, plural, one {# omitido} other {# omitidos}}",
+    "transferRenamed": "{count, plural, one {# conservado como copia} other {# conservados como copia}}"
   }
 }

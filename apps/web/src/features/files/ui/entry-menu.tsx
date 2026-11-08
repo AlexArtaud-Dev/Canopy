@@ -1,6 +1,15 @@
 'use client';
 
-import { CheckCheck, Copy, FolderOpen, HardDrive, RefreshCw } from 'lucide-react';
+import {
+  CheckCheck,
+  CopyPlus,
+  FolderInput,
+  FolderOpen,
+  HardDrive,
+  Link2,
+  PencilLine,
+  RefreshCw,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 
@@ -18,6 +27,9 @@ import type { BrowserEntry } from '../server/browse';
 export interface EntryMenuHandlers {
   onOpen: (entry: BrowserEntry) => void;
   onCopyPath: (entry: BrowserEntry) => void;
+  onRename: (entry: BrowserEntry) => void;
+  /** Copy or move the entry (or the selection it belongs to) to a folder picked next. */
+  onTransfer: (operation: 'copy' | 'move', entry: BrowserEntry) => void;
   /** Starts a background job measuring the folder; it shows up in the operations panel. */
   onFolderSize: (entry: BrowserEntry) => void;
   onSelectAll: () => void;
@@ -63,12 +75,43 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
             {t('folderSize')}
           </ContextMenuItem>
         )}
+        {entry.actions.includes('update') && (
+          <ContextMenuItem
+            onSelect={() => {
+              handlers.onRename(entry);
+            }}
+          >
+            <PencilLine aria-hidden />
+            {t('rename')}
+            <ContextMenuShortcut>F2</ContextMenuShortcut>
+          </ContextMenuItem>
+        )}
+        {entry.actions.includes('copy') && (
+          <ContextMenuItem
+            onSelect={() => {
+              handlers.onTransfer('copy', entry);
+            }}
+          >
+            <CopyPlus aria-hidden />
+            {t('copyTo')}
+          </ContextMenuItem>
+        )}
+        {entry.actions.includes('move') && (
+          <ContextMenuItem
+            onSelect={() => {
+              handlers.onTransfer('move', entry);
+            }}
+          >
+            <FolderInput aria-hidden />
+            {t('moveTo')}
+          </ContextMenuItem>
+        )}
         <ContextMenuItem
           onSelect={() => {
             handlers.onCopyPath(entry);
           }}
         >
-          <Copy aria-hidden />
+          <Link2 aria-hidden />
           {t('copyPath')}
         </ContextMenuItem>
         <ContextMenuSeparator />

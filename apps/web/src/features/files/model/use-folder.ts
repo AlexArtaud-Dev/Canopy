@@ -3,6 +3,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 import type { ErrorDto } from '@/shared/lib/errors';
+import { filesystemQueryRoot } from '@/shared/query/query-keys';
 
 import type { BrowserQuery } from '../browser.utils';
 import { listFolder, type BrowserEntry, type FolderPage } from '../server/browse';
@@ -15,7 +16,7 @@ export class FolderLoadError extends Error {
 }
 
 export function folderQueryKey(query: BrowserQuery) {
-  return ['folder', query.path, query.sort, query.order] as const;
+  return [filesystemQueryRoot, 'folder', query.path, query.sort, query.order] as const;
 }
 
 /** A folder's entries, the first page rendered by the server and the rest streamed on demand. */

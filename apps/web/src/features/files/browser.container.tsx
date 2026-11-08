@@ -1,10 +1,20 @@
 'use client';
 
-import { FolderOpen, FolderTree, X } from 'lucide-react';
+import {
+  DndContext,
+  DragOverlay,
+  MouseSensor,
+  pointerWithin,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from '@dnd-kit/core';
+import { CopyPlus, FolderInput, FolderOpen, FolderTree, X } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { toast } from 'sonner';
 
 import { ErrorState } from '@/shared/errors/error-state';
@@ -27,11 +37,23 @@ import {
   type SortKey,
 } from './browser.utils';
 import { useBrowserView, useElementWidth } from './model/use-browser-view';
+import { useFileOperations } from './model/use-file-operations';
+import {
+  canDropInto,
+  dropOperation,
+  operationTargets,
+  stemLength,
+  type TransferOperation,
+} from './operations.utils';
 import { useFolder } from './model/use-folder';
 import type { BrowserEntry, FolderPage } from './server/browse';
 import { BrowserToolbar } from './ui/browser-toolbar';
+import { ConflictDialog } from './ui/conflict-dialog';
+import type { DropData } from './ui/dnd';
+import { FolderPickerDialog } from './ui/folder-picker-dialog';
 import { GridView, tileGap, tileMinWidth } from './ui/grid-view';
 import { ListHeader, ListView } from './ui/list-view';
+import { NameDialog } from './ui/name-dialog';
 import { ShortcutsDialog } from './ui/shortcuts-dialog';
 import type { ClickModifiers } from './ui/view-props';
 
@@ -59,6 +81,28 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   const [helpOpen, setHelpOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const width = useElementWidth(scrollRef);
+  const ops = useFileOperations(query.path);
+  const [dragCount, setDragCount] = useState(0);
+  // Copy-or-move is decided when the drop happens, as in desktop file managers.
+  const dropModifiers = useRef({ ctrlKey: false, altKey: false, metaKey: false });
+  useEffect(() => {
+    const track = (event: globalThis.KeyboardEvent) => {
+      dropModifiers.current = {
+        ctrlKey: event.ctrlKey,
+        altKey: event.altKey,
+        metaKey: event.metaKey,
+      };
+    };
+    window.addEventListener('keydown', track);
+    window.addEventListener('keyup', track);
+    return () => {
+      window.removeEventListener('keydown', track);
+      window.removeEventListener('keyup', track);
+    };
+  }, []);
+  // A drag starts after 6 px so clicks and double-clicks stay clicks. Mouse only: on touch screens
+  // the same moves are in the item menu ("Move to"), and dragging would fight scrolling.
+  const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 6 } }));
   const columns = view === 'grid' ? gridColumns(width - gridPadding, tileMinWidth, tileGap) : 1;
 
   const dispatch = useCallback(
@@ -115,6 +159,16 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
 
   const idOf = (index: number) => `entry-${index}`;
 
+  const entryByPath = useMemo(
+    () => new Map(entries.map((entry) => [entry.path, entry])),
+    [entries],
+  );
+  /** Every target allows the operation (the engine checks again; this only hides dead ends). */
+  const allowed = (operation: TransferOperation, paths: readonly string[]) =>
+    paths.length > 0 &&
+    paths.every((path) => entryByPath.get(path)?.actions.includes(operation) === true);
+  const selectedPaths = [...selection.selected];
+
   const openMenuAtFocus = () => {
     const element = document.getElementById(idOf(focusIndex));
     if (!element) return;
@@ -153,6 +207,14 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
       dispatch({ type: 'toggle', key: focused.path });
     } else if (event.key === 'Escape') {
       dispatch({ type: 'clear' });
+    } else if (event.key === 'F2' && focused?.actions.includes('update')) {
+      event.preventDefault();
+      ops.openRename(focused);
+    } else if ((event.ctrlKey || event.metaKey) && ['c', 'x'].includes(event.key.toLowerCase())) {
+      const operation = event.key.toLowerCase() === 'c' ? 'copy' : 'move';
+      if (allowed(operation, selectedPaths)) ops.copyToClipboard(operation, selectedPaths);
+    } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'v') {
+      if (folder.actions.includes('create')) void ops.paste();
     } else if (event.key === '?') {
       setHelpOpen(true);
     } else if ((event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu') {
@@ -171,6 +233,11 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
         if (result.ok) toast(jobsT('started', { name: entry.name }));
         else toast.error(errorMessage(result.error.code, result.error.params));
       });
+    },
+    onRename: ops.openRename,
+    onTransfer: (operation: TransferOperation, entry: BrowserEntry) => {
+      const targets = operationTargets(selection.selected, entry.path);
+      if (allowed(operation, targets)) ops.openPicker(operation, targets);
     },
     onSelectAll: () => {
       dispatch({ type: 'all' });
@@ -197,97 +264,212 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     onToggle,
     menu,
     idOf,
+    canDrag: (entry: BrowserEntry) =>
+      entry.actions.includes('move') || entry.actions.includes('copy'),
+  };
+
+  const onDragStart = (event: DragStartEvent) => {
+    const path = String(event.active.id);
+    if (!selection.selected.has(path)) dispatch({ type: 'only', key: path });
+    setDragCount(operationTargets(selection.selected, path).length);
+  };
+  const onDragEnd = (event: DragEndEvent) => {
+    setDragCount(0);
+    const target = event.over?.data.current as DropData | undefined;
+    if (!target) return;
+    const sources = operationTargets(selection.selected, String(event.active.id));
+    const operation = dropOperation(dropModifiers.current);
+    if (!allowed(operation, sources) || !canDropInto(sources, target.path, operation)) return;
+    void ops.transfer(operation, sources, target.path);
   };
 
   const onSort = (key: SortKey) => {
     navigate({ ...query, ...nextSort(query, key) });
   };
 
+  const dialog = ops.dialog;
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <BrowserToolbar
-        path={query.path}
-        hrefFor={hrefFor}
-        view={view}
-        onViewChange={setView}
-        sort={query.sort}
-        order={query.order}
-        onSort={(key) => {
-          navigate({ ...query, sort: key, order: 'asc' });
-        }}
-        onOrder={(order) => {
-          navigate({ ...query, order });
-        }}
-        refreshing={folder.refreshing}
-        onRefresh={() => {
-          void folder.refresh();
-        }}
-        onShowShortcuts={() => {
-          setHelpOpen(true);
-        }}
-      />
-      {view === 'list' && entries.length > 0 && (
-        <ListHeader sort={query.sort} order={query.order} onSort={onSort} />
-      )}
-      <div
-        ref={scrollRef}
-        role="listbox"
-        aria-label={t('entriesLabel', { path: query.path })}
-        aria-multiselectable
-        aria-activedescendant={
-          focusIndex >= 0 && entries[focusIndex] ? idOf(focusIndex) : undefined
-        }
-        tabIndex={0}
-        onKeyDown={onKeyDown}
-        className={
-          view === 'grid'
-            ? 'min-h-0 flex-1 overflow-y-auto p-4 outline-none'
-            : 'min-h-0 flex-1 overflow-y-auto outline-none'
-        }
-      >
-        {folder.error && entries.length === 0 ? (
-          <ErrorState
-            code={folder.error.code}
-            params={folder.error.params}
-            reference={folder.error.requestId}
-            onRetry={() => {
-              void folder.refresh();
+    <DndContext
+      sensors={sensors}
+      // The folder under the pointer receives the drop, whatever the badge overlaps.
+      collisionDetection={pointerWithin}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onDragCancel={() => {
+        setDragCount(0);
+      }}
+    >
+      <div className="flex min-h-0 flex-1 flex-col">
+        <BrowserToolbar
+          canCreate={folder.actions.includes('create')}
+          onNewFolder={ops.openNewFolder}
+          path={query.path}
+          hrefFor={hrefFor}
+          view={view}
+          onViewChange={setView}
+          sort={query.sort}
+          order={query.order}
+          onSort={(key) => {
+            navigate({ ...query, sort: key, order: 'asc' });
+          }}
+          onOrder={(order) => {
+            navigate({ ...query, order });
+          }}
+          refreshing={folder.refreshing}
+          onRefresh={() => {
+            void folder.refresh();
+          }}
+          onShowShortcuts={() => {
+            setHelpOpen(true);
+          }}
+        />
+        {view === 'list' && entries.length > 0 && (
+          <ListHeader sort={query.sort} order={query.order} onSort={onSort} />
+        )}
+        <div
+          ref={scrollRef}
+          role="listbox"
+          aria-label={t('entriesLabel', { path: query.path })}
+          aria-multiselectable
+          aria-activedescendant={
+            focusIndex >= 0 && entries[focusIndex] ? idOf(focusIndex) : undefined
+          }
+          tabIndex={0}
+          onKeyDown={onKeyDown}
+          className={
+            view === 'grid'
+              ? 'min-h-0 flex-1 overflow-y-auto p-4 outline-none'
+              : 'min-h-0 flex-1 overflow-y-auto outline-none'
+          }
+        >
+          {folder.error && entries.length === 0 ? (
+            <ErrorState
+              code={folder.error.code}
+              params={folder.error.params}
+              reference={folder.error.requestId}
+              onRetry={() => {
+                void folder.refresh();
+              }}
+            />
+          ) : entries.length === 0 ? (
+            <EmptyFolder isRoot={query.path === '/'} />
+          ) : view === 'grid' ? (
+            <GridView {...viewProps} columns={columns} />
+          ) : (
+            <ListView {...viewProps} />
+          )}
+          {loadingMore && (
+            <p className="text-muted-foreground flex items-center justify-center gap-2 p-3 text-sm">
+              <Spinner />
+              {t('loadingMore')}
+            </p>
+          )}
+        </div>
+        <footer className="text-muted-foreground flex min-h-10 items-center gap-3 border-t px-4 text-xs md:px-6">
+          <span aria-live="polite">{t('count', { count: folder.total })}</span>
+          {selection.selected.size > 0 && (
+            <span className="flex items-center gap-1">
+              {t('selected', { count: selection.selected.size })}
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                aria-label={t('clearSelection')}
+                onClick={() => {
+                  dispatch({ type: 'clear' });
+                }}
+              >
+                <X aria-hidden />
+              </Button>
+            </span>
+          )}
+          {selection.selected.size > 0 && (
+            <span className="ml-auto flex items-center gap-1">
+              {allowed('copy', selectedPaths) && (
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => {
+                    ops.openPicker('copy', selectedPaths);
+                  }}
+                >
+                  <CopyPlus aria-hidden data-icon="inline-start" />
+                  {t('menu.copyTo')}
+                </Button>
+              )}
+              {allowed('move', selectedPaths) && (
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => {
+                    ops.openPicker('move', selectedPaths);
+                  }}
+                >
+                  <FolderInput aria-hidden data-icon="inline-start" />
+                  {t('menu.moveTo')}
+                </Button>
+              )}
+            </span>
+          )}
+        </footer>
+        <ShortcutsDialog open={helpOpen} onOpenChange={setHelpOpen} />
+        {dialog.kind === 'newFolder' && (
+          <NameDialog
+            open
+            onOpenChange={ops.close}
+            title={t('ops.newFolderTitle')}
+            description={t('ops.newFolderDescription')}
+            submitLabel={t('ops.create')}
+            initialName={t('ops.defaultFolderName')}
+            selectionEnd={t('ops.defaultFolderName').length}
+            onSubmit={ops.submitNewFolder}
+          />
+        )}
+        {dialog.kind === 'rename' && (
+          <NameDialog
+            open
+            onOpenChange={ops.close}
+            title={t('ops.renameTitle')}
+            description={t('ops.renameDescription', { name: dialog.entry.name })}
+            submitLabel={t('ops.rename')}
+            initialName={dialog.entry.name}
+            selectionEnd={stemLength(dialog.entry.name, dialog.entry.isDirectory)}
+            onSubmit={(name) => ops.submitRename(dialog.entry, name)}
+          />
+        )}
+        {dialog.kind === 'pick' && (
+          <FolderPickerDialog
+            open
+            onOpenChange={ops.close}
+            operation={dialog.operation}
+            sources={dialog.sources}
+            startPath={query.path}
+            loadFolders={ops.loadFolders}
+            onConfirm={(destination) => {
+              void ops.transfer(dialog.operation, dialog.sources, destination);
             }}
           />
-        ) : entries.length === 0 ? (
-          <EmptyFolder isRoot={query.path === '/'} />
-        ) : view === 'grid' ? (
-          <GridView {...viewProps} columns={columns} />
-        ) : (
-          <ListView {...viewProps} />
         )}
-        {loadingMore && (
-          <p className="text-muted-foreground flex items-center justify-center gap-2 p-3 text-sm">
-            <Spinner />
-            {t('loadingMore')}
-          </p>
+        {dialog.kind === 'conflicts' && (
+          <ConflictDialog
+            open
+            onOpenChange={ops.close}
+            operation={dialog.operation}
+            conflicts={dialog.conflicts}
+            truncated={dialog.truncated}
+            onConfirm={(choice) => {
+              void ops.confirmConflicts(choice);
+            }}
+          />
         )}
       </div>
-      <footer className="text-muted-foreground flex min-h-10 items-center gap-3 border-t px-4 text-xs md:px-6">
-        <span aria-live="polite">{t('count', { count: folder.total })}</span>
-        {selection.selected.size > 0 && (
-          <span className="flex items-center gap-1">
-            {t('selected', { count: selection.selected.size })}
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              aria-label={t('clearSelection')}
-              onClick={() => {
-                dispatch({ type: 'clear' });
-              }}
-            >
-              <X aria-hidden />
-            </Button>
+      <DragOverlay dropAnimation={null}>
+        {dragCount > 0 && (
+          <span className="bg-primary text-primary-foreground rounded-md px-2.5 py-1 text-xs font-medium shadow-lg">
+            {t('ops.dragging', { count: dragCount })}
           </span>
         )}
-      </footer>
-      <ShortcutsDialog open={helpOpen} onOpenChange={setHelpOpen} />
-    </div>
+      </DragOverlay>
+    </DndContext>
   );
 }
 

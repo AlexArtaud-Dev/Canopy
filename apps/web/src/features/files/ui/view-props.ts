@@ -24,6 +24,8 @@ export interface EntryViewProps {
   onOpen: (index: number) => void;
   onToggle: (index: number) => void;
   menu: EntryMenuHandlers;
+  /** Whether an entry may be dragged (the person may move or copy it). */
+  canDrag: (entry: BrowserEntry) => boolean;
   idOf: (index: number) => string;
 }
 

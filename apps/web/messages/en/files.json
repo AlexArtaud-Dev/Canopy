@@ -88,7 +88,10 @@
       "copyPath": "Copy path",
       "selectAll": "Select all",
       "refresh": "Refresh",
-      "folderSize": "Calculate size"
+      "folderSize": "Calculate size",
+      "rename": "Rename",
+      "copyTo": "Copy to…",
+      "moveTo": "Move to…"
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
@@ -103,8 +106,54 @@
         "selectAll": "Select everything",
         "clear": "Clear the selection",
         "menu": "Open the item menu",
-        "help": "Show these shortcuts"
+        "help": "Show these shortcuts",
+        "rename": "Rename",
+        "copy": "Copy the selection",
+        "cut": "Cut the selection",
+        "paste": "Paste into this folder",
+        "dragCopy": "Copy instead of move when dropping"
       }
+    },
+    "ops": {
+      "name": "Name",
+      "cancel": "Cancel",
+      "create": "Create",
+      "rename": "Rename",
+      "newFolder": "New folder",
+      "newFolderTitle": "New folder",
+      "newFolderDescription": "Create a folder here.",
+      "defaultFolderName": "New folder",
+      "renameTitle": "Rename",
+      "renameDescription": "Choose a new name for “{name}”.",
+      "folderCreated": "Folder “{name}” created",
+      "renamed": "Renamed to “{name}”",
+      "copyTitle": "Copy to…",
+      "moveTitle": "Move to…",
+      "pickDescription": "Pick where to put {count, plural, one {# item} other {# items}}.",
+      "loadingFolders": "Loading folders…",
+      "noSubfolders": "No sub-folder here.",
+      "cannotDropHere": "The items cannot go here (no permission, or it is where they already are).",
+      "copyHere": "Copy here",
+      "moveHere": "Move here",
+      "copyNow": "Copy",
+      "moveNow": "Move",
+      "conflictsTitle": "{count, plural, one {# name is already taken} other {# names are already taken}}",
+      "conflictsDescription": "Choose what happens to items whose name already exists at the destination. Nothing is replaced unless you choose it.",
+      "forAll": "For all:",
+      "choiceFor": "What to do with {name}",
+      "strategies": {
+        "skip": "Skip",
+        "overwrite": "Replace",
+        "keep_both": "Keep both"
+      },
+      "fileConflict": "A file with this name exists",
+      "folderConflict": "Folder exists: “Replace” merges the contents",
+      "kindConflict": "A file and a folder share this name",
+      "selfConflict": "Copy into the same folder: a numbered copy is made",
+      "conflictsTruncated": "More names are taken than listed; the choice “For all” applies to them.",
+      "copiedToClipboard": "{count, plural, one {# item ready to paste} other {# items ready to paste}} (Ctrl+V)",
+      "cutToClipboard": "{count, plural, one {# item ready to move} other {# items ready to move}} (Ctrl+V)",
+      "dragging": "{count, plural, one {# item} other {# items}}"
     }
   }
 }

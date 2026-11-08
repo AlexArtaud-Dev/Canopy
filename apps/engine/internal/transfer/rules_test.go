@@ -52,6 +52,9 @@ func TestStrategiesAndNames(t *testing.T) {
 		StrategyFor(nil, StrategyKeepBoth, "/c/z") != StrategyKeepBoth {
 		t.Fatal("per-item decisions win when valid")
 	}
+	if (Args{Operation: OpMove}).Label() != OpMove {
+		t.Fatal("label")
+	}
 	if TargetPath("/c", "/a/b.txt") != "/c/b.txt" || TargetPath("/", "/a") != "/a" {
 		t.Fatal("target path")
 	}

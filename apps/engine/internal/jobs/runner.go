@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/riverqueue/river"
@@ -28,6 +29,20 @@ var errCancelledBeforeStart = errors.New("cancelled before start")
 type Args interface {
 	river.JobArgs
 	JobID() string
+}
+
+// Labeled args name their job more precisely than their River kind (a transfer is a copy or a
+// move): engine.jobs.kind holds what people see.
+type Labeled interface {
+	Label() string
+}
+
+// DisplayKind is the kind stored for people: the label when the args have one.
+func DisplayKind(args river.JobArgs) string {
+	if labeled, ok := args.(Labeled); ok {
+		return labeled.Label()
+	}
+	return args.Kind()
 }
 
 // Handler does the work of one kind and returns its human-readable result. It must stop promptly
@@ -196,12 +211,12 @@ func Enqueue[A Args](ctx context.Context, r *Runner, owner, target string, build
 	if err := CheckPerUser(active, limits); err != nil {
 		return "", err
 	}
-	var zero A
-	id, err := store.Create(ctx, zero.Kind(), owner, target)
-	if err != nil {
+	id := uuid.NewString()
+	args := build(id)
+	if err := store.Create(ctx, id, DisplayKind(args), owner, target); err != nil {
 		return "", err
 	}
-	inserted, err := r.client.InsertTx(ctx, tx, build(id), &river.InsertOpts{MaxAttempts: 1})
+	inserted, err := r.client.InsertTx(ctx, tx, args, &river.InsertOpts{MaxAttempts: 1})
 	if err != nil {
 		return "", fmt.Errorf("queue job: %w", err)
 	}

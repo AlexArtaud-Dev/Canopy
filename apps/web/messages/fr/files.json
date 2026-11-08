@@ -88,7 +88,10 @@
       "copyPath": "Copier le chemin",
       "selectAll": "Tout sélectionner",
       "refresh": "Actualiser",
-      "folderSize": "Calculer la taille"
+      "folderSize": "Calculer la taille",
+      "rename": "Renommer",
+      "copyTo": "Copier vers…",
+      "moveTo": "Déplacer vers…"
     },
     "shortcuts": {
       "title": "Raccourcis clavier",
@@ -103,8 +106,54 @@
         "selectAll": "Tout sélectionner",
         "clear": "Effacer la sélection",
         "menu": "Ouvrir le menu de l’élément",
-        "help": "Afficher ces raccourcis"
+        "help": "Afficher ces raccourcis",
+        "rename": "Renommer",
+        "copy": "Copier la sélection",
+        "cut": "Couper la sélection",
+        "paste": "Coller dans ce dossier",
+        "dragCopy": "Copier au lieu de déplacer en déposant"
       }
+    },
+    "ops": {
+      "name": "Nom",
+      "cancel": "Annuler",
+      "create": "Créer",
+      "rename": "Renommer",
+      "newFolder": "Nouveau dossier",
+      "newFolderTitle": "Nouveau dossier",
+      "newFolderDescription": "Créer un dossier ici.",
+      "defaultFolderName": "Nouveau dossier",
+      "renameTitle": "Renommer",
+      "renameDescription": "Choisissez un nouveau nom pour « {name} ».",
+      "folderCreated": "Dossier « {name} » créé",
+      "renamed": "Renommé en « {name} »",
+      "copyTitle": "Copier vers…",
+      "moveTitle": "Déplacer vers…",
+      "pickDescription": "Choisissez où mettre {count, plural, one {# élément} other {# éléments}}.",
+      "loadingFolders": "Chargement des dossiers…",
+      "noSubfolders": "Aucun sous-dossier ici.",
+      "cannotDropHere": "Les éléments ne peuvent pas aller ici (pas d’autorisation, ou ils y sont déjà).",
+      "copyHere": "Copier ici",
+      "moveHere": "Déplacer ici",
+      "copyNow": "Copier",
+      "moveNow": "Déplacer",
+      "conflictsTitle": "{count, plural, one {# nom est déjà pris} other {# noms sont déjà pris}}",
+      "conflictsDescription": "Choisissez quoi faire des éléments dont le nom existe déjà à la destination. Rien n’est remplacé sans votre choix.",
+      "forAll": "Pour tous :",
+      "choiceFor": "Que faire de {name}",
+      "strategies": {
+        "skip": "Ignorer",
+        "overwrite": "Remplacer",
+        "keep_both": "Garder les deux"
+      },
+      "fileConflict": "Un fichier de ce nom existe",
+      "folderConflict": "Le dossier existe : « Remplacer » fusionne le contenu",
+      "kindConflict": "Un fichier et un dossier portent ce nom",
+      "selfConflict": "Copie dans le même dossier : une copie numérotée est créée",
+      "conflictsTruncated": "Plus de noms sont pris que ceux listés ; le choix « Pour tous » s’y applique.",
+      "copiedToClipboard": "{count, plural, one {# élément prêt à coller} other {# éléments prêts à coller}} (Ctrl+V)",
+      "cutToClipboard": "{count, plural, one {# élément prêt à déplacer} other {# éléments prêts à déplacer}} (Ctrl+V)",
+      "dragging": "{count, plural, one {# élément} other {# éléments}}"
     }
   }
 }

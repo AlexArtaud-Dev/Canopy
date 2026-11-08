@@ -37,3 +37,18 @@ Rules:
   empty, so anything skipped stays at the source.
 - Results: items, bytes, skipped, renamed (kept both). Audit: `fs.mkdir`, `fs.rename`,
   `jobs.start` (kind `transfer`).
+
+## In the file browser
+
+- **New folder** (toolbar, when the folder allows `create`) and **Rename** (menu or F2; the name is
+  preselected without its extension). Errors from the engine show inline in the dialog.
+- **Copy to… / Move to…** (item menu, or the selection bar at the bottom): a folder picker that
+  only accepts folders where the items can go. The pre-scan runs first; when names are taken, a
+  dialog offers Skip / Replace / Keep both for all, then per item (only the choices that apply:
+  a copy onto itself can only keep both, a file never replaces a folder).
+- **Keyboard**: Ctrl+C / Ctrl+X then Ctrl+V pastes into the current folder.
+- **Drag and drop** (mouse): drop items on a folder or a breadcrumb to move them; hold Ctrl (or
+  Option) to copy. The target under the pointer is highlighted. Touch screens use the menu
+  instead, so dragging never fights scrolling.
+- Copies and moves run as jobs in the operations panel (labelled Copy or Move, with items, size,
+  skipped and kept-both counts). When any job finishes, open folders refresh.

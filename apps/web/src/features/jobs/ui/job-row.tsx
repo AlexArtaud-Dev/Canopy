@@ -160,5 +160,18 @@ function Outcome({ job, errorMessage }: { job: Job; errorMessage: (code: string)
       </p>
     );
   }
+  if (job.kind === 'copy' || job.kind === 'move') {
+    const notes = [
+      t('transferResult', {
+        items: Number(result.items ?? 0),
+        size: formatBytes(Number(result.bytes ?? 0), locale),
+      }),
+    ];
+    const skipped = Number(result.skipped ?? 0);
+    const renamed = Number(result.renamed ?? 0);
+    if (skipped > 0) notes.push(t('transferSkipped', { count: skipped }));
+    if (renamed > 0) notes.push(t('transferRenamed', { count: renamed }));
+    return <p className="text-muted-foreground text-xs">{notes.join(' · ')}</p>;
+  }
   return <p className="text-muted-foreground text-xs">{t('done')}</p>;
 }
