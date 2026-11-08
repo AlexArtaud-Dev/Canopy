@@ -35,6 +35,7 @@ type Deps struct {
 	Logger   *slog.Logger
 	Database Pinger
 	Files    Files
+	Ops      Ops
 	Grants   Grants
 	// Verifier checks engine tokens; nil refuses every /v1 request (no key configured).
 	Verifier *enginetoken.Verifier

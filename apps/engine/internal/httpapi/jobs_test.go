@@ -22,6 +22,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
 )
 
 const jobID = "0b6c4a9e-6f0e-4d7c-9a51-2f9b8f7c1d10"
@@ -42,9 +43,15 @@ type fakeJobs struct {
 	gets        int
 	owners      []string
 	notices     chan jobs.Notice
+	transfer    transfer.Args
 }
 
 func (f *fakeJobs) StartFolderSize(context.Context, string, authz.Subject) (string, error) {
+	return jobID, f.startErr
+}
+
+func (f *fakeJobs) StartTransfer(_ context.Context, args transfer.Args) (string, error) {
+	f.transfer = args
 	return jobID, f.startErr
 }
 

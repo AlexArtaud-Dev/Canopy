@@ -157,6 +157,61 @@ export type JobLogList = {
   items: Array<JobLogLine>;
 };
 
+export type CreateFolderRequest = {
+  path: string;
+};
+
+export type RenameRequest = {
+  path: string;
+  /**
+   * New name, in the same folder.
+   */
+  name: string;
+};
+
+export type PathResult = {
+  path: string;
+};
+
+export type TransferOperation = 'copy' | 'move';
+
+export type ConflictStrategy = 'skip' | 'overwrite' | 'keep_both';
+
+export type TransferRequest = {
+  operation: TransferOperation;
+  sources: Array<string>;
+  destination: string;
+};
+
+export type TransferJobRequest = TransferRequest & {
+  strategy: ConflictStrategy;
+  /**
+   * Strategy per target path, overriding `strategy`.
+   */
+  decisions?: {
+    [key: string]: ConflictStrategy;
+  };
+};
+
+export type TransferConflict = {
+  source: string;
+  target: string;
+  sourceIsDirectory: boolean;
+  targetIsDirectory: boolean;
+  /**
+   * A copy onto itself; only keep_both applies.
+   */
+  self: boolean;
+};
+
+export type TransferPlan = {
+  conflicts: Array<TransferConflict>;
+  /**
+   * More conflicts exist than listed.
+   */
+  truncated: boolean;
+};
+
 export type GetLivenessData = {
   body?: never;
   path?: never;
@@ -447,3 +502,163 @@ export type GetJobLogsResponses = {
 };
 
 export type GetJobLogsResponse = GetJobLogsResponses[keyof GetJobLogsResponses];
+
+export type CreateFolderData = {
+  body: CreateFolderRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/fs/mkdir';
+};
+
+export type CreateFolderErrors = {
+  /**
+   * Invalid path or name (`files.invalid_path`, `files.invalid_name`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Not allowed (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * Parent folder missing (`files.not_found`).
+   */
+  404: Error;
+  /**
+   * Name taken (`files.exists`).
+   */
+  409: Error;
+};
+
+export type CreateFolderError = CreateFolderErrors[keyof CreateFolderErrors];
+
+export type CreateFolderResponses = {
+  /**
+   * Created.
+   */
+  201: PathResult;
+};
+
+export type CreateFolderResponse = CreateFolderResponses[keyof CreateFolderResponses];
+
+export type RenameEntryData = {
+  body: RenameRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/fs/rename';
+};
+
+export type RenameEntryErrors = {
+  /**
+   * Invalid path or name (`files.invalid_path`, `files.invalid_name`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Not allowed (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * Entry missing (`files.not_found`).
+   */
+  404: Error;
+  /**
+   * Name taken (`files.exists`).
+   */
+  409: Error;
+};
+
+export type RenameEntryError = RenameEntryErrors[keyof RenameEntryErrors];
+
+export type RenameEntryResponses = {
+  /**
+   * Renamed.
+   */
+  200: PathResult;
+};
+
+export type RenameEntryResponse = RenameEntryResponses[keyof RenameEntryResponses];
+
+export type PlanTransferData = {
+  body: TransferRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/fs/transfer/plan';
+};
+
+export type PlanTransferErrors = {
+  /**
+   * Invalid request (`files.invalid_path`, `files.into_itself`, `files.same_location`, `files.duplicate_names`, `files.not_a_directory`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Not allowed on a source or the destination (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * A source or the destination is missing (`files.not_found`).
+   */
+  404: Error;
+};
+
+export type PlanTransferError = PlanTransferErrors[keyof PlanTransferErrors];
+
+export type PlanTransferResponses = {
+  /**
+   * The plan.
+   */
+  200: TransferPlan;
+};
+
+export type PlanTransferResponse = PlanTransferResponses[keyof PlanTransferResponses];
+
+export type StartTransferData = {
+  body: TransferJobRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/jobs/transfer';
+};
+
+export type StartTransferErrors = {
+  /**
+   * Invalid request (see the plan).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Not allowed (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * A source or the destination is missing (`files.not_found`).
+   */
+  404: Error;
+  /**
+   * Too many active jobs for this person (`jobs.too_many`).
+   */
+  429: Error;
+};
+
+export type StartTransferError = StartTransferErrors[keyof StartTransferErrors];
+
+export type StartTransferResponses = {
+  /**
+   * The job was queued.
+   */
+  202: Job;
+};
+
+export type StartTransferResponse = StartTransferResponses[keyof StartTransferResponses];

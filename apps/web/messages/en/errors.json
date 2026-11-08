@@ -53,7 +53,14 @@
     "forbidden": "You don't have access to this folder.",
     "not_found": "This item no longer exists or was moved.",
     "invalid_path": "This path is not valid.",
-    "not_a_directory": "This is a file, not a folder."
+    "not_a_directory": "This is a file, not a folder.",
+    "exists": "Something with this name already exists here.",
+    "invalid_name": "This name is not allowed. Avoid slashes and keep it under 255 characters.",
+    "into_itself": "A folder cannot be copied or moved into itself.",
+    "same_location": "These items are already in this folder.",
+    "duplicate_names": "Two selected items have the same name; they cannot go into the same folder.",
+    "no_space": "There is not enough free space at the destination.",
+    "verify_failed": "A copied file did not match the original, so the source was kept."
   },
   "mail": {
     "not_configured": "Email is not configured. Set up SMTP in Administration › Email.",

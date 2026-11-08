@@ -8,6 +8,9 @@ import type {
   CancelJobData,
   CancelJobErrors,
   CancelJobResponses,
+  CreateFolderData,
+  CreateFolderErrors,
+  CreateFolderResponses,
   ExplainAccessData,
   ExplainAccessErrors,
   ExplainAccessResponses,
@@ -28,13 +31,24 @@ import type {
   ListJobsData,
   ListJobsErrors,
   ListJobsResponses,
+  PlanTransferData,
+  PlanTransferErrors,
+  PlanTransferResponses,
+  RenameEntryData,
+  RenameEntryErrors,
+  RenameEntryResponses,
   StartFolderSizeData,
   StartFolderSizeErrors,
   StartFolderSizeResponses,
+  StartTransferData,
+  StartTransferErrors,
+  StartTransferResponses,
 } from './types.gen';
 import {
   zCancelJobPath,
   zCancelJobResponse,
+  zCreateFolderBody,
+  zCreateFolderResponse,
   zExplainAccessBody,
   zExplainAccessResponse,
   zGetJobLogsPath,
@@ -48,8 +62,14 @@ import {
   zListDirectoryResponse,
   zListJobsQuery,
   zListJobsResponse,
+  zPlanTransferBody,
+  zPlanTransferResponse,
+  zRenameEntryBody,
+  zRenameEntryResponse,
   zStartFolderSizeBody,
   zStartFolderSizeResponse,
+  zStartTransferBody,
+  zStartTransferResponse,
 } from './zod.gen';
 
 export type Options<
@@ -277,4 +297,112 @@ export const getJobLogs = <ThrowOnError extends boolean = false>(
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v1/jobs/{jobId}/logs',
     ...options,
+  });
+
+/**
+ * Create a folder
+ *
+ * Needs `create` on the new path. The parent must exist.
+ */
+export const createFolder = <ThrowOnError extends boolean = false>(
+  options: Options<CreateFolderData, ThrowOnError>,
+): RequestResult<CreateFolderResponses, CreateFolderErrors, ThrowOnError> =>
+  (options.client ?? client).post<CreateFolderResponses, CreateFolderErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zCreateFolderBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zCreateFolderResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/fs/mkdir',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Rename an entry in place
+ *
+ * Needs `update` on the entry. Never replaces an existing name.
+ */
+export const renameEntry = <ThrowOnError extends boolean = false>(
+  options: Options<RenameEntryData, ThrowOnError>,
+): RequestResult<RenameEntryResponses, RenameEntryErrors, ThrowOnError> =>
+  (options.client ?? client).post<RenameEntryResponses, RenameEntryErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zRenameEntryBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zRenameEntryResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/fs/rename',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Check a copy or move before running it
+ *
+ * Validates the transfer and lists targets that already exist (descending into folders that would merge, capped), so a strategy can be chosen per item. Nothing is written.
+ */
+export const planTransfer = <ThrowOnError extends boolean = false>(
+  options: Options<PlanTransferData, ThrowOnError>,
+): RequestResult<PlanTransferResponses, PlanTransferErrors, ThrowOnError> =>
+  (options.client ?? client).post<PlanTransferResponses, PlanTransferErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zPlanTransferBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zPlanTransferResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/fs/transfer/plan',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Copy or move entries in the background
+ *
+ * Same checks as the plan. Existing targets follow `strategy` unless `decisions` names one for that target. Overwriting needs `update` on the target, otherwise it is skipped.
+ */
+export const startTransfer = <ThrowOnError extends boolean = false>(
+  options: Options<StartTransferData, ThrowOnError>,
+): RequestResult<StartTransferResponses, StartTransferErrors, ThrowOnError> =>
+  (options.client ?? client).post<StartTransferResponses, StartTransferErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zStartTransferBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zStartTransferResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs/transfer',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });

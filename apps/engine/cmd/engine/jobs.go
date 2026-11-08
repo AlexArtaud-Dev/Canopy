@@ -6,6 +6,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/authz"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/foldersize"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
 )
 
 // jobService adapts the runner, its store and the notification hub to the HTTP API.
@@ -17,6 +18,13 @@ type jobService struct {
 func (j *jobService) StartFolderSize(ctx context.Context, path string, subject authz.Subject) (string, error) {
 	return jobs.Enqueue(ctx, j.runner, subject.UserID, path, func(id string) foldersize.Args {
 		return foldersize.Args{Job: id, Path: path, Subject: subject}
+	})
+}
+
+func (j *jobService) StartTransfer(ctx context.Context, args transfer.Args) (string, error) {
+	return jobs.Enqueue(ctx, j.runner, args.Subject.UserID, args.Destination, func(id string) transfer.Args {
+		args.Job = id
+		return args
 	})
 }
 

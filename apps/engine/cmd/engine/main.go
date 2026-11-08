@@ -25,6 +25,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/httpapi"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
 )
 
 const (
@@ -112,6 +113,7 @@ func run() error {
 			Logger:      logger,
 			Database:    pool,
 			Files:       resolver,
+			Ops:         resolver,
 			Grants:      grants,
 			Verifier:    verifier,
 			Jobs:        jobService,
@@ -157,6 +159,7 @@ func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, gra
 	}
 	registry := jobs.NewRegistry(pool, logger, time.Now)
 	jobs.Register(registry, foldersize.Handler(files, grants))
+	jobs.Register(registry, transfer.Handler(files, grants))
 	runner, err := jobs.Start(ctx, registry, pool, limits)
 	if err != nil {
 		return nil, err

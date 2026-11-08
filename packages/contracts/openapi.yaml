@@ -363,6 +363,208 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/fs/mkdir:
+    post:
+      operationId: createFolder
+      summary: Create a folder
+      description: Needs `create` on the new path. The parent must exist.
+      tags: [files]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFolderRequest'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathResult'
+        '400':
+          description: Invalid path or name (`files.invalid_path`, `files.invalid_name`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not allowed (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Parent folder missing (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Name taken (`files.exists`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/fs/rename:
+    post:
+      operationId: renameEntry
+      summary: Rename an entry in place
+      description: Needs `update` on the entry. Never replaces an existing name.
+      tags: [files]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenameRequest'
+      responses:
+        '200':
+          description: Renamed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathResult'
+        '400':
+          description: Invalid path or name (`files.invalid_path`, `files.invalid_name`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not allowed (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Entry missing (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Name taken (`files.exists`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/fs/transfer/plan:
+    post:
+      operationId: planTransfer
+      summary: Check a copy or move before running it
+      description: >-
+        Validates the transfer and lists targets that already exist (descending into folders that
+        would merge, capped), so a strategy can be chosen per item. Nothing is written.
+      tags: [files]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '200':
+          description: The plan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferPlan'
+        '400':
+          description: Invalid request (`files.invalid_path`, `files.into_itself`, `files.same_location`, `files.duplicate_names`, `files.not_a_directory`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not allowed on a source or the destination (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: A source or the destination is missing (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs/transfer:
+    post:
+      operationId: startTransfer
+      summary: Copy or move entries in the background
+      description: >-
+        Same checks as the plan. Existing targets follow `strategy` unless `decisions` names one
+        for that target. Overwriting needs `update` on the target, otherwise it is skipped.
+      tags: [jobs]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferJobRequest'
+      responses:
+        '202':
+          description: The job was queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Invalid request (see the plan).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not allowed (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: A source or the destination is missing (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many active jobs for this person (`jobs.too_many`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     engineToken:
@@ -593,3 +795,83 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/JobLogLine'
+    CreateFolderRequest:
+      type: object
+      required: [path]
+      properties:
+        path:
+          type: string
+    RenameRequest:
+      type: object
+      required: [path, name]
+      properties:
+        path:
+          type: string
+        name:
+          type: string
+          description: New name, in the same folder.
+    PathResult:
+      type: object
+      required: [path]
+      properties:
+        path:
+          type: string
+    TransferOperation:
+      type: string
+      enum: [copy, move]
+    ConflictStrategy:
+      type: string
+      enum: [skip, overwrite, keep_both]
+    TransferRequest:
+      type: object
+      required: [operation, sources, destination]
+      properties:
+        operation:
+          $ref: '#/components/schemas/TransferOperation'
+        sources:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items:
+            type: string
+        destination:
+          type: string
+    TransferJobRequest:
+      allOf:
+        - $ref: '#/components/schemas/TransferRequest'
+        - type: object
+          required: [strategy]
+          properties:
+            strategy:
+              $ref: '#/components/schemas/ConflictStrategy'
+            decisions:
+              type: object
+              description: Strategy per target path, overriding `strategy`.
+              additionalProperties:
+                $ref: '#/components/schemas/ConflictStrategy'
+    TransferConflict:
+      type: object
+      required: [source, target, sourceIsDirectory, targetIsDirectory, self]
+      properties:
+        source:
+          type: string
+        target:
+          type: string
+        sourceIsDirectory:
+          type: boolean
+        targetIsDirectory:
+          type: boolean
+        self:
+          type: boolean
+          description: A copy onto itself; only keep_both applies.
+    TransferPlan:
+      type: object
+      required: [conflicts, truncated]
+      properties:
+        conflicts:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransferConflict'
+        truncated:
+          type: boolean
+          description: More conflicts exist than listed.
