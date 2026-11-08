@@ -53,7 +53,14 @@
     "forbidden": "Vous n’avez pas accès à ce dossier.",
     "not_found": "Cet élément n’existe plus ou a été déplacé.",
     "invalid_path": "Ce chemin n’est pas valide.",
-    "not_a_directory": "C’est un fichier, pas un dossier."
+    "not_a_directory": "C’est un fichier, pas un dossier.",
+    "exists": "Un élément porte déjà ce nom ici.",
+    "invalid_name": "Ce nom n’est pas autorisé. Évitez les barres obliques et restez sous 255 caractères.",
+    "into_itself": "Un dossier ne peut pas être copié ou déplacé dans lui-même.",
+    "same_location": "Ces éléments sont déjà dans ce dossier.",
+    "duplicate_names": "Deux éléments sélectionnés portent le même nom ; ils ne peuvent pas aller dans le même dossier.",
+    "no_space": "Il n’y a pas assez d’espace libre à la destination.",
+    "verify_failed": "Un fichier copié ne correspondait pas à l’original : la source a été conservée."
   },
   "mail": {
     "not_configured": "L’e-mail n’est pas configuré. Configurez le SMTP dans Administration › E-mail.",

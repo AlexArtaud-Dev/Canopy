@@ -16,6 +16,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
 )
 
 const defaultJobLimit = 50
@@ -23,6 +24,7 @@ const defaultJobLimit = 50
 // Jobs queues, reads and cancels jobs (a jobs.Runner behind a small adapter in production).
 type Jobs interface {
 	StartFolderSize(ctx context.Context, path string, subject authz.Subject) (string, error)
+	StartTransfer(ctx context.Context, args transfer.Args) (string, error)
 	Get(ctx context.Context, id, owner string) (jobs.Job, error)
 	List(ctx context.Context, owner string, limit int) ([]jobs.Job, error)
 	Cancel(ctx context.Context, job jobs.Job) error

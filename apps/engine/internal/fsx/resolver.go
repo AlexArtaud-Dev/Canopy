@@ -37,6 +37,8 @@ type Entry struct {
 	IsDir    bool
 	Size     int64
 	Modified time.Time
+	// IsLink marks a symbolic link (reported by Lstat, ReadDir and Walk, never followed there).
+	IsLink bool
 }
 
 // ErrNotFound is returned when the virtual path does not exist (or escapes the root).
@@ -102,7 +104,10 @@ func toEntry(name string, info fs.FileInfo) Entry {
 	if info.IsDir() {
 		size = 0
 	}
-	return Entry{Name: name, IsDir: info.IsDir(), Size: size, Modified: info.ModTime().UTC()}
+	return Entry{
+		Name: name, IsDir: info.IsDir(), Size: size, Modified: info.ModTime().UTC(),
+		IsLink: info.Mode()&fs.ModeSymlink != 0,
+	}
 }
 
 func lastSlash(value string) int {

@@ -53,7 +53,14 @@
     "forbidden": "No tienes acceso a esta carpeta.",
     "not_found": "Este elemento ya no existe o se movió.",
     "invalid_path": "Esta ruta no es válida.",
-    "not_a_directory": "Es un archivo, no una carpeta."
+    "not_a_directory": "Es un archivo, no una carpeta.",
+    "exists": "Ya hay algo con este nombre aquí.",
+    "invalid_name": "Este nombre no está permitido. Evita las barras y no superes 255 caracteres.",
+    "into_itself": "Una carpeta no se puede copiar ni mover dentro de sí misma.",
+    "same_location": "Estos elementos ya están en esta carpeta.",
+    "duplicate_names": "Dos elementos seleccionados tienen el mismo nombre; no pueden ir a la misma carpeta.",
+    "no_space": "No hay suficiente espacio libre en el destino.",
+    "verify_failed": "Un archivo copiado no coincidía con el original, así que se conservó el origen."
   },
   "mail": {
     "not_configured": "El correo no está configurado. Configura el SMTP en Administración › Correo.",

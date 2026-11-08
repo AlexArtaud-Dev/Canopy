@@ -17,6 +17,27 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Defines values for ConflictStrategy.
+const (
+	KeepBoth  ConflictStrategy = "keep_both"
+	Overwrite ConflictStrategy = "overwrite"
+	Skip      ConflictStrategy = "skip"
+)
+
+// Valid indicates whether the value is a known member of the ConflictStrategy enum.
+func (e ConflictStrategy) Valid() bool {
+	switch e {
+	case KeepBoth:
+		return true
+	case Overwrite:
+		return true
+	case Skip:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DecidingGrantEffect.
 const (
 	Allow DecidingGrantEffect = "allow"
@@ -136,40 +157,40 @@ func (e LivenessStatusStatus) Valid() bool {
 
 // Defines values for PathAction.
 const (
-	Copy     PathAction = "copy"
-	Create   PathAction = "create"
-	Delete   PathAction = "delete"
-	Download PathAction = "download"
-	Execute  PathAction = "execute"
-	Move     PathAction = "move"
-	Read     PathAction = "read"
-	Share    PathAction = "share"
-	Update   PathAction = "update"
-	Upload   PathAction = "upload"
+	PathActionCopy     PathAction = "copy"
+	PathActionCreate   PathAction = "create"
+	PathActionDelete   PathAction = "delete"
+	PathActionDownload PathAction = "download"
+	PathActionExecute  PathAction = "execute"
+	PathActionMove     PathAction = "move"
+	PathActionRead     PathAction = "read"
+	PathActionShare    PathAction = "share"
+	PathActionUpdate   PathAction = "update"
+	PathActionUpload   PathAction = "upload"
 )
 
 // Valid indicates whether the value is a known member of the PathAction enum.
 func (e PathAction) Valid() bool {
 	switch e {
-	case Copy:
+	case PathActionCopy:
 		return true
-	case Create:
+	case PathActionCreate:
 		return true
-	case Delete:
+	case PathActionDelete:
 		return true
-	case Download:
+	case PathActionDownload:
 		return true
-	case Execute:
+	case PathActionExecute:
 		return true
-	case Move:
+	case PathActionMove:
 		return true
-	case Read:
+	case PathActionRead:
 		return true
-	case Share:
+	case PathActionShare:
 		return true
-	case Update:
+	case PathActionUpdate:
 		return true
-	case Upload:
+	case PathActionUpload:
 		return true
 	default:
 		return false
@@ -185,6 +206,24 @@ const (
 func (e ReadinessStatusStatus) Valid() bool {
 	switch e {
 	case Ready:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for TransferOperation.
+const (
+	TransferOperationCopy TransferOperation = "copy"
+	TransferOperationMove TransferOperation = "move"
+)
+
+// Valid indicates whether the value is a known member of the TransferOperation enum.
+func (e TransferOperation) Valid() bool {
+	switch e {
+	case TransferOperationCopy:
+		return true
+	case TransferOperationMove:
 		return true
 	default:
 		return false
@@ -236,6 +275,14 @@ type AccessDecision struct {
 	Allowed bool           `json:"allowed"`
 	ByAdmin bool           `json:"byAdmin"`
 	Grant   *DecidingGrant `json:"grant,omitempty"`
+}
+
+// ConflictStrategy defines model for ConflictStrategy.
+type ConflictStrategy string
+
+// CreateFolderRequest defines model for CreateFolderRequest.
+type CreateFolderRequest struct {
+	Path string `json:"path"`
 }
 
 // DecidingGrant defines model for DecidingGrant.
@@ -379,6 +426,11 @@ type LivenessStatusStatus string
 // PathAction defines model for PathAction.
 type PathAction string
 
+// PathResult defines model for PathResult.
+type PathResult struct {
+	Path string `json:"path"`
+}
+
 // ReadinessStatus defines model for ReadinessStatus.
 type ReadinessStatus struct {
 	Status ReadinessStatusStatus `json:"status"`
@@ -386,6 +438,51 @@ type ReadinessStatus struct {
 
 // ReadinessStatusStatus defines model for ReadinessStatus.Status.
 type ReadinessStatusStatus string
+
+// RenameRequest defines model for RenameRequest.
+type RenameRequest struct {
+	// Name New name, in the same folder.
+	Name string `json:"name"`
+	Path string `json:"path"`
+}
+
+// TransferConflict defines model for TransferConflict.
+type TransferConflict struct {
+	// Self A copy onto itself; only keep_both applies.
+	Self              bool   `json:"self"`
+	Source            string `json:"source"`
+	SourceIsDirectory bool   `json:"sourceIsDirectory"`
+	Target            string `json:"target"`
+	TargetIsDirectory bool   `json:"targetIsDirectory"`
+}
+
+// TransferJobRequest defines model for TransferJobRequest.
+type TransferJobRequest struct {
+	// Decisions Strategy per target path, overriding `strategy`.
+	Decisions   *map[string]ConflictStrategy `json:"decisions,omitempty"`
+	Destination string                       `json:"destination"`
+	Operation   TransferOperation            `json:"operation"`
+	Sources     []string                     `json:"sources"`
+	Strategy    ConflictStrategy             `json:"strategy"`
+}
+
+// TransferOperation defines model for TransferOperation.
+type TransferOperation string
+
+// TransferPlan defines model for TransferPlan.
+type TransferPlan struct {
+	Conflicts []TransferConflict `json:"conflicts"`
+
+	// Truncated More conflicts exist than listed.
+	Truncated bool `json:"truncated"`
+}
+
+// TransferRequest defines model for TransferRequest.
+type TransferRequest struct {
+	Destination string            `json:"destination"`
+	Operation   TransferOperation `json:"operation"`
+	Sources     []string          `json:"sources"`
+}
 
 // ListDirectoryParams defines parameters for ListDirectory.
 type ListDirectoryParams struct {
@@ -419,8 +516,20 @@ type GetJobLogsParams struct {
 // ExplainAccessJSONRequestBody defines body for ExplainAccess for application/json ContentType.
 type ExplainAccessJSONRequestBody = ExplainRequest
 
+// CreateFolderJSONRequestBody defines body for CreateFolder for application/json ContentType.
+type CreateFolderJSONRequestBody = CreateFolderRequest
+
+// RenameEntryJSONRequestBody defines body for RenameEntry for application/json ContentType.
+type RenameEntryJSONRequestBody = RenameRequest
+
+// PlanTransferJSONRequestBody defines body for PlanTransfer for application/json ContentType.
+type PlanTransferJSONRequestBody = TransferRequest
+
 // StartFolderSizeJSONRequestBody defines body for StartFolderSize for application/json ContentType.
 type StartFolderSizeJSONRequestBody = FolderSizeRequest
+
+// StartTransferJSONRequestBody defines body for StartTransfer for application/json ContentType.
+type StartTransferJSONRequestBody = TransferJobRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -436,12 +545,24 @@ type ServerInterface interface {
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(w http.ResponseWriter, r *http.Request, params ListDirectoryParams)
+	// CreateFolder Create a folder
+	// (POST /v1/fs/mkdir)
+	CreateFolder(w http.ResponseWriter, r *http.Request)
+	// RenameEntry Rename an entry in place
+	// (POST /v1/fs/rename)
+	RenameEntry(w http.ResponseWriter, r *http.Request)
+	// PlanTransfer Check a copy or move before running it
+	// (POST /v1/fs/transfer/plan)
+	PlanTransfer(w http.ResponseWriter, r *http.Request)
 	// ListJobs Recent jobs of the caller
 	// (GET /v1/jobs)
 	ListJobs(w http.ResponseWriter, r *http.Request, params ListJobsParams)
 	// StartFolderSize Measure a folder in the background
 	// (POST /v1/jobs/folder-size)
 	StartFolderSize(w http.ResponseWriter, r *http.Request)
+	// StartTransfer Copy or move entries in the background
+	// (POST /v1/jobs/transfer)
+	StartTransfer(w http.ResponseWriter, r *http.Request)
 	// GetJob One job
 	// (GET /v1/jobs/{jobId})
 	GetJob(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID)
@@ -481,6 +602,24 @@ func (_ Unimplemented) ListDirectory(w http.ResponseWriter, r *http.Request, par
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// CreateFolder Create a folder
+// (POST /v1/fs/mkdir)
+func (_ Unimplemented) CreateFolder(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// RenameEntry Rename an entry in place
+// (POST /v1/fs/rename)
+func (_ Unimplemented) RenameEntry(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// PlanTransfer Check a copy or move before running it
+// (POST /v1/fs/transfer/plan)
+func (_ Unimplemented) PlanTransfer(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // ListJobs Recent jobs of the caller
 // (GET /v1/jobs)
 func (_ Unimplemented) ListJobs(w http.ResponseWriter, r *http.Request, params ListJobsParams) {
@@ -490,6 +629,12 @@ func (_ Unimplemented) ListJobs(w http.ResponseWriter, r *http.Request, params L
 // StartFolderSize Measure a folder in the background
 // (POST /v1/jobs/folder-size)
 func (_ Unimplemented) StartFolderSize(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// StartTransfer Copy or move entries in the background
+// (POST /v1/jobs/transfer)
+func (_ Unimplemented) StartTransfer(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -660,6 +805,48 @@ func (siw *ServerInterfaceWrapper) ListDirectory(w http.ResponseWriter, r *http.
 	handler.ServeHTTP(w, r)
 }
 
+// CreateFolder operation middleware
+func (siw *ServerInterfaceWrapper) CreateFolder(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateFolder(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// RenameEntry operation middleware
+func (siw *ServerInterfaceWrapper) RenameEntry(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RenameEntry(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PlanTransfer operation middleware
+func (siw *ServerInterfaceWrapper) PlanTransfer(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PlanTransfer(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // ListJobs operation middleware
 func (siw *ServerInterfaceWrapper) ListJobs(w http.ResponseWriter, r *http.Request) {
 
@@ -698,6 +885,20 @@ func (siw *ServerInterfaceWrapper) StartFolderSize(w http.ResponseWriter, r *htt
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.StartFolderSize(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// StartTransfer operation middleware
+func (siw *ServerInterfaceWrapper) StartTransfer(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.StartTransfer(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -941,6 +1142,18 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/v1/jobs/{jobId}/logs", wrapper.GetJobLogs)
 	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/fs/mkdir", wrapper.CreateFolder)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/fs/rename", wrapper.RenameEntry)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/fs/transfer/plan", wrapper.PlanTransfer)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/jobs/transfer", wrapper.StartTransfer)
+	})
 
 	return r
 }
@@ -1143,6 +1356,268 @@ func (response ListDirectory404JSONResponse) VisitListDirectoryResponse(w http.R
 	return err
 }
 
+type CreateFolderRequestObject struct {
+	Body *CreateFolderJSONRequestBody
+}
+
+type CreateFolderResponseObject interface {
+	VisitCreateFolderResponse(w http.ResponseWriter) error
+}
+
+type CreateFolder201JSONResponse PathResult
+
+func (response CreateFolder201JSONResponse) VisitCreateFolderResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateFolder400JSONResponse Error
+
+func (response CreateFolder400JSONResponse) VisitCreateFolderResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateFolder401JSONResponse Error
+
+func (response CreateFolder401JSONResponse) VisitCreateFolderResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateFolder403JSONResponse Error
+
+func (response CreateFolder403JSONResponse) VisitCreateFolderResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateFolder404JSONResponse Error
+
+func (response CreateFolder404JSONResponse) VisitCreateFolderResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateFolder409JSONResponse Error
+
+func (response CreateFolder409JSONResponse) VisitCreateFolderResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RenameEntryRequestObject struct {
+	Body *RenameEntryJSONRequestBody
+}
+
+type RenameEntryResponseObject interface {
+	VisitRenameEntryResponse(w http.ResponseWriter) error
+}
+
+type RenameEntry200JSONResponse PathResult
+
+func (response RenameEntry200JSONResponse) VisitRenameEntryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RenameEntry400JSONResponse Error
+
+func (response RenameEntry400JSONResponse) VisitRenameEntryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RenameEntry401JSONResponse Error
+
+func (response RenameEntry401JSONResponse) VisitRenameEntryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RenameEntry403JSONResponse Error
+
+func (response RenameEntry403JSONResponse) VisitRenameEntryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RenameEntry404JSONResponse Error
+
+func (response RenameEntry404JSONResponse) VisitRenameEntryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RenameEntry409JSONResponse Error
+
+func (response RenameEntry409JSONResponse) VisitRenameEntryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PlanTransferRequestObject struct {
+	Body *PlanTransferJSONRequestBody
+}
+
+type PlanTransferResponseObject interface {
+	VisitPlanTransferResponse(w http.ResponseWriter) error
+}
+
+type PlanTransfer200JSONResponse TransferPlan
+
+func (response PlanTransfer200JSONResponse) VisitPlanTransferResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PlanTransfer400JSONResponse Error
+
+func (response PlanTransfer400JSONResponse) VisitPlanTransferResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PlanTransfer401JSONResponse Error
+
+func (response PlanTransfer401JSONResponse) VisitPlanTransferResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PlanTransfer403JSONResponse Error
+
+func (response PlanTransfer403JSONResponse) VisitPlanTransferResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PlanTransfer404JSONResponse Error
+
+func (response PlanTransfer404JSONResponse) VisitPlanTransferResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type ListJobsRequestObject struct {
 	Params ListJobsParams
 }
@@ -1260,6 +1735,98 @@ func (response StartFolderSize404JSONResponse) VisitStartFolderSizeResponse(w ht
 type StartFolderSize429JSONResponse Error
 
 func (response StartFolderSize429JSONResponse) VisitStartFolderSizeResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(429)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartTransferRequestObject struct {
+	Body *StartTransferJSONRequestBody
+}
+
+type StartTransferResponseObject interface {
+	VisitStartTransferResponse(w http.ResponseWriter) error
+}
+
+type StartTransfer202JSONResponse Job
+
+func (response StartTransfer202JSONResponse) VisitStartTransferResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartTransfer400JSONResponse Error
+
+func (response StartTransfer400JSONResponse) VisitStartTransferResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartTransfer401JSONResponse Error
+
+func (response StartTransfer401JSONResponse) VisitStartTransferResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartTransfer403JSONResponse Error
+
+func (response StartTransfer403JSONResponse) VisitStartTransferResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartTransfer404JSONResponse Error
+
+func (response StartTransfer404JSONResponse) VisitStartTransferResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartTransfer429JSONResponse Error
+
+func (response StartTransfer429JSONResponse) VisitStartTransferResponse(w http.ResponseWriter) error {
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(response); err != nil {
@@ -1450,12 +2017,24 @@ type StrictServerInterface interface {
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(ctx context.Context, request ListDirectoryRequestObject) (ListDirectoryResponseObject, error)
+	// CreateFolder Create a folder
+	// (POST /v1/fs/mkdir)
+	CreateFolder(ctx context.Context, request CreateFolderRequestObject) (CreateFolderResponseObject, error)
+	// RenameEntry Rename an entry in place
+	// (POST /v1/fs/rename)
+	RenameEntry(ctx context.Context, request RenameEntryRequestObject) (RenameEntryResponseObject, error)
+	// PlanTransfer Check a copy or move before running it
+	// (POST /v1/fs/transfer/plan)
+	PlanTransfer(ctx context.Context, request PlanTransferRequestObject) (PlanTransferResponseObject, error)
 	// ListJobs Recent jobs of the caller
 	// (GET /v1/jobs)
 	ListJobs(ctx context.Context, request ListJobsRequestObject) (ListJobsResponseObject, error)
 	// StartFolderSize Measure a folder in the background
 	// (POST /v1/jobs/folder-size)
 	StartFolderSize(ctx context.Context, request StartFolderSizeRequestObject) (StartFolderSizeResponseObject, error)
+	// StartTransfer Copy or move entries in the background
+	// (POST /v1/jobs/transfer)
+	StartTransfer(ctx context.Context, request StartTransferRequestObject) (StartTransferResponseObject, error)
 	// GetJob One job
 	// (GET /v1/jobs/{jobId})
 	GetJob(ctx context.Context, request GetJobRequestObject) (GetJobResponseObject, error)
@@ -1611,6 +2190,99 @@ func (sh *strictHandler) ListDirectory(w http.ResponseWriter, r *http.Request, p
 	}
 }
 
+// CreateFolder operation middleware
+func (sh *strictHandler) CreateFolder(w http.ResponseWriter, r *http.Request) {
+	var request CreateFolderRequestObject
+
+	var body CreateFolderJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateFolder(ctx, request.(CreateFolderRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateFolder")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateFolderResponseObject); ok {
+		if err := validResponse.VisitCreateFolderResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// RenameEntry operation middleware
+func (sh *strictHandler) RenameEntry(w http.ResponseWriter, r *http.Request) {
+	var request RenameEntryRequestObject
+
+	var body RenameEntryJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.RenameEntry(ctx, request.(RenameEntryRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RenameEntry")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(RenameEntryResponseObject); ok {
+		if err := validResponse.VisitRenameEntryResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PlanTransfer operation middleware
+func (sh *strictHandler) PlanTransfer(w http.ResponseWriter, r *http.Request) {
+	var request PlanTransferRequestObject
+
+	var body PlanTransferJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PlanTransfer(ctx, request.(PlanTransferRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PlanTransfer")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PlanTransferResponseObject); ok {
+		if err := validResponse.VisitPlanTransferResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // ListJobs operation middleware
 func (sh *strictHandler) ListJobs(w http.ResponseWriter, r *http.Request, params ListJobsParams) {
 	var request ListJobsRequestObject
@@ -1661,6 +2333,37 @@ func (sh *strictHandler) StartFolderSize(w http.ResponseWriter, r *http.Request)
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(StartFolderSizeResponseObject); ok {
 		if err := validResponse.VisitStartFolderSizeResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// StartTransfer operation middleware
+func (sh *strictHandler) StartTransfer(w http.ResponseWriter, r *http.Request) {
+	var request StartTransferRequestObject
+
+	var body StartTransferJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.StartTransfer(ctx, request.(StartTransferRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "StartTransfer")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(StartTransferResponseObject); ok {
+		if err := validResponse.VisitStartTransferResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

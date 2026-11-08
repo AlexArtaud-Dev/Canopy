@@ -161,6 +161,49 @@ export const zJobLogList = z.object({
   items: z.array(zJobLogLine),
 });
 
+export const zCreateFolderRequest = z.object({
+  path: z.string(),
+});
+
+export const zRenameRequest = z.object({
+  path: z.string(),
+  name: z.string(),
+});
+
+export const zPathResult = z.object({
+  path: z.string(),
+});
+
+export const zTransferOperation = z.enum(['copy', 'move']);
+
+export const zConflictStrategy = z.enum(['skip', 'overwrite', 'keep_both']);
+
+export const zTransferRequest = z.object({
+  operation: zTransferOperation,
+  sources: z.array(z.string()).min(1).max(1000),
+  destination: z.string(),
+});
+
+export const zTransferJobRequest = zTransferRequest.and(
+  z.object({
+    strategy: zConflictStrategy,
+    decisions: z.record(z.string(), zConflictStrategy).optional(),
+  }),
+);
+
+export const zTransferConflict = z.object({
+  source: z.string(),
+  target: z.string(),
+  sourceIsDirectory: z.boolean(),
+  targetIsDirectory: z.boolean(),
+  self: z.boolean(),
+});
+
+export const zTransferPlan = z.object({
+  conflicts: z.array(zTransferConflict),
+  truncated: z.boolean(),
+});
+
 /**
  * The process is running.
  */
@@ -238,3 +281,31 @@ export const zGetJobLogsQuery = z.object({
  * Lines in order.
  */
 export const zGetJobLogsResponse = zJobLogList;
+
+export const zCreateFolderBody = zCreateFolderRequest;
+
+/**
+ * Created.
+ */
+export const zCreateFolderResponse = zPathResult;
+
+export const zRenameEntryBody = zRenameRequest;
+
+/**
+ * Renamed.
+ */
+export const zRenameEntryResponse = zPathResult;
+
+export const zPlanTransferBody = zTransferRequest;
+
+/**
+ * The plan.
+ */
+export const zPlanTransferResponse = zTransferPlan;
+
+export const zStartTransferBody = zTransferJobRequest;
+
+/**
+ * The job was queued.
+ */
+export const zStartTransferResponse = zJob;
