@@ -72,7 +72,8 @@ export function ListView(props: EntryViewProps) {
                     item.index === focusIndex && 'ring-ring ring-2 ring-inset',
                     dropHighlight(dnd.isOver, dnd.isDragging),
                   )}
-                  style={{ height: rowHeight, transform: `translateY(${item.start}px)` }}
+                  // `top`, not a transform: drop targets are measured without their own transform.
+                  style={{ height: rowHeight, top: item.start }}
                   onClick={(event) => {
                     props.onClick(item.index, modifiersOf(event));
                   }}

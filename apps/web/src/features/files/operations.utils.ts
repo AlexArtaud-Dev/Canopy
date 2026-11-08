@@ -108,3 +108,21 @@ export function stemLength(name: string, isDirectory: boolean): number {
 export function sourceAction(operation: TransferOperation): PathAction {
   return operation;
 }
+
+/** Gap between the pointer and the drag badge, so the badge never hides what is under it. */
+export const dragBadgeGap = { x: 14, y: 10 };
+
+/**
+ * Moves the drag badge from the dragged row's corner to just beside the pointer: the overlay
+ * starts at the row's top-left, so shift it by where the row was grabbed.
+ */
+export function pointerBadgeOffset(
+  grab: { clientX: number; clientY: number } | null,
+  rect: { left: number; top: number } | null,
+): { x: number; y: number } {
+  if (!grab || !rect) return { x: 0, y: 0 };
+  return {
+    x: grab.clientX - rect.left + dragBadgeGap.x,
+    y: grab.clientY - rect.top + dragBadgeGap.y,
+  };
+}

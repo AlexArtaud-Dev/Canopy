@@ -209,3 +209,10 @@ entries:
       en: Create folders, rename, and copy or move items with a folder picker, Ctrl+C/X/V or drag and drop; taken names are never overwritten without your choice
       fr: Créez des dossiers, renommez, et copiez ou déplacez des éléments via un sélecteur de dossier, Ctrl+C/X/V ou le glisser-déposer ; un nom déjà pris n’est jamais écrasé sans votre choix
       es: Crea carpetas, cambia nombres y copia o mueve elementos con un selector de carpetas, Ctrl+C/X/V o arrastrando; un nombre ya usado nunca se sobrescribe sin tu elección
+  - type: fix
+    scope: files
+    issue: 51
+    text:
+      en: Dropping items on a folder in the list moves them into it, the drag badge follows the pointer, and notifications no longer cover the operations panel
+      fr: Déposer des éléments sur un dossier de la liste les y déplace, le badge de glisser suit le pointeur, et les notifications ne couvrent plus le panneau des opérations
+      es: Soltar elementos sobre una carpeta de la lista los mueve dentro, la etiqueta de arrastre sigue al puntero y las notificaciones ya no tapan el panel de operaciones

@@ -50,7 +50,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <ThemeProvider nonce={nonce} defaultTheme={appearance.defaultMode}>
             <TooltipProvider delayDuration={300}>
               {children}
-              <Toaster />
+              {/* Top: the operations panel owns the bottom of the screen (full width on phones). */}
+              <Toaster position="top-center" />
             </TooltipProvider>
           </ThemeProvider>
         </NextIntlClientProvider>
