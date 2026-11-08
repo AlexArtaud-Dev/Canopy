@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"os"
 	"path"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/api"
@@ -16,6 +17,7 @@ import (
 // Ops writes to the managed tree (an fsx.Resolver in production).
 type Ops interface {
 	transfer.Files
+	OpenFile(virtual string) (*os.File, fsx.Entry, error)
 }
 
 // failure is a refusal with its HTTP status and translated code.

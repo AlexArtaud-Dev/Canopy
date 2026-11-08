@@ -91,7 +91,9 @@
       "folderSize": "Calculate size",
       "rename": "Rename",
       "copyTo": "Copy to…",
-      "moveTo": "Move to…"
+      "moveTo": "Move to…",
+      "download": "Download",
+      "downloadZip": "Download as zip"
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",

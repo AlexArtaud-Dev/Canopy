@@ -12,7 +12,7 @@ import {
   type Modifier,
 } from '@dnd-kit/core';
 import { createPortal } from 'react-dom';
-import { CopyPlus, FolderInput, FolderOpen, FolderTree, X } from 'lucide-react';
+import { CopyPlus, Download, FolderInput, FolderOpen, FolderTree, X } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -176,7 +176,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     [entries],
   );
   /** Every target allows the operation (the engine checks again; this only hides dead ends). */
-  const allowed = (operation: TransferOperation, paths: readonly string[]) =>
+  const allowed = (operation: TransferOperation | 'download', paths: readonly string[]) =>
     paths.length > 0 &&
     paths.every((path) => entryByPath.get(path)?.actions.includes(operation) === true);
   const selectedPaths = [...selection.selected];
@@ -247,6 +247,11 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
       });
     },
     onRename: ops.openRename,
+    onDownload: (entry: BrowserEntry) => {
+      const targets = operationTargets(selection.selected, entry.path);
+      if (!allowed('download', targets)) return;
+      void ops.download(targets.flatMap((path) => entryByPath.get(path) ?? []));
+    },
     onTransfer: (operation: TransferOperation, entry: BrowserEntry) => {
       const targets = operationTargets(selection.selected, entry.path);
       if (allowed(operation, targets)) ops.openPicker(operation, targets);
@@ -396,6 +401,18 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           )}
           {selection.selected.size > 0 && (
             <span className="ml-auto flex items-center gap-1">
+              {allowed('download', selectedPaths) && (
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => {
+                    void ops.download(selectedPaths.flatMap((path) => entryByPath.get(path) ?? []));
+                  }}
+                >
+                  <Download aria-hidden data-icon="inline-start" />
+                  {t('menu.download')}
+                </Button>
+              )}
               {allowed('copy', selectedPaths) && (
                 <Button
                   variant="ghost"

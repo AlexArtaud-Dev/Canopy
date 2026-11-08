@@ -172,3 +172,21 @@ func TestLstatAndFreeSpace(t *testing.T) {
 		t.Fatal("invalid path has no free space")
 	}
 }
+
+func TestOpenFile(t *testing.T) {
+	r, _ := newOpsTree(t)
+	file, entry, err := r.OpenFile("/a/one.txt")
+	if err != nil || entry.Name != "one.txt" || entry.Size != 5 {
+		t.Fatalf("open: %+v %v", entry, err)
+	}
+	_ = file.Close()
+	if _, _, err := r.OpenFile("/a"); !errors.Is(err, ErrNotRegular) {
+		t.Fatalf("folder: %v", err)
+	}
+	if _, _, err := r.OpenFile("/nope"); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("missing: %v", err)
+	}
+	if _, _, err := r.OpenFile("rel"); !errors.Is(err, ErrInvalidPath) {
+		t.Fatalf("invalid: %v", err)
+	}
+}

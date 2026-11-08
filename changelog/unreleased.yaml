@@ -216,3 +216,10 @@ entries:
       en: Dropping items on a folder in the list moves them into it, the drag badge follows the pointer, and notifications no longer cover the operations panel
       fr: Déposer des éléments sur un dossier de la liste les y déplace, le badge de glisser suit le pointeur, et les notifications ne couvrent plus le panneau des opérations
       es: Soltar elementos sobre una carpeta de la lista los mueve dentro, la etiqueta de arrastre sigue al puntero y las notificaciones ya no tapan el panel de operaciones
+  - type: feat
+    scope: files
+    issue: 52
+    text:
+      en: Download files, or folders and selections as a zip streamed on the fly; downloads can be resumed
+      fr: Téléchargez des fichiers, ou des dossiers et sélections en zip généré à la volée ; les téléchargements peuvent reprendre
+      es: Descarga archivos, o carpetas y selecciones como zip generado al vuelo; las descargas se pueden reanudar

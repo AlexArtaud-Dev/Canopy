@@ -91,7 +91,9 @@
       "folderSize": "Calculer la taille",
       "rename": "Renommer",
       "copyTo": "Copier vers…",
-      "moveTo": "Déplacer vers…"
+      "moveTo": "Déplacer vers…",
+      "download": "Télécharger",
+      "downloadZip": "Télécharger en zip"
     },
     "shortcuts": {
       "title": "Raccourcis clavier",

@@ -7,9 +7,15 @@ import { toast } from 'sonner';
 
 import type { FormErrorContent } from '@/shared/errors/form-error';
 import { useErrorMessage, useFormError } from '@/shared/errors/use-error-message';
+import { downloadUrl } from '@/shared/lib/download';
 import { filesystemQueryRoot } from '@/shared/query/query-keys';
 
-import type { ConflictStrategy, TransferConflict, TransferOperation } from '../operations.utils';
+import {
+  downloadHref,
+  type ConflictStrategy,
+  type TransferConflict,
+  type TransferOperation,
+} from '../operations.utils';
 import type { BrowserEntry } from '../server/browse';
 import {
   createFolder,
@@ -18,6 +24,7 @@ import {
   renameEntry,
   startTransfer,
 } from '../server/operations';
+import { refreshStreamTicket } from '../server/stream-ticket';
 import type { FolderLoader } from '../ui/folder-picker-dialog';
 
 export type OperationDialog =
@@ -142,8 +149,21 @@ export function useFileOperations(currentFolder: string) {
     if (clipboard.operation === 'move') setClipboard(null);
   };
 
+  /** A fresh stream ticket (HttpOnly cookie) first, then the browser downloads on its own. */
+  const download = async (items: readonly BrowserEntry[]) => {
+    const href = downloadHref(items);
+    if (!href) return;
+    const ticket = await refreshStreamTicket();
+    if (!ticket.ok) {
+      toast.error(errorMessage(ticket.error.code, ticket.error.params));
+      return;
+    }
+    downloadUrl(href);
+  };
+
   return {
     dialog,
+    download,
     close,
     clipboard,
     openNewFolder: () => {

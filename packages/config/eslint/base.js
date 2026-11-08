@@ -21,6 +21,11 @@ export const baseConfig = tseslint.config(
   { linterOptions: { reportUnusedDisableDirectives: 'error' } },
   js.configs.recommended,
   {
+    // Plain JavaScript tests (Node preload helpers) run under Jest like the TypeScript ones.
+    files: ['**/*.test.mjs', '**/*.test.js'],
+    languageOptions: { globals: { ...globals.jest } },
+  },
+  {
     languageOptions: { globals: { ...globals.node } },
     rules: {
       'max-depth': ['error', 3],

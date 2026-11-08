@@ -3,6 +3,7 @@
 import {
   CheckCheck,
   CopyPlus,
+  Download,
   FolderInput,
   FolderOpen,
   HardDrive,
@@ -28,6 +29,8 @@ export interface EntryMenuHandlers {
   onOpen: (entry: BrowserEntry) => void;
   onCopyPath: (entry: BrowserEntry) => void;
   onRename: (entry: BrowserEntry) => void;
+  /** Downloads the entry, or the selection it belongs to (folders and several items as a zip). */
+  onDownload: (entry: BrowserEntry) => void;
   /** Copy or move the entry (or the selection it belongs to) to a folder picked next. */
   onTransfer: (operation: 'copy' | 'move', entry: BrowserEntry) => void;
   /** Starts a background job measuring the folder; it shows up in the operations panel. */
@@ -73,6 +76,16 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
           >
             <HardDrive aria-hidden />
             {t('folderSize')}
+          </ContextMenuItem>
+        )}
+        {entry.actions.includes('download') && (
+          <ContextMenuItem
+            onSelect={() => {
+              handlers.onDownload(entry);
+            }}
+          >
+            <Download aria-hidden />
+            {entry.isDirectory ? t('downloadZip') : t('download')}
           </ContextMenuItem>
         )}
         {entry.actions.includes('update') && (

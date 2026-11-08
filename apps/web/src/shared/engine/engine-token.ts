@@ -11,6 +11,7 @@ import {
   engineTokenAudience,
   engineTokenIssuer,
   engineTokenLifetimeSeconds,
+  streamTicketAudience,
   pkcs8FromSeed,
 } from './engine-token.utils';
 
@@ -43,6 +44,15 @@ function getSigningKey(): KeyObject {
 
 /** Signs a short-lived bearer token for one request to the engine (never sent to browsers). */
 export function signEngineToken(principal: EnginePrincipal): Promise<string> {
+  return sign(principal, engineTokenAudience);
+}
+
+/** Signs a stream ticket: accepted by the engine on download and upload routes only. */
+export function signStreamTicket(principal: EnginePrincipal): Promise<string> {
+  return sign(principal, streamTicketAudience);
+}
+
+function sign(principal: EnginePrincipal, audience: string): Promise<string> {
   return new SignJWT({
     sid: principal.sessionId,
     perms: principal.permissions,
@@ -50,7 +60,7 @@ export function signEngineToken(principal: EnginePrincipal): Promise<string> {
   })
     .setProtectedHeader({ alg: 'EdDSA' })
     .setIssuer(engineTokenIssuer)
-    .setAudience(engineTokenAudience)
+    .setAudience(audience)
     .setSubject(principal.userId)
     .setIssuedAt()
     .setExpirationTime(`${String(engineTokenLifetimeSeconds)}s`)

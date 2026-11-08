@@ -53,6 +53,26 @@ func (r *Resolver) Exists(virtual string) (bool, error) {
 	}
 }
 
+// OpenFile opens a regular file for reading (downloads); folders, links and devices are refused.
+func (r *Resolver) OpenFile(virtual string) (*os.File, Entry, error) {
+	clean, err := Clean(virtual)
+	if err != nil {
+		return nil, Entry{}, err
+	}
+	info, err := r.root.Lstat(Relative(clean))
+	if err != nil {
+		return nil, Entry{}, notFound(err)
+	}
+	if !info.Mode().IsRegular() {
+		return nil, Entry{}, ErrNotRegular
+	}
+	file, err := r.root.Open(Relative(clean))
+	if err != nil {
+		return nil, Entry{}, notFound(err)
+	}
+	return file, toEntry(clean, info), nil
+}
+
 // Mkdir creates one directory; its parent must exist and the name must be free.
 func (r *Resolver) Mkdir(virtual string) error {
 	clean, err := Clean(virtual)

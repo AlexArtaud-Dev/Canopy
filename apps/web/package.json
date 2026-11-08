@@ -5,9 +5,9 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
-    "dev": "node --import ./server/peer-address.mjs ./node_modules/next/dist/bin/next dev --port 3000",
+    "dev": "node --import ./server/peer-address.mjs --import ./server/engine-stream.mjs ./node_modules/next/dist/bin/next dev --port 3000",
     "build": "next build",
-    "start": "node --import ./server/peer-address.mjs ./node_modules/next/dist/bin/next start --port 3000",
+    "start": "node --import ./server/peer-address.mjs --import ./server/engine-stream.mjs ./node_modules/next/dist/bin/next start --port 3000",
     "lint": "next typegen && eslint --max-warnings 0 .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "jest --coverage --runInBand",

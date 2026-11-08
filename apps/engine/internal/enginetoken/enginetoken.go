@@ -19,6 +19,9 @@ import (
 const (
 	issuer   = "canopy-web"
 	audience = "canopy-engine"
+	// StreamAudience marks a stream ticket: kept by the browser in an HttpOnly cookie, so it is
+	// only accepted on streaming routes (downloads, uploads), never on the rest of the API.
+	StreamAudience = "canopy-engine-stream"
 	// maxLifetime caps tokens even if the web app asked for more.
 	maxLifetime = 5 * time.Minute
 	leeway      = 30 * time.Second
@@ -42,6 +45,8 @@ type Principal struct {
 	SessionID   string
 	Permissions []string
 	Groups      []string
+	// Stream is true for a stream ticket (see StreamAudience).
+	Stream bool
 }
 
 // IsAdmin reports whether the principal bypasses path grants.
@@ -89,7 +94,6 @@ func (v *Verifier) Verify(token string) (Principal, error) {
 	_, err := jwt.ParseWithClaims(token, &parsed, func(*jwt.Token) (any, error) { return v.key, nil },
 		jwt.WithValidMethods([]string{jwt.SigningMethodEdDSA.Alg()}),
 		jwt.WithIssuer(issuer),
-		jwt.WithAudience(audience),
 		jwt.WithExpirationRequired(),
 		jwt.WithIssuedAt(),
 		jwt.WithLeeway(leeway),
@@ -102,11 +106,16 @@ func (v *Verifier) Verify(token string) (Principal, error) {
 		parsed.ExpiresAt.Sub(parsed.IssuedAt.Time) > maxLifetime {
 		return Principal{}, ErrInvalid
 	}
+	stream := slices.Contains(parsed.Audience, StreamAudience)
+	if !stream && !slices.Contains(parsed.Audience, audience) {
+		return Principal{}, ErrInvalid
+	}
 	return Principal{
 		UserID:      parsed.Subject,
 		SessionID:   parsed.SessionID,
 		Permissions: parsed.Permissions,
 		Groups:      parsed.Groups,
+		Stream:      stream,
 	}, nil
 }
 
@@ -127,8 +136,8 @@ func FromContext(ctx context.Context) (Principal, bool) {
 type ErrorWriter func(w http.ResponseWriter, r *http.Request, status int, code string)
 
 // Middleware requires a valid bearer token. A nil verifier (no key configured) refuses every
-// request rather than letting it through.
-func Middleware(verifier *Verifier, fail ErrorWriter) func(http.Handler) http.Handler {
+// request rather than letting it through. Stream tickets pass only where streamRoute says so.
+func Middleware(verifier *Verifier, fail ErrorWriter, streamRoute func(*http.Request) bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if verifier == nil {
@@ -143,6 +152,10 @@ func Middleware(verifier *Verifier, fail ErrorWriter) func(http.Handler) http.Ha
 			principal, err := verifier.Verify(token)
 			if err != nil {
 				fail(w, r, http.StatusUnauthorized, CodeInvalid)
+				return
+			}
+			if principal.Stream && !streamRoute(r) {
+				fail(w, r, http.StatusForbidden, CodeInvalid)
 				return
 			}
 			next.ServeHTTP(w, r.WithContext(WithPrincipal(r.Context(), principal)))
