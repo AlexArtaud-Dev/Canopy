@@ -99,6 +99,64 @@ export type ExplainResponse = {
   decisions: Array<AccessDecision>;
 };
 
+export type FolderSizeRequest = {
+  path: string;
+};
+
+export type JobState = 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled';
+
+export type Job = {
+  id: string;
+  /**
+   * What the job does (`folder_size`, later copy, move, delete…).
+   */
+  kind: string;
+  ownerId: string;
+  state: JobState;
+  /**
+   * Virtual path the job works on.
+   */
+  target?: string;
+  bytesDone: number;
+  /**
+   * Absent while still unknown.
+   */
+  bytesTotal?: number;
+  itemsDone: number;
+  itemsTotal?: number;
+  currentPath?: string;
+  rateBps?: number;
+  etaSeconds?: number;
+  /**
+   * Human-readable outcome, shape depends on the kind.
+   */
+  result?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Set when the job failed; translated by the web app.
+   */
+  errorCode?: string;
+  createdAt: string;
+  startedAt?: string;
+  finishedAt?: string;
+};
+
+export type JobList = {
+  items: Array<Job>;
+};
+
+export type JobLogLine = {
+  seq: number;
+  at: string;
+  level: 'info' | 'warn' | 'error';
+  line: string;
+};
+
+export type JobLogList = {
+  items: Array<JobLogLine>;
+};
+
 export type GetLivenessData = {
   body?: never;
   path?: never;
@@ -222,3 +280,170 @@ export type ExplainAccessResponses = {
 };
 
 export type ExplainAccessResponse = ExplainAccessResponses[keyof ExplainAccessResponses];
+
+export type StartFolderSizeData = {
+  body: FolderSizeRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/jobs/folder-size';
+};
+
+export type StartFolderSizeErrors = {
+  /**
+   * Invalid path (`files.invalid_path`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * The caller may not read this folder (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such folder (`files.not_found`, `files.not_a_directory`).
+   */
+  404: Error;
+  /**
+   * Too many active jobs for this person (`jobs.too_many`).
+   */
+  429: Error;
+};
+
+export type StartFolderSizeError = StartFolderSizeErrors[keyof StartFolderSizeErrors];
+
+export type StartFolderSizeResponses = {
+  /**
+   * The job was queued.
+   */
+  202: Job;
+};
+
+export type StartFolderSizeResponse = StartFolderSizeResponses[keyof StartFolderSizeResponses];
+
+export type ListJobsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    limit?: number;
+  };
+  url: '/v1/jobs';
+};
+
+export type ListJobsErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+};
+
+export type ListJobsError = ListJobsErrors[keyof ListJobsErrors];
+
+export type ListJobsResponses = {
+  /**
+   * Jobs, newest first.
+   */
+  200: JobList;
+};
+
+export type ListJobsResponse = ListJobsResponses[keyof ListJobsResponses];
+
+export type GetJobData = {
+  body?: never;
+  path: {
+    jobId: string;
+  };
+  query?: never;
+  url: '/v1/jobs/{jobId}';
+};
+
+export type GetJobErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * No such job, or not the caller’s (`jobs.not_found`).
+   */
+  404: Error;
+};
+
+export type GetJobError = GetJobErrors[keyof GetJobErrors];
+
+export type GetJobResponses = {
+  /**
+   * The job.
+   */
+  200: Job;
+};
+
+export type GetJobResponse = GetJobResponses[keyof GetJobResponses];
+
+export type CancelJobData = {
+  body?: never;
+  path: {
+    jobId: string;
+  };
+  query?: never;
+  url: '/v1/jobs/{jobId}/cancel';
+};
+
+export type CancelJobErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * No such job, or not the caller’s (`jobs.not_found`).
+   */
+  404: Error;
+  /**
+   * The job already finished (`jobs.not_cancellable`).
+   */
+  409: Error;
+};
+
+export type CancelJobError = CancelJobErrors[keyof CancelJobErrors];
+
+export type CancelJobResponses = {
+  /**
+   * Cancellation requested.
+   */
+  202: Job;
+};
+
+export type CancelJobResponse = CancelJobResponses[keyof CancelJobResponses];
+
+export type GetJobLogsData = {
+  body?: never;
+  path: {
+    jobId: string;
+  };
+  query?: {
+    after?: number;
+  };
+  url: '/v1/jobs/{jobId}/logs';
+};
+
+export type GetJobLogsErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * No such job, or not the caller’s (`jobs.not_found`).
+   */
+  404: Error;
+};
+
+export type GetJobLogsError = GetJobLogsErrors[keyof GetJobLogsErrors];
+
+export type GetJobLogsResponses = {
+  /**
+   * Lines in order.
+   */
+  200: JobLogList;
+};
+
+export type GetJobLogsResponse = GetJobLogsResponses[keyof GetJobLogsResponses];

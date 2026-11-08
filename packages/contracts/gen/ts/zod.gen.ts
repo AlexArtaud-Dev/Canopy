@@ -82,6 +82,85 @@ export const zExplainResponse = z.object({
   decisions: z.array(zAccessDecision),
 });
 
+export const zFolderSizeRequest = z.object({
+  path: z.string(),
+});
+
+export const zJobState = z.enum(['queued', 'running', 'succeeded', 'failed', 'cancelled']);
+
+export const zJob = z.object({
+  id: z.uuid(),
+  kind: z.string(),
+  ownerId: z.string(),
+  state: zJobState,
+  target: z.string().optional(),
+  bytesDone: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    }),
+  bytesTotal: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  itemsDone: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    }),
+  itemsTotal: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  currentPath: z.string().optional(),
+  rateBps: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  etaSeconds: z.int().optional(),
+  result: z.record(z.string(), z.unknown()).optional(),
+  errorCode: z.string().optional(),
+  createdAt: z.iso.datetime(),
+  startedAt: z.iso.datetime().optional(),
+  finishedAt: z.iso.datetime().optional(),
+});
+
+export const zJobList = z.object({
+  items: z.array(zJob),
+});
+
+export const zJobLogLine = z.object({
+  seq: z.int(),
+  at: z.iso.datetime(),
+  level: z.enum(['info', 'warn', 'error']),
+  line: z.string(),
+});
+
+export const zJobLogList = z.object({
+  items: z.array(zJobLogLine),
+});
+
 /**
  * The process is running.
  */
@@ -112,3 +191,50 @@ export const zExplainAccessBody = zExplainRequest;
  * One decision per action.
  */
 export const zExplainAccessResponse = zExplainResponse;
+
+export const zStartFolderSizeBody = zFolderSizeRequest;
+
+/**
+ * The job was queued.
+ */
+export const zStartFolderSizeResponse = zJob;
+
+export const zListJobsQuery = z.object({
+  limit: z.int().gte(1).lte(100).optional().default(50),
+});
+
+/**
+ * Jobs, newest first.
+ */
+export const zListJobsResponse = zJobList;
+
+export const zGetJobPath = z.object({
+  jobId: z.uuid(),
+});
+
+/**
+ * The job.
+ */
+export const zGetJobResponse = zJob;
+
+export const zCancelJobPath = z.object({
+  jobId: z.uuid(),
+});
+
+/**
+ * Cancellation requested.
+ */
+export const zCancelJobResponse = zJob;
+
+export const zGetJobLogsPath = z.object({
+  jobId: z.uuid(),
+});
+
+export const zGetJobLogsQuery = z.object({
+  after: z.int().gte(0).optional().default(0),
+});
+
+/**
+ * Lines in order.
+ */
+export const zGetJobLogsResponse = zJobLogList;

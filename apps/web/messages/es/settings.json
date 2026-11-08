@@ -21,7 +21,8 @@
     "auth": "Inicio de sesión y sesiones",
     "audit": "Registro de auditoría",
     "system": "Sistema",
-    "appearance": "Apariencia"
+    "appearance": "Apariencia",
+    "jobs": "Tareas en segundo plano"
   },
   "groups": {
     "sessions": "Sesiones",
@@ -31,7 +32,8 @@
     "maintenance": "Mantenimiento",
     "privacy": "Privacidad",
     "theme": "Tema",
-    "language": "Idioma"
+    "language": "Idioma",
+    "limits": "Límites"
   },
   "fields": {
     "auth": {
@@ -100,6 +102,16 @@
       "defaultLocale": {
         "label": "Idioma por defecto",
         "description": "Se usa cuando un visitante no ha elegido idioma y los de su navegador no están disponibles."
+      }
+    },
+    "jobs": {
+      "maxConcurrent": {
+        "label": "Tareas simultáneas",
+        "description": "Las demás tareas esperan en la cola. Se aplica tras reiniciar el motor."
+      },
+      "perUser": {
+        "label": "Tareas activas por persona",
+        "description": "Se rechazan nuevas tareas mientras alguien ya tenga este número en cola o en curso."
       }
     }
   },

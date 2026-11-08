@@ -61,5 +61,12 @@
     "invalid_recipient": "The SMTP server refused the recipient address.",
     "tls_failed": "The secure connection to the SMTP server failed. Try another encryption mode.",
     "send_failed": "The email could not be sent."
+  },
+  "jobs": {
+    "not_found": "This job no longer exists.",
+    "too_many": "You already have too many operations in progress. Wait for one to finish.",
+    "not_cancellable": "This operation already finished.",
+    "failed": "The operation failed.",
+    "interrupted": "The operation was interrupted because the file engine restarted."
   }
 }

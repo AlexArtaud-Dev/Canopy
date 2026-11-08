@@ -119,3 +119,41 @@ func lastSlash(value string) int {
 func notFound(err error) error {
 	return fmt.Errorf("%w: %w", ErrNotFound, err)
 }
+
+// Walk visits a directory and everything below it, depth first, in lexical order. Symbolic links
+// are reported, never followed, and the walk cannot leave the root. visit may return fs.SkipDir
+// to skip a directory's contents; entries that vanish mid-walk are skipped.
+func (r *Resolver) Walk(virtual string, visit func(path string, entry Entry) error) error {
+	clean, err := Clean(virtual)
+	if err != nil {
+		return err
+	}
+	info, err := r.root.Stat(Relative(clean))
+	if err != nil {
+		return notFound(err)
+	}
+	if !info.IsDir() {
+		return ErrNotDir
+	}
+	err = fs.WalkDir(r.root.FS(), Relative(clean), func(name string, item fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			if item != nil && item.IsDir() && name != Relative(clean) {
+				return fs.SkipDir
+			}
+			return walkErr
+		}
+		itemInfo, err := item.Info()
+		if err != nil {
+			return nil //nolint:nilerr // vanished between listing and stat
+		}
+		full := "/" + name
+		if name == "." {
+			full = "/"
+		}
+		return visit(full, toEntry(full, itemInfo))
+	})
+	if err != nil {
+		return fmt.Errorf("walk: %w", err)
+	}
+	return nil
+}

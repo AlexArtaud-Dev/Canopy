@@ -21,7 +21,8 @@
     "auth": "Connexion et sessions",
     "audit": "Journal d’audit",
     "system": "Système",
-    "appearance": "Apparence"
+    "appearance": "Apparence",
+    "jobs": "Tâches de fond"
   },
   "groups": {
     "sessions": "Sessions",
@@ -31,7 +32,8 @@
     "maintenance": "Maintenance",
     "privacy": "Vie privée",
     "theme": "Thème",
-    "language": "Langue"
+    "language": "Langue",
+    "limits": "Limites"
   },
   "fields": {
     "auth": {
@@ -100,6 +102,16 @@
       "defaultLocale": {
         "label": "Langue par défaut",
         "description": "Utilisée quand un visiteur n’a pas choisi de langue et que celles de son navigateur ne sont pas disponibles."
+      }
+    },
+    "jobs": {
+      "maxConcurrent": {
+        "label": "Tâches simultanées",
+        "description": "Les autres tâches attendent dans la file. S’applique après le redémarrage du moteur."
+      },
+      "perUser": {
+        "label": "Tâches actives par personne",
+        "description": "Les nouvelles tâches sont refusées tant qu’une personne en a déjà autant en attente ou en cours."
       }
     }
   },

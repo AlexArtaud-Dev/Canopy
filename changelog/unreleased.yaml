@@ -181,3 +181,10 @@ entries:
       en: Each user has an access page tracing their permissions to roles and groups, with a folder check showing which rule decides; groups have separate members and folder access pages
       fr: Chaque utilisateur a une page d’accès qui relie ses permissions à ses rôles et groupes, avec une vérification de dossier montrant quelle règle décide ; les groupes ont des pages séparées pour les membres et l’accès aux dossiers
       es: Cada usuario tiene una página de acceso que relaciona sus permisos con sus roles y grupos, con una comprobación de carpeta que muestra qué regla decide; los grupos tienen páginas separadas para miembros y acceso a carpetas
+  - type: feat
+    scope: engine
+    issue: 48
+    text:
+      en: Long operations run as background jobs with live progress, cancellation and per-person limits configurable in Settings
+      fr: Les opérations longues s’exécutent en tâches de fond, avec progression en direct, annulation et limites par personne réglables dans les Réglages
+      es: Las operaciones largas se ejecutan como tareas en segundo plano, con progreso en directo, cancelación y límites por persona configurables en Ajustes

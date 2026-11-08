@@ -12,13 +12,18 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/audit"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/config"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/database"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/foldersize"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/grantstore"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/healthcheck"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/httpapi"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
 )
 
@@ -93,14 +98,25 @@ func run() error {
 		return err
 	}
 
+	grants := grantstore.NewStore(pool)
+	jobService, err := startJobs(startupCtx, pool, resolver, grants, logger)
+	if err != nil {
+		return err
+	}
+	go jobService.hub.Listen(ctx, pool, logger)
+
+	streamsDone := make(chan struct{})
 	server := &http.Server{
 		Addr: cfg.Addr,
 		Handler: httpapi.NewRouter(httpapi.Deps{
-			Logger:   logger,
-			Database: pool,
-			Files:    resolver,
-			Grants:   grantstore.NewStore(pool),
-			Verifier: verifier,
+			Logger:      logger,
+			Database:    pool,
+			Files:       resolver,
+			Grants:      grants,
+			Verifier:    verifier,
+			Jobs:        jobService,
+			Audit:       audit.NewWriter(pool),
+			StreamsDone: streamsDone,
 		}),
 		ReadHeaderTimeout: readHeaderTimeout,
 		// No read/write timeouts: multi-GB transfers and SSE streams are legitimately long.
@@ -123,10 +139,29 @@ func run() error {
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownGrace)
 	defer cancel()
+	close(streamsDone)
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		return fmt.Errorf("shutdown: %w", err)
 	}
+	if err := jobService.runner.Stop(shutdownCtx); err != nil {
+		return err
+	}
 	return nil
+}
+
+// startJobs registers every job kind and starts the runner with the configured concurrency.
+func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, grants *grantstore.Store, logger *slog.Logger) (*jobService, error) {
+	limits, err := jobs.LoadLimits(ctx, pool)
+	if err != nil {
+		return nil, err
+	}
+	registry := jobs.NewRegistry(pool, logger, time.Now)
+	jobs.Register(registry, foldersize.Handler(files, grants))
+	runner, err := jobs.Start(ctx, registry, pool, limits)
+	if err != nil {
+		return nil, err
+	}
+	return &jobService{runner: runner, hub: jobs.NewHub()}, nil
 }
 
 // newVerifier parses the public key; without one the engine still starts (health checks work)

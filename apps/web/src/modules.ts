@@ -5,6 +5,7 @@ import { appearanceModule } from '@/features/appearance/appearance.module';
 import { auditModule } from '@/features/audit/audit.module';
 import { authModule } from '@/features/auth/auth.module';
 import { filesModule } from '@/features/files/files.module';
+import { jobsModule } from '@/features/jobs/jobs.module';
 import { mailModule } from '@/features/mail/mail.module';
 import { settingsModule } from '@/features/settings/settings.module';
 import { systemModule } from '@/features/system/system.module';
@@ -13,6 +14,7 @@ import { createRegistry } from '@/shared/modules/registry';
 
 export const appRegistry = createRegistry([
   filesModule,
+  jobsModule,
   authModule,
   usersModule,
   groupsModule,

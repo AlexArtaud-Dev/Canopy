@@ -61,5 +61,12 @@
     "invalid_recipient": "Le serveur SMTP a refusé l’adresse du destinataire.",
     "tls_failed": "La connexion sécurisée au serveur SMTP a échoué. Essayez un autre mode de chiffrement.",
     "send_failed": "L’e-mail n’a pas pu être envoyé."
+  },
+  "jobs": {
+    "not_found": "Cette tâche n’existe plus.",
+    "too_many": "Vous avez déjà trop d’opérations en cours. Attendez qu’une se termine.",
+    "not_cancellable": "Cette opération est déjà terminée.",
+    "failed": "L’opération a échoué.",
+    "interrupted": "L’opération a été interrompue par le redémarrage du moteur de fichiers."
   }
 }

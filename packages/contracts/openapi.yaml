@@ -165,6 +165,204 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/jobs/folder-size:
+    post:
+      operationId: startFolderSize
+      summary: Measure a folder in the background
+      description: >-
+        Starts a job adding up the size of every file the caller may read under the folder.
+        Subfolders the caller may not read are skipped. Progress streams on `GET /v1/jobs/events`
+        (Server-Sent Events, `event: job`, data is a `Job`).
+      tags: [jobs]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FolderSizeRequest'
+      responses:
+        '202':
+          description: The job was queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Invalid path (`files.invalid_path`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The caller may not read this folder (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such folder (`files.not_found`, `files.not_a_directory`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many active jobs for this person (`jobs.too_many`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs:
+    get:
+      operationId: listJobs
+      summary: Recent jobs of the caller
+      description: Newest first. Administrators see every job.
+      tags: [jobs]
+      security:
+        - engineToken: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: Jobs, newest first.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobList'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs/{jobId}:
+    get:
+      operationId: getJob
+      summary: One job
+      tags: [jobs]
+      security:
+        - engineToken: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The job.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such job, or not the caller’s (`jobs.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs/{jobId}/cancel:
+    post:
+      operationId: cancelJob
+      summary: Cancel a queued or running job
+      description: >-
+        A queued job is cancelled at once; a running one stops as soon as it notices (its final
+        state arrives on the event stream).
+      tags: [jobs]
+      security:
+        - engineToken: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '202':
+          description: Cancellation requested.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such job, or not the caller’s (`jobs.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: The job already finished (`jobs.not_cancellable`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs/{jobId}/logs:
+    get:
+      operationId: getJobLogs
+      summary: Output lines of a job
+      description: The last lines kept (capped per job), after an optional sequence number.
+      tags: [jobs]
+      security:
+        - engineToken: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: after
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Lines in order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobLogList'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such job, or not the caller’s (`jobs.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     engineToken:
@@ -303,3 +501,95 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AccessDecision'
+    FolderSizeRequest:
+      type: object
+      required: [path]
+      properties:
+        path:
+          type: string
+    JobState:
+      type: string
+      enum: [queued, running, succeeded, failed, cancelled]
+    Job:
+      type: object
+      required: [id, kind, ownerId, state, bytesDone, itemsDone, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          description: What the job does (`folder_size`, later copy, move, delete…).
+        ownerId:
+          type: string
+        state:
+          $ref: '#/components/schemas/JobState'
+        target:
+          type: string
+          description: Virtual path the job works on.
+        bytesDone:
+          type: integer
+          format: int64
+        bytesTotal:
+          type: integer
+          format: int64
+          description: Absent while still unknown.
+        itemsDone:
+          type: integer
+          format: int64
+        itemsTotal:
+          type: integer
+          format: int64
+        currentPath:
+          type: string
+        rateBps:
+          type: integer
+          format: int64
+        etaSeconds:
+          type: integer
+        result:
+          type: object
+          additionalProperties: true
+          description: Human-readable outcome, shape depends on the kind.
+        errorCode:
+          type: string
+          description: Set when the job failed; translated by the web app.
+        createdAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type: string
+          format: date-time
+    JobList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Job'
+    JobLogLine:
+      type: object
+      required: [seq, at, level, line]
+      properties:
+        seq:
+          type: integer
+        at:
+          type: string
+          format: date-time
+        level:
+          type: string
+          enum: [info, warn, error]
+        line:
+          type: string
+    JobLogList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobLogLine'
