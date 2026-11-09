@@ -26,7 +26,8 @@ services:
     build:
       context: ..
       dockerfile: docker/engine.Dockerfile
-    image: canopy-engine:local
+    # Released images; `up --build` builds this checkout under the same name instead.
+    image: ghcr.io/alexartaud-dev/canopy-engine:${CANOPY_VERSION:-latest}
     restart: unless-stopped
     # Files the engine creates belong to this host user (linuxserver-style PUID/PGID).
     user: ${PUID:-1000}:${PGID:-1000}
@@ -57,7 +58,7 @@ services:
     build:
       context: ..
       dockerfile: docker/web.Dockerfile
-    image: canopy-web:local
+    image: ghcr.io/alexartaud-dev/canopy-web:${CANOPY_VERSION:-latest}
     restart: unless-stopped
     read_only: true
     tmpfs: [/tmp, /app/apps/web/.next/cache]
