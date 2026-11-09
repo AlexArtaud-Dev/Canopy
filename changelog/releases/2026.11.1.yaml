@@ -1,0 +1,23 @@
+date: 2026-11-09
+entries:
+  - type: feat
+    scope: auth
+    issue: 27
+    text:
+      en: Two-factor codes are typed in six boxes, sent as soon as the last digit is in, with a switch to a recovery code
+      fr: Les codes de double authentification se saisissent dans six cases, envoyés dès le dernier chiffre, avec un passage au code de récupération
+      es: Los códigos de verificación en dos pasos se escriben en seis casillas, se envían al teclear el último dígito y se puede pasar a un código de recuperación
+  - type: fix
+    scope: auth
+    issue: 27
+    text:
+      en: Signing in works on the local network over plain HTTP (for example in maintenance mode) when the public address is HTTPS
+      fr: La connexion fonctionne sur le réseau local en HTTP (par exemple en mode maintenance) quand l’adresse publique est en HTTPS
+      es: El inicio de sesión funciona en la red local por HTTP (por ejemplo en modo mantenimiento) cuando la dirección pública es HTTPS
+  - type: fix
+    scope: files
+    issue: 139
+    text:
+      en: A folder the server account may not open now says so, instead of claiming it no longer exists
+      fr: Un dossier que le compte du serveur ne peut pas ouvrir l’indique désormais, au lieu de prétendre qu’il n’existe plus
+      es: Una carpeta que la cuenta del servidor no puede abrir ahora lo indica, en lugar de decir que ya no existe
