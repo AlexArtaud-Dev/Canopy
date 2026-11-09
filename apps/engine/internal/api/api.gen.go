@@ -300,6 +300,17 @@ type DecidingGrantEffect string
 // DecidingGrantSubjectType defines model for DecidingGrant.SubjectType.
 type DecidingGrantSubjectType string
 
+// DeletePlan defines model for DeletePlan.
+type DeletePlan struct {
+	Bytes int64 `json:"bytes"`
+
+	// Complete False when measuring took too long (very large selection).
+	Complete  bool        `json:"complete"`
+	Files     int64       `json:"files"`
+	FitsTrash bool        `json:"fitsTrash"`
+	Limits    TrashLimits `json:"limits"`
+}
+
 // DirectoryEntry defines model for DirectoryEntry.
 type DirectoryEntry struct {
 	Actions  []PathAction       `json:"actions"`
@@ -431,6 +442,11 @@ type PathResult struct {
 	Path string `json:"path"`
 }
 
+// PathsRequest defines model for PathsRequest.
+type PathsRequest struct {
+	Paths []string `json:"paths"`
+}
+
 // ReadinessStatus defines model for ReadinessStatus.
 type ReadinessStatus struct {
 	Status ReadinessStatusStatus `json:"status"`
@@ -444,6 +460,17 @@ type RenameRequest struct {
 	// Name New name, in the same folder.
 	Name string `json:"name"`
 	Path string `json:"path"`
+}
+
+// RestoredItem defines model for RestoredItem.
+type RestoredItem struct {
+	Id   string `json:"id"`
+	Path string `json:"path"`
+}
+
+// RestoredList defines model for RestoredList.
+type RestoredList struct {
+	Items []RestoredItem `json:"items"`
 }
 
 // TransferConflict defines model for TransferConflict.
@@ -484,6 +511,42 @@ type TransferRequest struct {
 	Sources     []string          `json:"sources"`
 }
 
+// TrashIdsRequest defines model for TrashIdsRequest.
+type TrashIdsRequest struct {
+	Ids []string `json:"ids"`
+}
+
+// TrashItem defines model for TrashItem.
+type TrashItem struct {
+	Bytes        int64     `json:"bytes"`
+	DeletedAt    time.Time `json:"deletedAt"`
+	DeletedBy    string    `json:"deletedBy"`
+	Files        int64     `json:"files"`
+	Id           string    `json:"id"`
+	IsDirectory  bool      `json:"isDirectory"`
+	Measured     bool      `json:"measured"`
+	Name         string    `json:"name"`
+	OriginalPath string    `json:"originalPath"`
+}
+
+// TrashItemList defines model for TrashItemList.
+type TrashItemList struct {
+	Items []TrashItem `json:"items"`
+}
+
+// TrashLimits defines model for TrashLimits.
+type TrashLimits struct {
+	MaxBytes      int64 `json:"maxBytes"`
+	MaxFiles      int64 `json:"maxFiles"`
+	RetentionDays int   `json:"retentionDays"`
+}
+
+// TrashListing defines model for TrashListing.
+type TrashListing struct {
+	Items  []TrashItem `json:"items"`
+	Limits TrashLimits `json:"limits"`
+}
+
 // ListDirectoryParams defines parameters for ListDirectory.
 type ListDirectoryParams struct {
 	// Path Virtual POSIX path (`/media/photos`).
@@ -516,6 +579,9 @@ type GetJobLogsParams struct {
 // ExplainAccessJSONRequestBody defines body for ExplainAccess for application/json ContentType.
 type ExplainAccessJSONRequestBody = ExplainRequest
 
+// PlanDeleteJSONRequestBody defines body for PlanDelete for application/json ContentType.
+type PlanDeleteJSONRequestBody = PathsRequest
+
 // CreateFolderJSONRequestBody defines body for CreateFolder for application/json ContentType.
 type CreateFolderJSONRequestBody = CreateFolderRequest
 
@@ -525,11 +591,23 @@ type RenameEntryJSONRequestBody = RenameRequest
 // PlanTransferJSONRequestBody defines body for PlanTransfer for application/json ContentType.
 type PlanTransferJSONRequestBody = TransferRequest
 
+// MoveToTrashJSONRequestBody defines body for MoveToTrash for application/json ContentType.
+type MoveToTrashJSONRequestBody = PathsRequest
+
+// StartPermanentDeleteJSONRequestBody defines body for StartPermanentDelete for application/json ContentType.
+type StartPermanentDeleteJSONRequestBody = PathsRequest
+
+// StartEmptyTrashJSONRequestBody defines body for StartEmptyTrash for application/json ContentType.
+type StartEmptyTrashJSONRequestBody = TrashIdsRequest
+
 // StartFolderSizeJSONRequestBody defines body for StartFolderSize for application/json ContentType.
 type StartFolderSizeJSONRequestBody = FolderSizeRequest
 
 // StartTransferJSONRequestBody defines body for StartTransfer for application/json ContentType.
 type StartTransferJSONRequestBody = TransferJobRequest
+
+// RestoreFromTrashJSONRequestBody defines body for RestoreFromTrash for application/json ContentType.
+type RestoreFromTrashJSONRequestBody = TrashIdsRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -542,6 +620,9 @@ type ServerInterface interface {
 	// ExplainAccess Explain a person's access to a folder
 	// (POST /v1/authz/explain)
 	ExplainAccess(w http.ResponseWriter, r *http.Request)
+	// PlanDelete Measure a deletion before doing it
+	// (POST /v1/fs/delete/plan)
+	PlanDelete(w http.ResponseWriter, r *http.Request)
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(w http.ResponseWriter, r *http.Request, params ListDirectoryParams)
@@ -554,9 +635,18 @@ type ServerInterface interface {
 	// PlanTransfer Check a copy or move before running it
 	// (POST /v1/fs/transfer/plan)
 	PlanTransfer(w http.ResponseWriter, r *http.Request)
+	// MoveToTrash Move items to the trash
+	// (POST /v1/fs/trash)
+	MoveToTrash(w http.ResponseWriter, r *http.Request)
 	// ListJobs Recent jobs of the caller
 	// (GET /v1/jobs)
 	ListJobs(w http.ResponseWriter, r *http.Request, params ListJobsParams)
+	// StartPermanentDelete Delete items permanently
+	// (POST /v1/jobs/delete)
+	StartPermanentDelete(w http.ResponseWriter, r *http.Request)
+	// StartEmptyTrash Remove trash items for good
+	// (POST /v1/jobs/empty-trash)
+	StartEmptyTrash(w http.ResponseWriter, r *http.Request)
 	// StartFolderSize Measure a folder in the background
 	// (POST /v1/jobs/folder-size)
 	StartFolderSize(w http.ResponseWriter, r *http.Request)
@@ -572,6 +662,12 @@ type ServerInterface interface {
 	// GetJobLogs Output lines of a job
 	// (GET /v1/jobs/{jobId}/logs)
 	GetJobLogs(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID, params GetJobLogsParams)
+	// ListTrash Items in the trash
+	// (GET /v1/trash)
+	ListTrash(w http.ResponseWriter, r *http.Request)
+	// RestoreFromTrash Put items back where they were
+	// (POST /v1/trash/restore)
+	RestoreFromTrash(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -593,6 +689,12 @@ func (_ Unimplemented) GetReadiness(w http.ResponseWriter, r *http.Request) {
 // ExplainAccess Explain a person's access to a folder
 // (POST /v1/authz/explain)
 func (_ Unimplemented) ExplainAccess(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// PlanDelete Measure a deletion before doing it
+// (POST /v1/fs/delete/plan)
+func (_ Unimplemented) PlanDelete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -620,9 +722,27 @@ func (_ Unimplemented) PlanTransfer(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// MoveToTrash Move items to the trash
+// (POST /v1/fs/trash)
+func (_ Unimplemented) MoveToTrash(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // ListJobs Recent jobs of the caller
 // (GET /v1/jobs)
 func (_ Unimplemented) ListJobs(w http.ResponseWriter, r *http.Request, params ListJobsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// StartPermanentDelete Delete items permanently
+// (POST /v1/jobs/delete)
+func (_ Unimplemented) StartPermanentDelete(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// StartEmptyTrash Remove trash items for good
+// (POST /v1/jobs/empty-trash)
+func (_ Unimplemented) StartEmptyTrash(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -653,6 +773,18 @@ func (_ Unimplemented) CancelJob(w http.ResponseWriter, r *http.Request, jobId o
 // GetJobLogs Output lines of a job
 // (GET /v1/jobs/{jobId}/logs)
 func (_ Unimplemented) GetJobLogs(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID, params GetJobLogsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListTrash Items in the trash
+// (GET /v1/trash)
+func (_ Unimplemented) ListTrash(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// RestoreFromTrash Put items back where they were
+// (POST /v1/trash/restore)
+func (_ Unimplemented) RestoreFromTrash(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -698,6 +830,20 @@ func (siw *ServerInterfaceWrapper) ExplainAccess(w http.ResponseWriter, r *http.
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ExplainAccess(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PlanDelete operation middleware
+func (siw *ServerInterfaceWrapper) PlanDelete(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PlanDelete(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -847,6 +993,20 @@ func (siw *ServerInterfaceWrapper) PlanTransfer(w http.ResponseWriter, r *http.R
 	handler.ServeHTTP(w, r)
 }
 
+// MoveToTrash operation middleware
+func (siw *ServerInterfaceWrapper) MoveToTrash(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.MoveToTrash(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // ListJobs operation middleware
 func (siw *ServerInterfaceWrapper) ListJobs(w http.ResponseWriter, r *http.Request) {
 
@@ -871,6 +1031,34 @@ func (siw *ServerInterfaceWrapper) ListJobs(w http.ResponseWriter, r *http.Reque
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListJobs(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// StartPermanentDelete operation middleware
+func (siw *ServerInterfaceWrapper) StartPermanentDelete(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.StartPermanentDelete(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// StartEmptyTrash operation middleware
+func (siw *ServerInterfaceWrapper) StartEmptyTrash(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.StartEmptyTrash(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -993,6 +1181,34 @@ func (siw *ServerInterfaceWrapper) GetJobLogs(w http.ResponseWriter, r *http.Req
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetJobLogs(w, r, jobId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListTrash operation middleware
+func (siw *ServerInterfaceWrapper) ListTrash(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListTrash(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// RestoreFromTrash operation middleware
+func (siw *ServerInterfaceWrapper) RestoreFromTrash(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RestoreFromTrash(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1154,6 +1370,24 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/v1/jobs/transfer", wrapper.StartTransfer)
 	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/fs/delete/plan", wrapper.PlanDelete)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/fs/trash", wrapper.MoveToTrash)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/jobs/delete", wrapper.StartPermanentDelete)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/trash", wrapper.ListTrash)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/trash/restore", wrapper.RestoreFromTrash)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/jobs/empty-trash", wrapper.StartEmptyTrash)
+	})
 
 	return r
 }
@@ -1274,6 +1508,84 @@ func (response ExplainAccess403JSONResponse) VisitExplainAccessResponse(w http.R
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PlanDeleteRequestObject struct {
+	Body *PlanDeleteJSONRequestBody
+}
+
+type PlanDeleteResponseObject interface {
+	VisitPlanDeleteResponse(w http.ResponseWriter) error
+}
+
+type PlanDelete200JSONResponse DeletePlan
+
+func (response PlanDelete200JSONResponse) VisitPlanDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PlanDelete400JSONResponse Error
+
+func (response PlanDelete400JSONResponse) VisitPlanDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PlanDelete401JSONResponse Error
+
+func (response PlanDelete401JSONResponse) VisitPlanDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PlanDelete403JSONResponse Error
+
+func (response PlanDelete403JSONResponse) VisitPlanDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PlanDelete404JSONResponse Error
+
+func (response PlanDelete404JSONResponse) VisitPlanDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -1618,6 +1930,84 @@ func (response PlanTransfer404JSONResponse) VisitPlanTransferResponse(w http.Res
 	return err
 }
 
+type MoveToTrashRequestObject struct {
+	Body *MoveToTrashJSONRequestBody
+}
+
+type MoveToTrashResponseObject interface {
+	VisitMoveToTrashResponse(w http.ResponseWriter) error
+}
+
+type MoveToTrash200JSONResponse TrashItemList
+
+func (response MoveToTrash200JSONResponse) VisitMoveToTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type MoveToTrash400JSONResponse Error
+
+func (response MoveToTrash400JSONResponse) VisitMoveToTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type MoveToTrash401JSONResponse Error
+
+func (response MoveToTrash401JSONResponse) VisitMoveToTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type MoveToTrash403JSONResponse Error
+
+func (response MoveToTrash403JSONResponse) VisitMoveToTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type MoveToTrash404JSONResponse Error
+
+func (response MoveToTrash404JSONResponse) VisitMoveToTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type ListJobsRequestObject struct {
 	Params ListJobsParams
 }
@@ -1650,6 +2040,148 @@ func (response ListJobs401JSONResponse) VisitListJobsResponse(w http.ResponseWri
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartPermanentDeleteRequestObject struct {
+	Body *StartPermanentDeleteJSONRequestBody
+}
+
+type StartPermanentDeleteResponseObject interface {
+	VisitStartPermanentDeleteResponse(w http.ResponseWriter) error
+}
+
+type StartPermanentDelete202JSONResponse Job
+
+func (response StartPermanentDelete202JSONResponse) VisitStartPermanentDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartPermanentDelete400JSONResponse Error
+
+func (response StartPermanentDelete400JSONResponse) VisitStartPermanentDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartPermanentDelete401JSONResponse Error
+
+func (response StartPermanentDelete401JSONResponse) VisitStartPermanentDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartPermanentDelete403JSONResponse Error
+
+func (response StartPermanentDelete403JSONResponse) VisitStartPermanentDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartPermanentDelete404JSONResponse Error
+
+func (response StartPermanentDelete404JSONResponse) VisitStartPermanentDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartPermanentDelete429JSONResponse Error
+
+func (response StartPermanentDelete429JSONResponse) VisitStartPermanentDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(429)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartEmptyTrashRequestObject struct {
+	Body *StartEmptyTrashJSONRequestBody
+}
+
+type StartEmptyTrashResponseObject interface {
+	VisitStartEmptyTrashResponse(w http.ResponseWriter) error
+}
+
+type StartEmptyTrash202JSONResponse Job
+
+func (response StartEmptyTrash202JSONResponse) VisitStartEmptyTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartEmptyTrash401JSONResponse Error
+
+func (response StartEmptyTrash401JSONResponse) VisitStartEmptyTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartEmptyTrash429JSONResponse Error
+
+func (response StartEmptyTrash429JSONResponse) VisitStartEmptyTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(429)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -2003,6 +2535,119 @@ func (response GetJobLogs404JSONResponse) VisitGetJobLogsResponse(w http.Respons
 	return err
 }
 
+type ListTrashRequestObject struct {
+}
+
+type ListTrashResponseObject interface {
+	VisitListTrashResponse(w http.ResponseWriter) error
+}
+
+type ListTrash200JSONResponse TrashListing
+
+func (response ListTrash200JSONResponse) VisitListTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListTrash401JSONResponse Error
+
+func (response ListTrash401JSONResponse) VisitListTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RestoreFromTrashRequestObject struct {
+	Body *RestoreFromTrashJSONRequestBody
+}
+
+type RestoreFromTrashResponseObject interface {
+	VisitRestoreFromTrashResponse(w http.ResponseWriter) error
+}
+
+type RestoreFromTrash200JSONResponse RestoredList
+
+func (response RestoreFromTrash200JSONResponse) VisitRestoreFromTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RestoreFromTrash401JSONResponse Error
+
+func (response RestoreFromTrash401JSONResponse) VisitRestoreFromTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RestoreFromTrash403JSONResponse Error
+
+func (response RestoreFromTrash403JSONResponse) VisitRestoreFromTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RestoreFromTrash404JSONResponse Error
+
+func (response RestoreFromTrash404JSONResponse) VisitRestoreFromTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RestoreFromTrash409JSONResponse Error
+
+func (response RestoreFromTrash409JSONResponse) VisitRestoreFromTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// GetLiveness Liveness of the engine process
@@ -2014,6 +2659,9 @@ type StrictServerInterface interface {
 	// ExplainAccess Explain a person's access to a folder
 	// (POST /v1/authz/explain)
 	ExplainAccess(ctx context.Context, request ExplainAccessRequestObject) (ExplainAccessResponseObject, error)
+	// PlanDelete Measure a deletion before doing it
+	// (POST /v1/fs/delete/plan)
+	PlanDelete(ctx context.Context, request PlanDeleteRequestObject) (PlanDeleteResponseObject, error)
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(ctx context.Context, request ListDirectoryRequestObject) (ListDirectoryResponseObject, error)
@@ -2026,9 +2674,18 @@ type StrictServerInterface interface {
 	// PlanTransfer Check a copy or move before running it
 	// (POST /v1/fs/transfer/plan)
 	PlanTransfer(ctx context.Context, request PlanTransferRequestObject) (PlanTransferResponseObject, error)
+	// MoveToTrash Move items to the trash
+	// (POST /v1/fs/trash)
+	MoveToTrash(ctx context.Context, request MoveToTrashRequestObject) (MoveToTrashResponseObject, error)
 	// ListJobs Recent jobs of the caller
 	// (GET /v1/jobs)
 	ListJobs(ctx context.Context, request ListJobsRequestObject) (ListJobsResponseObject, error)
+	// StartPermanentDelete Delete items permanently
+	// (POST /v1/jobs/delete)
+	StartPermanentDelete(ctx context.Context, request StartPermanentDeleteRequestObject) (StartPermanentDeleteResponseObject, error)
+	// StartEmptyTrash Remove trash items for good
+	// (POST /v1/jobs/empty-trash)
+	StartEmptyTrash(ctx context.Context, request StartEmptyTrashRequestObject) (StartEmptyTrashResponseObject, error)
 	// StartFolderSize Measure a folder in the background
 	// (POST /v1/jobs/folder-size)
 	StartFolderSize(ctx context.Context, request StartFolderSizeRequestObject) (StartFolderSizeResponseObject, error)
@@ -2044,6 +2701,12 @@ type StrictServerInterface interface {
 	// GetJobLogs Output lines of a job
 	// (GET /v1/jobs/{jobId}/logs)
 	GetJobLogs(ctx context.Context, request GetJobLogsRequestObject) (GetJobLogsResponseObject, error)
+	// ListTrash Items in the trash
+	// (GET /v1/trash)
+	ListTrash(ctx context.Context, request ListTrashRequestObject) (ListTrashResponseObject, error)
+	// RestoreFromTrash Put items back where they were
+	// (POST /v1/trash/restore)
+	RestoreFromTrash(ctx context.Context, request RestoreFromTrashRequestObject) (RestoreFromTrashResponseObject, error)
 }
 
 type StrictHandlerFunc func(ctx context.Context, w http.ResponseWriter, r *http.Request, request any) (any, error)
@@ -2157,6 +2820,37 @@ func (sh *strictHandler) ExplainAccess(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(ExplainAccessResponseObject); ok {
 		if err := validResponse.VisitExplainAccessResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PlanDelete operation middleware
+func (sh *strictHandler) PlanDelete(w http.ResponseWriter, r *http.Request) {
+	var request PlanDeleteRequestObject
+
+	var body PlanDeleteJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PlanDelete(ctx, request.(PlanDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PlanDelete")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PlanDeleteResponseObject); ok {
+		if err := validResponse.VisitPlanDeleteResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -2283,6 +2977,37 @@ func (sh *strictHandler) PlanTransfer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// MoveToTrash operation middleware
+func (sh *strictHandler) MoveToTrash(w http.ResponseWriter, r *http.Request) {
+	var request MoveToTrashRequestObject
+
+	var body MoveToTrashJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.MoveToTrash(ctx, request.(MoveToTrashRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "MoveToTrash")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(MoveToTrashResponseObject); ok {
+		if err := validResponse.VisitMoveToTrashResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // ListJobs operation middleware
 func (sh *strictHandler) ListJobs(w http.ResponseWriter, r *http.Request, params ListJobsParams) {
 	var request ListJobsRequestObject
@@ -2302,6 +3027,68 @@ func (sh *strictHandler) ListJobs(w http.ResponseWriter, r *http.Request, params
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(ListJobsResponseObject); ok {
 		if err := validResponse.VisitListJobsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// StartPermanentDelete operation middleware
+func (sh *strictHandler) StartPermanentDelete(w http.ResponseWriter, r *http.Request) {
+	var request StartPermanentDeleteRequestObject
+
+	var body StartPermanentDeleteJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.StartPermanentDelete(ctx, request.(StartPermanentDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "StartPermanentDelete")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(StartPermanentDeleteResponseObject); ok {
+		if err := validResponse.VisitStartPermanentDeleteResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// StartEmptyTrash operation middleware
+func (sh *strictHandler) StartEmptyTrash(w http.ResponseWriter, r *http.Request) {
+	var request StartEmptyTrashRequestObject
+
+	var body StartEmptyTrashJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.StartEmptyTrash(ctx, request.(StartEmptyTrashRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "StartEmptyTrash")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(StartEmptyTrashResponseObject); ok {
+		if err := validResponse.VisitStartEmptyTrashResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -2443,6 +3230,61 @@ func (sh *strictHandler) GetJobLogs(w http.ResponseWriter, r *http.Request, jobI
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetJobLogsResponseObject); ok {
 		if err := validResponse.VisitGetJobLogsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListTrash operation middleware
+func (sh *strictHandler) ListTrash(w http.ResponseWriter, r *http.Request) {
+	var request ListTrashRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListTrash(ctx, request.(ListTrashRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListTrash")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListTrashResponseObject); ok {
+		if err := validResponse.VisitListTrashResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// RestoreFromTrash operation middleware
+func (sh *strictHandler) RestoreFromTrash(w http.ResponseWriter, r *http.Request) {
+	var request RestoreFromTrashRequestObject
+
+	var body RestoreFromTrashJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.RestoreFromTrash(ctx, request.(RestoreFromTrashRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RestoreFromTrash")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(RestoreFromTrashResponseObject); ok {
+		if err := validResponse.VisitRestoreFromTrashResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

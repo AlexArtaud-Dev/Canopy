@@ -565,6 +565,250 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/fs/delete/plan:
+    post:
+      operationId: planDelete
+      summary: Measure a deletion before doing it
+      description: >-
+        Sizes the selection (within a short time budget) and says whether it fits the trash
+        limits; when it does not, the web app offers a permanent delete with a strong warning.
+      tags: [files]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PathsRequest'
+      responses:
+        '200':
+          description: The plan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletePlan'
+        '400':
+          description: Invalid paths or a volume itself (`files.invalid_path`, `files.volume_protected`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: No `delete` permission on an item (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: An item is missing (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/fs/trash:
+    post:
+      operationId: moveToTrash
+      summary: Move items to the trash
+      description: >-
+        Instant renames into each volume's trash. Needs `delete` on every item; volumes
+        themselves cannot be deleted.
+      tags: [files]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PathsRequest'
+      responses:
+        '200':
+          description: Items now in the trash (ids allow undo).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrashItemList'
+        '400':
+          description: Invalid paths or a volume itself (`files.invalid_path`, `files.volume_protected`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: No `delete` permission on an item (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: An item is missing (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs/delete:
+    post:
+      operationId: startPermanentDelete
+      summary: Delete items permanently
+      description: Bypasses the trash. Same checks as moving to the trash; cannot be undone.
+      tags: [jobs]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PathsRequest'
+      responses:
+        '202':
+          description: The job was queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Invalid paths or a volume itself (`files.invalid_path`, `files.volume_protected`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: No `delete` permission on an item (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: An item is missing (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many active jobs (`jobs.too_many`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/trash:
+    get:
+      operationId: listTrash
+      summary: Items in the trash
+      description: The caller's own deletions (every item for administrators), newest first, with the limits.
+      tags: [trash]
+      security:
+        - engineToken: []
+      responses:
+        '200':
+          description: The trash.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrashListing'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/trash/restore:
+    post:
+      operationId: restoreFromTrash
+      summary: Put items back where they were
+      description: Needs `create` at the original place; a name taken meanwhile keeps both.
+      tags: [trash]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrashIdsRequest'
+      responses:
+        '200':
+          description: Where each item went back.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestoredList'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not allowed at the original place (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Unknown item, or not the caller’s (`trash.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Could not restore (`files.exists`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs/empty-trash:
+    post:
+      operationId: startEmptyTrash
+      summary: Remove trash items for good
+      description: The given items, or every item the caller sees when `ids` is empty.
+      tags: [jobs]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrashIdsRequest'
+      responses:
+        '202':
+          description: The job was queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many active jobs (`jobs.too_many`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     engineToken:
@@ -875,3 +1119,110 @@ components:
         truncated:
           type: boolean
           description: More conflicts exist than listed.
+    PathsRequest:
+      type: object
+      required: [paths]
+      properties:
+        paths:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items:
+            type: string
+    TrashLimits:
+      type: object
+      required: [maxBytes, maxFiles, retentionDays]
+      properties:
+        maxBytes:
+          type: integer
+          format: int64
+        maxFiles:
+          type: integer
+          format: int64
+        retentionDays:
+          type: integer
+    DeletePlan:
+      type: object
+      required: [bytes, files, complete, fitsTrash, limits]
+      properties:
+        bytes:
+          type: integer
+          format: int64
+        files:
+          type: integer
+          format: int64
+        complete:
+          type: boolean
+          description: False when measuring took too long (very large selection).
+        fitsTrash:
+          type: boolean
+        limits:
+          $ref: '#/components/schemas/TrashLimits'
+    TrashItem:
+      type: object
+      required: [id, name, originalPath, isDirectory, deletedAt, deletedBy, bytes, files, measured]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        originalPath:
+          type: string
+        isDirectory:
+          type: boolean
+        deletedAt:
+          type: string
+          format: date-time
+        deletedBy:
+          type: string
+        bytes:
+          type: integer
+          format: int64
+        files:
+          type: integer
+          format: int64
+        measured:
+          type: boolean
+    TrashItemList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrashItem'
+    TrashListing:
+      type: object
+      required: [items, limits]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrashItem'
+        limits:
+          $ref: '#/components/schemas/TrashLimits'
+    TrashIdsRequest:
+      type: object
+      required: [ids]
+      properties:
+        ids:
+          type: array
+          maxItems: 1000
+          items:
+            type: string
+    RestoredItem:
+      type: object
+      required: [id, path]
+      properties:
+        id:
+          type: string
+        path:
+          type: string
+    RestoredList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RestoredItem'

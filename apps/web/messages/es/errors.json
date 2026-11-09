@@ -64,7 +64,8 @@
     "too_large": "Este archivo supera el tamaño que permite el administrador.",
     "blocked_type": "Este tipo de archivo no se acepta aquí.",
     "invalid_upload": "Esta subida no es válida. Inténtalo de nuevo.",
-    "upload_not_found": "Esta subida ya no existe. Vuelve a empezarla."
+    "upload_not_found": "Esta subida ya no existe. Vuelve a empezarla.",
+    "volume_protected": "Las carpetas de primer nivel son volúmenes montados y no se pueden eliminar."
   },
   "mail": {
     "not_configured": "El correo no está configurado. Configura el SMTP en Administración › Correo.",
@@ -80,5 +81,8 @@
     "not_cancellable": "Esta operación ya terminó.",
     "failed": "La operación falló.",
     "interrupted": "La operación se interrumpió porque el motor de archivos se reinició."
+  },
+  "trash": {
+    "not_found": "Este elemento ya no está en la papelera."
   }
 }

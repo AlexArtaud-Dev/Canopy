@@ -2,12 +2,9 @@ package uploads
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 	"path"
 	"path/filepath"
-	"strings"
 	"sync"
 
 	"github.com/tus/tusd/v2/pkg/filelocker"
@@ -17,39 +14,20 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 )
 
-// randomPart is the length (hex) of the random half of an upload id.
-const randomPart = 32
-
 // VolumeOf is the first segment of a clean path: uploads are staged in that volume so finishing
 // one is a rename on the same filesystem (in Docker, the root itself is read-only).
 func VolumeOf(clean string) string {
-	trimmed := strings.TrimPrefix(clean, "/")
-	if first, _, found := strings.Cut(trimmed, "/"); found {
-		return first
-	}
-	return trimmed
+	return fsx.VolumeOf(clean)
 }
 
-// NewID makes an upload id carrying its volume: 32 random hex characters, then the volume name
-// in hex. Ids stay hexadecimal, so they are never paths.
+// NewID makes an upload id carrying its volume (fsx.NewVolumeID).
 func NewID(volume string) (string, error) {
-	random := make([]byte, randomPart/2)
-	if _, err := rand.Read(random); err != nil {
-		return "", fmt.Errorf("upload id: %w", err)
-	}
-	return hex.EncodeToString(random) + hex.EncodeToString([]byte(volume)), nil
+	return fsx.NewVolumeID(volume) //nolint:wrapcheck // already wrapped
 }
 
 // VolumeOfID reads the volume back from an upload id.
 func VolumeOfID(id string) (string, bool) {
-	if !uploadID.MatchString(id) {
-		return "", false
-	}
-	volume, err := hex.DecodeString(id[randomPart:])
-	if err != nil || strings.ContainsAny(string(volume), "/\\") {
-		return "", false
-	}
-	return string(volume), true
+	return fsx.VolumeOfID(id)
 }
 
 // StagedPath is where an upload's data sits, relative to the root.

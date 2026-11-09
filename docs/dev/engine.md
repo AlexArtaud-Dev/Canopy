@@ -28,10 +28,11 @@
 
 ## Trash
 
-- Delete moves items to `<volume>/.canopy-trash/` (same filesystem → instant, no copy).
-- Items above the "trash bypass" size threshold are permanently deleted, only after an explicit
-  warning dialog in the UI stating it cannot be undone.
-- Scheduled purge (River periodic job), retention and schedule are settings. Every purge audited.
+- Delete moves items to `<volume>/.canopy-trash/` (same filesystem → instant, no copy); see
+  `docs/features/trash.md`.
+- Per-volume limits (retention, maximum size, maximum files) are enforced by a background keeper
+  that removes the oldest items first; every purge is audited. Selections that do not fit are
+  offered as a permanent delete after an explicit warning.
 
 ## Conventions
 

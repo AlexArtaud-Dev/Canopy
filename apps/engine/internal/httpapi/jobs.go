@@ -17,6 +17,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/trash"
 )
 
 const defaultJobLimit = 50
@@ -25,6 +26,8 @@ const defaultJobLimit = 50
 type Jobs interface {
 	StartFolderSize(ctx context.Context, path string, subject authz.Subject) (string, error)
 	StartTransfer(ctx context.Context, args transfer.Args) (string, error)
+	StartDelete(ctx context.Context, args trash.DeleteArgs) (string, error)
+	StartEmptyTrash(ctx context.Context, args trash.EmptyArgs) (string, error)
 	Get(ctx context.Context, id, owner string) (jobs.Job, error)
 	List(ctx context.Context, owner string, limit int) ([]jobs.Job, error)
 	Cancel(ctx context.Context, job jobs.Job) error

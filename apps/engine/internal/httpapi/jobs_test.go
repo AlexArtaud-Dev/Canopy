@@ -23,6 +23,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/trash"
 )
 
 const jobID = "0b6c4a9e-6f0e-4d7c-9a51-2f9b8f7c1d10"
@@ -52,6 +53,14 @@ func (f *fakeJobs) StartFolderSize(context.Context, string, authz.Subject) (stri
 
 func (f *fakeJobs) StartTransfer(_ context.Context, args transfer.Args) (string, error) {
 	f.transfer = args
+	return jobID, f.startErr
+}
+
+func (f *fakeJobs) StartDelete(context.Context, trash.DeleteArgs) (string, error) {
+	return jobID, f.startErr
+}
+
+func (f *fakeJobs) StartEmptyTrash(context.Context, trash.EmptyArgs) (string, error) {
 	return jobID, f.startErr
 }
 

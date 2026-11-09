@@ -7,6 +7,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/foldersize"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/trash"
 )
 
 // jobService adapts the runner, its store and the notification hub to the HTTP API.
@@ -23,6 +24,20 @@ func (j *jobService) StartFolderSize(ctx context.Context, path string, subject a
 
 func (j *jobService) StartTransfer(ctx context.Context, args transfer.Args) (string, error) {
 	return jobs.Enqueue(ctx, j.runner, args.Subject.UserID, args.Destination, func(id string) transfer.Args {
+		args.Job = id
+		return args
+	})
+}
+
+func (j *jobService) StartDelete(ctx context.Context, args trash.DeleteArgs) (string, error) {
+	return jobs.Enqueue(ctx, j.runner, args.Subject.UserID, "", func(id string) trash.DeleteArgs {
+		args.Job = id
+		return args
+	})
+}
+
+func (j *jobService) StartEmptyTrash(ctx context.Context, args trash.EmptyArgs) (string, error) {
+	return jobs.Enqueue(ctx, j.runner, args.Subject.UserID, "", func(id string) trash.EmptyArgs {
 		args.Job = id
 		return args
 	})

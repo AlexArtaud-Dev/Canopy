@@ -204,6 +204,100 @@ export const zTransferPlan = z.object({
   truncated: z.boolean(),
 });
 
+export const zPathsRequest = z.object({
+  paths: z.array(z.string()).min(1).max(1000),
+});
+
+export const zTrashLimits = z.object({
+  maxBytes: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    }),
+  maxFiles: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    }),
+  retentionDays: z.int(),
+});
+
+export const zDeletePlan = z.object({
+  bytes: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    }),
+  files: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    }),
+  complete: z.boolean(),
+  fitsTrash: z.boolean(),
+  limits: zTrashLimits,
+});
+
+export const zTrashItem = z.object({
+  id: z.string(),
+  name: z.string(),
+  originalPath: z.string(),
+  isDirectory: z.boolean(),
+  deletedAt: z.iso.datetime(),
+  deletedBy: z.string(),
+  bytes: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    }),
+  files: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    }),
+  measured: z.boolean(),
+});
+
+export const zTrashItemList = z.object({
+  items: z.array(zTrashItem),
+});
+
+export const zTrashListing = z.object({
+  items: z.array(zTrashItem),
+  limits: zTrashLimits,
+});
+
+export const zTrashIdsRequest = z.object({
+  ids: z.array(z.string()).max(1000),
+});
+
+export const zRestoredItem = z.object({
+  id: z.string(),
+  path: z.string(),
+});
+
+export const zRestoredList = z.object({
+  items: z.array(zRestoredItem),
+});
+
 /**
  * The process is running.
  */
@@ -309,3 +403,43 @@ export const zStartTransferBody = zTransferJobRequest;
  * The job was queued.
  */
 export const zStartTransferResponse = zJob;
+
+export const zPlanDeleteBody = zPathsRequest;
+
+/**
+ * The plan.
+ */
+export const zPlanDeleteResponse = zDeletePlan;
+
+export const zMoveToTrashBody = zPathsRequest;
+
+/**
+ * Items now in the trash (ids allow undo).
+ */
+export const zMoveToTrashResponse = zTrashItemList;
+
+export const zStartPermanentDeleteBody = zPathsRequest;
+
+/**
+ * The job was queued.
+ */
+export const zStartPermanentDeleteResponse = zJob;
+
+/**
+ * The trash.
+ */
+export const zListTrashResponse = zTrashListing;
+
+export const zRestoreFromTrashBody = zTrashIdsRequest;
+
+/**
+ * Where each item went back.
+ */
+export const zRestoreFromTrashResponse = zRestoredList;
+
+export const zStartEmptyTrashBody = zTrashIdsRequest;
+
+/**
+ * The job was queued.
+ */
+export const zStartEmptyTrashResponse = zJob;

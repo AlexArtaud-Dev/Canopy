@@ -12,6 +12,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/trash"
 )
 
 // Ops writes to the managed tree (an fsx.Resolver in production).
@@ -47,6 +48,12 @@ func classify(err error) (failure, bool) {
 		return failure{http.StatusForbidden, codeForbidden}, true
 	case errors.Is(err, errInvalidName):
 		return failure{http.StatusBadRequest, fsx.CodeInvalidName}, true
+	case errors.Is(err, fsx.ErrVolume):
+		return failure{http.StatusBadRequest, trash.CodeVolume}, true
+	case errors.Is(err, trash.ErrForbidden):
+		return failure{http.StatusForbidden, codeForbidden}, true
+	case errors.Is(err, trash.ErrNotFound):
+		return failure{http.StatusNotFound, trash.CodeNotFound}, true
 	case errors.Is(err, jobs.ErrTooMany):
 		return failure{http.StatusTooManyRequests, jobs.CodeTooMany}, true
 	default:
