@@ -164,5 +164,15 @@
       "uploadFiles": "Archivos",
       "uploadFolder": "Una carpeta"
     }
+  },
+  "preview": {
+    "previous": "Archivo anterior",
+    "next": "Archivo siguiente",
+    "download": "Descargar",
+    "close": "Cerrar",
+    "failed": "No se pudo cargar este archivo.",
+    "binary": "Este archivo parece binario, así que no se muestra como texto.",
+    "truncated": "Solo se muestra el principio de este archivo. Descárgalo para verlo entero.",
+    "unsupported": "Este archivo no se puede previsualizar."
   }
 }

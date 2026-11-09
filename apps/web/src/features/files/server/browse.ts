@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 
-import { listDirectory } from '@canopy/contracts';
+import { listDirectory, type PreviewKind } from '@canopy/contracts';
 
 import { runAction, type ActionResult } from '@/shared/lib/action';
 import { AppBaseError } from '@/shared/lib/errors';
@@ -20,6 +20,8 @@ export interface BrowserEntry {
   /** ISO 8601. */
   modified: string;
   actions: PathAction[];
+  /** The viewer the engine allows for this file (`none`: download only). */
+  preview: PreviewKind;
 }
 
 export interface FolderPage {
@@ -68,6 +70,7 @@ export async function listFolder(input: unknown): Promise<ActionResult<FolderPag
         size: entry.size,
         modified: entry.modified,
         actions: entry.actions,
+        preview: entry.preview,
       })),
     };
   });

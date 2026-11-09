@@ -4,6 +4,7 @@ import {
   conflictStrategies,
   dragBadgeGap,
   downloadHref,
+  previewHref,
   dropOperation,
   entryNameSchema,
   operationTargets,
@@ -120,6 +121,12 @@ describe('pointerBadgeOffset', () => {
     });
     expect(pointerBadgeOffset(null, { left: 0, top: 0 })).toEqual({ x: 0, y: 0 });
     expect(pointerBadgeOffset({ clientX: 1, clientY: 1 }, null)).toEqual({ x: 0, y: 0 });
+  });
+});
+
+describe('previewHref', () => {
+  it('reads the file inline', () => {
+    expect(previewHref('/a b.png')).toBe('/api/engine/stream/v1/fs/preview?path=%2Fa%20b.png');
   });
 });
 

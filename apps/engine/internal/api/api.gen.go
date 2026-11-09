@@ -197,6 +197,39 @@ func (e PathAction) Valid() bool {
 	}
 }
 
+// Defines values for PreviewKind.
+const (
+	Audio PreviewKind = "audio"
+	Html  PreviewKind = "html"
+	Image PreviewKind = "image"
+	None  PreviewKind = "none"
+	Pdf   PreviewKind = "pdf"
+	Text  PreviewKind = "text"
+	Video PreviewKind = "video"
+)
+
+// Valid indicates whether the value is a known member of the PreviewKind enum.
+func (e PreviewKind) Valid() bool {
+	switch e {
+	case Audio:
+		return true
+	case Html:
+		return true
+	case Image:
+		return true
+	case None:
+		return true
+	case Pdf:
+		return true
+	case Text:
+		return true
+	case Video:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ReadinessStatusStatus.
 const (
 	Ready ReadinessStatusStatus = "ready"
@@ -320,6 +353,9 @@ type DirectoryEntry struct {
 
 	// Path Virtual path of the entry.
 	Path string `json:"path"`
+
+	// Preview How the file can be shown in the browser, decided by the engine from its extension (`none` for folders and unknown files: download only).
+	Preview PreviewKind `json:"preview"`
 
 	// Size Bytes (0 for folders).
 	Size int64 `json:"size"`
@@ -446,6 +482,9 @@ type PathResult struct {
 type PathsRequest struct {
 	Paths []string `json:"paths"`
 }
+
+// PreviewKind How the file can be shown in the browser, decided by the engine from its extension (`none` for folders and unknown files: download only).
+type PreviewKind string
 
 // ReadinessStatus defines model for ReadinessStatus.
 type ReadinessStatus struct {

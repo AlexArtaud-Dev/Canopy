@@ -129,6 +129,11 @@ export function pointerBadgeOffset(
 
 const streamRoot = '/api/engine/stream/v1/fs';
 
+/** Where the viewer reads a file inline (the engine refuses formats it cannot preview). */
+export function previewHref(path: string): string {
+  return `${streamRoot}/preview?path=${encodeURIComponent(path)}`;
+}
+
 /** Where the browser fetches a selection: the file itself, or a zip of folders or several items. */
 export function downloadHref(
   items: readonly { path: string; isDirectory: boolean }[],

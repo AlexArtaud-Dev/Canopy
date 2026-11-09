@@ -65,7 +65,8 @@
     "blocked_type": "Este tipo de archivo no se acepta aquí.",
     "invalid_upload": "Esta subida no es válida. Inténtalo de nuevo.",
     "upload_not_found": "Esta subida ya no existe. Vuelve a empezarla.",
-    "volume_protected": "Las carpetas de primer nivel son volúmenes montados y no se pueden eliminar."
+    "volume_protected": "Las carpetas de primer nivel son volúmenes montados y no se pueden eliminar.",
+    "no_preview": "Este archivo no se puede previsualizar. Descárgalo para abrirlo."
   },
   "mail": {
     "not_configured": "El correo no está configurado. Configura el SMTP en Administración › Correo.",

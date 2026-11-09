@@ -12,6 +12,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/listing"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/preview"
 )
 
 const (
@@ -88,9 +89,13 @@ func (s *server) ListDirectory(ctx context.Context, request api.ListDirectoryReq
 		if item.IsDir {
 			kind = api.Directory
 		}
+		shown := preview.None
+		if kind == api.File {
+			shown, _ = preview.Classify(item.Name)
+		}
 		body.Entries = append(body.Entries, api.DirectoryEntry{
 			Name: item.Name, Path: item.Path, Kind: kind, Size: item.Size,
-			Modified: item.Modified, Actions: toActions(item.Actions),
+			Modified: item.Modified, Actions: toActions(item.Actions), Preview: api.PreviewKind(shown),
 		})
 	}
 	return body, nil

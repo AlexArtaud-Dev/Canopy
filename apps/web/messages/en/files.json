@@ -164,5 +164,15 @@
       "uploadFiles": "Files",
       "uploadFolder": "A folder"
     }
+  },
+  "preview": {
+    "previous": "Previous file",
+    "next": "Next file",
+    "download": "Download",
+    "close": "Close",
+    "failed": "This file could not be loaded.",
+    "binary": "This file looks binary, so it is not shown as text.",
+    "truncated": "Only the beginning of this file is shown. Download it to see everything.",
+    "unsupported": "This file can't be previewed."
   }
 }

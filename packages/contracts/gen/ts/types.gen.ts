@@ -51,7 +51,13 @@ export type DirectoryEntry = {
   size: number;
   modified: string;
   actions: Array<PathAction>;
+  preview: PreviewKind;
 };
+
+/**
+ * How the file can be shown in the browser, decided by the engine from its extension (`none` for folders and unknown files: download only).
+ */
+export type PreviewKind = 'none' | 'image' | 'pdf' | 'text' | 'audio' | 'video' | 'html';
 
 export type DirectoryListing = {
   path: string;

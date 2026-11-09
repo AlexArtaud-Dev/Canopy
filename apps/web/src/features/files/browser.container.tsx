@@ -52,12 +52,14 @@ import {
   type TransferOperation,
 } from './operations.utils';
 import { useFolder } from './model/use-folder';
+import { canPreview } from './preview.utils';
 import type { BrowserEntry, FolderPage } from './server/browse';
 import { BrowserToolbar } from './ui/browser-toolbar';
 import { ConflictDialog } from './ui/conflict-dialog';
 import type { DropData } from './ui/dnd';
 import { FolderPickerDialog } from './ui/folder-picker-dialog';
 import { GridView, tileGap, tileMinWidth } from './ui/grid-view';
+import { PreviewDialog } from './ui/preview/preview-dialog';
 import { ListHeader, ListView } from './ui/list-view';
 import { NameDialog } from './ui/name-dialog';
 import { ShortcutsDialog } from './ui/shortcuts-dialog';
@@ -94,6 +96,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   const [focusIndex, setFocusIndex] = useState(-1);
   const [view, setView] = useBrowserView();
   const [helpOpen, setHelpOpen] = useState(false);
+  const [previewPath, setPreviewPath] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const width = useElementWidth(scrollRef);
   const ops = useFileOperations(query.path);
@@ -139,6 +142,11 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   };
   const open = (entry: BrowserEntry | undefined) => {
     if (entry?.isDirectory) navigate({ ...query, path: entry.path });
+    else if (entry && canPreview(entry)) setPreviewPath(entry.path);
+  };
+  const showPreview = (path: string) => {
+    setPreviewPath(path);
+    setFocusIndex(entries.findIndex((entry) => entry.path === path));
   };
   const goUp = () => {
     const parent = parentPath(query.path);
@@ -501,6 +509,15 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           )}
         </footer>
         <ShortcutsDialog open={helpOpen} onOpenChange={setHelpOpen} />
+        <PreviewDialog
+          entries={entries}
+          path={previewPath}
+          onNavigate={showPreview}
+          onClose={() => {
+            setPreviewPath(null);
+          }}
+          onDownload={(entry) => void ops.download([entry])}
+        />
         <DeleteDialogs
           dialog={deletion.dialog}
           pending={deletion.pending}

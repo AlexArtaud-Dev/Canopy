@@ -65,7 +65,8 @@
     "blocked_type": "This type of file is not accepted here.",
     "invalid_upload": "This upload is not valid. Try again.",
     "upload_not_found": "This upload no longer exists. Start it again.",
-    "volume_protected": "Top-level folders are mounted volumes and cannot be deleted."
+    "volume_protected": "Top-level folders are mounted volumes and cannot be deleted.",
+    "no_preview": "This file can't be previewed. Download it to open it."
   },
   "mail": {
     "not_configured": "Email is not configured. Set up SMTP in Administration › Email.",

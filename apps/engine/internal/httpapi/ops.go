@@ -46,6 +46,8 @@ func classify(err error) (failure, bool) {
 		return failure{http.StatusBadRequest, transfer.CodeDuplicateNames}, true
 	case errors.Is(err, errForbidden):
 		return failure{http.StatusForbidden, codeForbidden}, true
+	case errors.Is(err, errNoPreview):
+		return failure{http.StatusUnsupportedMediaType, codeNoPreview}, true
 	case errors.Is(err, errInvalidName):
 		return failure{http.StatusBadRequest, fsx.CodeInvalidName}, true
 	case errors.Is(err, fsx.ErrVolume):
@@ -64,7 +66,11 @@ func classify(err error) (failure, bool) {
 var (
 	errForbidden   = errors.New("forbidden")
 	errInvalidName = errors.New("invalid name")
+	errNoPreview   = errors.New("no preview for this format")
 )
+
+// codeNoPreview: the file is not in the preview allowlist; it can still be downloaded.
+const codeNoPreview = "files.no_preview"
 
 func (s *server) accessOf(ctx context.Context, principal enginetoken.Principal) (transfer.Access, error) {
 	access, err := transfer.LoadAccess(ctx, s.deps.Grants, subjectOf(principal))

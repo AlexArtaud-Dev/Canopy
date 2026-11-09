@@ -5,6 +5,7 @@ import {
   CopyPlus,
   Download,
   FolderInput,
+  Eye,
   FolderOpen,
   HardDrive,
   Link2,
@@ -24,6 +25,7 @@ import {
   ContextMenuTrigger,
 } from '@/shared/ui/context-menu';
 
+import { canPreview } from '../preview.utils';
 import type { BrowserEntry } from '../server/browse';
 
 export interface EntryMenuHandlers {
@@ -60,13 +62,13 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
     >
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-56">
-        {entry.isDirectory && (
+        {(entry.isDirectory || canPreview(entry)) && (
           <ContextMenuItem
             onSelect={() => {
               handlers.onOpen(entry);
             }}
           >
-            <FolderOpen aria-hidden />
+            {entry.isDirectory ? <FolderOpen aria-hidden /> : <Eye aria-hidden />}
             {t('open')}
             <ContextMenuShortcut>↵</ContextMenuShortcut>
           </ContextMenuItem>
