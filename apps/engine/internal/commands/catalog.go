@@ -88,8 +88,16 @@ type Entry struct {
 	ProgressPattern string   `yaml:"progressPattern,omitempty"`
 	DryRun          *DryRun  `yaml:"dryRun,omitempty"`
 	Timeout         Duration `yaml:"timeout"`
+	// Plugin is set by the engine for entries a plugin brings; never read from a file.
+	Plugin *PluginRef `yaml:"-"`
 
 	progress *regexp.Regexp
+}
+
+// PluginRef names the plugin an entry comes from, so the file browser can group commands.
+type PluginRef struct {
+	ID   string
+	Name Text
 }
 
 // DryRun says how the tool simulates a run.

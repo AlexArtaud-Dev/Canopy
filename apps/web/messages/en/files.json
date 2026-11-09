@@ -110,7 +110,8 @@
         "sha256": "SHA-256",
         "sha512": "SHA-512"
       },
-      "share": "Share…"
+      "share": "Share…",
+      "plugins": "Plugins"
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",

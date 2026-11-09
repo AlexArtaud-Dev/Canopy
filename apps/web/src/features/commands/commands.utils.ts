@@ -1,18 +1,54 @@
-import type { CommandParam } from '@canopy/contracts';
+import type { CommandEntry, CommandParam, CommandPlugin } from '@canopy/contracts';
 
 /** What a form field holds: text for inputs, a boolean for switches. */
 export type FormValue = string | boolean;
 
-/** Starting form values: each param's default, or empty. */
-export function initialValues(params: readonly CommandParam[]): Record<string, FormValue> {
+/** Starting form values: each param's default, or empty; `preset` fills some (a folder). */
+export function initialValues(
+  params: readonly CommandParam[],
+  preset: Readonly<Record<string, FormValue>> = {},
+): Record<string, FormValue> {
   const values: Record<string, FormValue> = {};
   for (const param of params) {
-    if (param.type === 'bool') values[param.name] = param.default === true;
+    const given = preset[param.name];
+    if (given !== undefined) values[param.name] = given;
+    else if (param.type === 'bool') values[param.name] = param.default === true;
     else if (typeof param.default === 'string' || typeof param.default === 'number') {
       values[param.name] = String(param.default);
     } else values[param.name] = '';
   }
   return values;
+}
+
+/** The first required field still empty: where the cursor goes when the form opens. */
+export function firstToFill(
+  params: readonly CommandParam[],
+  values: Readonly<Record<string, FormValue>>,
+): string | undefined {
+  return params.find((param) => param.required && values[param.name] === '')?.name;
+}
+
+/** The param a folder fills in (its first path param), when the command works on one. */
+export function folderParam(entry: CommandEntry): string | undefined {
+  return entry.params.find((param) => param.type === 'path')?.name;
+}
+
+/** A plugin and its commands that work on a folder, as the file browser's menu lists them. */
+export interface PluginMenu {
+  plugin: CommandPlugin;
+  entries: CommandEntry[];
+}
+
+/** Plugin commands that take a folder, grouped by plugin (in catalog order). */
+export function pluginMenus(entries: readonly CommandEntry[]): PluginMenu[] {
+  const menus = new Map<string, PluginMenu>();
+  for (const entry of entries) {
+    if (!entry.plugin || folderParam(entry) === undefined) continue;
+    const menu = menus.get(entry.plugin.id);
+    if (menu) menu.entries.push(entry);
+    else menus.set(entry.plugin.id, { plugin: entry.plugin, entries: [entry] });
+  }
+  return [...menus.values()];
 }
 
 /**

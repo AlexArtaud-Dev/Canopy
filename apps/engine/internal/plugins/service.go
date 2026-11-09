@@ -236,6 +236,7 @@ func (s *Service) Refresh(ctx context.Context) error {
 			continue
 		}
 		for _, entry := range manifest.Commands {
+			entry.Plugin = &commands.PluginRef{ID: manifest.ID, Name: manifest.Name}
 			located = append(located, commands.Located{Entry: entry, Binary: binary})
 		}
 	}

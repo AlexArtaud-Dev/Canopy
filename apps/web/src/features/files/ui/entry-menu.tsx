@@ -19,6 +19,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import type { CommandEntry } from '@canopy/contracts';
 import type { ReactNode } from 'react';
 
 import {
@@ -41,7 +42,10 @@ import {
   type ChecksumAlgorithm,
 } from '../operations.utils';
 import { canPreview } from '../preview.utils';
+import type { PluginMenu } from '@/features/commands';
+
 import type { BrowserEntry } from '../server/browse';
+import { PluginsSubmenu } from './plugins-submenu';
 
 export interface EntryMenuHandlers {
   onOpen: (entry: BrowserEntry) => void;
@@ -67,6 +71,10 @@ export interface EntryMenuHandlers {
   onChecksum: (entry: BrowserEntry, algorithm: ChecksumAlgorithm) => void;
   /** Creates a share link to the entry. */
   onShare: (entry: BrowserEntry) => void;
+  /** Plugin commands that work on a folder (empty when none is installed or allowed). */
+  plugins: readonly PluginMenu[];
+  /** Opens a plugin command in a dialog, with this folder filled in. */
+  onPluginCommand: (folderPath: string, command: CommandEntry) => void;
   /** Search results only: go to the folder that holds the entry. */
   onShowInFolder?: ((entry: BrowserEntry) => void) | undefined;
 }
@@ -209,6 +217,14 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
             <Share2 aria-hidden />
             {t('share')}
           </ContextMenuItem>
+        )}
+        {entry.isDirectory && entry.actions.includes('update') && (
+          <PluginsSubmenu
+            plugins={handlers.plugins}
+            onSelect={(command) => {
+              handlers.onPluginCommand(entry.path, command);
+            }}
+          />
         )}
         {handlers.onShowInFolder && (
           <ContextMenuItem

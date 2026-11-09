@@ -293,3 +293,10 @@ entries:
       en: Administrators install, update, pin and remove plugins from allowed GitHub repositories; every download is checked against the release checksums
       fr: Les administrateurs installent, mettent à jour, figent et retirent des plugins issus de dépôts GitHub autorisés ; chaque téléchargement est vérifié avec les sommes de contrôle de la version
       es: Los administradores instalan, actualizan, fijan y quitan plugins de repositorios de GitHub permitidos; cada descarga se comprueba con las sumas de verificación de la versión
+  - type: feat
+    scope: plugins
+    issue: 62
+    text:
+      en: Right-click a folder or empty space to run a plugin command in a dialog with the folder already filled in; the files refresh when it ends
+      fr: Un clic droit sur un dossier ou dans le vide lance une commande de plugin dans une fenêtre où le dossier est déjà rempli ; les fichiers s’actualisent à la fin
+      es: Un clic derecho en una carpeta o en un espacio vacío ejecuta un comando de plugin en una ventana con la carpeta ya indicada; los archivos se actualizan al terminar

@@ -22,6 +22,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
+import type { CommandEntry } from '@canopy/contracts';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -35,6 +36,7 @@ import type { ActionResult } from '@/shared/lib/action';
 import { Button } from '@/shared/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty';
 import { Spinner } from '@/shared/ui/spinner';
+import { CommandDialog, folderParam, usePluginMenus } from '@/features/commands';
 import { startFolderSize } from '@/features/jobs';
 import { ShareDialog } from '@/features/shares';
 import { DeleteDialogs, useDeleteFlow } from '@/features/trash';
@@ -75,6 +77,7 @@ import type { BrowserEntry, FolderPage } from './server/browse';
 import { BrowserToolbar } from './ui/browser-toolbar';
 import { ConflictDialog } from './ui/conflict-dialog';
 import type { DropData } from './ui/dnd';
+import { FolderMenu } from './ui/folder-menu';
 import { FolderPickerDialog } from './ui/folder-picker-dialog';
 import { GridView, tileGap, tileMinWidth } from './ui/grid-view';
 import { PreviewDialog } from './ui/preview/preview-dialog';
@@ -129,6 +132,8 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   const [helpOpen, setHelpOpen] = useState(false);
   const [previewPath, setPreviewPath] = useState<string | null>(null);
   const [shareTarget, setShareTarget] = useState<BrowserEntry | null>(null);
+  const [command, setCommand] = useState<{ entry: CommandEntry; folder: string } | null>(null);
+  const plugins = usePluginMenus();
   const scrollRef = useRef<HTMLDivElement>(null);
   const width = useElementWidth(scrollRef);
   const ops = useFileOperations(query.path);
@@ -355,6 +360,10 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     onRefresh: () => {
       void listing.refresh();
     },
+    plugins,
+    onPluginCommand: (folder: string, entry: CommandEntry) => {
+      setCommand({ entry, folder });
+    },
     onMenuOpen: (entry: BrowserEntry) => {
       setFocusIndex(keys.indexOf(entry.path));
       if (!selection.selected.has(entry.path)) dispatch({ type: 'only', key: entry.path });
@@ -444,72 +453,83 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
         {view === 'list' && entries.length > 0 && (
           <ListHeader sort={query.sort} order={query.order} onSort={onSort} />
         )}
-        <div
-          ref={scrollRef}
-          role="listbox"
-          aria-label={t('entriesLabel', { path: query.path })}
-          aria-multiselectable
-          aria-activedescendant={
-            focusIndex >= 0 && entries[focusIndex] ? idOf(focusIndex) : undefined
-          }
-          tabIndex={0}
-          onKeyDown={onKeyDown}
-          // Files dragged from the desktop (native drag and drop, apart from dnd-kit's moves).
-          onDragOver={(event) => {
-            if (!dragsFiles(event)) return;
-            event.preventDefault();
-            event.dataTransfer.dropEffect = 'copy';
-            setDropActive(true);
+        <FolderMenu
+          plugins={folder.actions.includes('update') && !searching ? plugins : []}
+          canCreate={folder.actions.includes('create') && !searching}
+          onPluginCommand={(entry) => {
+            setCommand({ entry, folder: query.path });
           }}
-          onDragLeave={(event) => {
-            if (!event.currentTarget.contains(event.relatedTarget as Node | null))
-              setDropActive(false);
-          }}
-          onDrop={(event) => {
-            if (!dragsFiles(event)) return;
-            event.preventDefault();
-            setDropActive(false);
-            void filesFromDrop(event.dataTransfer).then(uploads.start);
-          }}
-          className={cn(
-            'min-h-0 flex-1 overflow-y-auto outline-none',
-            view === 'grid' && 'p-4',
-            // Files dragged from the desktop: the whole folder is the drop target.
-            dropActive && 'bg-primary/5 ring-primary ring-2 ring-inset',
-          )}
+          onNewFolder={ops.openNewFolder}
+          onSelectAll={menu.onSelectAll}
+          onRefresh={menu.onRefresh}
         >
-          {listing.error && entries.length === 0 ? (
-            <ErrorState
-              code={listing.error.code}
-              params={listing.error.params}
-              reference={listing.error.requestId}
-              onRetry={() => {
-                void listing.refresh();
-              }}
-            />
-          ) : searching && entries.length === 0 ? (
-            search.searching ? (
-              <p className="text-muted-foreground flex items-center justify-center gap-2 p-6 text-sm">
-                <Spinner />
-                {t('search.searching')}
-              </p>
+          <div
+            ref={scrollRef}
+            role="listbox"
+            aria-label={t('entriesLabel', { path: query.path })}
+            aria-multiselectable
+            aria-activedescendant={
+              focusIndex >= 0 && entries[focusIndex] ? idOf(focusIndex) : undefined
+            }
+            tabIndex={0}
+            onKeyDown={onKeyDown}
+            // Files dragged from the desktop (native drag and drop, apart from dnd-kit's moves).
+            onDragOver={(event) => {
+              if (!dragsFiles(event)) return;
+              event.preventDefault();
+              event.dataTransfer.dropEffect = 'copy';
+              setDropActive(true);
+            }}
+            onDragLeave={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null))
+                setDropActive(false);
+            }}
+            onDrop={(event) => {
+              if (!dragsFiles(event)) return;
+              event.preventDefault();
+              setDropActive(false);
+              void filesFromDrop(event.dataTransfer).then(uploads.start);
+            }}
+            className={cn(
+              'min-h-0 flex-1 overflow-y-auto outline-none',
+              view === 'grid' && 'p-4',
+              // Files dragged from the desktop: the whole folder is the drop target.
+              dropActive && 'bg-primary/5 ring-primary ring-2 ring-inset',
+            )}
+          >
+            {listing.error && entries.length === 0 ? (
+              <ErrorState
+                code={listing.error.code}
+                params={listing.error.params}
+                reference={listing.error.requestId}
+                onRetry={() => {
+                  void listing.refresh();
+                }}
+              />
+            ) : searching && entries.length === 0 ? (
+              search.searching ? (
+                <p className="text-muted-foreground flex items-center justify-center gap-2 p-6 text-sm">
+                  <Spinner />
+                  {t('search.searching')}
+                </p>
+              ) : (
+                <NoResults />
+              )
+            ) : entries.length === 0 ? (
+              <EmptyFolder isRoot={query.path === '/'} />
+            ) : view === 'grid' ? (
+              <GridView {...viewProps} columns={columns} thumbnails={thumbnailTicket === 'ready'} />
             ) : (
-              <NoResults />
-            )
-          ) : entries.length === 0 ? (
-            <EmptyFolder isRoot={query.path === '/'} />
-          ) : view === 'grid' ? (
-            <GridView {...viewProps} columns={columns} thumbnails={thumbnailTicket === 'ready'} />
-          ) : (
-            <ListView {...viewProps} />
-          )}
-          {loadingMore && (
-            <p className="text-muted-foreground flex items-center justify-center gap-2 p-3 text-sm">
-              <Spinner />
-              {t('loadingMore')}
-            </p>
-          )}
-        </div>
+              <ListView {...viewProps} />
+            )}
+            {loadingMore && (
+              <p className="text-muted-foreground flex items-center justify-center gap-2 p-3 text-sm">
+                <Spinner />
+                {t('loadingMore')}
+              </p>
+            )}
+          </div>
+        </FolderMenu>
         <footer className="text-muted-foreground flex min-h-10 items-center gap-3 border-t px-4 text-xs md:px-6">
           <span aria-live="polite">
             {searching
@@ -597,6 +617,13 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
             setPreviewPath(null);
           }}
           onDownload={(entry) => void ops.download([entry])}
+        />
+        <CommandDialog
+          entry={command?.entry ?? null}
+          preset={command ? { [folderParam(command.entry) ?? '']: command.folder } : {}}
+          onClose={() => {
+            setCommand(null);
+          }}
         />
         <ShareDialog
           target={shareTarget}

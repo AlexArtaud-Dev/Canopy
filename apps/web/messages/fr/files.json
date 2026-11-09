@@ -110,7 +110,8 @@
         "sha256": "SHA-256",
         "sha512": "SHA-512"
       },
-      "share": "Partager…"
+      "share": "Partager…",
+      "plugins": "Plugins"
     },
     "shortcuts": {
       "title": "Raccourcis clavier",

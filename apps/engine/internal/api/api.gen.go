@@ -466,6 +466,9 @@ type CommandEntry struct {
 	Mode   CommandEntryMode `json:"mode"`
 	Name   LocalizedText    `json:"name"`
 	Params []CommandParam   `json:"params"`
+
+	// Plugin The plugin a command comes from (absent for built-in commands).
+	Plugin *CommandPlugin `json:"plugin,omitempty"`
 }
 
 // CommandEntryMode defines model for CommandEntry.Mode.
@@ -491,6 +494,12 @@ type CommandParamAccess string
 
 // CommandParamType defines model for CommandParam.Type.
 type CommandParamType string
+
+// CommandPlugin The plugin a command comes from (absent for built-in commands).
+type CommandPlugin struct {
+	Id   string        `json:"id"`
+	Name LocalizedText `json:"name"`
+}
 
 // CommandPreview defines model for CommandPreview.
 type CommandPreview struct {
