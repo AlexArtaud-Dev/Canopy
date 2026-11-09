@@ -13,8 +13,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License: AGPL-3.0"></a>
 </p>
 
-> **Status: early development.** Accounts, administration and the engine core are in place; the
-> file browser itself is being built. Not ready for production use.
+> **Status: release candidate for v1.** Everything below works; the v1 hardening pass is under way.
 
 ## Why Canopy
 
@@ -28,28 +27,29 @@
 
 ## Features
 
-| Area           | What is there                                                                                           |
-| -------------- | ------------------------------------------------------------------------------------------------------- |
-| Accounts       | First-run setup wizard (local network only), sign-in, TOTP two-factor with recovery codes, sessions     |
-| Protection     | Account lockout, address blocking, password policy, optional breached-password check                    |
-| People         | Users, groups, roles with a permission matrix, two-factor required per group, invitations               |
-| Folder access  | Allow/deny rules per user or group on any folder, resolved by the engine (deepest rule wins)            |
-| Email          | SMTP from the admin UI, outbox with retries, invitation, password reset and security notices (en/fr/es) |
-| Administration | Generated settings page, audit log viewer with CSV export, maintenance mode, color themes               |
-| Privacy        | Personal data export, retention for audit events and emails ([privacy notes](docs/user/privacy.md))     |
-| Coming next    | File browser, uploads and downloads, copy/move with live progress, trash, previews, search, sharing     |
+| Area           | What is there                                                                                        |
+| -------------- | ---------------------------------------------------------------------------------------------------- |
+| Files          | Fast list and grid views (10k+ entries), search, previews (images, video, PDF, code), thumbnails     |
+| Operations     | Resumable uploads, downloads and zips, copy/move with live progress and cancel, archives, checksums  |
+| Safety         | Trash with restore, confirmation and undo for destructive actions, audit of every change             |
+| Sharing        | Share links (expiry, password, download limit) and upload links (file types, size limits)            |
+| Commands       | Catalog of tools run with typed options, never a shell; plugins such as mrename from GitHub releases |
+| Accounts       | First-run setup wizard (local network only), TOTP two-factor with recovery codes, sessions           |
+| People         | Users, groups, roles with a permission matrix, folder access rules per user or group, invitations    |
+| Administration | Settings with sensible defaults, email (SMTP), audit log viewer with CSV export, maintenance mode    |
+| Privacy        | Personal data export, retention for audit events and emails ([privacy notes](docs/user/privacy.md))  |
+| Languages      | English, French and Spanish; light and dark themes                                                   |
 
-## Quick start (Docker)
+## Install
 
 ```bash
-cp docker/.env.example docker/.env
-# Fill the passwords and keys in docker/.env, then generate the engine key pair:
-node scripts/dev/engine-keys.mjs >> docker/.env
-docker compose -f docker/compose.yaml --env-file docker/.env up -d
+git clone --branch <latest release tag> --depth 1 https://github.com/AlexArtaud-Dev/Canopy.git canopy
+cd canopy && cp docker/.env.example docker/.env   # then fill it in
+docker compose -f docker/compose.yaml --env-file docker/.env up -d --wait
 ```
 
-Open <http://localhost:3000> from your local network: the setup wizard creates the first
-administrator. Mount the folders to manage inside the engine root (see `docker/compose.yaml`).
+The [user guide](docs/user/README.md) covers install, folders and PUID/PGID, reverse proxy,
+upgrades, backups and troubleshooting.
 
 ## Architecture
 

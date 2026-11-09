@@ -314,3 +314,10 @@ entries:
       en: A What's new page lists the changes of each version in your language, with a badge when a new version is out
       fr: Une page Quoi de neuf liste les changements de chaque version dans votre langue, avec un badge quand une nouvelle version sort
       es: Una página Novedades muestra los cambios de cada versión en tu idioma, con una insignia cuando sale una nueva versión
+  - type: docs
+    scope: docs
+    issue: 66
+    text:
+      en: A user guide covers install, folders and permissions, reverse proxy, upgrades, backups and troubleshooting
+      fr: Un guide d’utilisation couvre l’installation, les dossiers et permissions, le reverse proxy, les mises à jour, les sauvegardes et le dépannage
+      es: Una guía de uso cubre la instalación, las carpetas y permisos, el proxy inverso, las actualizaciones, las copias de seguridad y la resolución de problemas
