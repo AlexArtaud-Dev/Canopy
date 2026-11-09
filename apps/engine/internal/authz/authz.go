@@ -36,16 +36,27 @@ type Subject struct {
 	UserID string
 	Groups []string
 	Admin  bool
-	// Scope confines a share link to reading and downloading under one path, on top of its
-	// owner's own grants (a share never reaches more than its owner can).
+	// Scope confines a share link to one path, on top of its owner's own grants (a share never
+	// reaches more than its owner can). Mode is "read" (read, download) or "upload" (upload only).
 	Scope string
+	Mode  string
 }
 
-// scopedActions are all a share link may do.
-var scopedActions = []string{"read", "download"}
+// What each kind of share link may do under its scope.
+var scopedActions = map[string][]string{
+	"read":   {"read", "download"},
+	"upload": {"upload"},
+}
 
 func (s Subject) outOfScope(target, action string) bool {
-	return s.Scope != "" && (!fsx.IsWithin(target, s.Scope) || !slices.Contains(scopedActions, action))
+	if s.Scope == "" {
+		return false
+	}
+	mode := s.Mode
+	if mode == "" {
+		mode = "read"
+	}
+	return !fsx.IsWithin(target, s.Scope) || !slices.Contains(scopedActions[mode], action)
 }
 
 func (s Subject) owns(grant Grant) bool {

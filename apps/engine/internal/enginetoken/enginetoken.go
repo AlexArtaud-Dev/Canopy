@@ -15,6 +15,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/authz"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 )
 
@@ -49,10 +50,32 @@ type Principal struct {
 	Groups      []string
 	// Stream is true for a stream ticket (see StreamAudience).
 	Stream bool
-	// Scope, when set, confines the token to reading under one path: a share link acting for
-	// its owner. Share is that link's id, recorded with every access.
+	// Scope, when set, confines the token to one path: a share link acting for its owner. Share is
+	// that link's id, recorded with every access; Mode says what the link allows there.
 	Scope string
 	Share string
+	Mode  string
+	// Upload binds an upload link's ticket to one file (name and size); TicketID makes it
+	// single-use for starting that upload.
+	Upload   *UploadGrant
+	TicketID string
+}
+
+// Share link modes.
+const (
+	ModeRead   = "read"
+	ModeUpload = "upload"
+)
+
+// UploadGrant is the one file an upload link ticket may start.
+type UploadGrant struct {
+	Name string `json:"name"`
+	Size int64  `json:"size"`
+}
+
+// Subject is how path rules see the principal.
+func (p Principal) Subject() authz.Subject {
+	return authz.Subject{UserID: p.UserID, Groups: p.Groups, Admin: p.IsAdmin(), Scope: p.Scope, Mode: p.Mode}
 }
 
 // IsAdmin reports whether the principal bypasses path grants. A share link made by an
@@ -62,11 +85,13 @@ func (p Principal) IsAdmin() bool {
 }
 
 type claims struct {
-	SessionID   string   `json:"sid"`
-	Permissions []string `json:"perms"`
-	Groups      []string `json:"groups"`
-	Scope       string   `json:"scope,omitempty"`
-	Share       string   `json:"shr,omitempty"`
+	SessionID   string       `json:"sid"`
+	Permissions []string     `json:"perms"`
+	Groups      []string     `json:"groups"`
+	Scope       string       `json:"scope,omitempty"`
+	Share       string       `json:"shr,omitempty"`
+	Mode        string       `json:"smode,omitempty"`
+	Upload      *UploadGrant `json:"upl,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -119,13 +144,19 @@ func (v *Verifier) Verify(token string) (Principal, error) {
 	if !stream && !slices.Contains(parsed.Audience, audience) {
 		return Principal{}, ErrInvalid
 	}
-	scope := ""
+	scope, mode := "", ""
 	if parsed.Scope != "" {
 		clean, err := fsx.Clean(parsed.Scope)
 		if err != nil || parsed.Share == "" {
 			return Principal{}, ErrInvalid
 		}
-		scope = clean
+		scope, mode = clean, parsed.Mode
+		if mode == "" {
+			mode = ModeRead
+		}
+		if mode != ModeRead && mode != ModeUpload {
+			return Principal{}, ErrInvalid
+		}
 	}
 	return Principal{
 		UserID:      parsed.Subject,
@@ -135,6 +166,9 @@ func (v *Verifier) Verify(token string) (Principal, error) {
 		Stream:      stream,
 		Scope:       scope,
 		Share:       parsed.Share,
+		Mode:        mode,
+		Upload:      parsed.Upload,
+		TicketID:    parsed.ID,
 	}, nil
 }
 
@@ -156,7 +190,7 @@ type ErrorWriter func(w http.ResponseWriter, r *http.Request, status int, code s
 
 // Middleware requires a valid bearer token. A nil verifier (no key configured) refuses every
 // request rather than letting it through. Stream tickets pass only where streamRoute says so.
-func Middleware(verifier *Verifier, fail ErrorWriter, streamRoute, scopedRoute func(*http.Request) bool) func(http.Handler) http.Handler {
+func Middleware(verifier *Verifier, fail ErrorWriter, streamRoute func(*http.Request) bool, scopedRoute func(*http.Request, Principal) bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if verifier == nil {
@@ -178,7 +212,7 @@ func Middleware(verifier *Verifier, fail ErrorWriter, streamRoute, scopedRoute f
 				return
 			}
 			// A share token reads files and nothing else (no jobs, no trash, no settings).
-			if principal.Scope != "" && !scopedRoute(r) {
+			if principal.Scope != "" && !scopedRoute(r, principal) {
 				fail(w, r, http.StatusForbidden, CodeInvalid)
 				return
 			}

@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	tusd "github.com/tus/tusd/v2/pkg/handler"
@@ -66,6 +67,8 @@ type Service struct {
 	cfg     Config
 	stores  *volumeStores
 	handler http.Handler
+	// tickets remembers upload link tickets already used to start an upload: each starts one.
+	tickets ticketLedger
 }
 
 // New builds the tus handler over one file store per volume.
@@ -104,7 +107,7 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	id := strings.Trim(strings.TrimPrefix(r.URL.Path, strings.TrimSuffix(BasePath, "/")), "/")
 	if id != "" && r.Method != http.MethodOptions {
 		principal, ok := enginetoken.FromContext(r.Context())
-		if !ok || !s.owns(r.Context(), id, principal.UserID) {
+		if !ok || !s.owns(r.Context(), id, principal) {
 			http.Error(w, CodeNotUploading+": not found", http.StatusNotFound)
 			return
 		}
@@ -112,7 +115,9 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.handler.ServeHTTP(w, r)
 }
 
-func (s *Service) owns(ctx context.Context, id, user string) bool {
+// owns: an upload continues only with its starter: the same person, through the same link (or
+// none), so a link visitor never reaches the owner's own uploads and the other way round.
+func (s *Service) owns(ctx context.Context, id string, principal enginetoken.Principal) bool {
 	if _, ok := VolumeOfID(id); !ok {
 		return false
 	}
@@ -121,7 +126,7 @@ func (s *Service) owns(ctx context.Context, id, user string) bool {
 		return false
 	}
 	info, err := upload.GetInfo(ctx)
-	return err == nil && info.MetaData["owner"] == user
+	return err == nil && info.MetaData["owner"] == principal.UserID && info.MetaData["share"] == principal.Share
 }
 
 func (s *Service) beforeCreate(hook tusd.HookEvent) (tusd.HTTPResponse, tusd.FileInfoChanges, error) {
@@ -134,12 +139,18 @@ func (s *Service) beforeCreate(hook tusd.HookEvent) (tusd.HTTPResponse, tusd.Fil
 	if err != nil || hook.Upload.SizeIsDeferred {
 		return tusd.HTTPResponse{}, none, refusal(CodeBadMetadata, http.StatusBadRequest)
 	}
+	if CheckLinkUpload(principal, request, hook.Upload.Size) != nil {
+		return tusd.HTTPResponse{}, none, refusal(CodeBadMetadata, http.StatusForbidden)
+	}
 	if err := s.checkCreate(hook.Context, principal, request, hook.Upload.Size); err != nil {
 		return tusd.HTTPResponse{}, none, err
 	}
+	if principal.Scope != "" && !s.tickets.claim(principal.TicketID, s.cfg.Now()) {
+		return tusd.HTTPResponse{}, none, refusal(CodeBadMetadata, http.StatusForbidden)
+	}
 	meta := tusd.MetaData{
 		"owner": principal.UserID, "destination": request.Folder, "relativeDir": request.RelativeDir,
-		"filename": request.Name, "strategy": request.Strategy,
+		"filename": request.Name, "strategy": request.Strategy, "share": principal.Share,
 	}
 	id, err := NewID(VolumeOf(request.Folder))
 	if err != nil {
@@ -212,7 +223,7 @@ func (s *Service) beforeFinish(hook tusd.HookEvent) (tusd.HTTPResponse, error) {
 	s.removeMeta(hook.Upload.ID)
 	if err := s.cfg.Audit.Record(ctx, audit.Event{
 		ActorID: principal.UserID, Action: "fs.upload", Target: target, Result: audit.ResultSuccess,
-		RequestID: hook.HTTPRequest.Header.Get("X-Request-Id"), Meta: map[string]any{"bytes": hook.Upload.Size},
+		RequestID: hook.HTTPRequest.Header.Get("X-Request-Id"), Meta: uploadMeta(hook.Upload.Size, principal.Share),
 	}); err != nil {
 		s.cfg.Logger.Error("audit write failed", slog.String("action", "fs.upload"), slog.Any("error", err))
 	}
@@ -334,5 +345,41 @@ func (s *Service) purgeIn(dir string, maxAge time.Duration) int {
 }
 
 func subjectOf(principal enginetoken.Principal) authz.Subject {
-	return authz.Subject{UserID: principal.UserID, Groups: principal.Groups, Admin: principal.IsAdmin()}
+	return principal.Subject()
+}
+
+func uploadMeta(size int64, share string) map[string]any {
+	meta := map[string]any{"bytes": size}
+	if share != "" {
+		meta["share"] = share
+	}
+	return meta
+}
+
+// ticketLedger is the set of upload link tickets already used, kept as long as a ticket can live.
+type ticketLedger struct {
+	mu   sync.Mutex
+	used map[string]time.Time
+}
+
+// ticketMemory outlives any ticket (two minutes, plus clock leeway).
+const ticketMemory = 10 * time.Minute
+
+// claim marks a ticket used and reports whether it was still unused.
+func (l *ticketLedger) claim(id string, now time.Time) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.used == nil {
+		l.used = map[string]time.Time{}
+	}
+	for ticket, at := range l.used {
+		if now.Sub(at) > ticketMemory {
+			delete(l.used, ticket)
+		}
+	}
+	if _, seen := l.used[id]; seen {
+		return false
+	}
+	l.used[id] = now
+	return true
 }

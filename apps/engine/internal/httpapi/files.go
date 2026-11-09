@@ -34,9 +34,7 @@ type Grants interface {
 }
 
 func subjectOf(principal enginetoken.Principal) authz.Subject {
-	return authz.Subject{
-		UserID: principal.UserID, Groups: principal.Groups, Admin: principal.IsAdmin(), Scope: principal.Scope,
-	}
+	return principal.Subject()
 }
 
 func toActions(actions []string) []api.PathAction {

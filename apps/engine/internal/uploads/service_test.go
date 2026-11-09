@@ -93,12 +93,17 @@ func newHarness(t *testing.T) *harness {
 
 func (h *harness) do(user, method, target string, header map[string]string, body string) *httptest.ResponseRecorder {
 	h.t.Helper()
+	return h.doAs(enginetoken.Principal{UserID: user}, method, target, header, body)
+}
+
+func (h *harness) doAs(principal enginetoken.Principal, method, target string, header map[string]string, body string) *httptest.ResponseRecorder {
+	h.t.Helper()
 	request := httptest.NewRequest(method, target, strings.NewReader(body))
 	request.Header.Set("Tus-Resumable", "1.0.0")
 	for name, value := range header {
 		request.Header.Set(name, value)
 	}
-	request = request.WithContext(enginetoken.WithPrincipal(request.Context(), enginetoken.Principal{UserID: user}))
+	request = request.WithContext(enginetoken.WithPrincipal(request.Context(), principal))
 	recorder := httptest.NewRecorder()
 	h.service.ServeHTTP(recorder, request)
 	return recorder
@@ -304,4 +309,67 @@ func uploadPath(t *testing.T, location string) string {
 		t.Fatalf("unexpected location %q", location)
 	}
 	return parsed.Path
+}
+
+func TestUploadLinks(t *testing.T) {
+	h := newHarness(t)
+	link := func(ticket string) enginetoken.Principal {
+		return enginetoken.Principal{
+			UserID: "bob", Scope: "/in", Share: "s1", Mode: enginetoken.ModeUpload, TicketID: ticket,
+			Upload: &enginetoken.UploadGrant{Name: "existing.txt", Size: 3},
+		}
+	}
+	create := func(principal enginetoken.Principal, meta map[string]string, size string) *httptest.ResponseRecorder {
+		return h.doAs(principal, http.MethodPost, BasePath, map[string]string{"Upload-Length": size, "Upload-Metadata": metadata(meta)}, "")
+	}
+	good := map[string]string{"destination": "/in", "filename": "existing.txt", "strategy": "keep_both"}
+	created := create(link("t1"), good, "3")
+	if created.Code != http.StatusCreated {
+		t.Fatalf("link upload: %d %s", created.Code, created.Body.String())
+	}
+	target := uploadPath(t, created.Header().Get("Location"))
+	if got := h.do("bob", http.MethodHead, target, nil, ""); got.Code != http.StatusNotFound {
+		t.Fatalf("the owner's session cannot reach a link upload: %d", got.Code)
+	}
+	finished := h.doAs(link("t2"), http.MethodPatch, target, map[string]string{
+		"Upload-Offset": "0", "Content-Type": "application/offset+octet-stream",
+	}, "new")
+	if finished.Code != http.StatusNoContent || h.read("in/existing (1).txt") != "new" || h.read("in/existing.txt") != "old" {
+		t.Fatalf("kept as a copy: %d %q", finished.Code, h.read("in/existing (1).txt"))
+	}
+	last := h.audit.events[len(h.audit.events)-1]
+	if last.Meta["share"] != "s1" {
+		t.Fatalf("audited as a link upload: %+v", last)
+	}
+
+	refusals := []struct {
+		name      string
+		principal enginetoken.Principal
+		meta      map[string]string
+		size      string
+	}{
+		{"ticket used twice", link("t1"), good, "3"},
+		{"no ticket id", link(""), good, "3"},
+		{"another size", link("t3"), good, "4"},
+		{"another name", link("t4"), map[string]string{"destination": "/in", "filename": "other.txt", "strategy": "keep_both"}, "3"},
+		{"overwrite", link("t5"), map[string]string{"destination": "/in", "filename": "existing.txt", "strategy": "overwrite"}, "3"},
+		{"a subfolder", link("t6"), map[string]string{"destination": "/in", "filename": "existing.txt", "relativeDir": "sub", "strategy": "keep_both"}, "3"},
+		{"no grant", enginetoken.Principal{UserID: "bob", Scope: "/in", Share: "s1", Mode: enginetoken.ModeUpload, TicketID: "t7"}, good, "3"},
+	}
+	for _, tc := range refusals {
+		if got := create(tc.principal, tc.meta, tc.size); got.Code != http.StatusForbidden {
+			t.Errorf("%s: %d", tc.name, got.Code)
+		}
+	}
+}
+
+func TestTicketLedger(t *testing.T) {
+	var ledger ticketLedger
+	now := time.Unix(0, 0)
+	if !ledger.claim("a", now) || ledger.claim("a", now) {
+		t.Fatal("single use")
+	}
+	if !ledger.claim("a", now.Add(ticketMemory+time.Second)) {
+		t.Fatal("forgotten once no ticket can still be valid")
+	}
 }

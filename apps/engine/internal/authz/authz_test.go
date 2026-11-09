@@ -160,6 +160,10 @@ func TestScope(t *testing.T) {
 	if got := Capabilities(grants, shared, "/media/photos"); len(got) != 2 {
 		t.Fatalf("capabilities: %v", got)
 	}
+	upload := Subject{UserID: "bob", Scope: "/media/inbox", Mode: "upload"}
+	if !Allowed(grants, upload, "/media/inbox", "upload") || Allowed(grants, upload, "/media/inbox", "read") {
+		t.Fatal("upload links only upload")
+	}
 	owner := Subject{UserID: "carol", Scope: "/media/photos"}
 	if Allowed(grants, owner, "/media/photos/a.jpg", "read") {
 		t.Fatal("a share never reaches more than its owner can")

@@ -28,7 +28,8 @@ type tokenOptions struct {
 	issuer, audience, subject string
 	lifetime                  time.Duration
 	method                    jwt.SigningMethod
-	scope, share              string
+	scope, share, mode, id    string
+	upload                    *UploadGrant
 }
 
 func sign(t *testing.T, private ed25519.PrivateKey, opts tokenOptions) string {
@@ -42,10 +43,13 @@ func sign(t *testing.T, private ed25519.PrivateKey, opts tokenOptions) string {
 		Groups:      []string{"g1"},
 		Scope:       opts.scope,
 		Share:       opts.share,
+		Mode:        opts.mode,
+		Upload:      opts.upload,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    opts.issuer,
 			Audience:  jwt.ClaimStrings{opts.audience},
 			Subject:   opts.subject,
+			ID:        opts.id,
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(opts.lifetime)),
 		},
@@ -171,7 +175,7 @@ func TestMiddleware(t *testing.T) {
 			}
 			recorder := httptest.NewRecorder()
 			streamRoute := func(r *http.Request) bool { return r.URL.Path == "/v1/stream" }
-			scopedRoute := func(r *http.Request) bool { return r.URL.Path == "/v1/stream" }
+			scopedRoute := func(r *http.Request, _ Principal) bool { return r.URL.Path == "/v1/stream" }
 			Middleware(tc.verifier, fail, streamRoute, scopedRoute)(next).ServeHTTP(recorder, request)
 			if recorder.Code != tc.status || gotCode != tc.code {
 				t.Fatalf("got %d %q, want %d %q", recorder.Code, gotCode, tc.status, tc.code)
@@ -215,5 +219,28 @@ func TestVerifyScope(t *testing.T) {
 		if _, err := verifier.Verify(sign(t, private, opts)); !errors.Is(err, ErrInvalid) {
 			t.Fatalf("%+v accepted", opts)
 		}
+	}
+}
+
+func TestVerifyUploadLink(t *testing.T) {
+	public, private := keys(t)
+	verifier := NewVerifier(public, func() time.Time { return now })
+	opts := shared("/inbox", "s2")
+	opts.mode, opts.id, opts.upload = ModeUpload, "ticket-1", &UploadGrant{Name: "a.pdf", Size: 10}
+	principal, err := verifier.Verify(sign(t, private, opts))
+	if err != nil || principal.Mode != ModeUpload || principal.TicketID != "ticket-1" || principal.Upload.Name != "a.pdf" {
+		t.Fatalf("upload link: %+v %v", principal, err)
+	}
+	subject := principal.Subject()
+	if subject.Scope != "/inbox" || subject.Mode != ModeUpload || subject.UserID != "u1" {
+		t.Fatalf("subject: %+v", subject)
+	}
+	opts.mode = "delete"
+	if _, err := verifier.Verify(sign(t, private, opts)); !errors.Is(err, ErrInvalid) {
+		t.Fatal("unknown mode")
+	}
+	read, _ := verifier.Verify(sign(t, private, shared("/media", "s1")))
+	if read.Mode != ModeRead {
+		t.Fatalf("download links read: %q", read.Mode)
 	}
 }
