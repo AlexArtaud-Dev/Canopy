@@ -37,6 +37,20 @@ drops the Secure session cookie. Open the `https://` address, or fix the variabl
 Folders are invisible until someone is given access: Administration › Groups (or Users) › Folder
 access. Administrators see everything.
 
+## A folder says the server account is not allowed to open it
+
+The host refuses the engine's user (`PUID:PGID`) that folder, for example a folder owned by
+`root:MediaAccess` with mode `drwxr-s---`. Either let the engine join the folder's group (find its
+number with `getent group MediaAccess`):
+
+```yaml
+# docker/compose.yaml, engine service
+group_add: ['1001']
+```
+
+or change the folder's owner or mode on the host. Canopy's own folder rules come on top: the host
+must let the engine in first.
+
 ## Files cannot be created, renamed or uploaded ("permission denied")
 
 The engine runs as `PUID:PGID`. The mounted folder must be writable by that user:

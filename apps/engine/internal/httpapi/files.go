@@ -67,6 +67,8 @@ func (s *server) ListDirectory(ctx context.Context, request api.ListDirectoryReq
 	switch {
 	case errors.Is(err, fsx.ErrNotDir):
 		return api.ListDirectory404JSONResponse(newError(ctx, fsx.CodeNotDir)), nil
+	case errors.Is(err, fsx.ErrHostDenied):
+		return api.ListDirectory403JSONResponse(newError(ctx, fsx.CodeHostDenied)), nil
 	case errors.Is(err, fsx.ErrNotFound):
 		return api.ListDirectory404JSONResponse(newError(ctx, fsx.CodeNotFound)), nil
 	case err != nil:

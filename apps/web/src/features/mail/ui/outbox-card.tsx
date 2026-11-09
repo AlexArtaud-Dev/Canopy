@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormatter, useTranslations } from 'next-intl';
+import { useFormatter, useNow, useTranslations } from 'next-intl';
 
 import { Badge } from '@/shared/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -22,6 +22,7 @@ const statusVariant = { sent: 'default', queued: 'secondary', failed: 'destructi
 export function OutboxCard({ rows }: { rows: readonly OutboxRow[] }) {
   const t = useTranslations('mail.outbox');
   const format = useFormatter();
+  const now = useNow({ updateInterval: 60_000 });
 
   return (
     <Card>
@@ -62,7 +63,7 @@ export function OutboxCard({ rows }: { rows: readonly OutboxRow[] }) {
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground hidden text-sm sm:table-cell">
-                    {format.relativeTime(new Date(row.createdAt))}
+                    {format.relativeTime(new Date(row.createdAt), now)}
                   </TableCell>
                 </TableRow>
               ))}

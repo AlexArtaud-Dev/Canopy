@@ -1,7 +1,7 @@
 'use client';
 
 import { Laptop } from 'lucide-react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useFormatter, useNow, useTranslations } from 'next-intl';
 
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
@@ -33,6 +33,8 @@ interface SessionsCardProps {
 export function SessionsCard({ sessions, pending, onRevoke, onRevokeOthers }: SessionsCardProps) {
   const t = useTranslations('auth.sessions');
   const format = useFormatter();
+  // Relative times need a reference; it moves on every minute.
+  const now = useNow({ updateInterval: 60_000 });
   const hasOthers = sessions.some((session) => !session.current);
 
   const deviceLabel = (session: SessionItem) => {
@@ -70,7 +72,7 @@ export function SessionsCard({ sessions, pending, onRevoke, onRevokeOthers }: Se
                 <p className="text-muted-foreground truncate text-xs">
                   {session.ipAddress ?? t('unknownAddress')} ·{' '}
                   {t('lastActive', {
-                    when: format.relativeTime(new Date(session.lastActiveAt)),
+                    when: format.relativeTime(new Date(session.lastActiveAt), now),
                   })}
                 </p>
               </div>

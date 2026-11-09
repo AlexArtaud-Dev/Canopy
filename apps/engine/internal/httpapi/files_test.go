@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"log/slog"
@@ -113,6 +114,7 @@ func TestListDirectory(t *testing.T) {
 		{"admin sees all, dirs only", adminToken, "path=/docs&dirsOnly=true&sort=size&order=desc&offset=0&limit=5", fakeFiles{}, fakeGrants{}, http.StatusOK, "", []string{"photos"}},
 		{"not found", adminToken, "path=/missing", fakeFiles{err: fsx.ErrNotFound}, fakeGrants{}, http.StatusNotFound, fsx.CodeNotFound, nil},
 		{"not a dir", adminToken, "path=/a.txt", fakeFiles{err: fsx.ErrNotDir}, fakeGrants{}, http.StatusNotFound, fsx.CodeNotDir, nil},
+		{"host denied", adminToken, "path=/media/H", fakeFiles{err: fmt.Errorf("%w: %w", fsx.ErrHostDenied, fsx.ErrNotFound)}, fakeGrants{}, http.StatusForbidden, fsx.CodeHostDenied, nil},
 		{"io failure", adminToken, "path=/docs", fakeFiles{err: errors.New("disk")}, fakeGrants{}, http.StatusInternalServerError, codeInternal, nil},
 		{"grants failure", userToken, "path=/docs", fakeFiles{}, fakeGrants{err: errors.New("db")}, http.StatusInternalServerError, codeInternal, nil},
 	}

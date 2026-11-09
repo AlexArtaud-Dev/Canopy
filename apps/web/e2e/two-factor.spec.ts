@@ -21,8 +21,8 @@ test('two-factor: turn it on, then sign in with a code', async ({ page, browser,
       .innerText()
   ).trim();
   const enrolledAt = Date.now();
+  // The sixth digit sends the code: no button to press.
   await first.page.getByLabel('Code from the app').fill(totpCode(secret, enrolledAt));
-  await first.page.getByRole('button', { name: 'Turn on' }).click();
   await expect(first.page.getByRole('heading', { name: 'Save your recovery codes' })).toBeVisible();
   await first.page.getByRole('button', { name: 'I saved them' }).click();
   await first.context.close();
@@ -31,12 +31,10 @@ test('two-factor: turn it on, then sign in with a code', async ({ page, browser,
   await expect(second.page).toHaveURL(/\/login\/verify$/);
   // A wrong code is refused before the right one gets in.
   await second.page.getByLabel('Authentication code').fill('000000');
-  await second.page.getByRole('button', { name: 'Verify' }).click();
   await expect(
     second.page.getByRole('alert').filter({ hasText: 'This code is not valid' }),
   ).toBeVisible();
   await second.page.getByLabel('Authentication code').fill(await nextStepCode(secret, enrolledAt));
-  await second.page.getByRole('button', { name: 'Verify' }).click();
   await expect(second.page.getByRole('heading', { level: 1, name: 'Files' })).toBeVisible();
   await second.context.close();
 });

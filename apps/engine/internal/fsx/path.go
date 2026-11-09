@@ -14,6 +14,8 @@ const (
 	CodeInvalidPath = "files.invalid_path"
 	CodeNotFound    = "files.not_found"
 	CodeNotDir      = "files.not_a_directory"
+	// CodeHostDenied: the engine's host user (PUID/PGID) may not open the folder.
+	CodeHostDenied = "files.host_denied"
 )
 
 // ErrInvalidPath rejects a virtual path before any filesystem access.

@@ -20,6 +20,9 @@ Local accounts only (Better Auth, username + password). No public sign-up.
 - **Email is optional**: Better Auth needs a unique email, so `auth.users.email` holds an
   undeliverable `<uuid>@users.canopy.invalid`; the real address is `contact_email`.
 - **Sessions**: httpOnly SameSite=Lax cookie (`canopy.session_token`, `__Secure-` on https).
+  Secure is decided per request (`secure-request.utils.ts`): HTTPS when the proxy says so
+  (`X-Forwarded-Proto`) or when the request came to the HTTPS public address, so a plain-HTTP LAN
+  visit (`http://<server>:<port>`, e.g. in maintenance mode) can still sign in.
   Settings `auth.sessionLifetimeDays` (absolute, default 30) and `auth.idleTimeoutMinutes`
   (default 7 days); activity is recorded every 5 minutes. Cookie signing key is derived from
   `CANOPY_ENCRYPTION_KEY` (HKDF).
@@ -33,7 +36,9 @@ Local accounts only (Better Auth, username + password). No public sign-up.
   step is never accepted again. Secrets are sealed (`auth.totp:<userId>`); 10 single-use recovery
   codes (`XXXXX-XXXXX`, 50 bits) are stored as SHA-256. After the password, a 2FA account gets a
   session marked `two_factor_pending` (set by a Better Auth hook when the row is created): it grants
-  nothing, expires after 10 minutes, and `/login/verify` completes it. Code attempts share the
+  nothing, expires after 10 minutes, and `/login/verify` completes it: six digit boxes (one real
+  input, so Backspace, paste and one-time-code autofill work) sent as soon as the sixth is typed,
+  emptied after a refused code, or a switch to a recovery code. Enrolment uses the same boxes. Code attempts share the
   lockout rule. Turning 2FA off or regenerating codes requires the current password.
 - **Account page** (`/account`, from the account menu): profile (display name, optional email;
   the username is admin-managed), password change (current password required, other sessions

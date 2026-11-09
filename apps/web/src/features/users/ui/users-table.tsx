@@ -2,7 +2,7 @@
 
 import { MoreHorizontal, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useFormatter, useNow, useTranslations } from 'next-intl';
 
 import { Avatar, AvatarFallback } from '@/shared/ui/avatar';
 import { Badge } from '@/shared/ui/badge';
@@ -55,6 +55,7 @@ export function UsersTable({
 }: UsersTableProps) {
   const t = useTranslations('users');
   const format = useFormatter();
+  const now = useNow({ updateInterval: 60_000 });
 
   return (
     <Table>
@@ -115,7 +116,9 @@ export function UsersTable({
                 </div>
               </TableCell>
               <TableCell className="text-muted-foreground hidden text-sm lg:table-cell">
-                {user.lastActiveAt ? format.relativeTime(new Date(user.lastActiveAt)) : t('never')}
+                {user.lastActiveAt
+                  ? format.relativeTime(new Date(user.lastActiveAt), now)
+                  : t('never')}
               </TableCell>
               <TableCell>
                 {canUpdate && !self && (

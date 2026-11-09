@@ -44,6 +44,11 @@ type Entry struct {
 // ErrNotFound is returned when the virtual path does not exist (or escapes the root).
 var ErrNotFound = errors.New("not found")
 
+// ErrHostDenied is returned when the host refuses the engine's own user (PUID/PGID) a path inside
+// the root: an install setting to fix, not a missing path. It also matches ErrNotFound, so callers
+// that only know "not found" keep working.
+var ErrHostDenied = errors.New("the host denied access")
+
 // ErrNotDir is returned when a directory was expected.
 var ErrNotDir = errors.New("not a directory")
 
@@ -122,9 +127,14 @@ func lastSlash(value string) int {
 	return -1
 }
 
-// notFound hides why a path is unreachable (missing, escaping, permission): callers only learn
-// that it is not there.
+// notFound hides why a path is unreachable (missing, escaping the root): callers only learn that
+// it is not there. A host permission refusal on a path inside the root is told apart
+// (ErrHostDenied, which still matches ErrNotFound): it reveals nothing outside the root and tells
+// the administrator what to fix.
 func notFound(err error) error {
+	if errors.Is(err, fs.ErrPermission) {
+		return fmt.Errorf("%w: %w: %w", ErrHostDenied, ErrNotFound, err)
+	}
 	return fmt.Errorf("%w: %w", ErrNotFound, err)
 }
 

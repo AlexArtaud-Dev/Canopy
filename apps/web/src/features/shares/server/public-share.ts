@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { listDirectory } from '@canopy/contracts';
 
 import { AppBaseError } from '@/shared/lib/errors';
+import { currentRequestIsSecure } from '@/shared/request/secure-request';
 import { openSecret, sealSecret } from '@/shared/secrets/secrets';
 import { audit } from '@/features/audit/server/audit-writer';
 
@@ -105,13 +106,12 @@ export async function rememberUnlock(share: ShareRow): Promise<void> {
   (await cookies()).set(
     unlockCookie(share),
     sealSecret(`${share.id}.${String(Date.now() + seconds * 1000)}`, unlockPurpose),
-    { httpOnly: true, sameSite: 'lax', secure: isSecure(), path: '/s', maxAge: seconds },
+    { httpOnly: true, sameSite: 'lax', secure: await isSecure(), path: '/s', maxAge: seconds },
   );
 }
 
-export function isSecure(): boolean {
-  return (process.env.CANOPY_PUBLIC_URL ?? '').startsWith('https:');
-}
+/** Cookies of this visit may be Secure (HTTPS behind the proxy, not a plain-HTTP LAN visit). */
+export const isSecure = currentRequestIsSecure;
 
 /**
  * What a visitor of `/s/<token>` sees. Every opening of an active, unlocked link is audited (as

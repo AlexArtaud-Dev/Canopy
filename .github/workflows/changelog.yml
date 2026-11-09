@@ -2,16 +2,14 @@ name: Changelog
 
 # Separate from CI because label changes must re-run this check, and re-running the whole CI on
 # every label event would race with (and cancel) the run started when the PR was opened.
+# No concurrency group: opening a PR with labels fires several events at once, and cancelling
+# runs in flight could leave the required check without a result. Each run takes seconds.
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
 
 permissions:
   contents: read
-
-concurrency:
-  group: changelog-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   entry:
