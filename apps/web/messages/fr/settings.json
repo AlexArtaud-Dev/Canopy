@@ -26,7 +26,8 @@
     "uploads": "Imports",
     "trash": "Corbeille",
     "thumbnails": "Miniatures",
-    "shares": "Liens de partage"
+    "shares": "Liens de partage",
+    "commands": "Commandes"
   },
   "groups": {
     "sessions": "Sessions",
@@ -39,7 +40,8 @@
     "language": "Langue",
     "limits": "Limites",
     "display": "Affichage",
-    "links": "Liens"
+    "links": "Liens",
+    "advanced": "Avancé"
   },
   "fields": {
     "auth": {
@@ -166,6 +168,12 @@
       "requirePassword": {
         "label": "Exiger un mot de passe",
         "description": "Chaque nouveau lien doit être protégé par un mot de passe."
+      }
+    },
+    "commands": {
+      "advancedMode": {
+        "label": "Mode avancé",
+        "description": "Permet aux personnes ayant la permission « avancé » des commandes d’utiliser les commandes avancées du catalogue, avec toutes leurs options."
       }
     }
   },

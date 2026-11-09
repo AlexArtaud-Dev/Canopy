@@ -1,0 +1,24 @@
+{
+  "page": {
+    "description": "Herramientas instaladas en el servidor, ejecutadas con las opciones de abajo. Siempre ves el comando exacto antes de que se ejecute; su salida aparece aquí y su progreso en Operaciones.",
+    "catalog": "Comandos disponibles",
+    "advanced": "Avanzado",
+    "emptyTitle": "No hay comandos disponibles",
+    "emptyDescription": "Ninguna de las herramientas del catálogo está instalada en el servidor.",
+    "emptyBasic": "No hay comandos básicos disponibles. Los comandos avanzados aparecen cuando un administrador activa el modo avanzado y te da acceso.",
+    "dryRun": "Simular: mostrar lo que cambiaría sin modificar nada",
+    "preview": "Comando que se ejecutará",
+    "run": "Ejecutar",
+    "runDry": "Simular",
+    "choose": "Elegir…",
+    "pathPlaceholder": "/media/photos",
+    "noOutput": "Todavía no hay salida.",
+    "state": {
+      "queued": "En espera",
+      "running": "En curso",
+      "succeeded": "Terminado",
+      "failed": "Error",
+      "cancelled": "Cancelado"
+    }
+  }
+}

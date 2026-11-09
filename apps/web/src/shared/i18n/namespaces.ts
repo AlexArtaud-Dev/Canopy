@@ -7,6 +7,7 @@ export const namespaces = [
   'access',
   'audit',
   'auth',
+  'commands',
   'common',
   'errors',
   'files',

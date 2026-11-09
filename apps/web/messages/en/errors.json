@@ -106,5 +106,14 @@
     "total_exceeded": "This link cannot receive that much more.",
     "files_exceeded": "This link cannot receive more files.",
     "upload_failed": "The file could not be sent. Try again."
+  },
+  "commands": {
+    "unknown_param": "This option does not exist for this command.",
+    "missing_param": "Fill in every required option.",
+    "invalid_value": "One of the options has a value this command does not accept.",
+    "no_dry_run": "This command cannot be simulated.",
+    "unavailable": "This command is not available (not installed, or advanced mode is off).",
+    "failed": "The command ended with an error. See its output.",
+    "timeout": "The command took too long and was stopped."
   }
 }

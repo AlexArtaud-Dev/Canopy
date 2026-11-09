@@ -14,7 +14,8 @@
     "settings": "Ajustes",
     "audit": "Registro de auditoría",
     "trash": "Papelera",
-    "shares": "Compartidos"
+    "shares": "Compartidos",
+    "commands": "Comandos"
   },
   "preferences": {
     "appearance": "Apariencia",

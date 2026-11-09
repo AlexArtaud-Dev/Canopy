@@ -1,0 +1,24 @@
+{
+  "page": {
+    "description": "Des outils installés sur le serveur, lancés avec les options ci-dessous. Vous voyez toujours la commande exacte avant son lancement ; sa sortie s’affiche ici et sa progression dans Opérations.",
+    "catalog": "Commandes disponibles",
+    "advanced": "Avancée",
+    "emptyTitle": "Aucune commande disponible",
+    "emptyDescription": "Aucun des outils du catalogue n’est installé sur le serveur.",
+    "emptyBasic": "Aucune commande de base n’est disponible. Les commandes avancées apparaissent quand un administrateur active le mode avancé et vous en donne l’accès.",
+    "dryRun": "Simuler : montrer ce qui changerait sans rien modifier",
+    "preview": "Commande qui sera lancée",
+    "run": "Lancer",
+    "runDry": "Simuler",
+    "choose": "Choisir…",
+    "pathPlaceholder": "/media/photos",
+    "noOutput": "Pas encore de sortie.",
+    "state": {
+      "queued": "En attente",
+      "running": "En cours",
+      "succeeded": "Terminée",
+      "failed": "Échec",
+      "cancelled": "Annulée"
+    }
+  }
+}

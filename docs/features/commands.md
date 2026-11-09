@@ -25,3 +25,13 @@
   runs), `POST /v1/jobs/command` (audited as `jobs.start`). Advanced entries need the
   `commands.advancedMode` setting and `commands:advanced` (administrators hold every permission).
 - Built-in: `rsync.sync` (advanced, dry run). The default engine image has no rsync.
+
+## Commands page (web)
+
+- **Commands** in the sidebar (`/commands`): the entries the engine offers to the person, a form
+  generated from each entry's params (paths as virtual paths, switches, numbers, choices, hidden
+  secrets), the exact command refreshed as you type (`previewCommand`, 300 ms after the last
+  change), **Simulate** when the entry has a dry run, then **Run**. The run's output appears below
+  (read every second while it runs); its progress and result are in Operations.
+- Settings (module `commands`): **Advanced mode** (off). Permission `commands:advanced` (global,
+  in roles) unlocks advanced entries once the mode is on; administrators hold it.
