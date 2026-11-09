@@ -321,3 +321,17 @@ entries:
       en: A user guide covers install, folders and permissions, reverse proxy, upgrades, backups and troubleshooting
       fr: Un guide d’utilisation couvre l’installation, les dossiers et permissions, le reverse proxy, les mises à jour, les sauvegardes et le dépannage
       es: Una guía de uso cubre la instalación, las carpetas y permisos, el proxy inverso, las actualizaciones, las copias de seguridad y la resolución de problemas
+  - type: fix
+    scope: a11y
+    issue: 67
+    text:
+      en: Better accessibility - stronger text contrast, clearer account and sort labels, and file rows that screen readers announce correctly
+      fr: Meilleure accessibilité - contraste du texte renforcé, libellés plus clairs pour le compte et le tri, et lignes de fichiers correctement annoncées par les lecteurs d’écran
+      es: Mejor accesibilidad - más contraste en el texto, etiquetas más claras para la cuenta y el orden, y filas de archivos anunciadas correctamente por los lectores de pantalla
+  - type: security
+    scope: engine
+    issue: 67
+    text:
+      en: Upload and trash identifiers can no longer point outside the file root
+      fr: Les identifiants d’envoi et de corbeille ne peuvent plus désigner un dossier hors de la racine des fichiers
+      es: Los identificadores de subida y de papelera ya no pueden apuntar fuera de la raíz de archivos

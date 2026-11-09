@@ -45,6 +45,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@canopy/config": "workspace:*",
     "@playwright/test": "1.65.0",
     "@tailwindcss/postcss": "4.3.4",

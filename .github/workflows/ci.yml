@@ -99,7 +99,8 @@ jobs:
             echo "PUID=$(id -u)"
             echo "PGID=$(id -g)"
           } > docker/.env
-          mkdir -p docker/data
+          # Bind mounts owned by the runner user (PUID), or the engine cannot write them.
+          mkdir -p docker/data docker/cache docker/plugins
           docker compose -f docker/compose.yaml --env-file docker/.env up -d --build --wait
       - run: pnpm --filter @canopy/web exec playwright install --with-deps chromium
       - run: pnpm test:e2e

@@ -68,7 +68,6 @@
       "modified": "Modified"
     },
     "entriesLabel": "Contents of {path}",
-    "selectEntry": "Select {name}",
     "loadingMore": "Loading more…",
     "count": "{count, plural, one {# item} other {# items}}",
     "selected": "{count, plural, one {# selected} other {# selected}}",
