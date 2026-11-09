@@ -1,5 +1,8 @@
 # Deployment (Docker)
 
+The step-by-step guide for people installing Canopy is [docs/user](../user/README.md); this page
+is the technical summary.
+
 ```bash
 cp docker/.env.example docker/.env   # set passwords, PUID/PGID, data folder
 docker compose -f docker/compose.yaml --env-file docker/.env up -d --build --wait
