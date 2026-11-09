@@ -33,7 +33,8 @@
       "trash_empty": "Vaciado de la papelera",
       "compress": "Compresión",
       "extract": "Extracción",
-      "checksum": "Suma de verificación"
+      "checksum": "Suma de verificación",
+      "command": "Comando"
     },
     "transferResult": "{items, plural, one {# elemento} other {# elementos}} · {size}",
     "transferSkipped": "{count, plural, one {# omitido} other {# omitidos}}",

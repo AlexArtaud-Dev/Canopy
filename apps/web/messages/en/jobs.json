@@ -33,7 +33,8 @@
       "trash_empty": "Emptying the trash",
       "compress": "Compress",
       "extract": "Extract",
-      "checksum": "Checksum"
+      "checksum": "Checksum",
+      "command": "Command"
     },
     "transferResult": "{items, plural, one {# item} other {# items}} · {size}",
     "transferSkipped": "{count, plural, one {# skipped} other {# skipped}}",

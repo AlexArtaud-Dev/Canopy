@@ -26,7 +26,8 @@
     "uploads": "Subidas",
     "trash": "Papelera",
     "thumbnails": "Miniaturas",
-    "shares": "Enlaces compartidos"
+    "shares": "Enlaces compartidos",
+    "commands": "Comandos"
   },
   "groups": {
     "sessions": "Sesiones",
@@ -39,7 +40,8 @@
     "language": "Idioma",
     "limits": "Límites",
     "display": "Visualización",
-    "links": "Enlaces"
+    "links": "Enlaces",
+    "advanced": "Avanzado"
   },
   "fields": {
     "auth": {
@@ -166,6 +168,12 @@
       "requirePassword": {
         "label": "Exigir contraseña",
         "description": "Cada enlace nuevo debe estar protegido con contraseña."
+      }
+    },
+    "commands": {
+      "advancedMode": {
+        "label": "Modo avanzado",
+        "description": "Permite a quienes tienen el permiso «avanzado» de comandos usar los comandos avanzados del catálogo, con todas sus opciones."
       }
     }
   },

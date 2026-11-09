@@ -106,5 +106,14 @@
     "total_exceeded": "Ce lien ne peut pas recevoir autant de données en plus.",
     "files_exceeded": "Ce lien ne peut plus recevoir de fichiers.",
     "upload_failed": "Le fichier n’a pas pu être envoyé. Réessayez."
+  },
+  "commands": {
+    "unknown_param": "Cette option n’existe pas pour cette commande.",
+    "missing_param": "Renseignez toutes les options obligatoires.",
+    "invalid_value": "Une option a une valeur que cette commande n’accepte pas.",
+    "no_dry_run": "Cette commande ne peut pas être simulée.",
+    "unavailable": "Cette commande n’est pas disponible (non installée, ou mode avancé désactivé).",
+    "failed": "La commande s’est terminée en erreur. Consultez sa sortie.",
+    "timeout": "La commande a pris trop de temps et a été arrêtée."
   }
 }

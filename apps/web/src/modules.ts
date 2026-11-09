@@ -4,6 +4,7 @@ import { groupsModule, rolesModule } from '@/features/access/access.module';
 import { appearanceModule } from '@/features/appearance/appearance.module';
 import { auditModule } from '@/features/audit/audit.module';
 import { authModule } from '@/features/auth/auth.module';
+import { commandsModule } from '@/features/commands/commands.module';
 import { filesModule } from '@/features/files/files.module';
 import { thumbnailsModule } from '@/features/files/thumbnails.module';
 import { jobsModule } from '@/features/jobs/jobs.module';
@@ -23,6 +24,7 @@ export const appRegistry = createRegistry([
   trashModule,
   thumbnailsModule,
   sharesModule,
+  commandsModule,
   authModule,
   usersModule,
   groupsModule,

@@ -13,6 +13,18 @@ import { listMyJobs } from '../server/jobs-actions';
 
 export const jobsQueryKey = ['jobs'] as const;
 
+async function fetchJobs(): Promise<Job[]> {
+  const response = await listMyJobs();
+  // A failed refresh keeps showing what we had; the stream catches up.
+  return response.ok ? response.data : [];
+}
+
+/** One job, kept live by the operations panel's event stream (they share the cache). */
+export function useJob(id: string | null): Job | undefined {
+  const query = useQuery({ queryKey: jobsQueryKey, queryFn: fetchJobs, enabled: id !== null });
+  return id === null ? undefined : query.data?.find((job) => job.id === id);
+}
+
 /** Event stream relayed by the web app (the engine token never reaches the browser). */
 const eventsUrl = '/api/engine/v1/jobs/events';
 
@@ -24,11 +36,7 @@ export function useJobs(onFinished: (job: Job, state: JobState) => void) {
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: jobsQueryKey,
-    queryFn: async () => {
-      const response = await listMyJobs();
-      // A failed refresh keeps showing what we had; the stream catches up.
-      return response.ok ? response.data : [];
-    },
+    queryFn: fetchJobs,
   });
 
   const lastStates = useRef(new Map<string, JobState>());

@@ -1,0 +1,24 @@
+{
+  "page": {
+    "description": "Tools installed on the server, run with the options below. You always see the exact command before it runs; its output appears here and its progress in Operations.",
+    "catalog": "Available commands",
+    "advanced": "Advanced",
+    "emptyTitle": "No commands available",
+    "emptyDescription": "None of the tools in the catalog is installed on the server.",
+    "emptyBasic": "No basic command is available. Advanced commands appear when an administrator turns on advanced mode and gives you access.",
+    "dryRun": "Simulate (dry run): show what would change without changing anything",
+    "preview": "Command that will run",
+    "run": "Run",
+    "runDry": "Simulate",
+    "choose": "Choose…",
+    "pathPlaceholder": "/media/photos",
+    "noOutput": "No output yet.",
+    "state": {
+      "queued": "Waiting to start",
+      "running": "Running",
+      "succeeded": "Finished",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    }
+  }
+}

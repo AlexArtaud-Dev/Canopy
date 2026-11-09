@@ -279,3 +279,10 @@ entries:
       en: Upload links let people without an account send files into a folder, with optional password, allowed types and size limits
       fr: Les liens de dépôt permettent à des personnes sans compte d’envoyer des fichiers dans un dossier, avec mot de passe, types autorisés et limites de taille facultatifs
       es: Los enlaces de subida permiten a personas sin cuenta enviar archivos a una carpeta, con contraseña, tipos permitidos y límites de tamaño opcionales
+  - type: feat
+    scope: commands
+    issue: 61
+    text:
+      en: A Commands page runs tools installed on the server from a catalog, showing the exact command, a dry run and live output
+      fr: Une page Commandes lance des outils installés sur le serveur depuis un catalogue, avec la commande exacte, une simulation et la sortie en direct
+      es: Una página Comandos ejecuta herramientas instaladas en el servidor desde un catálogo, con el comando exacto, una simulación y la salida en directo

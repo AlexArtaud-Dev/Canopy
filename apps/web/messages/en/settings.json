@@ -26,7 +26,8 @@
     "uploads": "Uploads",
     "trash": "Trash",
     "thumbnails": "Thumbnails",
-    "shares": "Share links"
+    "shares": "Share links",
+    "commands": "Commands"
   },
   "groups": {
     "sessions": "Sessions",
@@ -39,7 +40,8 @@
     "language": "Language",
     "limits": "Limits",
     "display": "Display",
-    "links": "Links"
+    "links": "Links",
+    "advanced": "Advanced"
   },
   "fields": {
     "auth": {
@@ -166,6 +168,12 @@
       "requirePassword": {
         "label": "Require a password",
         "description": "Every new link must be protected by a password."
+      }
+    },
+    "commands": {
+      "advancedMode": {
+        "label": "Advanced mode",
+        "description": "Lets people with the “advanced” commands permission use advanced catalog commands, with every option they offer."
       }
     }
   },

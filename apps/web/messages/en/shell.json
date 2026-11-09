@@ -14,7 +14,8 @@
     "settings": "Settings",
     "audit": "Audit log",
     "trash": "Trash",
-    "shares": "Shares"
+    "shares": "Shares",
+    "commands": "Commands"
   },
   "preferences": {
     "appearance": "Appearance",

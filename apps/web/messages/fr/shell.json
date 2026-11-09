@@ -14,7 +14,8 @@
     "settings": "Réglages",
     "audit": "Journal d’audit",
     "trash": "Corbeille",
-    "shares": "Partages"
+    "shares": "Partages",
+    "commands": "Commandes"
   },
   "preferences": {
     "appearance": "Apparence",

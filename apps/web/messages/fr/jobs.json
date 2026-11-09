@@ -33,7 +33,8 @@
       "trash_empty": "Vidage de la corbeille",
       "compress": "Compression",
       "extract": "Extraction",
-      "checksum": "Somme de contrôle"
+      "checksum": "Somme de contrôle",
+      "command": "Commande"
     },
     "transferResult": "{items, plural, one {# élément} other {# éléments}} · {size}",
     "transferSkipped": "{count, plural, one {# ignoré} other {# ignorés}}",
