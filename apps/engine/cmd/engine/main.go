@@ -27,6 +27,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/httpapi"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/plugins"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/trash"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/uploads"
@@ -120,6 +121,14 @@ func run() error {
 		return err
 	}
 
+	pluginService := &plugins.Service{
+		Dir: cfg.PluginsDir, Store: plugins.PostgresStore{DB: pool}, Catalog: catalog, Logger: logger, Now: time.Now,
+	}
+	// Installed plugins add their commands; a failure here only leaves them out until fixed.
+	if err := pluginService.Refresh(startupCtx); err != nil {
+		logger.Warn("plugins not loaded", slog.Any("error", err))
+	}
+
 	jobService, err := startJobs(startupCtx, pool, resolver, grants, trashService, commandRunner{catalog, launcher}, logger)
 	if err != nil {
 		return err
@@ -152,6 +161,7 @@ func run() error {
 			Commands:     catalog,
 			AdvancedMode: advancedMode(pool, logger),
 			HostPaths:    resolver,
+			Plugins:      pluginService,
 		}),
 		ReadHeaderTimeout: readHeaderTimeout,
 		// No read/write timeouts: multi-GB transfers and SSE streams are legitimately long.

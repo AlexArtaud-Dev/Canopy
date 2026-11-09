@@ -2,7 +2,14 @@
 
 import * as z from 'zod';
 
-import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
+import {
+  type Client,
+  type ClientMeta,
+  formDataBodySerializer,
+  type Options as Options2,
+  type RequestResult,
+  type TDataShape,
+} from './client';
 import { client } from './client.gen';
 import type {
   CancelJobData,
@@ -25,6 +32,9 @@ import type {
   GetReadinessData,
   GetReadinessErrors,
   GetReadinessResponses,
+  InstallPluginData,
+  InstallPluginErrors,
+  InstallPluginResponses,
   ListCommandsData,
   ListCommandsErrors,
   ListCommandsResponses,
@@ -34,6 +44,9 @@ import type {
   ListJobsData,
   ListJobsErrors,
   ListJobsResponses,
+  ListPluginsData,
+  ListPluginsErrors,
+  ListPluginsResponses,
   ListTrashData,
   ListTrashErrors,
   ListTrashResponses,
@@ -85,6 +98,12 @@ import type {
   StatEntryData,
   StatEntryErrors,
   StatEntryResponses,
+  UninstallPluginData,
+  UninstallPluginErrors,
+  UninstallPluginResponses,
+  UpdatePluginData,
+  UpdatePluginErrors,
+  UpdatePluginResponses,
 } from './types.gen';
 import {
   zCancelJobPath,
@@ -100,11 +119,14 @@ import {
   zGetJobResponse,
   zGetLivenessResponse,
   zGetReadinessResponse,
+  zInstallPluginBody,
+  zInstallPluginResponse,
   zListCommandsResponse,
   zListDirectoryQuery,
   zListDirectoryResponse,
   zListJobsQuery,
   zListJobsResponse,
+  zListPluginsResponse,
   zListTrashResponse,
   zMoveToTrashBody,
   zMoveToTrashResponse,
@@ -138,6 +160,11 @@ import {
   zStartTransferResponse,
   zStatEntryQuery,
   zStatEntryResponse,
+  zUninstallPluginPath,
+  zUninstallPluginResponse,
+  zUpdatePluginBody,
+  zUpdatePluginPath,
+  zUpdatePluginResponse,
 } from './zod.gen';
 
 export type Options<
@@ -370,6 +397,103 @@ export const startChecksum = <ThrowOnError extends boolean = false>(
     responseValidator: async (data) => await zStartChecksumResponse.parseAsync(data),
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v1/jobs/checksum',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Installed plugins
+ *
+ * Administrators only. Also says which platform this engine runs on.
+ */
+export const listPlugins = <ThrowOnError extends boolean = false>(
+  options?: Options<ListPluginsData, ThrowOnError>,
+): RequestResult<ListPluginsResponses, ListPluginsErrors, ThrowOnError> =>
+  (options?.client ?? client).get<ListPluginsResponses, ListPluginsErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zListPluginsResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/plugins',
+    ...options,
+  });
+
+/**
+ * Install or update a plugin from its release files
+ *
+ * Administrators only. The web app downloads the release (the engine has no internet access) and sends its `canopy-plugin.yaml`, its checksum file and the binary for this platform. The manifest is checked strictly and the binary's SHA-256 must match the checksum file before anything is stored; no install script ever runs.
+ */
+export const installPlugin = <ThrowOnError extends boolean = false>(
+  options: Options<InstallPluginData, ThrowOnError>,
+): RequestResult<InstallPluginResponses, InstallPluginErrors, ThrowOnError> =>
+  (options.client ?? client).post<InstallPluginResponses, InstallPluginErrors, ThrowOnError>({
+    ...formDataBodySerializer,
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zInstallPluginBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zInstallPluginResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/plugins',
+    ...options,
+    headers: {
+      'Content-Type': null,
+      ...options.headers,
+    },
+  });
+
+/**
+ * Uninstall a plugin
+ */
+export const uninstallPlugin = <ThrowOnError extends boolean = false>(
+  options: Options<UninstallPluginData, ThrowOnError>,
+): RequestResult<UninstallPluginResponses, UninstallPluginErrors, ThrowOnError> =>
+  (options.client ?? client).delete<UninstallPluginResponses, UninstallPluginErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: zUninstallPluginPath,
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zUninstallPluginResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/plugins/{pluginId}',
+    ...options,
+  });
+
+/**
+ * Enable, disable, pin or unpin a plugin
+ */
+export const updatePlugin = <ThrowOnError extends boolean = false>(
+  options: Options<UpdatePluginData, ThrowOnError>,
+): RequestResult<UpdatePluginResponses, UpdatePluginErrors, ThrowOnError> =>
+  (options.client ?? client).patch<UpdatePluginResponses, UpdatePluginErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zUpdatePluginBody,
+          path: zUpdatePluginPath,
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zUpdatePluginResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/plugins/{pluginId}',
     ...options,
     headers: {
       'Content-Type': 'application/json',

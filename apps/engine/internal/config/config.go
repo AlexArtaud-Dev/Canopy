@@ -15,6 +15,7 @@ const (
 	defaultAddr     = ":8080"
 	defaultRoot     = "/srv/canopy/root"
 	defaultCacheDir = "/srv/canopy/cache"
+	defaultPlugins  = "/srv/canopy/plugins"
 	defaultLogLevel = slog.LevelInfo
 	defaultUmask    = 0o022
 )
@@ -26,6 +27,8 @@ type Config struct {
 	Root        string
 	// CacheDir holds rebuildable data (thumbnails), outside the root so it never shows as files.
 	CacheDir string
+	// PluginsDir holds installed plugin binaries (checked against their release checksums).
+	PluginsDir string
 	// PublicKey verifies web-signed engine tokens; empty disables the /v1 API.
 	PublicKey string
 	LogLevel  slog.Level
@@ -59,6 +62,7 @@ func Load(getenv func(string) string) (Config, error) {
 		DatabaseURL: strings.TrimSpace(getenv("CANOPY_DATABASE_URL")),
 		Root:        valueOr(getenv("CANOPY_ROOT"), defaultRoot),
 		CacheDir:    valueOr(getenv("CANOPY_CACHE_DIR"), defaultCacheDir),
+		PluginsDir:  valueOr(getenv("CANOPY_PLUGINS_DIR"), defaultPlugins),
 		PublicKey:   strings.TrimSpace(getenv("CANOPY_ENGINE_PUBLIC_KEY")),
 		LogLevel:    defaultLogLevel,
 		Umask:       defaultUmask,
@@ -77,6 +81,10 @@ func Load(getenv func(string) string) (Config, error) {
 		return Config{}, &Error{Code: CodeInvalid, Key: "CANOPY_CACHE_DIR"}
 	}
 	cfg.CacheDir = filepath.ToSlash(filepath.Clean(cfg.CacheDir))
+	if !path.IsAbs(cfg.PluginsDir) && !filepath.IsAbs(cfg.PluginsDir) {
+		return Config{}, &Error{Code: CodeInvalid, Key: "CANOPY_PLUGINS_DIR"}
+	}
+	cfg.PluginsDir = filepath.ToSlash(filepath.Clean(cfg.PluginsDir))
 
 	if raw := strings.TrimSpace(getenv("CANOPY_LOG_LEVEL")); raw != "" {
 		if err := cfg.LogLevel.UnmarshalText([]byte(raw)); err != nil {
