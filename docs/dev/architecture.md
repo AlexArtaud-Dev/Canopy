@@ -78,22 +78,23 @@ The engine DB role has read-only access to `app` (grants, settings) and INSERT-o
 
 ## Environment (bootstrap only — everything else is an admin setting)
 
-| Variable                         | Purpose                                         |
-| -------------------------------- | ----------------------------------------------- |
-| `CANOPY_PUBLIC_URL`              | External URL (cookies, links)                   |
-| `CANOPY_DATABASE_URL`            | Postgres DSN (one per app role)                 |
-| `CANOPY_ENCRYPTION_KEY`          | AES-256-GCM key for secrets at rest             |
-| `CANOPY_ENCRYPTION_KEY_PREVIOUS` | Retired keys still accepted during a rotation   |
-| `CANOPY_ENGINE_PRIVATE_KEY`      | Ed25519 seed signing engine tokens (web only)   |
-| `CANOPY_ENGINE_PUBLIC_KEY`       | Matching public key verifying them (engine)     |
-| `CANOPY_ROOT`                    | File root inside the engine container           |
-| `CANOPY_ENGINE_URL`              | Engine base URL as seen from web (internal)     |
-| `CANOPY_ENGINE_ADDR`             | Engine listen address (default `:8080`)         |
-| `CANOPY_LOG_LEVEL`               | Engine log level (`debug`, `info`, `warn`…)     |
-| `CANOPY_TRUSTED_PROXIES`         | CIDR list allowed to set forwarded headers      |
-| `CANOPY_LOCAL_NETWORKS`          | CIDR list considered "local" (maintenance mode) |
-| `CANOPY_MAINTENANCE`             | `true` forces maintenance mode                  |
-| `PUID` / `PGID` / `UMASK`        | File ownership for the engine                   |
+| Variable                         | Purpose                                          |
+| -------------------------------- | ------------------------------------------------ |
+| `CANOPY_PUBLIC_URL`              | External URL (cookies, links)                    |
+| `CANOPY_DATABASE_URL`            | Postgres DSN (one per app role)                  |
+| `CANOPY_ENCRYPTION_KEY`          | AES-256-GCM key for secrets at rest              |
+| `CANOPY_ENCRYPTION_KEY_PREVIOUS` | Retired keys still accepted during a rotation    |
+| `CANOPY_ENGINE_PRIVATE_KEY`      | Ed25519 seed signing engine tokens (web only)    |
+| `CANOPY_ENGINE_PUBLIC_KEY`       | Matching public key verifying them (engine)      |
+| `CANOPY_ROOT`                    | File root inside the engine container            |
+| `CANOPY_CACHE_DIR`               | Rebuildable cache (thumbnails), outside the root |
+| `CANOPY_ENGINE_URL`              | Engine base URL as seen from web (internal)      |
+| `CANOPY_ENGINE_ADDR`             | Engine listen address (default `:8080`)          |
+| `CANOPY_LOG_LEVEL`               | Engine log level (`debug`, `info`, `warn`…)      |
+| `CANOPY_TRUSTED_PROXIES`         | CIDR list allowed to set forwarded headers       |
+| `CANOPY_LOCAL_NETWORKS`          | CIDR list considered "local" (maintenance mode)  |
+| `CANOPY_MAINTENANCE`             | `true` forces maintenance mode                   |
+| `PUID` / `PGID` / `UMASK`        | File ownership for the engine                    |
 
 Env values win over DB settings and show as read-only in the admin UI.
 

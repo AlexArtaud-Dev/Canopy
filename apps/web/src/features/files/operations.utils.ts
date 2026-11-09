@@ -134,6 +134,14 @@ export function previewHref(path: string): string {
   return `${streamRoot}/preview?path=${encodeURIComponent(path)}`;
 }
 
+/**
+ * A file's thumbnail. The modification time is part of the URL, so the browser's day-long cache
+ * never shows a thumbnail of a file that has changed since.
+ */
+export function thumbnailHref(path: string, modified: string): string {
+  return `${streamRoot}/thumbnail?path=${encodeURIComponent(path)}&v=${encodeURIComponent(modified)}`;
+}
+
 /** Where the browser fetches a selection: the file itself, or a zip of folders or several items. */
 export function downloadHref(
   items: readonly { path: string; isDirectory: boolean }[],

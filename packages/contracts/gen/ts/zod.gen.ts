@@ -52,6 +52,7 @@ export const zDirectoryEntry = z.object({
   modified: z.iso.datetime(),
   actions: z.array(zPathAction),
   preview: zPreviewKind,
+  thumbnail: z.boolean(),
 });
 
 export const zDirectoryListing = z.object({

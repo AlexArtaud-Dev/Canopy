@@ -24,7 +24,8 @@
     "appearance": "Appearance",
     "jobs": "Background jobs",
     "uploads": "Uploads",
-    "trash": "Trash"
+    "trash": "Trash",
+    "thumbnails": "Thumbnails"
   },
   "groups": {
     "sessions": "Sessions",
@@ -35,7 +36,8 @@
     "privacy": "Privacy",
     "theme": "Theme",
     "language": "Language",
-    "limits": "Limits"
+    "limits": "Limits",
+    "display": "Display"
   },
   "fields": {
     "auth": {
@@ -138,6 +140,16 @@
       "maxFiles": {
         "label": "Most files in the trash per volume",
         "description": "Beyond this, the oldest items are deleted first, so mass deletions cannot fill a disk."
+      }
+    },
+    "thumbnails": {
+      "enabled": {
+        "label": "Show thumbnails",
+        "description": "Images, and videos when ffmpeg is installed, show a small preview instead of their icon."
+      },
+      "maxCacheMb": {
+        "label": "Largest thumbnail cache (MB)",
+        "description": "Beyond this, the least recently viewed thumbnails are removed. They are rebuilt when needed."
       }
     }
   },

@@ -66,7 +66,8 @@
     "invalid_upload": "Cet import n’est pas valide. Réessayez.",
     "upload_not_found": "Cet import n’existe plus. Relancez-le.",
     "volume_protected": "Les dossiers de premier niveau sont des volumes montés et ne peuvent pas être supprimés.",
-    "no_preview": "Ce fichier ne peut pas être prévisualisé. Téléchargez-le pour l’ouvrir."
+    "no_preview": "Ce fichier ne peut pas être prévisualisé. Téléchargez-le pour l’ouvrir.",
+    "no_thumbnail": "Pas de miniature pour ce fichier."
   },
   "mail": {
     "not_configured": "L’e-mail n’est pas configuré. Configurez le SMTP dans Administration › E-mail.",

@@ -84,21 +84,35 @@ func (s *server) ListDirectory(ctx context.Context, request api.ListDirectoryReq
 		Actions: toActions(authz.Capabilities(grants, subject, dir)),
 		Entries: make([]api.DirectoryEntry, 0, len(page.Items)),
 	}
+	thumbnailed := s.thumbnailRule(ctx)
 	for _, item := range page.Items {
-		kind := api.File
-		if item.IsDir {
-			kind = api.Directory
-		}
-		shown := preview.None
-		if kind == api.File {
-			shown, _ = preview.Classify(item.Name)
-		}
-		body.Entries = append(body.Entries, api.DirectoryEntry{
-			Name: item.Name, Path: item.Path, Kind: kind, Size: item.Size,
-			Modified: item.Modified, Actions: toActions(item.Actions), Preview: api.PreviewKind(shown),
-		})
+		body.Entries = append(body.Entries, toDirectoryEntry(item, thumbnailed))
 	}
 	return body, nil
+}
+
+// thumbnailRule reads the thumbnail settings once per listing.
+func (s *server) thumbnailRule(ctx context.Context) func(name string, size int64) bool {
+	if s.deps.Thumbs == nil {
+		return func(string, int64) bool { return false }
+	}
+	settings := s.deps.Thumbs.Current(ctx)
+	return func(name string, size int64) bool { return s.deps.Thumbs.Available(settings, name, size) }
+}
+
+func toDirectoryEntry(item listing.Item, thumbnailed func(name string, size int64) bool) api.DirectoryEntry {
+	entry := api.DirectoryEntry{
+		Name: item.Name, Path: item.Path, Kind: api.File, Size: item.Size,
+		Modified: item.Modified, Actions: toActions(item.Actions), Preview: api.PreviewKind(preview.None),
+	}
+	if item.IsDir {
+		entry.Kind = api.Directory
+		return entry
+	}
+	kind, _ := preview.Classify(item.Name)
+	entry.Preview = api.PreviewKind(kind)
+	entry.Thumbnail = thumbnailed(item.Name, item.Size)
+	return entry
 }
 
 func optionsOf(params api.ListDirectoryParams) listing.Options {

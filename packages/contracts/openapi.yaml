@@ -853,7 +853,7 @@ components:
       enum: [read, upload, create, update, move, copy, delete, download, share, execute]
     DirectoryEntry:
       type: object
-      required: [name, path, kind, size, modified, actions, preview]
+      required: [name, path, kind, size, modified, actions, preview, thumbnail]
       properties:
         name:
           type: string
@@ -876,6 +876,11 @@ components:
             $ref: '#/components/schemas/PathAction'
         preview:
           $ref: '#/components/schemas/PreviewKind'
+        thumbnail:
+          description: >-
+            The engine can render a thumbnail for this file (`/v1/fs/thumbnail`): a supported
+            image, or a video when ffmpeg is installed, with thumbnails turned on.
+          type: boolean
     PreviewKind:
       description: >-
         How the file can be shown in the browser, decided by the engine from its extension

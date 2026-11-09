@@ -44,6 +44,8 @@ services:
       # - /mnt/disk1:/srv/canopy/root/disk1
       # - /mnt/nas/media:/srv/canopy/root/media
       - ${CANOPY_DATA_DIR:-./data}:/srv/canopy/root/data
+      # Thumbnails (rebuildable, size-capped in the settings); must be writable by PUID:PGID.
+      - ${CANOPY_CACHE_DIR:-./cache}:/srv/canopy/cache
     networks: [internal]
     depends_on:
       postgres:

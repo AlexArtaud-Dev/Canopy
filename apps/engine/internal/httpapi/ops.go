@@ -11,6 +11,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/thumbs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/trash"
 )
@@ -46,6 +47,9 @@ func classify(err error) (failure, bool) {
 		return failure{http.StatusBadRequest, transfer.CodeDuplicateNames}, true
 	case errors.Is(err, errForbidden):
 		return failure{http.StatusForbidden, codeForbidden}, true
+	case errors.Is(err, thumbs.ErrUnsupported), errors.Is(err, thumbs.ErrTooLarge),
+		errors.Is(err, thumbs.ErrDisabled):
+		return failure{http.StatusNotFound, codeNoThumbnail}, true
 	case errors.Is(err, errNoPreview):
 		return failure{http.StatusUnsupportedMediaType, codeNoPreview}, true
 	case errors.Is(err, errInvalidName):

@@ -5,6 +5,7 @@ import {
   dragBadgeGap,
   downloadHref,
   previewHref,
+  thumbnailHref,
   dropOperation,
   entryNameSchema,
   operationTargets,
@@ -127,6 +128,14 @@ describe('pointerBadgeOffset', () => {
 describe('previewHref', () => {
   it('reads the file inline', () => {
     expect(previewHref('/a b.png')).toBe('/api/engine/stream/v1/fs/preview?path=%2Fa%20b.png');
+  });
+});
+
+describe('thumbnailHref', () => {
+  it('changes with the file', () => {
+    expect(thumbnailHref('/a b.jpg', '2026-01-01T00:00:00Z')).toBe(
+      '/api/engine/stream/v1/fs/thumbnail?path=%2Fa%20b.jpg&v=2026-01-01T00%3A00%3A00Z',
+    );
   });
 });
 

@@ -22,6 +22,8 @@ export interface BrowserEntry {
   actions: PathAction[];
   /** The viewer the engine allows for this file (`none`: download only). */
   preview: PreviewKind;
+  /** The engine can render a thumbnail (image, or video with ffmpeg; thumbnails turned on). */
+  thumbnail: boolean;
 }
 
 export interface FolderPage {
@@ -71,6 +73,7 @@ export async function listFolder(input: unknown): Promise<ActionResult<FolderPag
         modified: entry.modified,
         actions: entry.actions,
         preview: entry.preview,
+        thumbnail: entry.thumbnail,
       })),
     };
   });
