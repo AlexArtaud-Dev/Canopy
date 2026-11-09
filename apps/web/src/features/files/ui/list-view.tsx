@@ -6,12 +6,12 @@ import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 
 import { cn } from 'cn';
-import { Checkbox } from '@/shared/ui/checkbox';
 
 import { fileKind, formatBytes, parentPath, type SortKey, type SortOrder } from '../browser.utils';
 import { EntryIcon } from './entry-icon';
 import { DndEntry, dropHighlight } from './dnd';
 import { EntryMenu } from './entry-menu';
+import { SelectionMark } from './selection-mark';
 import { initialViewport, modifiersOf, type EntryViewProps } from './view-props';
 
 /** Rows are 44 px: the minimum touch target. */
@@ -21,7 +21,6 @@ export const listColumns =
 
 export function ListView(props: EntryViewProps) {
   const { entries, selected, focusIndex, scrollRef, onRendered } = props;
-  const t = useTranslations('files.browser');
   const format = useFormatter();
   const locale = useLocale();
   // TanStack Virtual returns mutable state the React Compiler cannot memoize; it skips this view.
@@ -82,17 +81,14 @@ export function ListView(props: EntryViewProps) {
                   }}
                 >
                   <span className="flex justify-center">
-                    <Checkbox
-                      tabIndex={-1}
+                    <SelectionMark
                       checked={isSelected}
-                      aria-label={t('selectEntry', { name: entry.name })}
                       className={cn(
                         'opacity-0 transition-opacity group-hover:opacity-100',
                         (isSelected || selected.size > 0) && 'opacity-100',
                         'pointer-coarse:opacity-100',
                       )}
-                      onClick={(event) => {
-                        event.stopPropagation();
+                      onToggle={() => {
                         props.onToggle(item.index);
                       }}
                     />
@@ -144,13 +140,18 @@ export function ListHeader({
     <button
       type="button"
       className={cn('hover:text-foreground flex items-center gap-1 py-2', className)}
-      aria-sort={sort === key ? (order === 'asc' ? 'ascending' : 'descending') : undefined}
       onClick={() => {
         onSort(key);
       }}
     >
       {t(`sort.${key}`)}
-      {sort === key && <Arrow className="size-3" aria-hidden />}
+      {sort === key && (
+        <>
+          <Arrow className="size-3" aria-hidden />
+          {/* aria-sort belongs to table headers; this list states the order in words. */}
+          <span className="sr-only">{order === 'asc' ? t('ascending') : t('descending')}</span>
+        </>
+      )}
     </button>
   );
   return (
