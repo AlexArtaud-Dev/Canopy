@@ -109,3 +109,22 @@ func valueOr(value, fallback string) string {
 	}
 	return fallback
 }
+
+// WithFiles adds the Docker convention to getenv: when NAME is empty and NAME_FILE names a
+// file, NAME is that file's content (secrets stay out of the environment). NAME always wins.
+func WithFiles(getenv func(string) string, readFile func(string) ([]byte, error)) func(string) string {
+	return func(name string) string {
+		if value := getenv(name); value != "" {
+			return value
+		}
+		file := getenv(name + "_FILE")
+		if file == "" {
+			return ""
+		}
+		data, err := readFile(file)
+		if err != nil {
+			return ""
+		}
+		return strings.TrimSpace(string(data))
+	}
+}

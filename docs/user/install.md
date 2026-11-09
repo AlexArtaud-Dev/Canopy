@@ -33,34 +33,32 @@ Only the `docker/` folder is used at run time; the images come from GitHub's reg
 cp docker/.env.example docker/.env
 ```
 
-Edit `docker/.env`:
+Edit `docker/.env` (there is no password or key to write: Canopy generates them):
 
-1. Replace the three database passwords with long random values.
-2. Set `CANOPY_ENCRYPTION_KEY` to the output of `openssl rand -base64 32`. **Keep a copy
-   somewhere safe**: two-factor secrets and the SMTP password are encrypted with it.
-3. Generate the key pair the web app uses to sign its requests to the engine:
-
-   ```bash
-   docker run --rm -v "$PWD/scripts/dev:/keys:ro" node:24-alpine node /keys/engine-keys.mjs >> docker/.env
-   ```
-
-   (or `node scripts/dev/engine-keys.mjs >> docker/.env` if Node.js is installed), then delete the
-   two empty `CANOPY_ENGINE_*_KEY=` lines above the new ones.
-
-4. Set `PUID`/`PGID` to the host user that should own new files (`id -u` and `id -g`), and
-   `CANOPY_VERSION` to the release you downloaded (or keep `latest`).
-5. Point `CANOPY_DATA_DIR` at the folder to manage, or add your own mounts (see
+1. `CANOPY_HOME`: one folder for everything Canopy keeps (database, generated secrets, thumbnails,
+   plugins), for example `/srv/appdata/canopy`.
+2. `PUID`/`PGID`: the host user that should own new files (`id -u` and `id -g`).
+3. `CANOPY_DATA_DIR`, or your own mounts: the folders to manage (see
    [Configuration](configuration.md#folders)).
+4. `CANOPY_PUBLIC_URL`: the address people open, and `CANOPY_VERSION`: the release (or `latest`).
 
 ## 3. Start
 
 ```bash
-mkdir -p docker/cache docker/plugins
 docker compose -f docker/compose.yaml --env-file docker/.env up -d --wait
 ```
 
-The first start downloads the images and prepares the database; `--wait` returns once every
-container is healthy.
+The first start downloads the images, then two short steps run before the apps:
+
+- **setup** creates `postgres/`, `secrets/`, `cache/` and `plugins/` in `CANOPY_HOME` with the
+  right owners, and generates the database passwords, the encryption key and the engine key
+  pair into `secrets/` (each file readable only by the service that uses it);
+- **setup-db** creates the database roles and schemas.
+
+Both run again on every start and keep what exists. `--wait` returns once everything is healthy.
+
+**Back up `CANOPY_HOME`** (see [Backup and restore](backup-restore.md)): without
+`secrets/encryption-key`, two-factor setups and the SMTP password cannot be read.
 
 ## 4. Create the administrator
 

@@ -335,3 +335,17 @@ entries:
       en: Upload and trash identifiers can no longer point outside the file root
       fr: Les identifiants d’envoi et de corbeille ne peuvent plus désigner un dossier hors de la racine des fichiers
       es: Los identificadores de subida y de papelera ya no pueden apuntar fuera de la raíz de archivos
+  - type: feat
+    scope: docker
+    issue: 139
+    text:
+      en: Install with a single folder - the first start creates its sub-folders and generates every password and key, no secret to write by hand
+      fr: Installation avec un seul dossier - le premier démarrage crée ses sous-dossiers et génère tous les mots de passe et clés, aucun secret à écrire à la main
+      es: Instalación con una sola carpeta - el primer arranque crea sus subcarpetas y genera todas las contraseñas y claves, sin ningún secreto que escribir a mano
+  - type: fix
+    scope: a11y
+    issue: 67
+    text:
+      en: Red action buttons are easier to read
+      fr: Les boutons d’action rouges sont plus lisibles
+      es: Los botones de acción rojos se leen mejor

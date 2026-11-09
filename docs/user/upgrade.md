@@ -8,7 +8,7 @@ next one. There is no automatic update.
 1. Read the release notes on the
    [releases page](https://github.com/AlexArtaud-Dev/Canopy/releases) (also in the app after the
    upgrade: account menu › What's new).
-2. [Back up](backup-restore.md) the database and `docker/.env`.
+2. [Back up](backup-restore.md) `CANOPY_HOME` (database and secrets).
 3. Take the new release's `docker/` folder if the notes say it changed
    (`git fetch --tags && git checkout v2026.12.0`, or unpack the new archive and copy your
    `docker/.env` across).
@@ -30,4 +30,4 @@ upgrades behind your back.
 ## Going back
 
 Database changes only go forward. To return to an older version, restore the backup taken before
-the upgrade (database **and** `docker/.env`) and set `CANOPY_VERSION` back.
+the upgrade (database **and** secrets) and set `CANOPY_VERSION` back.

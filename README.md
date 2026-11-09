@@ -44,7 +44,7 @@
 
 ```bash
 git clone --branch <latest release tag> --depth 1 https://github.com/AlexArtaud-Dev/Canopy.git canopy
-cd canopy && cp docker/.env.example docker/.env   # then fill it in
+cd canopy && cp docker/.env.example docker/.env   # set CANOPY_HOME, PUID/PGID and your folders
 docker compose -f docker/compose.yaml --env-file docker/.env up -d --wait
 ```
 

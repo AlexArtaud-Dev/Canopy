@@ -43,8 +43,15 @@ const (
 var version = "dev"
 
 func main() {
-	if len(os.Args) > 1 && os.Args[1] == "healthcheck" {
-		os.Exit(runHealthcheck())
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "healthcheck":
+			os.Exit(runHealthcheck())
+		case "setup":
+			os.Exit(runSetup())
+		case "setup-db":
+			os.Exit(runSetupDB())
+		}
 	}
 	if err := run(); err != nil {
 		slog.Error("engine stopped", slog.Any("error", err))
@@ -70,7 +77,8 @@ func runHealthcheck() int {
 }
 
 func run() error {
-	cfg, err := config.Load(os.Getenv)
+	// Secrets may come as files (NAME_FILE), as the setup step writes them.
+	cfg, err := config.Load(config.WithFiles(os.Getenv, os.ReadFile))
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
 	}

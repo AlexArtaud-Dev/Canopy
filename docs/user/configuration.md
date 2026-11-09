@@ -25,37 +25,49 @@ volumes:
 ## Owner of new files: PUID, PGID, UMASK
 
 The engine runs as `PUID:PGID` (default `1000:1000`), so files it creates belong to that host
-user, like linuxserver.io images. `UMASK` (default `022`) sets their permissions. The mounted
-folders, `cache/` and `plugins/` must be writable by that user:
+user, like linuxserver.io images. `UMASK` (default `022`) sets their permissions. The setup step
+gives `cache/` and `plugins/` to that user; the folders you mount must be writable by it too:
 
 ```bash
-sudo chown -R 1000:1000 /mnt/disk1 docker/cache docker/plugins
+sudo chown -R 1000:1000 /mnt/disk1
 ```
 
 The web container never mounts your files.
 
+## CANOPY_HOME
+
+One folder holds everything Canopy keeps; the first start fills it:
+
+| Folder     | Content                                          | Owner                |
+| ---------- | ------------------------------------------------ | -------------------- |
+| `postgres` | The database                                     | Postgres (70)        |
+| `secrets`  | Generated passwords, encryption key, engine keys | one file per service |
+| `cache`    | Thumbnails (safe to delete)                      | `PUID:PGID`          |
+| `plugins`  | Installed plugin binaries                        | `PUID:PGID`          |
+
+To use a value of your own instead of a generated one, write it into the matching file in
+`secrets/` before the first start (for example `encryption-key`, 32 bytes in base64). Role
+passwords follow their files on every start.
+
 ## Environment variables (`docker/.env`)
 
-| Variable                         | Default                 | Purpose                                                              |
-| -------------------------------- | ----------------------- | -------------------------------------------------------------------- |
-| `CANOPY_DB_ADMIN_PASSWORD`       | —                       | Postgres administrator (creates the two app roles)                   |
-| `CANOPY_WEB_DB_PASSWORD`         | —                       | Web app's database role                                              |
-| `CANOPY_ENGINE_DB_PASSWORD`      | —                       | Engine's database role                                               |
-| `CANOPY_ENCRYPTION_KEY`          | —                       | Encrypts secrets at rest; 32 random bytes in base64                  |
-| `CANOPY_ENCRYPTION_KEY_PREVIOUS` | empty                   | Old key(s) during a rotation, comma-separated                        |
-| `CANOPY_ENGINE_PRIVATE_KEY`      | —                       | Signs web → engine requests (web only)                               |
-| `CANOPY_ENGINE_PUBLIC_KEY`       | —                       | Verifies them (engine only)                                          |
-| `CANOPY_VERSION`                 | `latest`                | Release to run; pin it to upgrade on purpose                         |
-| `CANOPY_HTTP_BIND`               | `127.0.0.1`             | Interface the web app listens on; `0.0.0.0` to reach it from the LAN |
-| `CANOPY_HTTP_PORT`               | `3000`                  | Port on that interface                                               |
-| `CANOPY_PUBLIC_URL`              | `http://localhost:3000` | Address people open; `https://` turns on Secure cookies              |
-| `CANOPY_TRUSTED_PROXIES`         | empty                   | CIDRs of reverse proxies allowed to give the client IP               |
-| `CANOPY_LOCAL_NETWORKS`          | private ranges          | Treated as local: setup wizard and local-only admin actions          |
-| `PUID` / `PGID` / `UMASK`        | `1000`/`1000`/`022`     | Owner and permissions of files the engine creates                    |
-| `CANOPY_DATA_DIR`                | `./data`                | Example folder mounted as `/data`                                    |
-| `CANOPY_CACHE_DIR`               | `./cache`               | Thumbnails (safe to delete, rebuilt when needed)                     |
-| `CANOPY_PLUGINS_DIR`             | `./plugins`             | Installed plugin binaries                                            |
-| `CANOPY_LOG_LEVEL`               | `info`                  | `debug`, `info`, `warn` or `error`                                   |
+| Variable                         | Default                 | Purpose                                                     |
+| -------------------------------- | ----------------------- | ----------------------------------------------------------- |
+| `CANOPY_HOME`                    | `./canopy`              | The folder above                                            |
+| `CANOPY_VERSION`                 | `latest`                | Release to run; pin it to upgrade on purpose                |
+| `PUID` / `PGID` / `UMASK`        | `1000`/`1000`/`022`     | Owner and permissions of files the engine creates           |
+| `CANOPY_DATA_DIR`                | `./data`                | Example folder mounted as `/data`                           |
+| `CANOPY_HTTP_BIND`               | `127.0.0.1`             | Interface the web app listens on; `0.0.0.0` for the LAN     |
+| `CANOPY_HTTP_PORT`               | `3000`                  | Port on that interface                                      |
+| `CANOPY_PUBLIC_URL`              | `http://localhost:3000` | Address people open; `https://` turns on Secure cookies     |
+| `CANOPY_TRUSTED_PROXIES`         | empty                   | CIDRs of reverse proxies allowed to give the client IP      |
+| `CANOPY_LOCAL_NETWORKS`          | private ranges          | Treated as local: setup wizard and local-only admin actions |
+| `CANOPY_ENCRYPTION_KEY_PREVIOUS` | empty                   | Old key(s) during a rotation, comma-separated               |
+| `CANOPY_LOG_LEVEL`               | `info`                  | `debug`, `info`, `warn` or `error`                          |
+
+The apps read their secrets from files (`CANOPY_DATABASE_URL_FILE`, `CANOPY_ENCRYPTION_KEY_FILE`,
+`CANOPY_ENGINE_PRIVATE_KEY_FILE`, `CANOPY_ENGINE_PUBLIC_KEY_FILE`, set in `compose.yaml`). Setting
+the plain variable instead (`CANOPY_ENCRYPTION_KEY=…`) still works and wins over the file.
 
 Some settings can be forced from the environment; the settings page then shows them locked:
 
@@ -69,7 +81,8 @@ Add them to the `environment:` list of the `web` service in `docker/compose.yaml
 
 ## Rotating the encryption key
 
-1. Move the current key to `CANOPY_ENCRYPTION_KEY_PREVIOUS` and set a new `CANOPY_ENCRYPTION_KEY`.
+1. Put the current key (`secrets/encryption-key`) in `CANOPY_ENCRYPTION_KEY_PREVIOUS`, then write
+   a new one (`openssl rand -base64 32`) into `secrets/encryption-key`.
 2. Restart (`docker compose … up -d`). Secrets encrypted with the old key still open; new and
    re-saved ones use the new key. Re-save the SMTP settings to move the password over.
 3. Keep the old key listed: two-factor secrets set up before the rotation still need it until

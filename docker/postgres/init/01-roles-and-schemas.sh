@@ -1,6 +1,8 @@
 #!/bin/sh
 # Bootstraps the per-app roles and schemas described in docs/dev/architecture.md (Data ownership).
 # Runs once, on an empty data directory, through the official image's docker-entrypoint-initdb.d.
+# Development only (compose.dev.yaml). The production stack runs `engine setup-db` instead
+# (apps/engine/internal/setup/database.go): keep the two in step.
 set -eu
 
 : "${CANOPY_WEB_DB_PASSWORD:?CANOPY_WEB_DB_PASSWORD is required}"

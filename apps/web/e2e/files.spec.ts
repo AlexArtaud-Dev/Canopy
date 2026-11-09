@@ -90,10 +90,16 @@ test('delete goes to the trash and restores', async ({ page }) => {
   await menu(page, 'precious.txt', /^Delete(?! permanently)/);
   await page.getByRole('alertdialog').getByRole('button', { name: 'Move to trash' }).click();
   await expect(row(page, 'precious.txt')).toBeHidden();
+  // The move runs as an operation: the Trash lists the item once it is done.
+  await expect(page.getByText('1 item moved to the trash')).toBeVisible();
 
-  await page.goto('/trash');
   // Other runs may have left items named the same: restore the newest.
-  await page.getByRole('button', { name: 'Restore precious.txt' }).first().click();
+  const restore = page.getByRole('button', { name: 'Restore precious.txt' }).first();
+  await expect(async () => {
+    await page.goto('/trash');
+    await expect(restore).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 20_000 });
+  await restore.click();
   await expect(page.getByText('1 item restored')).toBeVisible();
 
   await openFolder(page, `/${volume}/${folder}`);

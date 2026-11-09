@@ -33,12 +33,13 @@ COPY --from=build --chown=node:node /repo/apps/web/drizzle ./apps/web/drizzle
 # Release notes for "What's new" (read at run time; .dockerignore keeps Unreleased out).
 COPY --chown=node:node changelog/releases ./changelog/releases
 ENV CANOPY_CHANGELOG_DIR=/app/changelog
-COPY --from=build --chown=node:node /repo/apps/web/server/peer-address.mjs ./peer-address.mjs
+COPY --from=build --chown=node:node /repo/apps/web/server/secret-files.mjs /repo/apps/web/server/secret-files.utils.mjs /repo/apps/web/server/peer-address.mjs ./
 COPY --from=build --chown=node:node /repo/apps/web/server/engine-stream.mjs /repo/apps/web/server/engine-stream.utils.mjs ./
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
     CMD ["node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+# secret-files.mjs turns CANOPY_*_FILE into variables (setup-generated secrets);
 # peer-address.mjs records the real TCP peer before Next handles the request (see client-ip.ts);
 # engine-stream.mjs relays downloads and uploads to the engine outside Next (docs/dev/streaming.md).
-CMD ["node", "--import", "./peer-address.mjs", "--import", "./engine-stream.mjs", "apps/web/server.js"]
+CMD ["node", "--import", "./secret-files.mjs", "--import", "./peer-address.mjs", "--import", "./engine-stream.mjs", "apps/web/server.js"]
