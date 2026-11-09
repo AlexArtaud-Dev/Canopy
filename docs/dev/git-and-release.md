@@ -62,6 +62,10 @@ Dependabot opens weekly grouped updates for npm, Go modules, Docker base images 
    `notes.mjs`), multi-arch images (amd64, arm64) pushed to GHCR (`canopy-web`, `canopy-engine`)
    as `<version>` and `latest`. `docker/compose.yaml` runs `ghcr.io/alexartaud-dev/canopy-*` at
    `CANOPY_VERSION` (default `latest`).
+   - Docker Hub too, when the `DOCKERHUB_TOKEN` secret exists (a Docker Hub access token with
+     read/write on the repository): both images go to one repository, `izoniks/canopy` by default,
+     as `<version>-web`, `latest-web`, `<version>-engine`, `latest-engine`. The `DOCKERHUB_USERNAME`
+     and `DOCKERHUB_REPOSITORY` repository variables override the account and repository.
 
 - Release rules (schema, CalVer, notes) live in `scripts/release/release.lib.mjs`, tested at 100 %
   by `pnpm test:scripts` (part of `pnpm test`).

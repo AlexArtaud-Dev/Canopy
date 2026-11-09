@@ -2,7 +2,8 @@ name: Publish
 
 # Runs when a release PR (see release.yml) lands on main: tags v<version>, creates the GitHub
 # Release with notes rendered from changelog/releases/<version>.yaml, and pushes multi-arch images
-# (amd64, arm64) to GHCR as <version> and latest.
+# (amd64, arm64) to GHCR as <version> and latest, and to Docker Hub when a DOCKERHUB_TOKEN secret
+# exists (one repository for both images: <version>-web, latest-web, <version>-engine, ...).
 on:
   push:
     branches: [main]
@@ -67,6 +68,11 @@ jobs:
     strategy:
       matrix:
         image: [web, engine]
+    env:
+      # Optional: without the secret, only GHCR receives the images.
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME || 'izoniks' }}
+      DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY || 'izoniks/canopy' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
@@ -76,9 +82,28 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
-      - name: Image name
-        id: name
-        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/canopy-${{ matrix.image }}" >> "$GITHUB_OUTPUT"
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        if: env.DOCKERHUB_TOKEN != ''
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+      - name: Image tags
+        id: tags
+        env:
+          IMAGE: ${{ matrix.image }}
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          ghcr="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/canopy-${IMAGE}"
+          {
+            echo "tags<<EOF"
+            echo "${ghcr}:${VERSION}"
+            echo "${ghcr}:latest"
+            if [ -n "$DOCKERHUB_TOKEN" ]; then
+              echo "${DOCKERHUB_REPOSITORY}:${VERSION}-${IMAGE}"
+              echo "${DOCKERHUB_REPOSITORY}:latest-${IMAGE}"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
@@ -86,9 +111,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           build-args: VERSION=${{ needs.release.outputs.version }}
-          tags: |
-            ${{ steps.name.outputs.image }}:${{ needs.release.outputs.version }}
-            ${{ steps.name.outputs.image }}:latest
+          tags: ${{ steps.tags.outputs.tags }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.version=${{ needs.release.outputs.version }}
