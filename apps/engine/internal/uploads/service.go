@@ -10,7 +10,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
@@ -32,9 +31,6 @@ const (
 	HeaderPath   = "X-Canopy-Path"
 	HeaderResult = "X-Canopy-Result"
 )
-
-// uploadID matches ids made by NewID (random hex, then the volume name in hex), never a path.
-var uploadID = regexp.MustCompile(`^[0-9a-f]{32}(?:[0-9a-f]{2}){0,255}$`)
 
 // Files is the slice of fsx.Resolver uploads need.
 type Files interface {
@@ -117,7 +113,7 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) owns(ctx context.Context, id, user string) bool {
-	if !uploadID.MatchString(id) {
+	if _, ok := VolumeOfID(id); !ok {
 		return false
 	}
 	upload, err := s.stores.GetUpload(ctx, id)
@@ -324,7 +320,7 @@ func (s *Service) purgeIn(dir string, maxAge time.Duration) int {
 	purged := 0
 	for _, entry := range entries {
 		id, isInfo := strings.CutSuffix(entry.Name(), ".info")
-		if !isInfo || !uploadID.MatchString(id) {
+		if _, valid := VolumeOfID(id); !isInfo || !valid {
 			continue
 		}
 		info, err := entry.Info()

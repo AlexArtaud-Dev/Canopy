@@ -26,6 +26,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/trash"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/uploads"
 )
 
@@ -101,7 +102,18 @@ func run() error {
 	}
 
 	grants := grantstore.NewStore(pool)
-	jobService, err := startJobs(startupCtx, pool, resolver, grants, logger)
+	trashService := trash.New(trash.Config{
+		Files:  resolver,
+		Grants: grants,
+		Audit:  audit.NewWriter(pool),
+		Limits: func(ctx context.Context) (trash.Limits, error) { return trash.LoadLimits(ctx, pool) },
+		Logger: logger,
+		Now:    time.Now,
+	})
+	// Measures new items and removes what retention and the size/file limits no longer allow.
+	go trashService.Keep(ctx, time.Hour)
+
+	jobService, err := startJobs(startupCtx, pool, resolver, grants, trashService, logger)
 	if err != nil {
 		return err
 	}
@@ -126,6 +138,7 @@ func run() error {
 			Audit:       audit.NewWriter(pool),
 			StreamsDone: streamsDone,
 			Uploads:     uploadService,
+			Trash:       trashService,
 		}),
 		ReadHeaderTimeout: readHeaderTimeout,
 		// No read/write timeouts: multi-GB transfers and SSE streams are legitimately long.
@@ -159,7 +172,7 @@ func run() error {
 }
 
 // startJobs registers every job kind and starts the runner with the configured concurrency.
-func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, grants *grantstore.Store, logger *slog.Logger) (*jobService, error) {
+func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, grants *grantstore.Store, trashService *trash.Service, logger *slog.Logger) (*jobService, error) {
 	limits, err := jobs.LoadLimits(ctx, pool)
 	if err != nil {
 		return nil, err
@@ -167,6 +180,8 @@ func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, gra
 	registry := jobs.NewRegistry(pool, logger, time.Now)
 	jobs.Register(registry, foldersize.Handler(files, grants))
 	jobs.Register(registry, transfer.Handler(files, grants))
+	jobs.Register(registry, trashService.DeleteHandler())
+	jobs.Register(registry, trashService.EmptyHandler())
 	runner, err := jobs.Start(ctx, registry, pool, limits)
 	if err != nil {
 		return nil, err

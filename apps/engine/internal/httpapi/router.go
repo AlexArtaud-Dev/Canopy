@@ -40,6 +40,7 @@ type Deps struct {
 	// Verifier checks engine tokens; nil refuses every /v1 request (no key configured).
 	Verifier *enginetoken.Verifier
 	Jobs     Jobs
+	Trash    Trash
 	Audit    Auditor
 	// Uploads is the tus endpoint (nil disables uploads, e.g. in tests).
 	Uploads http.Handler

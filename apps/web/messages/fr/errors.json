@@ -64,7 +64,8 @@
     "too_large": "Ce fichier dépasse la taille autorisée par l’administrateur.",
     "blocked_type": "Ce type de fichier n’est pas accepté ici.",
     "invalid_upload": "Cet import n’est pas valide. Réessayez.",
-    "upload_not_found": "Cet import n’existe plus. Relancez-le."
+    "upload_not_found": "Cet import n’existe plus. Relancez-le.",
+    "volume_protected": "Les dossiers de premier niveau sont des volumes montés et ne peuvent pas être supprimés."
   },
   "mail": {
     "not_configured": "L’e-mail n’est pas configuré. Configurez le SMTP dans Administration › E-mail.",
@@ -80,5 +81,8 @@
     "not_cancellable": "Cette opération est déjà terminée.",
     "failed": "L’opération a échoué.",
     "interrupted": "L’opération a été interrompue par le redémarrage du moteur de fichiers."
+  },
+  "trash": {
+    "not_found": "Cet élément n’est plus dans la corbeille."
   }
 }

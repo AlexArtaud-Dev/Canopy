@@ -212,6 +212,61 @@ export type TransferPlan = {
   truncated: boolean;
 };
 
+export type PathsRequest = {
+  paths: Array<string>;
+};
+
+export type TrashLimits = {
+  maxBytes: number;
+  maxFiles: number;
+  retentionDays: number;
+};
+
+export type DeletePlan = {
+  bytes: number;
+  files: number;
+  /**
+   * False when measuring took too long (very large selection).
+   */
+  complete: boolean;
+  fitsTrash: boolean;
+  limits: TrashLimits;
+};
+
+export type TrashItem = {
+  id: string;
+  name: string;
+  originalPath: string;
+  isDirectory: boolean;
+  deletedAt: string;
+  deletedBy: string;
+  bytes: number;
+  files: number;
+  measured: boolean;
+};
+
+export type TrashItemList = {
+  items: Array<TrashItem>;
+};
+
+export type TrashListing = {
+  items: Array<TrashItem>;
+  limits: TrashLimits;
+};
+
+export type TrashIdsRequest = {
+  ids: Array<string>;
+};
+
+export type RestoredItem = {
+  id: string;
+  path: string;
+};
+
+export type RestoredList = {
+  items: Array<RestoredItem>;
+};
+
 export type GetLivenessData = {
   body?: never;
   path?: never;
@@ -662,3 +717,211 @@ export type StartTransferResponses = {
 };
 
 export type StartTransferResponse = StartTransferResponses[keyof StartTransferResponses];
+
+export type PlanDeleteData = {
+  body: PathsRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/fs/delete/plan';
+};
+
+export type PlanDeleteErrors = {
+  /**
+   * Invalid paths or a volume itself (`files.invalid_path`, `files.volume_protected`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * No `delete` permission on an item (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * An item is missing (`files.not_found`).
+   */
+  404: Error;
+};
+
+export type PlanDeleteError = PlanDeleteErrors[keyof PlanDeleteErrors];
+
+export type PlanDeleteResponses = {
+  /**
+   * The plan.
+   */
+  200: DeletePlan;
+};
+
+export type PlanDeleteResponse = PlanDeleteResponses[keyof PlanDeleteResponses];
+
+export type MoveToTrashData = {
+  body: PathsRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/fs/trash';
+};
+
+export type MoveToTrashErrors = {
+  /**
+   * Invalid paths or a volume itself (`files.invalid_path`, `files.volume_protected`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * No `delete` permission on an item (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * An item is missing (`files.not_found`).
+   */
+  404: Error;
+};
+
+export type MoveToTrashError = MoveToTrashErrors[keyof MoveToTrashErrors];
+
+export type MoveToTrashResponses = {
+  /**
+   * Items now in the trash (ids allow undo).
+   */
+  200: TrashItemList;
+};
+
+export type MoveToTrashResponse = MoveToTrashResponses[keyof MoveToTrashResponses];
+
+export type StartPermanentDeleteData = {
+  body: PathsRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/jobs/delete';
+};
+
+export type StartPermanentDeleteErrors = {
+  /**
+   * Invalid paths or a volume itself (`files.invalid_path`, `files.volume_protected`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * No `delete` permission on an item (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * An item is missing (`files.not_found`).
+   */
+  404: Error;
+  /**
+   * Too many active jobs (`jobs.too_many`).
+   */
+  429: Error;
+};
+
+export type StartPermanentDeleteError =
+  StartPermanentDeleteErrors[keyof StartPermanentDeleteErrors];
+
+export type StartPermanentDeleteResponses = {
+  /**
+   * The job was queued.
+   */
+  202: Job;
+};
+
+export type StartPermanentDeleteResponse =
+  StartPermanentDeleteResponses[keyof StartPermanentDeleteResponses];
+
+export type ListTrashData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v1/trash';
+};
+
+export type ListTrashErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+};
+
+export type ListTrashError = ListTrashErrors[keyof ListTrashErrors];
+
+export type ListTrashResponses = {
+  /**
+   * The trash.
+   */
+  200: TrashListing;
+};
+
+export type ListTrashResponse = ListTrashResponses[keyof ListTrashResponses];
+
+export type RestoreFromTrashData = {
+  body: TrashIdsRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/trash/restore';
+};
+
+export type RestoreFromTrashErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Not allowed at the original place (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * Unknown item, or not the caller’s (`trash.not_found`).
+   */
+  404: Error;
+  /**
+   * Could not restore (`files.exists`).
+   */
+  409: Error;
+};
+
+export type RestoreFromTrashError = RestoreFromTrashErrors[keyof RestoreFromTrashErrors];
+
+export type RestoreFromTrashResponses = {
+  /**
+   * Where each item went back.
+   */
+  200: RestoredList;
+};
+
+export type RestoreFromTrashResponse = RestoreFromTrashResponses[keyof RestoreFromTrashResponses];
+
+export type StartEmptyTrashData = {
+  body: TrashIdsRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/jobs/empty-trash';
+};
+
+export type StartEmptyTrashErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Too many active jobs (`jobs.too_many`).
+   */
+  429: Error;
+};
+
+export type StartEmptyTrashError = StartEmptyTrashErrors[keyof StartEmptyTrashErrors];
+
+export type StartEmptyTrashResponses = {
+  /**
+   * The job was queued.
+   */
+  202: Job;
+};
+
+export type StartEmptyTrashResponse = StartEmptyTrashResponses[keyof StartEmptyTrashResponses];

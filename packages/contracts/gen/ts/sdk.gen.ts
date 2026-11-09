@@ -31,15 +31,33 @@ import type {
   ListJobsData,
   ListJobsErrors,
   ListJobsResponses,
+  ListTrashData,
+  ListTrashErrors,
+  ListTrashResponses,
+  MoveToTrashData,
+  MoveToTrashErrors,
+  MoveToTrashResponses,
+  PlanDeleteData,
+  PlanDeleteErrors,
+  PlanDeleteResponses,
   PlanTransferData,
   PlanTransferErrors,
   PlanTransferResponses,
   RenameEntryData,
   RenameEntryErrors,
   RenameEntryResponses,
+  RestoreFromTrashData,
+  RestoreFromTrashErrors,
+  RestoreFromTrashResponses,
+  StartEmptyTrashData,
+  StartEmptyTrashErrors,
+  StartEmptyTrashResponses,
   StartFolderSizeData,
   StartFolderSizeErrors,
   StartFolderSizeResponses,
+  StartPermanentDeleteData,
+  StartPermanentDeleteErrors,
+  StartPermanentDeleteResponses,
   StartTransferData,
   StartTransferErrors,
   StartTransferResponses,
@@ -62,12 +80,23 @@ import {
   zListDirectoryResponse,
   zListJobsQuery,
   zListJobsResponse,
+  zListTrashResponse,
+  zMoveToTrashBody,
+  zMoveToTrashResponse,
+  zPlanDeleteBody,
+  zPlanDeleteResponse,
   zPlanTransferBody,
   zPlanTransferResponse,
   zRenameEntryBody,
   zRenameEntryResponse,
+  zRestoreFromTrashBody,
+  zRestoreFromTrashResponse,
+  zStartEmptyTrashBody,
+  zStartEmptyTrashResponse,
   zStartFolderSizeBody,
   zStartFolderSizeResponse,
+  zStartPermanentDeleteBody,
+  zStartPermanentDeleteResponse,
   zStartTransferBody,
   zStartTransferResponse,
 } from './zod.gen';
@@ -400,6 +429,168 @@ export const startTransfer = <ThrowOnError extends boolean = false>(
     responseValidator: async (data) => await zStartTransferResponse.parseAsync(data),
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v1/jobs/transfer',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Measure a deletion before doing it
+ *
+ * Sizes the selection (within a short time budget) and says whether it fits the trash limits; when it does not, the web app offers a permanent delete with a strong warning.
+ */
+export const planDelete = <ThrowOnError extends boolean = false>(
+  options: Options<PlanDeleteData, ThrowOnError>,
+): RequestResult<PlanDeleteResponses, PlanDeleteErrors, ThrowOnError> =>
+  (options.client ?? client).post<PlanDeleteResponses, PlanDeleteErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zPlanDeleteBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zPlanDeleteResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/fs/delete/plan',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Move items to the trash
+ *
+ * Instant renames into each volume's trash. Needs `delete` on every item; volumes themselves cannot be deleted.
+ */
+export const moveToTrash = <ThrowOnError extends boolean = false>(
+  options: Options<MoveToTrashData, ThrowOnError>,
+): RequestResult<MoveToTrashResponses, MoveToTrashErrors, ThrowOnError> =>
+  (options.client ?? client).post<MoveToTrashResponses, MoveToTrashErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zMoveToTrashBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zMoveToTrashResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/fs/trash',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete items permanently
+ *
+ * Bypasses the trash. Same checks as moving to the trash; cannot be undone.
+ */
+export const startPermanentDelete = <ThrowOnError extends boolean = false>(
+  options: Options<StartPermanentDeleteData, ThrowOnError>,
+): RequestResult<StartPermanentDeleteResponses, StartPermanentDeleteErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    StartPermanentDeleteResponses,
+    StartPermanentDeleteErrors,
+    ThrowOnError
+  >({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zStartPermanentDeleteBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zStartPermanentDeleteResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs/delete',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Items in the trash
+ *
+ * The caller's own deletions (every item for administrators), newest first, with the limits.
+ */
+export const listTrash = <ThrowOnError extends boolean = false>(
+  options?: Options<ListTrashData, ThrowOnError>,
+): RequestResult<ListTrashResponses, ListTrashErrors, ThrowOnError> =>
+  (options?.client ?? client).get<ListTrashResponses, ListTrashErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zListTrashResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/trash',
+    ...options,
+  });
+
+/**
+ * Put items back where they were
+ *
+ * Needs `create` at the original place; a name taken meanwhile keeps both.
+ */
+export const restoreFromTrash = <ThrowOnError extends boolean = false>(
+  options: Options<RestoreFromTrashData, ThrowOnError>,
+): RequestResult<RestoreFromTrashResponses, RestoreFromTrashErrors, ThrowOnError> =>
+  (options.client ?? client).post<RestoreFromTrashResponses, RestoreFromTrashErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zRestoreFromTrashBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zRestoreFromTrashResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/trash/restore',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Remove trash items for good
+ *
+ * The given items, or every item the caller sees when `ids` is empty.
+ */
+export const startEmptyTrash = <ThrowOnError extends boolean = false>(
+  options: Options<StartEmptyTrashData, ThrowOnError>,
+): RequestResult<StartEmptyTrashResponses, StartEmptyTrashErrors, ThrowOnError> =>
+  (options.client ?? client).post<StartEmptyTrashResponses, StartEmptyTrashErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zStartEmptyTrashBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zStartEmptyTrashResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs/empty-trash',
     ...options,
     headers: {
       'Content-Type': 'application/json',

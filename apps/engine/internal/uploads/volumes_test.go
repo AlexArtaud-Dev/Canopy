@@ -14,7 +14,7 @@ func TestVolumeIDs(t *testing.T) {
 		t.Fatal("volume of a path")
 	}
 	id, err := NewID("media")
-	if err != nil || len(id) != randomPart+10 {
+	if err != nil || len(id) != 32+10 {
 		t.Fatalf("id: %s %v", id, err)
 	}
 	if volume, ok := VolumeOfID(id); !ok || volume != "media" {
@@ -27,7 +27,7 @@ func TestVolumeIDs(t *testing.T) {
 	if staged, ok := StagedPath(id); !ok || staged != "media/.canopy-uploads/"+id {
 		t.Fatalf("staged: %s", staged)
 	}
-	for _, bad := range []string{"short", strings.Repeat("a", randomPart) + "2f", strings.Repeat("z", randomPart), "../" + id} {
+	for _, bad := range []string{"short", strings.Repeat("a", 32) + "2f", strings.Repeat("z", 32), "../" + id} {
 		if _, ok := VolumeOfID(bad); ok {
 			t.Errorf("%q must be refused", bad)
 		}
