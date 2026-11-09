@@ -8,6 +8,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
+  // Sign-in hashes the password on purpose slowly; on shared CI runners with parallel workers a
+  // page after it can take more than the default 5 s.
+  expect: { timeout: 10_000 },
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: process.env.E2E_BASE_URL ?? 'http://127.0.0.1:3000',

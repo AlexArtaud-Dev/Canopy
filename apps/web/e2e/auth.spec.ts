@@ -18,7 +18,8 @@ test('protected pages send visitors to sign in, then back where they were', asyn
 
 test('a wrong password is refused with a translated message', async ({ page }) => {
   await page.goto('/login');
-  await page.getByLabel('Username').fill(testAdmin.username);
+  // An unknown account: failures on the real administrator would count toward its lockout.
+  await page.getByLabel('Username').fill(`nobody-${String(Date.now())}`);
   await page.getByLabel('Password', { exact: true }).fill('not-the-password');
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'Could not sign in' })).toContainText(
