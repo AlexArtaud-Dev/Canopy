@@ -40,9 +40,12 @@ func isStreamRoute(r *http.Request) bool {
 		strings.HasPrefix(r.URL.Path, routeUploads)
 }
 
-// isScopedRoute lists what a share token may call: describing and listing what was shared, and
-// downloading it.
-func isScopedRoute(r *http.Request) bool {
+// isScopedRoute lists what a share token may call: a download link describes, lists and
+// downloads what was shared; an upload link only sends files (tus).
+func isScopedRoute(r *http.Request, principal enginetoken.Principal) bool {
+	if principal.Mode == enginetoken.ModeUpload {
+		return strings.HasPrefix(r.URL.Path, routeUploads)
+	}
 	switch r.URL.Path {
 	case "/v1/fs/list", "/v1/fs/entry", routeArchive:
 		return r.Method == http.MethodGet

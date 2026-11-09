@@ -36,7 +36,10 @@
    before everything else, only `read` and `download` under the shared path are allowed, even for
    an administrator's share, and never more than the owner's own grants. Share tokens may only call
    `GET /v1/fs/entry`, `GET /v1/fs/list` and the download routes; each access is audited with the
-   share id.
+   share id. **Upload links** (`smode: upload`) may only `upload` into the shared folder, through
+   the tus routes only; each ticket names one file (`upl`: name and size) and starts one upload
+   (`jti`, single use); link uploads are kept as copies on conflicts, never create subfolders, and
+   can be resumed only through the same link.
 
 Implementation: `apps/engine/internal/authz` (pure, 100 % covered) and `internal/grantstore`
 (loads `app.path_grants`, written by the web app; the engine is read-only on `app`).

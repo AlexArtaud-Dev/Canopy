@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/appsettings"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
 )
@@ -135,4 +136,22 @@ func LoadLimits(ctx context.Context, db appsettings.Querier) (Limits, error) {
 		return Limits{}, err
 	}
 	return LimitsFrom(values), nil
+}
+
+// ErrLinkTicket refuses an upload link ticket used for anything but the one file it was issued
+// for: that file, in the shared folder itself, kept as a copy on a name conflict.
+var ErrLinkTicket = errors.New("upload link ticket does not match the upload")
+
+// CheckLinkUpload checks an upload started with an upload link (scoped) ticket; other uploads pass.
+func CheckLinkUpload(principal enginetoken.Principal, request Request, size int64) error {
+	if principal.Scope == "" {
+		return nil
+	}
+	grant := principal.Upload
+	if grant == nil || principal.TicketID == "" || principal.Mode != enginetoken.ModeUpload ||
+		request.Folder != principal.Scope || request.RelativeDir != "" ||
+		request.Strategy != transfer.StrategyKeepBoth || grant.Name != request.Name || grant.Size != size {
+		return ErrLinkTicket
+	}
+	return nil
 }

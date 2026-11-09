@@ -223,11 +223,19 @@ func TestShareToken(t *testing.T) {
 		httptest.NewRequest(http.MethodHead, "/v1/fs/download", nil),
 		httptest.NewRequest(http.MethodGet, "/v1/fs/archive", nil),
 	} {
-		if !isScopedRoute(request) {
+		if !isScopedRoute(request, enginetoken.Principal{Mode: enginetoken.ModeRead}) {
 			t.Fatalf("%s %s", request.Method, request.URL.Path)
 		}
 	}
-	if isScopedRoute(httptest.NewRequest(http.MethodPost, "/v1/fs/list", nil)) || isScopedRoute(httptest.NewRequest(http.MethodPost, "/v1/fs/archive", nil)) {
-		t.Fatal("reads only")
+	reader := enginetoken.Principal{Mode: enginetoken.ModeRead}
+	uploader := enginetoken.Principal{Mode: enginetoken.ModeUpload}
+	if isScopedRoute(httptest.NewRequest(http.MethodPost, "/v1/fs/list", nil), reader) ||
+		isScopedRoute(httptest.NewRequest(http.MethodPost, "/v1/fs/archive", nil), reader) ||
+		isScopedRoute(httptest.NewRequest(http.MethodPost, "/v1/uploads/", nil), reader) {
+		t.Fatal("download links read only")
+	}
+	if !isScopedRoute(httptest.NewRequest(http.MethodPost, "/v1/uploads/", nil), uploader) ||
+		isScopedRoute(httptest.NewRequest(http.MethodGet, "/v1/fs/list", nil), uploader) {
+		t.Fatal("upload links send files only")
 	}
 }
