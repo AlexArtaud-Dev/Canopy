@@ -21,12 +21,16 @@ otherwise Canopy sees the proxy instead of you.
 `CANOPY_PUBLIC_URL` starts with `https://` but the site is opened over plain HTTP: the browser
 drops the Secure session cookie. Open the `https://` address, or fix the variable.
 
-## A container is unhealthy
+## The stack does not start
 
-- **engine** right after start: wrong database password, or `CANOPY_ENGINE_PUBLIC_KEY` missing.
-  Its log says which.
-- **web**: same for its own variables; `CANOPY_ENCRYPTION_KEY` must decode to 32 bytes.
-- Both depend on **postgres**: check it first.
+- **setup** failed: `CANOPY_HOME` is not writable, or a file in `secrets/` was edited by hand
+  into something invalid. Its log names the file.
+- **setup-db** failed: the database admin password in `secrets/db-admin-password` is not the one
+  the database was created with (a `secrets/` folder from another install). Put the right one
+  back.
+- **engine** / **web** unhealthy: their logs say which value is missing or wrong;
+  `secrets/encryption-key` must decode to 32 bytes.
+- Everything depends on **postgres**: check it first.
 
 ## Everything says "access denied"
 

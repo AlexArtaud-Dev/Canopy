@@ -30,3 +30,5 @@ apps/engine/tmp/
 Thumbs.db
 coverage.out
 docker/data/
+# CANOPY_HOME of the local compose stack: database and generated secrets.
+docker/canopy/

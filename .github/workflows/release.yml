@@ -56,6 +56,12 @@ jobs:
             echo
             node scripts/release/notes.mjs "$VERSION" "$GITHUB_REPOSITORY"
           } > pr-body.md
-          gh pr create --base main --head "$branch" --title "chore(release): ${VERSION}" \
-            --label no-changelog --label "type: chore" --body-file pr-body.md
-          echo "Opened the release PR for ${VERSION}" >> "$GITHUB_STEP_SUMMARY"
+          if gh pr create --base main --head "$branch" --title "chore(release): ${VERSION}" \
+            --label no-changelog --label "type: chore" --body-file pr-body.md; then
+            echo "Opened the release PR for ${VERSION}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            # The repository may not let Actions open pull requests: the branch is ready, open it by hand.
+            url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/main...${branch}?expand=1"
+            echo "Branch ${branch} is ready: [open the release PR](${url}) (label it no-changelog)." >> "$GITHUB_STEP_SUMMARY"
+            echo "::notice::Open the release PR by hand: ${url}"
+          fi

@@ -1,33 +1,77 @@
 # Production-style stack. Put TLS and your own reverse proxy in front of `web` (none is shipped).
-# Usage: docker compose -f docker/compose.yaml --env-file docker/.env up -d --build
+# Usage: docker compose -f docker/compose.yaml --env-file docker/.env up -d
+#
+# Everything Canopy keeps lives in one folder, CANOPY_HOME: the first start creates its
+# sub-folders and generates every secret (setup), then prepares the database (setup-db).
+#   CANOPY_HOME/postgres  database          CANOPY_HOME/cache    thumbnails
+#   CANOPY_HOME/secrets   generated keys    CANOPY_HOME/plugins  plugin binaries
+# Back up that folder (secrets included). Your own files are mounted separately (engine volumes).
 name: canopy
 
+x-engine-image: &engine-image
+  build:
+    context: ..
+    dockerfile: docker/engine.Dockerfile
+  # Released images; `up --build` builds this checkout under the same name instead.
+  image: ghcr.io/alexartaud-dev/canopy-engine:${CANOPY_VERSION:-latest}
+
 services:
+  # One-shot: folders, owners and secrets in CANOPY_HOME. Root only to set owners; no network.
+  setup:
+    <<: *engine-image
+    command: [setup]
+    user: '0:0'
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [CHOWN, FOWNER, DAC_OVERRIDE]
+    security_opt: [no-new-privileges:true]
+    network_mode: none
+    environment:
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+    volumes:
+      - ${CANOPY_HOME:-./canopy}:/canopy
+
   postgres:
     image: postgres:18-alpine@sha256:123b17998ccaf47e53b502e8c6a1e79afd8f579c6f3eec83c563da026f957395
     restart: unless-stopped
     environment:
       POSTGRES_DB: canopy
       POSTGRES_USER: canopy_admin
-      POSTGRES_PASSWORD: ${CANOPY_DB_ADMIN_PASSWORD:?set it in docker/.env}
-      CANOPY_WEB_DB_PASSWORD: ${CANOPY_WEB_DB_PASSWORD:?set it in docker/.env}
-      CANOPY_ENGINE_DB_PASSWORD: ${CANOPY_ENGINE_DB_PASSWORD:?set it in docker/.env}
+      POSTGRES_PASSWORD_FILE: /run/canopy/secrets/db-admin-password
     volumes:
-      - postgres-data:/var/lib/postgresql
-      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+      - ${CANOPY_HOME:-./canopy}/postgres:/var/lib/postgresql
+      - ${CANOPY_HOME:-./canopy}/secrets:/run/canopy/secrets:ro
     networks: [internal]
     healthcheck:
       test: [CMD-SHELL, pg_isready -U canopy_admin -d canopy]
       interval: 5s
       timeout: 3s
       retries: 10
+      # The first start creates the database before accepting connections.
+      start_period: 60s
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+
+  # One-shot: the app roles and schemas (idempotent; role passwords follow the secret files).
+  setup-db:
+    <<: *engine-image
+    command: [setup-db]
+    user: '0:0'
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [DAC_OVERRIDE]
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - ${CANOPY_HOME:-./canopy}/secrets:/canopy/secrets:ro
+    networks: [internal]
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   engine:
-    build:
-      context: ..
-      dockerfile: docker/engine.Dockerfile
-    # Released images; `up --build` builds this checkout under the same name instead.
-    image: ghcr.io/alexartaud-dev/canopy-engine:${CANOPY_VERSION:-latest}
+    <<: *engine-image
     restart: unless-stopped
     # Files the engine creates belong to this host user (linuxserver-style PUID/PGID).
     user: ${PUID:-1000}:${PGID:-1000}
@@ -35,24 +79,23 @@ services:
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     environment:
-      CANOPY_DATABASE_URL: postgres://canopy_engine:${CANOPY_ENGINE_DB_PASSWORD}@postgres:5432/canopy
-      CANOPY_LOG_LEVEL: ${CANOPY_LOG_LEVEL:-info}
+      CANOPY_DATABASE_URL_FILE: /run/canopy/secrets/engine-database-url
       # Verifies web-signed tokens; the private half stays in the web container.
-      CANOPY_ENGINE_PUBLIC_KEY: ${CANOPY_ENGINE_PUBLIC_KEY:?run node scripts/dev/engine-keys.mjs}
+      CANOPY_ENGINE_PUBLIC_KEY_FILE: /run/canopy/secrets/engine-public-key
+      CANOPY_LOG_LEVEL: ${CANOPY_LOG_LEVEL:-info}
       UMASK: ${UMASK:-022}
     volumes:
-      # Mount every host folder INSIDE the root; no host symlinks needed. Examples:
+      # Mount every folder to manage INSIDE the root; no host symlinks needed. Examples:
       # - /mnt/disk1:/srv/canopy/root/disk1
       # - /mnt/nas/media:/srv/canopy/root/media
       - ${CANOPY_DATA_DIR:-./data}:/srv/canopy/root/data
-      # Thumbnails (rebuildable, size-capped in the settings); must be writable by PUID:PGID.
-      - ${CANOPY_CACHE_DIR:-./cache}:/srv/canopy/cache
-      # Plugin binaries (installed from Administration › Plugins); must be writable by PUID:PGID.
-      - ${CANOPY_PLUGINS_DIR:-./plugins}:/srv/canopy/plugins
+      - ${CANOPY_HOME:-./canopy}/cache:/srv/canopy/cache
+      - ${CANOPY_HOME:-./canopy}/plugins:/srv/canopy/plugins
+      - ${CANOPY_HOME:-./canopy}/secrets:/run/canopy/secrets:ro
     networks: [internal]
     depends_on:
-      postgres:
-        condition: service_healthy
+      setup-db:
+        condition: service_completed_successfully
 
   web:
     build:
@@ -66,13 +109,15 @@ services:
     security_opt: [no-new-privileges:true]
     environment:
       CANOPY_ENGINE_URL: http://engine:8080
-      CANOPY_DATABASE_URL: postgres://canopy_web:${CANOPY_WEB_DB_PASSWORD}@postgres:5432/canopy
-      CANOPY_TRUSTED_PROXIES: ${CANOPY_TRUSTED_PROXIES:-}
-      CANOPY_ENCRYPTION_KEY: ${CANOPY_ENCRYPTION_KEY:?set it in docker/.env (openssl rand -base64 32)}
+      CANOPY_DATABASE_URL_FILE: /run/canopy/secrets/web-database-url
+      CANOPY_ENCRYPTION_KEY_FILE: /run/canopy/secrets/encryption-key
       CANOPY_ENCRYPTION_KEY_PREVIOUS: ${CANOPY_ENCRYPTION_KEY_PREVIOUS:-}
-      CANOPY_ENGINE_PRIVATE_KEY: ${CANOPY_ENGINE_PRIVATE_KEY:?run node scripts/dev/engine-keys.mjs}
+      CANOPY_ENGINE_PRIVATE_KEY_FILE: /run/canopy/secrets/engine-private-key
+      CANOPY_TRUSTED_PROXIES: ${CANOPY_TRUSTED_PROXIES:-}
       CANOPY_PUBLIC_URL: ${CANOPY_PUBLIC_URL:-http://localhost:3000}
       CANOPY_LOCAL_NETWORKS: ${CANOPY_LOCAL_NETWORKS:-127.0.0.0/8,::1/128,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fc00::/7}
+    volumes:
+      - ${CANOPY_HOME:-./canopy}/secrets:/run/canopy/secrets:ro
     ports:
       - ${CANOPY_HTTP_BIND:-127.0.0.1}:${CANOPY_HTTP_PORT:-3000}:3000
     # The web container never mounts the file root: everything goes through the engine.
@@ -82,8 +127,6 @@ services:
       edge:
         gw_priority: 1
     depends_on:
-      postgres:
-        condition: service_healthy
       engine:
         condition: service_healthy
 
@@ -92,6 +135,3 @@ networks:
   internal:
     internal: true
   edge: {}
-
-volumes:
-  postgres-data:

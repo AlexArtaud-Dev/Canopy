@@ -2,36 +2,48 @@
 
 ## What to save
 
-| What                  | Where                         | Why                                                                 |
-| --------------------- | ----------------------------- | ------------------------------------------------------------------- |
-| `docker/.env`         | the Canopy folder             | Database passwords, the **encryption key** and the engine key pair  |
-| The database          | `postgres-data` Docker volume | Accounts, groups, roles, folder access, settings, shares, audit log |
-| Your files            | the folders you mounted       | Yours; include each mount's `.canopy-trash` to keep deleted items   |
-| `docker/compose.yaml` | the Canopy folder             | If you added mounts or variables                                    |
-| Plugins (optional)    | `CANOPY_PLUGINS_DIR`          | Can also be reinstalled from Administration › Plugins               |
+| What                                 | Where                   | Why                                                                |
+| ------------------------------------ | ----------------------- | ------------------------------------------------------------------ |
+| `CANOPY_HOME/secrets`                | your Canopy folder      | Database passwords, the **encryption key** and the engine key pair |
+| The database                         | `CANOPY_HOME/postgres`  | Accounts, groups, roles, folder access, settings, shares, audit    |
+| Your files                           | the folders you mounted | Yours; include each mount's `.canopy-trash` to keep deleted items  |
+| `docker/.env`, `docker/compose.yaml` | the Canopy folder       | Your settings and mounts                                           |
+| Plugins (optional)                   | `CANOPY_HOME/plugins`   | Can also be reinstalled from Administration › Plugins              |
 
-`CANOPY_CACHE_DIR` holds thumbnails only: no need to save it.
+`CANOPY_HOME/cache` holds thumbnails only: no need to save it.
 
-Without the encryption key, two-factor secrets and the SMTP password in a database backup cannot
-be read: keep `docker/.env` with the database dump, ideally encrypted.
+Without `secrets/encryption-key`, two-factor setups and the SMTP password in a database backup
+cannot be read: keep the secrets with the database, ideally encrypted.
 
-## Back up the database
+## Simplest: the whole folder, stopped
 
-While Canopy runs:
+```bash
+docker compose -f docker/compose.yaml --env-file docker/.env stop
+tar -czf canopy-$(date +%F).tar.gz -C /srv/appdata canopy   # your CANOPY_HOME
+docker compose -f docker/compose.yaml --env-file docker/.env start
+```
+
+Restore by putting the folder back in place (extract as root, so owners are kept) and starting
+the stack.
+
+## Without stopping: a database dump
 
 ```bash
 docker compose -f docker/compose.yaml --env-file docker/.env exec -T postgres \
   pg_dump -U canopy_admin -d canopy --format=custom > canopy-$(date +%F).dump
+cp -a /srv/appdata/canopy/secrets canopy-secrets-$(date +%F)
 ```
 
-Run it from cron for regular backups and copy the files off the server.
+Run it from cron and copy both off the server.
 
-## Restore
+### Restore a dump
 
 On the same server or a new one, with the same release (see [Upgrade](upgrade.md)):
 
-1. Put `docker/.env` and `docker/compose.yaml` back, and the file folders at their mount points.
-2. Start the database alone and load the dump:
+1. Put `docker/.env`, `docker/compose.yaml` and the file folders back, and copy the saved
+   `secrets/` into the new `CANOPY_HOME` **before the first start** (otherwise new passwords are
+   generated).
+2. Start the database and load the dump:
 
    ```bash
    docker compose -f docker/compose.yaml --env-file docker/.env up -d --wait postgres
@@ -44,9 +56,6 @@ On the same server or a new one, with the same release (see [Upgrade](upgrade.md
    ```bash
    docker compose -f docker/compose.yaml --env-file docker/.env up -d --wait
    ```
-
-On a new server the database volume is new, so the first start creates the two app roles with
-the passwords from `docker/.env` before you restore; keep the same `.env` and they match.
 
 If a dump comes from an older release, start that release first, restore, then
 [upgrade](upgrade.md): the newer containers update the database as they start.
