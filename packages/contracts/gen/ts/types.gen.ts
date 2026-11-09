@@ -63,6 +63,15 @@ export type DirectoryEntry = {
  */
 export type PreviewKind = 'none' | 'image' | 'pdf' | 'text' | 'audio' | 'video' | 'html';
 
+export type SearchResults = {
+  path: string;
+  entries: Array<DirectoryEntry>;
+  /**
+   * Set when the search stopped early: too many results, too many entries visited, or out of time. The entries are what was found until then.
+   */
+  truncated?: 'results' | 'visited' | 'timeout';
+};
+
 export type DirectoryListing = {
   path: string;
   entries: Array<DirectoryEntry>;
@@ -367,6 +376,49 @@ export type ListDirectoryResponses = {
 };
 
 export type ListDirectoryResponse = ListDirectoryResponses[keyof ListDirectoryResponses];
+
+export type SearchFilesData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Folder to search in (`/` for every volume).
+     */
+    path: string;
+    q: string;
+  };
+  url: '/v1/fs/search';
+};
+
+export type SearchFilesErrors = {
+  /**
+   * Invalid path or query (`files.invalid_path`, `files.invalid_query`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * The caller may not see this folder (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such folder (`files.not_found`, `files.not_a_directory`).
+   */
+  404: Error;
+};
+
+export type SearchFilesError = SearchFilesErrors[keyof SearchFilesErrors];
+
+export type SearchFilesResponses = {
+  /**
+   * The matching entries, best first.
+   */
+  200: SearchResults;
+};
+
+export type SearchFilesResponse = SearchFilesResponses[keyof SearchFilesResponses];
 
 export type ExplainAccessData = {
   body: ExplainRequest;

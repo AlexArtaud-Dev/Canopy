@@ -55,6 +55,12 @@ export const zDirectoryEntry = z.object({
   thumbnail: z.boolean(),
 });
 
+export const zSearchResults = z.object({
+  path: z.string(),
+  entries: z.array(zDirectoryEntry),
+  truncated: z.enum(['results', 'visited', 'timeout']).optional(),
+});
+
 export const zDirectoryListing = z.object({
   path: z.string(),
   entries: z.array(zDirectoryEntry),
@@ -328,6 +334,16 @@ export const zListDirectoryQuery = z.object({
  * One page of the directory.
  */
 export const zListDirectoryResponse = zDirectoryListing;
+
+export const zSearchFilesQuery = z.object({
+  path: z.string().max(4096),
+  q: z.string().min(2).max(200),
+});
+
+/**
+ * The matching entries, best first.
+ */
+export const zSearchFilesResponse = zSearchResults;
 
 export const zExplainAccessBody = zExplainRequest;
 

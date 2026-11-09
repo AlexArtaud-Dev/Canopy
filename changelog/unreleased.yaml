@@ -251,3 +251,10 @@ entries:
       en: Thumbnails for images and videos in the grid view, cached by the server, with a setting to turn them off
       fr: Miniatures des images et vidéos en vue grille, mises en cache par le serveur, avec un réglage pour les désactiver
       es: Miniaturas de imágenes y vídeos en la vista de cuadrícula, en caché en el servidor, con un ajuste para desactivarlas
+  - type: feat
+    scope: files
+    issue: 57
+    text:
+      en: Search file and folder names in the current folder and its subfolders, ignoring case and accents
+      fr: Recherche des noms de fichiers et dossiers dans le dossier courant et ses sous-dossiers, sans tenir compte de la casse ni des accents
+      es: Búsqueda de nombres de archivos y carpetas en la carpeta actual y sus subcarpetas, sin distinguir mayúsculas ni acentos

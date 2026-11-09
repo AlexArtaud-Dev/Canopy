@@ -95,7 +95,8 @@
       "download": "Télécharger",
       "downloadZip": "Télécharger en zip",
       "delete": "Supprimer",
-      "deletePermanently": "Supprimer définitivement"
+      "deletePermanently": "Supprimer définitivement",
+      "showInFolder": "Afficher dans le dossier"
     },
     "shortcuts": {
       "title": "Raccourcis clavier",
@@ -163,6 +164,22 @@
       "upload": "Importer",
       "uploadFiles": "Des fichiers",
       "uploadFolder": "Un dossier"
+    },
+    "search": {
+      "placeholder": "Rechercher dans ce dossier",
+      "label": "Rechercher des noms dans ce dossier et ses sous-dossiers",
+      "clear": "Effacer la recherche",
+      "searching": "Recherche…",
+      "count": "{count, plural, one {# résultat} other {# résultats}}",
+      "truncated": {
+        "results": "Seuls les premiers résultats sont affichés : ajoutez des mots pour affiner.",
+        "visited": "Ce dossier est très volumineux : seule une partie a été parcourue. Cherchez dans un sous-dossier.",
+        "timeout": "La recherche a pris trop de temps : seule une partie du dossier a été parcourue. Cherchez dans un sous-dossier."
+      },
+      "none": {
+        "title": "Aucun résultat",
+        "description": "Aucun nom de fichier ou de dossier ici ne contient tous les mots saisis. Vérifiez l’orthographe, ou cherchez depuis un dossier parent."
+      }
     }
   },
   "preview": {

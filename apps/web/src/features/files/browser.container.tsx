@@ -12,7 +12,16 @@ import {
   type Modifier,
 } from '@dnd-kit/core';
 import { createPortal } from 'react-dom';
-import { CopyPlus, Download, FolderInput, FolderOpen, FolderTree, Trash2, X } from 'lucide-react';
+import {
+  CopyPlus,
+  Download,
+  FolderInput,
+  FolderOpen,
+  FolderTree,
+  SearchX,
+  Trash2,
+  X,
+} from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -33,10 +42,12 @@ import {
   browserHref,
   emptySelection,
   gridColumns,
+  isSearch,
   moveFocus,
   nextSort,
   parentPath,
   reduceSelection,
+  sortResults,
   type BrowserQuery,
   type SelectionAction,
   type SortKey,
@@ -52,6 +63,7 @@ import {
   type TransferOperation,
 } from './operations.utils';
 import { useFolder } from './model/use-folder';
+import { useSearch } from './model/use-search';
 import { useStreamTicket } from './model/use-stream-ticket';
 import { canPreview } from './preview.utils';
 import type { BrowserEntry, FolderPage } from './server/browse';
@@ -91,7 +103,20 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   const errorMessage = useErrorMessage();
   const router = useRouter();
   const folder = useFolder(query, firstPage);
-  const { entries, hasMore, loadingMore, loadMore } = folder;
+  const searching = isSearch(query.q);
+  const search = useSearch(query.path, query.q, searching);
+  const results = useMemo(
+    () => sortResults(search.entries, query.sort, query.order),
+    [search.entries, query.sort, query.order],
+  );
+  // While searching, results stand in for the folder's entries; everything else works the same.
+  const entries = searching ? results : folder.entries;
+  const hasMore = !searching && folder.hasMore;
+  const loadingMore = !searching && folder.loadingMore;
+  const { loadMore } = folder;
+  const listing = searching
+    ? { error: search.error, refresh: search.refresh, refreshing: search.searching }
+    : folder;
   const keys = useMemo(() => entries.map((entry) => entry.path), [entries]);
   const [rawSelection, setSelection] = useState(emptySelection);
   const [focusIndex, setFocusIndex] = useState(-1);
@@ -141,12 +166,12 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     [rawSelection, keys],
   );
 
-  const hrefFor = useCallback((path: string) => browserHref({ ...query, path }), [query]);
+  const hrefFor = useCallback((path: string) => browserHref({ ...query, path, q: '' }), [query]);
   const navigate = (next: BrowserQuery) => {
     router.push(browserHref(next) as Route);
   };
   const open = (entry: BrowserEntry | undefined) => {
-    if (entry?.isDirectory) navigate({ ...query, path: entry.path });
+    if (entry?.isDirectory) navigate({ ...query, path: entry.path, q: '' });
     else if (entry && canPreview(entry)) setPreviewPath(entry.path);
   };
   const showPreview = (path: string) => {
@@ -155,7 +180,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   };
   const goUp = () => {
     const parent = parentPath(query.path);
-    if (parent !== null) navigate({ ...query, path: parent });
+    if (parent !== null) navigate({ ...query, path: parent, q: '' });
   };
 
   const onRendered = useCallback(
@@ -273,6 +298,11 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
 
   const menu = {
     onOpen: open,
+    onShowInFolder: searching
+      ? (entry: BrowserEntry) => {
+          navigate({ ...query, path: parentPath(entry.path) ?? '/', q: '' });
+        }
+      : undefined,
     onCopyPath: (entry: BrowserEntry) => {
       void navigator.clipboard.writeText(entry.path).then(() => toast.success(t('pathCopied')));
     },
@@ -300,7 +330,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
       dispatch({ type: 'all' });
     },
     onRefresh: () => {
-      void folder.refresh();
+      void listing.refresh();
     },
     onMenuOpen: (entry: BrowserEntry) => {
       setFocusIndex(keys.indexOf(entry.path));
@@ -323,6 +353,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     idOf,
     canDrag: (entry: BrowserEntry) =>
       entry.actions.includes('move') || entry.actions.includes('copy'),
+    showLocation: searching,
   };
 
   const onDragStart = (event: DragStartEvent) => {
@@ -375,9 +406,13 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           onOrder={(order) => {
             navigate({ ...query, order });
           }}
-          refreshing={folder.refreshing}
+          refreshing={listing.refreshing}
           onRefresh={() => {
-            void folder.refresh();
+            void listing.refresh();
+          }}
+          search={query.q}
+          onSearch={(q) => {
+            router.replace(browserHref({ ...query, q }) as Route);
           }}
           onShowShortcuts={() => {
             setHelpOpen(true);
@@ -420,15 +455,24 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
             dropActive && 'bg-primary/5 ring-primary ring-2 ring-inset',
           )}
         >
-          {folder.error && entries.length === 0 ? (
+          {listing.error && entries.length === 0 ? (
             <ErrorState
-              code={folder.error.code}
-              params={folder.error.params}
-              reference={folder.error.requestId}
+              code={listing.error.code}
+              params={listing.error.params}
+              reference={listing.error.requestId}
               onRetry={() => {
-                void folder.refresh();
+                void listing.refresh();
               }}
             />
+          ) : searching && entries.length === 0 ? (
+            search.searching ? (
+              <p className="text-muted-foreground flex items-center justify-center gap-2 p-6 text-sm">
+                <Spinner />
+                {t('search.searching')}
+              </p>
+            ) : (
+              <NoResults />
+            )
           ) : entries.length === 0 ? (
             <EmptyFolder isRoot={query.path === '/'} />
           ) : view === 'grid' ? (
@@ -444,7 +488,15 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           )}
         </div>
         <footer className="text-muted-foreground flex min-h-10 items-center gap-3 border-t px-4 text-xs md:px-6">
-          <span aria-live="polite">{t('count', { count: folder.total })}</span>
+          <span aria-live="polite">
+            {searching
+              ? t('search.count', { count: entries.length })
+              : t('count', { count: folder.total })}
+          </span>
+          {searching && search.truncated && (
+            // i18n-dynamic: files.browser.search.truncated
+            <span>{t(`search.truncated.${search.truncated}`)}</span>
+          )}
           {selection.selected.size > 0 && (
             <span className="flex items-center gap-1">
               {t('selected', { count: selection.selected.size })}
@@ -623,6 +675,21 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           document.body,
         )}
     </DndContext>
+  );
+}
+
+function NoResults() {
+  const t = useTranslations('files.browser.search');
+  return (
+    <Empty className="m-4 border border-dashed md:m-6">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <SearchX aria-hidden />
+        </EmptyMedia>
+        <EmptyTitle>{t('none.title')}</EmptyTitle>
+        <EmptyDescription>{t('none.description')}</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   );
 }
 

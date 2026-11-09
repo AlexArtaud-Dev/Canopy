@@ -27,6 +27,8 @@ export interface EntryViewProps {
   /** Whether an entry may be dragged (the person may move or copy it). */
   canDrag: (entry: BrowserEntry) => boolean;
   idOf: (index: number) => string;
+  /** Search results come from many folders: each shows where it is. */
+  showLocation?: boolean;
 }
 
 export function modifiersOf(event: MouseEvent): ClickModifiers {

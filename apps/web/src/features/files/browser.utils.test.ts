@@ -1,5 +1,10 @@
 import {
   browserHref,
+  isSearch,
+  searchMaxLength,
+  searchMinLength,
+  sortResults,
+  toBrowserEntry,
   browserPageSize,
   browserQuerySchema,
   emptySelection,
@@ -16,32 +21,28 @@ import {
 
 describe('browserQuerySchema', () => {
   it('cleans the path and falls back on junk', () => {
-    expect(browserQuerySchema.parse({ path: '/a/../b/', sort: 'size', order: 'desc' })).toEqual({
-      path: '/b',
-      sort: 'size',
-      order: 'desc',
-    });
-    expect(browserQuerySchema.parse({ path: 'relative', sort: 'x', order: ['y'] })).toEqual({
-      path: '/',
-      sort: 'name',
-      order: 'asc',
-    });
-    expect(browserQuerySchema.parse({})).toEqual({ path: '/', sort: 'name', order: 'asc' });
+    expect(
+      browserQuerySchema.parse({ path: '/a/../b/', sort: 'size', order: 'desc', q: ' cat ' }),
+    ).toEqual({ path: '/b', sort: 'size', order: 'desc', q: 'cat' });
+    expect(
+      browserQuerySchema.parse({ path: 'relative', sort: 'x', order: ['y'], q: 'x'.repeat(201) }),
+    ).toEqual({ path: '/', sort: 'name', order: 'asc', q: '' });
+    expect(browserQuerySchema.parse({})).toEqual({ path: '/', sort: 'name', order: 'asc', q: '' });
   });
 });
 
 describe('browserHref', () => {
   it('omits defaults', () => {
-    expect(browserHref({ path: '/', sort: 'name', order: 'asc' })).toBe('/');
-    expect(browserHref({ path: '/a b', sort: 'size', order: 'desc' })).toBe(
-      '/?path=%2Fa+b&sort=size&order=desc',
+    expect(browserHref({ path: '/', sort: 'name', order: 'asc', q: '' })).toBe('/');
+    expect(browserHref({ path: '/a b', sort: 'size', order: 'desc', q: 'été' })).toBe(
+      '/?path=%2Fa+b&sort=size&order=desc&q=%C3%A9t%C3%A9',
     );
   });
 });
 
 describe('nextSort and parentPath', () => {
   it('flips the active column and starts others ascending', () => {
-    const query = { path: '/', sort: 'name', order: 'asc' } as const;
+    const query = { path: '/', sort: 'name', order: 'asc', q: '' } as const;
     expect(nextSort(query, 'name')).toEqual({ sort: 'name', order: 'desc' });
     expect(nextSort({ ...query, order: 'desc' }, 'name')).toEqual({ sort: 'name', order: 'asc' });
     expect(nextSort(query, 'size')).toEqual({ sort: 'size', order: 'asc' });
@@ -150,5 +151,50 @@ describe('constants', () => {
     expect(browserPageSize).toBe(500);
     expect(pageJump).toBe(10);
     expect(sortKeys).toEqual(['name', 'size', 'modified']);
+  });
+});
+
+describe('search helpers', () => {
+  it('searches from two characters', () => {
+    expect([searchMinLength, searchMaxLength]).toEqual([2, 200]);
+    expect(isSearch('a')).toBe(false);
+    expect(isSearch('ab')).toBe(true);
+  });
+
+  it('keeps the engine ranking unless another sort is picked', () => {
+    const entries = [
+      { name: 'b', size: 1, modified: '2026-01-02T00:00:00Z' },
+      { name: 'a', size: 3, modified: '2026-01-01T00:00:00Z' },
+      { name: 'c', size: 2, modified: '2026-01-03T00:00:00Z' },
+    ];
+    const names = (sorted: { name: string }[]) => sorted.map((entry) => entry.name).join('');
+    expect(names(sortResults(entries, 'name', 'asc'))).toBe('bac');
+    expect(names(sortResults(entries, 'name', 'desc'))).toBe('cba');
+    expect(names(sortResults(entries, 'size', 'asc'))).toBe('bca');
+    expect(names(sortResults(entries, 'modified', 'desc'))).toBe('cba');
+  });
+
+  it('maps engine entries', () => {
+    expect(
+      toBrowserEntry({
+        name: 'a',
+        path: '/a',
+        kind: 'directory',
+        size: 0,
+        modified: '2026-01-01T00:00:00Z',
+        actions: ['read'],
+        preview: 'none',
+        thumbnail: false,
+      }),
+    ).toEqual({
+      name: 'a',
+      path: '/a',
+      isDirectory: true,
+      size: 0,
+      modified: '2026-01-01T00:00:00Z',
+      actions: ['read'],
+      preview: 'none',
+      thumbnail: false,
+    });
   });
 });

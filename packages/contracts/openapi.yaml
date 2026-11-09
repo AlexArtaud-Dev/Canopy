@@ -123,6 +123,63 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/fs/search:
+    get:
+      operationId: searchFiles
+      summary: Find files and folders by name under a folder
+      description: >-
+        Walks the tree under `path` (only where the caller may see) and returns entries whose name
+        contains every word of `q`, ignoring case and accents. The walk has hard limits; when one
+        is reached, `truncated` says which and the results are what was found so far.
+      tags: [files]
+      security:
+        - engineToken: []
+      parameters:
+        - name: path
+          in: query
+          required: true
+          description: Folder to search in (`/` for every volume).
+          schema:
+            type: string
+            maxLength: 4096
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 200
+      responses:
+        '200':
+          description: The matching entries, best first.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        '400':
+          description: Invalid path or query (`files.invalid_path`, `files.invalid_query`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The caller may not see this folder (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such folder (`files.not_found`, `files.not_a_directory`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/authz/explain:
     post:
       operationId: explainAccess
@@ -887,6 +944,22 @@ components:
         (`none` for folders and unknown files: download only).
       type: string
       enum: [none, image, pdf, text, audio, video, html]
+    SearchResults:
+      type: object
+      required: [path, entries]
+      properties:
+        path:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/DirectoryEntry'
+        truncated:
+          description: >-
+            Set when the search stopped early: too many results, too many entries visited, or
+            out of time. The entries are what was found until then.
+          type: string
+          enum: [results, visited, timeout]
     DirectoryListing:
       type: object
       required: [path, entries, total, actions]

@@ -7,9 +7,11 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"path"
 	"testing"
 	"time"
 
@@ -24,6 +26,23 @@ import (
 type fakeFiles struct{ err error }
 
 func (f fakeFiles) Stat(string) (fsx.Entry, error) { return fsx.Entry{}, f.err }
+
+// Walk visits the folder itself, then what ReadDir returns.
+func (f fakeFiles) Walk(dir string, visit func(string, fsx.Entry) error) error {
+	entries, err := f.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+	if err := visit(dir, fsx.Entry{IsDir: true}); err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		if err := visit(path.Join(dir, entry.Name), entry); err != nil && !errors.Is(err, fs.SkipDir) {
+			return err
+		}
+	}
+	return nil
+}
 
 func (f fakeFiles) ReadDir(string) ([]fsx.Entry, error) {
 	if f.err != nil {

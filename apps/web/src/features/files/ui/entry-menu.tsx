@@ -7,6 +7,7 @@ import {
   FolderInput,
   Eye,
   FolderOpen,
+  FolderSearch,
   HardDrive,
   Link2,
   PencilLine,
@@ -44,6 +45,8 @@ export interface EntryMenuHandlers {
   onRefresh: () => void;
   /** Right-click (or long-press) on an unselected entry selects it first. */
   onMenuOpen: (entry: BrowserEntry) => void;
+  /** Search results only: go to the folder that holds the entry. */
+  onShowInFolder?: ((entry: BrowserEntry) => void) | undefined;
 }
 
 interface EntryMenuProps extends EntryMenuHandlers {
@@ -122,6 +125,16 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
           >
             <FolderInput aria-hidden />
             {t('moveTo')}
+          </ContextMenuItem>
+        )}
+        {handlers.onShowInFolder && (
+          <ContextMenuItem
+            onSelect={() => {
+              handlers.onShowInFolder?.(entry);
+            }}
+          >
+            <FolderSearch aria-hidden />
+            {t('showInFolder')}
           </ContextMenuItem>
         )}
         <ContextMenuItem

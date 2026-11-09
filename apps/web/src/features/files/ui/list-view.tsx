@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import { cn } from 'cn';
 import { Checkbox } from '@/shared/ui/checkbox';
 
-import { fileKind, formatBytes, type SortKey, type SortOrder } from '../browser.utils';
+import { fileKind, formatBytes, parentPath, type SortKey, type SortOrder } from '../browser.utils';
 import { EntryIcon } from './entry-icon';
 import { DndEntry, dropHighlight } from './dnd';
 import { EntryMenu } from './entry-menu';
@@ -101,11 +101,17 @@ export function ListView(props: EntryViewProps) {
                     <EntryIcon kind={fileKind(entry.name, entry.isDirectory)} className="size-5" />
                     <span className="min-w-0">
                       <span className="block truncate font-medium">{entry.name}</span>
-                      <span className="text-muted-foreground block truncate text-xs sm:hidden">
-                        {entry.isDirectory
-                          ? modified
-                          : `${formatBytes(entry.size, locale)} · ${modified}`}
-                      </span>
+                      {props.showLocation ? (
+                        <span className="text-muted-foreground block truncate text-xs">
+                          {parentPath(entry.path) ?? '/'}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground block truncate text-xs sm:hidden">
+                          {entry.isDirectory
+                            ? modified
+                            : `${formatBytes(entry.size, locale)} · ${modified}`}
+                        </span>
+                      )}
                     </span>
                   </span>
                   <span className="text-muted-foreground hidden text-right tabular-nums sm:block">

@@ -67,7 +67,8 @@
     "upload_not_found": "This upload no longer exists. Start it again.",
     "volume_protected": "Top-level folders are mounted volumes and cannot be deleted.",
     "no_preview": "This file can't be previewed. Download it to open it.",
-    "no_thumbnail": "No thumbnail for this file."
+    "no_thumbnail": "No thumbnail for this file.",
+    "invalid_query": "Type 2 to 200 characters to search."
   },
   "mail": {
     "not_configured": "Email is not configured. Set up SMTP in Administration › Email.",

@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
+import type { DirectoryEntry } from '@canopy/contracts';
+
 import { cleanVirtualPath } from './files.utils';
+import type { BrowserEntry } from './server/browse';
 
 export const sortKeys = ['name', 'size', 'modified'] as const;
 export type SortKey = (typeof sortKeys)[number];
@@ -10,6 +13,15 @@ export type BrowserView = 'list' | 'grid';
 /** Entries fetched per request; the list is virtualized so pages stream in as you scroll. */
 export const browserPageSize = 500;
 
+/** Search bounds, as the engine enforces them. */
+export const searchMinLength = 2;
+export const searchMaxLength = 200;
+
+/** Whether the words are long enough to search (shorter ones keep the folder shown). */
+export function isSearch(q: string): boolean {
+  return q.length >= searchMinLength;
+}
+
 /** `/?path=&sort=&order=` of the Files page, tolerant of junk in the URL. */
 export const browserQuerySchema = z.object({
   path: z
@@ -18,6 +30,8 @@ export const browserQuerySchema = z.object({
     .catch('/'),
   sort: z.enum(sortKeys).catch('name'),
   order: z.enum(['asc', 'desc']).catch('asc'),
+  /** Search words: results replace the folder's entries while set. */
+  q: z.string().trim().max(searchMaxLength).catch('').default(''),
 });
 export type BrowserQuery = z.infer<typeof browserQuerySchema>;
 
@@ -27,6 +41,7 @@ export function browserHref(query: BrowserQuery): string {
   if (query.path !== '/') params.set('path', query.path);
   if (query.sort !== 'name') params.set('sort', query.sort);
   if (query.order !== 'asc') params.set('order', query.order);
+  if (query.q) params.set('q', query.q);
   const search = params.toString();
   return search ? `/?${search}` : '/';
 }
@@ -208,4 +223,37 @@ export function fileKind(name: string, isDirectory: boolean): FileKind {
   const dot = name.lastIndexOf('.');
   if (dot <= 0) return 'file';
   return kindsByExtension.get(name.slice(dot + 1).toLowerCase()) ?? 'file';
+}
+
+/** The browser's view of an engine entry (folders and search results alike). */
+export function toBrowserEntry(entry: DirectoryEntry): BrowserEntry {
+  return {
+    name: entry.name,
+    path: entry.path,
+    isDirectory: entry.kind === 'directory',
+    size: entry.size,
+    modified: entry.modified,
+    actions: entry.actions,
+    preview: entry.preview,
+    thumbnail: entry.thumbnail,
+  };
+}
+
+/**
+ * Search results come ranked by the engine (best first): that order stands for the default sort
+ * (name, ascending). Any other sort is applied here, over the results.
+ */
+export function sortResults<T extends Pick<BrowserEntry, 'name' | 'size' | 'modified'>>(
+  entries: readonly T[],
+  sort: SortKey,
+  order: SortOrder,
+): T[] {
+  if (sort === 'name' && order === 'asc') return [...entries];
+  const sign = order === 'asc' ? 1 : -1;
+  const compare = (a: T, b: T) => {
+    if (sort === 'size') return a.size - b.size;
+    if (sort === 'modified') return a.modified.localeCompare(b.modified);
+    return a.name.localeCompare(b.name);
+  };
+  return entries.toSorted((a, b) => sign * compare(a, b));
 }

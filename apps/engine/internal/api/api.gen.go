@@ -245,6 +245,27 @@ func (e ReadinessStatusStatus) Valid() bool {
 	}
 }
 
+// Defines values for SearchResultsTruncated.
+const (
+	Results SearchResultsTruncated = "results"
+	Timeout SearchResultsTruncated = "timeout"
+	Visited SearchResultsTruncated = "visited"
+)
+
+// Valid indicates whether the value is a known member of the SearchResultsTruncated enum.
+func (e SearchResultsTruncated) Valid() bool {
+	switch e {
+	case Results:
+		return true
+	case Timeout:
+		return true
+	case Visited:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for TransferOperation.
 const (
 	TransferOperationCopy TransferOperation = "copy"
@@ -515,6 +536,18 @@ type RestoredList struct {
 	Items []RestoredItem `json:"items"`
 }
 
+// SearchResults defines model for SearchResults.
+type SearchResults struct {
+	Entries []DirectoryEntry `json:"entries"`
+	Path    string           `json:"path"`
+
+	// Truncated Set when the search stopped early: too many results, too many entries visited, or out of time. The entries are what was found until then.
+	Truncated *SearchResultsTruncated `json:"truncated,omitempty"`
+}
+
+// SearchResultsTruncated Set when the search stopped early: too many results, too many entries visited, or out of time. The entries are what was found until then.
+type SearchResultsTruncated string
+
 // TransferConflict defines model for TransferConflict.
 type TransferConflict struct {
 	// Self A copy onto itself; only keep_both applies.
@@ -608,6 +641,13 @@ type ListDirectoryParamsSort string
 // ListDirectoryParamsOrder defines parameters for ListDirectory.
 type ListDirectoryParamsOrder string
 
+// SearchFilesParams defines parameters for SearchFiles.
+type SearchFilesParams struct {
+	// Path Folder to search in (`/` for every volume).
+	Path string `form:"path" json:"path"`
+	Q    string `form:"q" json:"q"`
+}
+
 // ListJobsParams defines parameters for ListJobs.
 type ListJobsParams struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
@@ -674,6 +714,9 @@ type ServerInterface interface {
 	// RenameEntry Rename an entry in place
 	// (POST /v1/fs/rename)
 	RenameEntry(w http.ResponseWriter, r *http.Request)
+	// SearchFiles Find files and folders by name under a folder
+	// (GET /v1/fs/search)
+	SearchFiles(w http.ResponseWriter, r *http.Request, params SearchFilesParams)
 	// PlanTransfer Check a copy or move before running it
 	// (POST /v1/fs/transfer/plan)
 	PlanTransfer(w http.ResponseWriter, r *http.Request)
@@ -755,6 +798,12 @@ func (_ Unimplemented) CreateFolder(w http.ResponseWriter, r *http.Request) {
 // RenameEntry Rename an entry in place
 // (POST /v1/fs/rename)
 func (_ Unimplemented) RenameEntry(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// SearchFiles Find files and folders by name under a folder
+// (GET /v1/fs/search)
+func (_ Unimplemented) SearchFiles(w http.ResponseWriter, r *http.Request, params SearchFilesParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1012,6 +1061,52 @@ func (siw *ServerInterfaceWrapper) RenameEntry(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.RenameEntry(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// SearchFiles operation middleware
+func (siw *ServerInterfaceWrapper) SearchFiles(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params SearchFilesParams
+
+	// ------------- Required query parameter "path" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "path", r.URL.Query(), &params.Path, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "path"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "path", Err: err})
+		}
+		return
+	}
+
+	// ------------- Required query parameter "q" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "q", r.URL.Query(), &params.Q, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "q"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "q", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SearchFiles(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1381,6 +1476,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/v1/fs/list", wrapper.ListDirectory)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/fs/search", wrapper.SearchFiles)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/v1/authz/explain", wrapper.ExplainAccess)
@@ -1890,6 +1988,84 @@ func (response RenameEntry409JSONResponse) VisitRenameEntryResponse(w http.Respo
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SearchFilesRequestObject struct {
+	Params SearchFilesParams
+}
+
+type SearchFilesResponseObject interface {
+	VisitSearchFilesResponse(w http.ResponseWriter) error
+}
+
+type SearchFiles200JSONResponse SearchResults
+
+func (response SearchFiles200JSONResponse) VisitSearchFilesResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SearchFiles400JSONResponse Error
+
+func (response SearchFiles400JSONResponse) VisitSearchFilesResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SearchFiles401JSONResponse Error
+
+func (response SearchFiles401JSONResponse) VisitSearchFilesResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SearchFiles403JSONResponse Error
+
+func (response SearchFiles403JSONResponse) VisitSearchFilesResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SearchFiles404JSONResponse Error
+
+func (response SearchFiles404JSONResponse) VisitSearchFilesResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -2713,6 +2889,9 @@ type StrictServerInterface interface {
 	// RenameEntry Rename an entry in place
 	// (POST /v1/fs/rename)
 	RenameEntry(ctx context.Context, request RenameEntryRequestObject) (RenameEntryResponseObject, error)
+	// SearchFiles Find files and folders by name under a folder
+	// (GET /v1/fs/search)
+	SearchFiles(ctx context.Context, request SearchFilesRequestObject) (SearchFilesResponseObject, error)
 	// PlanTransfer Check a copy or move before running it
 	// (POST /v1/fs/transfer/plan)
 	PlanTransfer(ctx context.Context, request PlanTransferRequestObject) (PlanTransferResponseObject, error)
@@ -2981,6 +3160,32 @@ func (sh *strictHandler) RenameEntry(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(RenameEntryResponseObject); ok {
 		if err := validResponse.VisitRenameEntryResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// SearchFiles operation middleware
+func (sh *strictHandler) SearchFiles(w http.ResponseWriter, r *http.Request, params SearchFilesParams) {
+	var request SearchFilesRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.SearchFiles(ctx, request.(SearchFilesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "SearchFiles")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(SearchFilesResponseObject); ok {
+		if err := validResponse.VisitSearchFilesResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

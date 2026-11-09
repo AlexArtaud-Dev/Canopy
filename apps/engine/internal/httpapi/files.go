@@ -25,6 +25,7 @@ const (
 type Files interface {
 	Stat(virtual string) (fsx.Entry, error)
 	ReadDir(virtual string) ([]fsx.Entry, error)
+	Walk(virtual string, visit func(path string, entry fsx.Entry) error) error
 }
 
 // Grants loads the path grants that may apply to a subject.
@@ -54,13 +55,9 @@ func (s *server) ListDirectory(ctx context.Context, request api.ListDirectoryReq
 		return api.ListDirectory400JSONResponse(newError(ctx, fsx.CodeInvalidPath)), nil
 	}
 	subject := subjectOf(principal)
-	var grants []authz.Grant
-	// Administrators bypass grants: no need to load them.
-	if !subject.Admin {
-		grants, err = s.deps.Grants.GrantsFor(ctx, subject)
-		if err != nil {
-			return nil, err //nolint:wrapcheck // the strict handler logs it and answers system.internal
-		}
+	grants, err := s.grantsOf(ctx, subject)
+	if err != nil {
+		return nil, err
 	}
 	if !authz.MayTraverse(grants, subject, dir) {
 		return api.ListDirectory403JSONResponse(newError(ctx, codeForbidden)), nil
