@@ -14,6 +14,7 @@ export const pluginsModule = defineModule({
       labelKey: 'plugins',
       icon: Puzzle,
       group: 'administration',
+      section: 'configuration',
       permission: 'system:admin',
     },
   ],

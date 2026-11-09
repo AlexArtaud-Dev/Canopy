@@ -204,5 +204,13 @@
         "es": "Español"
       }
     }
-  }
+  },
+  "categories": {
+    "general": "Général",
+    "security": "Sécurité",
+    "files": "Fichiers",
+    "tools": "Outils",
+    "other": "Autres"
+  },
+  "section": "Rubrique"
 }

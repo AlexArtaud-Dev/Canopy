@@ -19,6 +19,7 @@ const system = defineModule({
       labelKey: 'system',
       icon: Activity,
       group: 'administration',
+      section: 'monitoring',
       permission: 'system:read',
     },
   ],
@@ -45,9 +46,16 @@ describe('createRegistry', () => {
 
   it('groups navigation in display order and filters by permission', () => {
     const all = registry.navigation(() => true);
-    expect(all.map((group) => [group.id, group.items.map((item) => item.href)])).toEqual([
+    expect(
+      all.map((group) => [
+        group.id,
+        group.nodes.map((node) =>
+          node.kind === 'entry' ? node.entry.href : [node.id, node.entries.map((e) => e.href)],
+        ),
+      ]),
+    ).toEqual([
       ['workspace', ['/']],
-      ['administration', ['/system']],
+      ['administration', [['monitoring', ['/system']]]],
     ]);
     const restricted = registry.navigation(() => false);
     expect(restricted.map((group) => group.id)).toEqual(['workspace']);
@@ -94,6 +102,25 @@ describe('createRegistry validation', () => {
         },
       ],
       /undeclared "x:read"/,
+    ],
+    [
+      'a section of another group',
+      [
+        {
+          ...base,
+          id: 'x',
+          navigation: [
+            {
+              href: '/trash',
+              labelKey: 'files',
+              icon: Activity,
+              group: 'workspace',
+              section: 'people',
+            },
+          ],
+        },
+      ],
+      /outside its group/,
     ],
   ] satisfies [string, CanopyModule[], RegExp][])('rejects %s', (_label, modules, message) => {
     expect(() => createRegistry(modules)).toThrow(message);

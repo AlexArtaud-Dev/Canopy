@@ -2,7 +2,7 @@
 
 import { Info, Search } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
@@ -12,8 +12,18 @@ import { useCan } from '@/shared/permissions/can';
 import { Alert, AlertDescription } from '@/shared/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Input } from '@/shared/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 
-import { matchesSearch, type FieldView } from './settings-form.utils';
+import { groupByCategory, matchesSearch, selectedTab, type FieldView } from './settings-form.utils';
 import { resetSettingToDefault, saveSetting } from './server/settings-page';
 import { SettingField } from './ui/setting-field';
 
@@ -22,7 +32,11 @@ export interface ModuleSettings {
   fields: FieldView[];
 }
 
-/** Generated from the modules' settings schemas: no screen is written by hand per module. */
+/**
+ * Generated from the modules' settings schemas: no screen is written by hand per module. One
+ * module per vertical tab, grouped by category; the open tab is in the URL (`?tab=`), so other
+ * pages can link to it. A search shows every matching field at once.
+ */
 export function SettingsContainer({
   modules,
   local,
@@ -32,6 +46,7 @@ export function SettingsContainer({
 }) {
   const t = useTranslations('settings');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const toFormError = useFormError();
   const canEdit = useCan('settings:update');
   const [search, setSearch] = useState('');
@@ -42,7 +57,17 @@ export function SettingsContainer({
   // i18n-dynamic: settings.modules
   // i18n-dynamic: settings.groups
   // i18n-dynamic: settings.options
+  // i18n-dynamic: settings.categories
   const label = (key: string) => t(key as Parameters<typeof t>[0]);
+
+  const categories = groupByCategory(modules.map((module) => module.module));
+  const current = selectedTab(
+    searchParams.get('tab'),
+    categories.flatMap((category) => category.modules),
+  );
+  const openTab = (tab: string) => {
+    router.replace(`/admin/settings?tab=${encodeURIComponent(tab)}`, { scroll: false });
+  };
 
   const run = (key: string, action: () => ReturnType<typeof saveSetting>, success: string) => {
     setBusyKey(key);
@@ -58,7 +83,64 @@ export function SettingsContainer({
     });
   };
 
-  const visible = modules
+  const moduleCard = (module: ModuleSettings) => {
+    const groups = [...new Set(module.fields.map((field) => field.group))];
+    return (
+      <Card key={module.module}>
+        <CardHeader>
+          <CardTitle>{label(`modules.${module.module}`)}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-6">
+          {groups.map((group) => (
+            <section key={group} aria-labelledby={`group-${module.module}-${group}`}>
+              <h3
+                id={`group-${module.module}-${group}`}
+                className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase"
+              >
+                {label(`groups.${group}`)}
+              </h3>
+              <div className="divide-y">
+                {module.fields
+                  .filter((field) => field.group === group)
+                  .map((field) => {
+                    const key = `${module.module}.${field.key}`;
+                    return (
+                      <SettingField
+                        key={`${key}:${String(field.value)}`}
+                        field={field}
+                        label={label(`fields.${key}.label`)}
+                        description={label(`fields.${key}.description`)}
+                        editable={canEdit && !field.locked && (!field.localOnly || local)}
+                        needsLocal={field.localOnly && !local}
+                        pending={busyKey === key}
+                        optionLabel={(option) => label(`options.${key}.${option}`)}
+                        onSave={(value) => {
+                          run(
+                            key,
+                            () => saveSetting({ module: module.module, key: field.key, value }),
+                            t('saved'),
+                          );
+                        }}
+                        onReset={() => {
+                          run(
+                            key,
+                            () => resetSettingToDefault({ module: module.module, key: field.key }),
+                            t('resetDone'),
+                          );
+                        }}
+                      />
+                    );
+                  })}
+              </div>
+            </section>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const searching = search.trim() !== '';
+  const matches = modules
     .map((module) => ({
       ...module,
       fields: module.fields.filter((field) =>
@@ -100,64 +182,69 @@ export function SettingsContainer({
         </AlertDescription>
       </Alert>
 
-      {visible.length === 0 && <p className="text-muted-foreground text-sm">{t('empty')}</p>}
-
-      {visible.map((module) => {
-        const groups = [...new Set(module.fields.map((field) => field.group))];
-        return (
-          <Card key={module.module}>
-            <CardHeader>
-              <CardTitle>{label(`modules.${module.module}`)}</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-6">
-              {groups.map((group) => (
-                <section key={group} aria-labelledby={`group-${module.module}-${group}`}>
-                  <h3
-                    id={`group-${module.module}-${group}`}
-                    className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase"
+      {searching ? (
+        matches.length === 0 ? (
+          <p className="text-muted-foreground text-sm">{t('empty')}</p>
+        ) : (
+          <div className="grid gap-6">{matches.map(moduleCard)}</div>
+        )
+      ) : (
+        current && (
+          <Tabs
+            orientation="vertical"
+            value={current}
+            onValueChange={openTab}
+            className="grid items-start gap-6 md:grid-cols-[13rem_minmax(0,1fr)]"
+          >
+            {/* Phones: one list to pick from instead of a column of tabs. */}
+            <Select value={current} onValueChange={openTab}>
+              <SelectTrigger className="w-full md:hidden" aria-label={t('section')}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectGroup key={category.id}>
+                    <SelectLabel>{label(`categories.${category.id}`)}</SelectLabel>
+                    {category.modules.map((module) => (
+                      <SelectItem key={module} value={module}>
+                        {label(`modules.${module}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
+            <nav className="hidden gap-5 md:sticky md:top-4 md:grid" aria-label={t('section')}>
+              {categories.map((category) => (
+                <div key={category.id} className="grid gap-1">
+                  <p
+                    id={`settings-category-${category.id}`}
+                    className="text-muted-foreground px-2 text-xs font-medium tracking-wide uppercase"
                   >
-                    {label(`groups.${group}`)}
-                  </h3>
-                  <div className="divide-y">
-                    {module.fields
-                      .filter((field) => field.group === group)
-                      .map((field) => {
-                        const key = `${module.module}.${field.key}`;
-                        return (
-                          <SettingField
-                            key={`${key}:${String(field.value)}`}
-                            field={field}
-                            label={label(`fields.${key}.label`)}
-                            description={label(`fields.${key}.description`)}
-                            editable={canEdit && !field.locked && (!field.localOnly || local)}
-                            needsLocal={field.localOnly && !local}
-                            pending={busyKey === key}
-                            optionLabel={(option) => label(`options.${key}.${option}`)}
-                            onSave={(value) => {
-                              run(
-                                key,
-                                () => saveSetting({ module: module.module, key: field.key, value }),
-                                t('saved'),
-                              );
-                            }}
-                            onReset={() => {
-                              run(
-                                key,
-                                () =>
-                                  resetSettingToDefault({ module: module.module, key: field.key }),
-                                t('resetDone'),
-                              );
-                            }}
-                          />
-                        );
-                      })}
-                  </div>
-                </section>
+                    {label(`categories.${category.id}`)}
+                  </p>
+                  <TabsList
+                    variant="line"
+                    aria-labelledby={`settings-category-${category.id}`}
+                    className="w-full items-stretch"
+                  >
+                    {category.modules.map((module) => (
+                      <TabsTrigger key={module} value={module} className="px-2 py-1.5">
+                        {label(`modules.${module}`)}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
               ))}
-            </CardContent>
-          </Card>
-        );
-      })}
+            </nav>
+            {modules.map((module) => (
+              <TabsContent key={module.module} value={module.module} className="min-w-0">
+                {moduleCard(module)}
+              </TabsContent>
+            ))}
+          </Tabs>
+        )
+      )}
     </div>
   );
 }

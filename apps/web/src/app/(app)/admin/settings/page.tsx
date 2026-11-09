@@ -17,7 +17,7 @@ export default async function SettingsPage() {
   return (
     <>
       <PageHeader title={t('title')} />
-      <main className="mx-auto grid w-full max-w-4xl gap-4 p-4 md:p-6">
+      <main className="mx-auto grid w-full max-w-5xl gap-4 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">{t('description')}</p>
         <SettingsContainer modules={view.modules} local={view.local} />
       </main>

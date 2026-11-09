@@ -18,6 +18,11 @@
     "commands": "Commandes",
     "plugins": "Plugins"
   },
+  "sections": {
+    "people": "Gestion des utilisateurs",
+    "configuration": "Configuration",
+    "monitoring": "Supervision"
+  },
   "preferences": {
     "appearance": "Apparence",
     "language": "Langue",

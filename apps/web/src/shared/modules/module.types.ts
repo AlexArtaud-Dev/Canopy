@@ -17,6 +17,7 @@ export interface PermissionManifest<TAction extends string = string> {
 // English messages are the source of truth for which labels exist.
 export type NavGroupId = keyof (typeof shellMessages)['groups'];
 export type NavLabelKey = keyof (typeof shellMessages)['nav'];
+export type NavSectionId = keyof (typeof shellMessages)['sections'];
 
 export interface NavEntry {
   href: Route;
@@ -24,6 +25,8 @@ export interface NavEntry {
   labelKey: NavLabelKey;
   icon: LucideIcon;
   group: NavGroupId;
+  /** Collapsible section of the group the entry sits in (declared in `nav-sections.ts`). */
+  section?: NavSectionId;
   /** Global permission required to see the entry (UX only; pages enforce it server-side). */
   permission?: GlobalPermission;
 }

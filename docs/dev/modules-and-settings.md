@@ -23,6 +23,12 @@ entries (filtered by permissions) and audit action labels.
   actions in `snake_case`, audit actions named `<module>.<action>`, navigation permissions declared.
 - Module files are imported by the client navigation: keep them free of server-only imports.
 - Navigation labels live under `shell.nav.<labelKey>`, groups under `shell.groups.<group>`.
+- A nav entry may name a `section` (declared once in `shared/modules/nav-sections.ts`, label
+  under `shell.sections.<id>`); the registry refuses a section of another group. Entries outside
+  sections come first in their group, then sections in declared order.
+- Settings tabs: each module with settings is a vertical tab, grouped by the categories in
+  `settings-form.utils.ts` (`settingsCategories`, labels under `settings.categories`); a module no
+  category names shows under "Other". Link to one with `/admin/settings?tab=<module>`.
 
 ## Settings
 

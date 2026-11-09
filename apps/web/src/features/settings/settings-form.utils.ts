@@ -96,3 +96,36 @@ export const settingUpdateSchema = z.object({
 });
 
 export const settingResetSchema = settingUpdateSchema.omit({ value: true });
+
+/** Settings tab categories, in display order, with the modules each one holds. */
+export const settingsCategories = [
+  { id: 'general', modules: ['appearance', 'system'] },
+  { id: 'security', modules: ['auth', 'audit'] },
+  { id: 'files', modules: ['uploads', 'trash', 'thumbnails', 'shares', 'jobs'] },
+  { id: 'tools', modules: ['commands', 'plugins'] },
+] as const;
+
+export type SettingsCategoryId = (typeof settingsCategories)[number]['id'] | 'other';
+
+/**
+ * Modules grouped into tab categories, in category order then the order given; a module no
+ * category names lands in `other`, so a new module still shows up.
+ */
+export function groupByCategory(
+  modules: readonly string[],
+): { id: SettingsCategoryId; modules: string[] }[] {
+  const known = new Set<string>(settingsCategories.flatMap((category) => category.modules));
+  const groups = settingsCategories.map(
+    (category): { id: SettingsCategoryId; modules: string[] } => {
+      const members: readonly string[] = category.modules;
+      return { id: category.id, modules: modules.filter((module) => members.includes(module)) };
+    },
+  );
+  groups.push({ id: 'other', modules: modules.filter((module) => !known.has(module)) });
+  return groups.filter((group) => group.modules.length > 0);
+}
+
+/** The tab to show: the one in the URL when it exists, else the first. */
+export function selectedTab(requested: string | null, tabs: readonly string[]): string | undefined {
+  return requested !== null && tabs.includes(requested) ? requested : tabs[0];
+}

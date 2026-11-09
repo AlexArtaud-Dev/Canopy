@@ -160,7 +160,7 @@ export function PluginsContainer({ initial }: PluginsContainerProps) {
               settings: (chunks) => (
                 <Link
                   className="text-foreground underline underline-offset-4"
-                  href="/admin/settings"
+                  href="/admin/settings?tab=plugins"
                 >
                   {chunks}
                 </Link>

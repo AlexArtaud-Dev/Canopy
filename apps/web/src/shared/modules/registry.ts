@@ -1,14 +1,24 @@
+import type { LucideIcon } from 'lucide-react';
+
 import type {
   CanopyModule,
   GlobalPermission,
   NavEntry,
   NavGroupId,
+  NavSectionId,
   PermissionManifest,
 } from './module.types';
+import { navSections as declaredSections, type NavSectionDefinition } from './nav-sections';
+
+/** A sidebar row: a page, or a collapsible section holding pages. */
+export type NavNode =
+  | { kind: 'entry'; entry: NavEntry }
+  | { kind: 'section'; id: NavSectionId; icon: LucideIcon; entries: readonly NavEntry[] };
 
 export interface NavGroup {
   id: NavGroupId;
-  items: readonly NavEntry[];
+  /** Entries outside any section first, then sections in their declared order. */
+  nodes: readonly NavNode[];
 }
 
 export interface ModuleRegistry {
@@ -42,8 +52,19 @@ function checkAuditActions(id: string, actions: readonly string[]): void {
   if (foreign !== undefined) fail(`${id} audit action "${foreign}" must be "${id}.<action>"`);
 }
 
+function checkSection(entry: NavEntry, sections: readonly NavSectionDefinition[]): void {
+  if (entry.section === undefined) return;
+  const section = sections.find((candidate) => candidate.id === entry.section);
+  if (section?.group !== entry.group) {
+    fail(`navigation "${entry.href}" names section "${entry.section}" outside its group`);
+  }
+}
+
 /** Validates module declarations once at startup; a broken declaration fails loudly. */
-export function createRegistry(modules: readonly CanopyModule[]): ModuleRegistry {
+export function createRegistry(
+  modules: readonly CanopyModule[],
+  sections: readonly NavSectionDefinition[] = declaredSections,
+): ModuleRegistry {
   const ids = new Set<string>();
   const hrefs = new Set<string>();
   for (const declared of modules) {
@@ -55,6 +76,7 @@ export function createRegistry(modules: readonly CanopyModule[]): ModuleRegistry
     for (const entry of declared.navigation ?? []) {
       if (hrefs.has(entry.href)) fail(`duplicate navigation href "${entry.href}"`);
       hrefs.add(entry.href);
+      checkSection(entry, sections);
     }
   }
 
@@ -83,15 +105,27 @@ export function createRegistry(modules: readonly CanopyModule[]): ModuleRegistry
     globalPermissions,
     pathPermissions,
     auditActions: new Set(modules.flatMap((declared) => declared.auditActions)),
-    navigation: (can) =>
-      groupOrder
-        .map((id) => ({
-          id,
-          items: entries.filter(
-            (entry) =>
-              entry.group === id && (entry.permission === undefined || can(entry.permission)),
-          ),
-        }))
-        .filter((group) => group.items.length > 0),
+    navigation: (can) => {
+      const visible = entries.filter(
+        (entry) => entry.permission === undefined || can(entry.permission),
+      );
+      return groupOrder
+        .map((id): NavGroup => {
+          const loose = visible
+            .filter((entry) => entry.group === id && entry.section === undefined)
+            .map((entry): NavNode => ({ kind: 'entry', entry }));
+          const grouped = sections
+            .filter((section) => section.group === id)
+            .map((section): NavNode => ({
+              kind: 'section',
+              id: section.id,
+              icon: section.icon,
+              entries: visible.filter((entry) => entry.section === section.id),
+            }))
+            .filter((node) => node.kind === 'section' && node.entries.length > 0);
+          return { id, nodes: [...loose, ...grouped] };
+        })
+        .filter((group) => group.nodes.length > 0);
+    },
   };
 }

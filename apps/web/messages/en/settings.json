@@ -204,5 +204,13 @@
         "es": "Español"
       }
     }
-  }
+  },
+  "categories": {
+    "general": "General",
+    "security": "Security",
+    "files": "Files",
+    "tools": "Tools",
+    "other": "Other"
+  },
+  "section": "Section"
 }
