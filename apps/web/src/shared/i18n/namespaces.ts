@@ -20,6 +20,7 @@ export const namespaces = [
   'system',
   'trash',
   'users',
+  'whatsNew',
 ] as const;
 
 export const serverOnlyNamespaces = ['emails'] as const;

@@ -307,3 +307,10 @@ entries:
       en: The sidebar groups administration pages into collapsible sections, and settings are organized in vertical tabs by category
       fr: La barre latérale regroupe les pages d’administration en sections repliables, et les réglages sont rangés en onglets verticaux par catégorie
       es: La barra lateral agrupa las páginas de administración en secciones plegables y los ajustes se ordenan en pestañas verticales por categoría
+  - type: feat
+    scope: whats-new
+    issue: 65
+    text:
+      en: A What's new page lists the changes of each version in your language, with a badge when a new version is out
+      fr: Une page Quoi de neuf liste les changements de chaque version dans votre langue, avec un badge quand une nouvelle version sort
+      es: Una página Novedades muestra los cambios de cada versión en tu idioma, con una insignia cuando sale una nueva versión
