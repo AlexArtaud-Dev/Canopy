@@ -22,3 +22,10 @@ export const engineTokenLifetimeSeconds = 120;
 export const streamTicketAudience = 'canopy-engine-stream';
 export const streamTicketCookie = 'canopy_stream';
 export const streamTicketPath = '/api/engine/stream';
+
+/**
+ * Share link downloads: a ticket scoped to what was shared, in its own cookie and path so it never
+ * replaces a signed-in visitor's own ticket (the relay mirrors these in engine-stream.utils.mjs).
+ */
+export const shareTicketCookie = 'canopy_share';
+export const shareTicketPath = '/api/engine/share';

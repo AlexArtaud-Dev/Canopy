@@ -21,6 +21,11 @@ export interface EnginePrincipal {
   permissions: readonly string[];
   /** Group ids: the engine resolves group path grants without reading the auth schema. */
   groups: readonly string[];
+  /**
+   * A share link acting for its owner: the engine allows only reading and downloading under
+   * `path`, and records `id` with every access.
+   */
+  share?: { id: string; path: string };
 }
 
 let signingKey: KeyObject | undefined;
@@ -57,6 +62,7 @@ function sign(principal: EnginePrincipal, audience: string): Promise<string> {
     sid: principal.sessionId,
     perms: principal.permissions,
     groups: principal.groups,
+    ...(principal.share ? { scope: principal.share.path, shr: principal.share.id } : {}),
   })
     .setProtectedHeader({ alg: 'EdDSA' })
     .setIssuer(engineTokenIssuer)

@@ -13,6 +13,7 @@ import {
   FolderSearch,
   HardDrive,
   Link2,
+  Share2,
   PencilLine,
   RefreshCw,
   Trash2,
@@ -64,6 +65,8 @@ export interface EntryMenuHandlers {
   onExtract: (entry: BrowserEntry) => void;
   /** Hashes a file, as a job; the digest shows in the operations panel. */
   onChecksum: (entry: BrowserEntry, algorithm: ChecksumAlgorithm) => void;
+  /** Creates a share link to the entry. */
+  onShare: (entry: BrowserEntry) => void;
   /** Search results only: go to the folder that holds the entry. */
   onShowInFolder?: ((entry: BrowserEntry) => void) | undefined;
 }
@@ -195,6 +198,16 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
           >
             <FolderInput aria-hidden />
             {t('moveTo')}
+          </ContextMenuItem>
+        )}
+        {entry.actions.includes('share') && (
+          <ContextMenuItem
+            onSelect={() => {
+              handlers.onShare(entry);
+            }}
+          >
+            <Share2 aria-hidden />
+            {t('share')}
           </ContextMenuItem>
         )}
         {handlers.onShowInFolder && (

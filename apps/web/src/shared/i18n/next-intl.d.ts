@@ -8,6 +8,7 @@ import type jobs from '../../../messages/en/jobs.json';
 import type trash from '../../../messages/en/trash.json';
 import type mail from '../../../messages/en/mail.json';
 import type settings from '../../../messages/en/settings.json';
+import type shares from '../../../messages/en/shares.json';
 import type shell from '../../../messages/en/shell.json';
 import type system from '../../../messages/en/system.json';
 import type users from '../../../messages/en/users.json';
@@ -28,6 +29,7 @@ declare module 'next-intl' {
       trash: typeof trash;
       mail: typeof mail;
       settings: typeof settings;
+      shares: typeof shares;
       shell: typeof shell;
       system: typeof system;
       users: typeof users;

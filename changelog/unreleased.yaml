@@ -265,3 +265,10 @@ entries:
       en: Compress items to zip or tar.gz, extract archives safely, and compute file checksums, with live progress
       fr: Compression en zip ou tar.gz, extraction sécurisée des archives et calcul de sommes de contrôle, avec progression en direct
       es: Compresión en zip o tar.gz, extracción segura de archivos comprimidos y cálculo de sumas de verificación, con progreso en directo
+  - type: feat
+    scope: shares
+    issue: 59
+    text:
+      en: Share links to files and folders, with expiry, optional password and download limit, and a page to manage or revoke them
+      fr: Liens de partage vers des fichiers et dossiers, avec expiration, mot de passe et limite de téléchargements facultatifs, et une page pour les gérer ou les révoquer
+      es: Enlaces para compartir archivos y carpetas, con caducidad, contraseña y límite de descargas opcionales, y una página para gestionarlos o revocarlos

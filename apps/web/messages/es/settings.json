@@ -25,7 +25,8 @@
     "jobs": "Tareas en segundo plano",
     "uploads": "Subidas",
     "trash": "Papelera",
-    "thumbnails": "Miniaturas"
+    "thumbnails": "Miniaturas",
+    "shares": "Enlaces compartidos"
   },
   "groups": {
     "sessions": "Sesiones",
@@ -37,7 +38,8 @@
     "theme": "Tema",
     "language": "Idioma",
     "limits": "Límites",
-    "display": "Visualización"
+    "display": "Visualización",
+    "links": "Enlaces"
   },
   "fields": {
     "auth": {
@@ -150,6 +152,20 @@
       "maxCacheMb": {
         "label": "Tamaño máximo de la caché de miniaturas (MB)",
         "description": "Por encima, se eliminan las miniaturas vistas hace más tiempo. Se vuelven a crear cuando hace falta."
+      }
+    },
+    "shares": {
+      "defaultExpiryDays": {
+        "label": "Validez predeterminada (días)",
+        "description": "Preseleccionada al crear un enlace."
+      },
+      "maxExpiryDays": {
+        "label": "Validez máxima (días)",
+        "description": "Ningún enlace puede ser válido más tiempo."
+      },
+      "requirePassword": {
+        "label": "Exigir contraseña",
+        "description": "Cada enlace nuevo debe estar protegido con contraseña."
       }
     }
   },

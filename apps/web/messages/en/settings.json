@@ -25,7 +25,8 @@
     "jobs": "Background jobs",
     "uploads": "Uploads",
     "trash": "Trash",
-    "thumbnails": "Thumbnails"
+    "thumbnails": "Thumbnails",
+    "shares": "Share links"
   },
   "groups": {
     "sessions": "Sessions",
@@ -37,7 +38,8 @@
     "theme": "Theme",
     "language": "Language",
     "limits": "Limits",
-    "display": "Display"
+    "display": "Display",
+    "links": "Links"
   },
   "fields": {
     "auth": {
@@ -150,6 +152,20 @@
       "maxCacheMb": {
         "label": "Largest thumbnail cache (MB)",
         "description": "Beyond this, the least recently viewed thumbnails are removed. They are rebuilt when needed."
+      }
+    },
+    "shares": {
+      "defaultExpiryDays": {
+        "label": "Default validity (days)",
+        "description": "Preselected when someone creates a link."
+      },
+      "maxExpiryDays": {
+        "label": "Longest validity (days)",
+        "description": "No link can be valid longer than this."
+      },
+      "requirePassword": {
+        "label": "Require a password",
+        "description": "Every new link must be protected by a password."
       }
     }
   },

@@ -1,5 +1,5 @@
-// Preloaded with `node --import` before Next starts. Relays `/api/engine/stream/*` (downloads
-// now, uploads next) straight to the engine with Node streams, so a 10 GB transfer never sits in
+// Preloaded with `node --import` before Next starts. Relays `/api/engine/stream/*` (downloads,
+// previews, uploads) and `/api/engine/share/*` (share link downloads) straight to the engine with Node streams, so a 10 GB transfer never sits in
 // the web process: Next.js never sees these requests (docs/dev/streaming.md).
 //
 // Authentication is the stream ticket, an HttpOnly cookie set by a server action just before the
@@ -15,8 +15,7 @@ import {
   readCookie,
   relayTarget,
   sameOrigin,
-  streamPrefix,
-  ticketCookie,
+  ticketCookieFor,
   upstreamHeaders,
 } from './engine-stream.utils.mjs';
 
@@ -30,7 +29,8 @@ function fail(response, status, code, requestId) {
 
 /** Handles a request when it is for the relay; returns false to let Next handle it. */
 function relay(request, response) {
-  if (!request.url?.startsWith(`${streamPrefix}/`)) return false;
+  const cookie = ticketCookieFor(request.url);
+  if (!cookie) return false;
   const requestId = randomUUID();
   const target = relayTarget(request.method, request.url);
   if (!target) {
@@ -41,7 +41,7 @@ function relay(request, response) {
     fail(response, 403, 'auth.forbidden', requestId);
     return true;
   }
-  const ticket = readCookie(request.headers.cookie, ticketCookie);
+  const ticket = readCookie(request.headers.cookie, cookie);
   if (!ticket) {
     fail(response, 401, 'auth.signed_out', requestId);
     return true;

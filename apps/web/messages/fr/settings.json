@@ -25,7 +25,8 @@
     "jobs": "Tâches de fond",
     "uploads": "Imports",
     "trash": "Corbeille",
-    "thumbnails": "Miniatures"
+    "thumbnails": "Miniatures",
+    "shares": "Liens de partage"
   },
   "groups": {
     "sessions": "Sessions",
@@ -37,7 +38,8 @@
     "theme": "Thème",
     "language": "Langue",
     "limits": "Limites",
-    "display": "Affichage"
+    "display": "Affichage",
+    "links": "Liens"
   },
   "fields": {
     "auth": {
@@ -150,6 +152,20 @@
       "maxCacheMb": {
         "label": "Taille maximale du cache de miniatures (Mo)",
         "description": "Au-delà, les miniatures les moins récemment vues sont supprimées. Elles sont recréées au besoin."
+      }
+    },
+    "shares": {
+      "defaultExpiryDays": {
+        "label": "Validité par défaut (jours)",
+        "description": "Présélectionnée à la création d’un lien."
+      },
+      "maxExpiryDays": {
+        "label": "Validité maximale (jours)",
+        "description": "Aucun lien ne peut être valable plus longtemps."
+      },
+      "requirePassword": {
+        "label": "Exiger un mot de passe",
+        "description": "Chaque nouveau lien doit être protégé par un mot de passe."
       }
     }
   },

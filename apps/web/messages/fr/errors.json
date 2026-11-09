@@ -91,5 +91,15 @@
   },
   "trash": {
     "not_found": "Cet élément n’est plus dans la corbeille."
+  },
+  "shares": {
+    "not_found": "Ce lien n’existe pas.",
+    "expired": "Ce lien a expiré.",
+    "revoked": "Ce lien a été révoqué.",
+    "exhausted": "Ce lien a atteint sa limite de téléchargements.",
+    "locked": "Saisissez d’abord le mot de passe.",
+    "wrong_password": "Mot de passe incorrect.",
+    "password_required": "Un mot de passe est obligatoire pour les liens de partage.",
+    "expiry_too_long": "Un lien peut être valable {days, plural, one {# jour} other {# jours}} au maximum."
   }
 }

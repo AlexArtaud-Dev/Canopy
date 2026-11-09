@@ -13,7 +13,8 @@
     "email": "Correo",
     "settings": "Ajustes",
     "audit": "Registro de auditoría",
-    "trash": "Papelera"
+    "trash": "Papelera",
+    "shares": "Compartidos"
   },
   "preferences": {
     "appearance": "Apariencia",

@@ -1,0 +1,70 @@
+{
+  "dialog": {
+    "title": "Share “{name}”",
+    "description": "Anyone with the link can download it until it expires. You can revoke it at any time from Shares.",
+    "expiry": "Link valid for",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "password": "Password",
+    "passwordOptional": "Password (optional)",
+    "passwordHint": "Visitors must type it before they see anything. Send it separately from the link.",
+    "limit": "Limit the number of downloads",
+    "limitCount": "Maximum downloads",
+    "create": "Create link",
+    "cancel": "Cancel",
+    "link": "Link",
+    "linkHint": "You can copy it again later from Shares.",
+    "copy": "Copy",
+    "copied": "Link copied",
+    "done": "Done"
+  },
+  "page": {
+    "description": "Links you created to files and folders. A link stops working when it expires, reaches its download limit or is revoked.",
+    "mine": "My links",
+    "all": "All links",
+    "emptyTitle": "No share links",
+    "emptyDescription": "Right-click a file or folder in Files and choose Share to create one.",
+    "columns": {
+      "item": "Shared item",
+      "owner": "Created by",
+      "status": "Status",
+      "expires": "Expires",
+      "downloads": "Downloads",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "expired": "Expired",
+      "revoked": "Revoked",
+      "exhausted": "Limit reached"
+    },
+    "protected": "Password protected",
+    "copy": "Copy the link to {name}",
+    "copied": "Link copied",
+    "revoke": "Revoke the link to {name}",
+    "revokeTitle": "Revoke the link to “{name}”?",
+    "revokeDescription": "It stops working at once for everyone who has it. This cannot be undone; you can create a new link later.",
+    "revokeConfirm": "Revoke",
+    "revoked": "Link revoked"
+  },
+  "public": {
+    "title": "Shared with you",
+    "locked": "This link is protected by a password.",
+    "password": "Password",
+    "unlock": "Open",
+    "download": "Download",
+    "downloadAll": "Download all (zip)",
+    "downloadItem": "Download {name}",
+    "breadcrumbs": "Location in the shared folder",
+    "expires": "Available until {date}",
+    "downloadsLeft": "{count, plural, one {# download left} other {# downloads left}}",
+    "emptyFolder": "This folder is empty.",
+    "truncated": "Only the first items are listed. Download the folder to get everything.",
+    "unavailable": {
+      "missing": "This link does not exist",
+      "expired": "This link has expired",
+      "revoked": "This link was revoked",
+      "exhausted": "This link reached its download limit"
+    },
+    "unavailableHint": "Ask the person who sent it for a new link."
+  }
+}

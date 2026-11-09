@@ -36,6 +36,7 @@ import { Button } from '@/shared/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty';
 import { Spinner } from '@/shared/ui/spinner';
 import { startFolderSize } from '@/features/jobs';
+import { ShareDialog } from '@/features/shares';
 import { DeleteDialogs, useDeleteFlow } from '@/features/trash';
 import { filesFromDrop, filesFromInput, useUploadFlow } from '@/features/uploads';
 
@@ -127,6 +128,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   const [view, setView] = useBrowserView();
   const [helpOpen, setHelpOpen] = useState(false);
   const [previewPath, setPreviewPath] = useState<string | null>(null);
+  const [shareTarget, setShareTarget] = useState<BrowserEntry | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const width = useElementWidth(scrollRef);
   const ops = useFileOperations(query.path);
@@ -310,6 +312,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
 
   const menu = {
     onOpen: open,
+    onShare: setShareTarget,
     onShowInFolder: searching
       ? (entry: BrowserEntry) => {
           navigate({ ...query, path: parentPath(entry.path) ?? '/', q: '' });
@@ -594,6 +597,12 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
             setPreviewPath(null);
           }}
           onDownload={(entry) => void ops.download([entry])}
+        />
+        <ShareDialog
+          target={shareTarget}
+          onClose={() => {
+            setShareTarget(null);
+          }}
         />
         <DeleteDialogs
           dialog={deletion.dialog}

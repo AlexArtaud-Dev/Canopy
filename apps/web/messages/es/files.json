@@ -109,7 +109,8 @@
         "sha1": "SHA-1",
         "sha256": "SHA-256",
         "sha512": "SHA-512"
-      }
+      },
+      "share": "Compartir…"
     },
     "shortcuts": {
       "title": "Atajos de teclado",

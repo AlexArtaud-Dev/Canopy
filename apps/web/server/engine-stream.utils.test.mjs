@@ -4,8 +4,11 @@ import {
   relayLocation,
   relayTarget,
   sameOrigin,
+  shareCookie,
+  sharePrefix,
   streamPrefix,
   ticketCookie,
+  ticketCookieFor,
   upstreamHeaders,
 } from './engine-stream.utils.mjs';
 
@@ -32,6 +35,19 @@ describe('relayTarget', () => {
     expect(relayTarget(undefined, '/api/engine/stream/v1/fs/download')).toBeNull();
     expect(relayTarget('GET', undefined)).toBeNull();
     expect(streamPrefix).toBe('/api/engine/stream');
+    expect(relayTarget('GET', '/api/engine/share/v1/fs/download?path=%2Fa')).toBe(
+      '/v1/fs/download?path=%2Fa',
+    );
+    expect(relayTarget('GET', '/api/engine/share/v1/fs/archive?path=%2Fa')).toBe(
+      '/v1/fs/archive?path=%2Fa',
+    );
+    expect(relayTarget('GET', '/api/engine/share/v1/fs/preview?path=%2Fa')).toBeNull();
+    expect(relayTarget('POST', '/api/engine/share/v1/uploads/')).toBeNull();
+    expect(ticketCookieFor('/api/engine/share/v1/fs/download')).toBe(shareCookie);
+    expect(ticketCookieFor('/api/engine/stream/v1/fs/download')).toBe(ticketCookie);
+    expect(ticketCookieFor('/files')).toBeNull();
+    expect(ticketCookieFor(undefined)).toBeNull();
+    expect(sharePrefix).toBe('/api/engine/share');
     expect(relayTarget('POST', '/api/engine/stream/v1/uploads/')).toBe('/v1/uploads/');
     const id = `${'a'.repeat(32)}6d65646961`;
     expect(relayTarget('PATCH', `/api/engine/stream/v1/uploads/${id}`)).toBe(`/v1/uploads/${id}`);

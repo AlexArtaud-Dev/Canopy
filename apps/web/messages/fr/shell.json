@@ -13,7 +13,8 @@
     "email": "E-mail",
     "settings": "Réglages",
     "audit": "Journal d’audit",
-    "trash": "Corbeille"
+    "trash": "Corbeille",
+    "shares": "Partages"
   },
   "preferences": {
     "appearance": "Apparence",
