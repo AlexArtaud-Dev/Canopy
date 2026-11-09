@@ -88,6 +88,7 @@ The engine DB role has read-only access to `app` (grants, settings) and INSERT-o
 | `CANOPY_ENGINE_PUBLIC_KEY`       | Matching public key verifying them (engine)      |
 | `CANOPY_ROOT`                    | File root inside the engine container            |
 | `CANOPY_CACHE_DIR`               | Rebuildable cache (thumbnails), outside the root |
+| `CANOPY_PLUGINS_DIR`             | Installed plugin binaries (engine)               |
 | `CANOPY_ENGINE_URL`              | Engine base URL as seen from web (internal)      |
 | `CANOPY_ENGINE_ADDR`             | Engine listen address (default `:8080`)          |
 | `CANOPY_LOG_LEVEL`               | Engine log level (`debug`, `info`, `warn`…)      |

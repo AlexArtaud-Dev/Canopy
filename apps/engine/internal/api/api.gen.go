@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"time"
 
@@ -705,6 +706,38 @@ type PathsRequest struct {
 	Paths []string `json:"paths"`
 }
 
+// Plugin defines model for Plugin.
+type Plugin struct {
+	// Commands Catalog commands the plugin adds.
+	Commands    int           `json:"commands"`
+	Description LocalizedText `json:"description"`
+	Enabled     bool          `json:"enabled"`
+	Id          string        `json:"id"`
+	InstalledAt time.Time     `json:"installedAt"`
+	Name        LocalizedText `json:"name"`
+
+	// Pinned Updates are not suggested.
+	Pinned bool `json:"pinned"`
+
+	// Repo GitHub owner/name releases come from.
+	Repo    string `json:"repo"`
+	Version string `json:"version"`
+}
+
+// PluginFlags defines model for PluginFlags.
+type PluginFlags struct {
+	Enabled bool `json:"enabled"`
+	Pinned  bool `json:"pinned"`
+}
+
+// PluginList defines model for PluginList.
+type PluginList struct {
+	Items []Plugin `json:"items"`
+
+	// Platform This engine's platform, as manifests name it (linux-amd64).
+	Platform string `json:"platform"`
+}
+
 // PreviewKind How the file can be shown in the browser, decided by the engine from its extension (`none` for folders and unknown files: download only).
 type PreviewKind string
 
@@ -861,6 +894,13 @@ type GetJobLogsParams struct {
 	After *int `form:"after,omitempty" json:"after,omitempty"`
 }
 
+// InstallPluginMultipartBody defines parameters for InstallPlugin.
+type InstallPluginMultipartBody struct {
+	Binary    openapi_types.File `json:"binary"`
+	Checksums string             `json:"checksums"`
+	Manifest  string             `json:"manifest"`
+}
+
 // ExplainAccessJSONRequestBody defines body for ExplainAccess for application/json ContentType.
 type ExplainAccessJSONRequestBody = ExplainRequest
 
@@ -905,6 +945,12 @@ type StartFolderSizeJSONRequestBody = FolderSizeRequest
 
 // StartTransferJSONRequestBody defines body for StartTransfer for application/json ContentType.
 type StartTransferJSONRequestBody = TransferJobRequest
+
+// InstallPluginMultipartRequestBody defines body for InstallPlugin for multipart/form-data ContentType.
+type InstallPluginMultipartRequestBody InstallPluginMultipartBody
+
+// UpdatePluginJSONRequestBody defines body for UpdatePlugin for application/json ContentType.
+type UpdatePluginJSONRequestBody = PluginFlags
 
 // RestoreFromTrashJSONRequestBody defines body for RestoreFromTrash for application/json ContentType.
 type RestoreFromTrashJSONRequestBody = TrashIdsRequest
@@ -986,6 +1032,18 @@ type ServerInterface interface {
 	// GetJobLogs Output lines of a job
 	// (GET /v1/jobs/{jobId}/logs)
 	GetJobLogs(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID, params GetJobLogsParams)
+	// ListPlugins Installed plugins
+	// (GET /v1/plugins)
+	ListPlugins(w http.ResponseWriter, r *http.Request)
+	// InstallPlugin Install or update a plugin from its release files
+	// (POST /v1/plugins)
+	InstallPlugin(w http.ResponseWriter, r *http.Request)
+	// UninstallPlugin Uninstall a plugin
+	// (DELETE /v1/plugins/{pluginId})
+	UninstallPlugin(w http.ResponseWriter, r *http.Request, pluginId string)
+	// UpdatePlugin Enable, disable, pin or unpin a plugin
+	// (PATCH /v1/plugins/{pluginId})
+	UpdatePlugin(w http.ResponseWriter, r *http.Request, pluginId string)
 	// ListTrash Items in the trash
 	// (GET /v1/trash)
 	ListTrash(w http.ResponseWriter, r *http.Request)
@@ -1145,6 +1203,30 @@ func (_ Unimplemented) CancelJob(w http.ResponseWriter, r *http.Request, jobId o
 // GetJobLogs Output lines of a job
 // (GET /v1/jobs/{jobId}/logs)
 func (_ Unimplemented) GetJobLogs(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID, params GetJobLogsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListPlugins Installed plugins
+// (GET /v1/plugins)
+func (_ Unimplemented) ListPlugins(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// InstallPlugin Install or update a plugin from its release files
+// (POST /v1/plugins)
+func (_ Unimplemented) InstallPlugin(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// UninstallPlugin Uninstall a plugin
+// (DELETE /v1/plugins/{pluginId})
+func (_ Unimplemented) UninstallPlugin(w http.ResponseWriter, r *http.Request, pluginId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// UpdatePlugin Enable, disable, pin or unpin a plugin
+// (PATCH /v1/plugins/{pluginId})
+func (_ Unimplemented) UpdatePlugin(w http.ResponseWriter, r *http.Request, pluginId string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1725,6 +1807,86 @@ func (siw *ServerInterfaceWrapper) GetJobLogs(w http.ResponseWriter, r *http.Req
 	handler.ServeHTTP(w, r)
 }
 
+// ListPlugins operation middleware
+func (siw *ServerInterfaceWrapper) ListPlugins(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListPlugins(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// InstallPlugin operation middleware
+func (siw *ServerInterfaceWrapper) InstallPlugin(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.InstallPlugin(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UninstallPlugin operation middleware
+func (siw *ServerInterfaceWrapper) UninstallPlugin(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "pluginId" -------------
+	var pluginId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pluginId", chi.URLParam(r, "pluginId"), &pluginId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pluginId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UninstallPlugin(w, r, pluginId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdatePlugin operation middleware
+func (siw *ServerInterfaceWrapper) UpdatePlugin(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "pluginId" -------------
+	var pluginId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "pluginId", chi.URLParam(r, "pluginId"), &pluginId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pluginId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdatePlugin(w, r, pluginId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // ListTrash operation middleware
 func (siw *ServerInterfaceWrapper) ListTrash(w http.ResponseWriter, r *http.Request) {
 
@@ -1892,6 +2054,18 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/v1/jobs/checksum", wrapper.StartChecksum)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/plugins", wrapper.ListPlugins)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/plugins", wrapper.InstallPlugin)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/v1/plugins/{pluginId}", wrapper.UninstallPlugin)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/v1/plugins/{pluginId}", wrapper.UpdatePlugin)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/v1/commands", wrapper.ListCommands)
@@ -3717,6 +3891,242 @@ func (response GetJobLogs404JSONResponse) VisitGetJobLogsResponse(w http.Respons
 	return err
 }
 
+type ListPluginsRequestObject struct {
+}
+
+type ListPluginsResponseObject interface {
+	VisitListPluginsResponse(w http.ResponseWriter) error
+}
+
+type ListPlugins200JSONResponse PluginList
+
+func (response ListPlugins200JSONResponse) VisitListPluginsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListPlugins401JSONResponse Error
+
+func (response ListPlugins401JSONResponse) VisitListPluginsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListPlugins403JSONResponse Error
+
+func (response ListPlugins403JSONResponse) VisitListPluginsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type InstallPluginRequestObject struct {
+	Body *multipart.Reader
+}
+
+type InstallPluginResponseObject interface {
+	VisitInstallPluginResponse(w http.ResponseWriter) error
+}
+
+type InstallPlugin201JSONResponse Plugin
+
+func (response InstallPlugin201JSONResponse) VisitInstallPluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type InstallPlugin400JSONResponse Error
+
+func (response InstallPlugin400JSONResponse) VisitInstallPluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type InstallPlugin401JSONResponse Error
+
+func (response InstallPlugin401JSONResponse) VisitInstallPluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type InstallPlugin403JSONResponse Error
+
+func (response InstallPlugin403JSONResponse) VisitInstallPluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UninstallPluginRequestObject struct {
+	PluginId string `json:"pluginId"`
+}
+
+type UninstallPluginResponseObject interface {
+	VisitUninstallPluginResponse(w http.ResponseWriter) error
+}
+
+type UninstallPlugin204Response struct {
+}
+
+func (response UninstallPlugin204Response) VisitUninstallPluginResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type UninstallPlugin401JSONResponse Error
+
+func (response UninstallPlugin401JSONResponse) VisitUninstallPluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UninstallPlugin403JSONResponse Error
+
+func (response UninstallPlugin403JSONResponse) VisitUninstallPluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UninstallPlugin404JSONResponse Error
+
+func (response UninstallPlugin404JSONResponse) VisitUninstallPluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UpdatePluginRequestObject struct {
+	PluginId string `json:"pluginId"`
+	Body     *UpdatePluginJSONRequestBody
+}
+
+type UpdatePluginResponseObject interface {
+	VisitUpdatePluginResponse(w http.ResponseWriter) error
+}
+
+type UpdatePlugin200JSONResponse Plugin
+
+func (response UpdatePlugin200JSONResponse) VisitUpdatePluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UpdatePlugin401JSONResponse Error
+
+func (response UpdatePlugin401JSONResponse) VisitUpdatePluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UpdatePlugin403JSONResponse Error
+
+func (response UpdatePlugin403JSONResponse) VisitUpdatePluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type UpdatePlugin404JSONResponse Error
+
+func (response UpdatePlugin404JSONResponse) VisitUpdatePluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type ListTrashRequestObject struct {
 }
 
@@ -3907,6 +4317,18 @@ type StrictServerInterface interface {
 	// GetJobLogs Output lines of a job
 	// (GET /v1/jobs/{jobId}/logs)
 	GetJobLogs(ctx context.Context, request GetJobLogsRequestObject) (GetJobLogsResponseObject, error)
+	// ListPlugins Installed plugins
+	// (GET /v1/plugins)
+	ListPlugins(ctx context.Context, request ListPluginsRequestObject) (ListPluginsResponseObject, error)
+	// InstallPlugin Install or update a plugin from its release files
+	// (POST /v1/plugins)
+	InstallPlugin(ctx context.Context, request InstallPluginRequestObject) (InstallPluginResponseObject, error)
+	// UninstallPlugin Uninstall a plugin
+	// (DELETE /v1/plugins/{pluginId})
+	UninstallPlugin(ctx context.Context, request UninstallPluginRequestObject) (UninstallPluginResponseObject, error)
+	// UpdatePlugin Enable, disable, pin or unpin a plugin
+	// (PATCH /v1/plugins/{pluginId})
+	UpdatePlugin(ctx context.Context, request UpdatePluginRequestObject) (UpdatePluginResponseObject, error)
 	// ListTrash Items in the trash
 	// (GET /v1/trash)
 	ListTrash(ctx context.Context, request ListTrashRequestObject) (ListTrashResponseObject, error)
@@ -4667,6 +5089,120 @@ func (sh *strictHandler) GetJobLogs(w http.ResponseWriter, r *http.Request, jobI
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetJobLogsResponseObject); ok {
 		if err := validResponse.VisitGetJobLogsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListPlugins operation middleware
+func (sh *strictHandler) ListPlugins(w http.ResponseWriter, r *http.Request) {
+	var request ListPluginsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListPlugins(ctx, request.(ListPluginsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListPlugins")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListPluginsResponseObject); ok {
+		if err := validResponse.VisitListPluginsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// InstallPlugin operation middleware
+func (sh *strictHandler) InstallPlugin(w http.ResponseWriter, r *http.Request) {
+	var request InstallPluginRequestObject
+
+	if reader, err := r.MultipartReader(); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode multipart body: %w", err))
+		return
+	} else {
+		request.Body = reader
+	}
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.InstallPlugin(ctx, request.(InstallPluginRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "InstallPlugin")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(InstallPluginResponseObject); ok {
+		if err := validResponse.VisitInstallPluginResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UninstallPlugin operation middleware
+func (sh *strictHandler) UninstallPlugin(w http.ResponseWriter, r *http.Request, pluginId string) {
+	var request UninstallPluginRequestObject
+
+	request.PluginId = pluginId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.UninstallPlugin(ctx, request.(UninstallPluginRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UninstallPlugin")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(UninstallPluginResponseObject); ok {
+		if err := validResponse.VisitUninstallPluginResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UpdatePlugin operation middleware
+func (sh *strictHandler) UpdatePlugin(w http.ResponseWriter, r *http.Request, pluginId string) {
+	var request UpdatePluginRequestObject
+
+	request.PluginId = pluginId
+
+	var body UpdatePluginJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.UpdatePlugin(ctx, request.(UpdatePluginRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UpdatePlugin")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(UpdatePluginResponseObject); ok {
+		if err := validResponse.VisitUpdatePluginResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

@@ -109,10 +109,32 @@ export const zChecksumRequest = z.object({
   algorithm: z.enum(['md5', 'sha1', 'sha256', 'sha512']),
 });
 
+export const zPluginFlags = z.object({
+  enabled: z.boolean(),
+  pinned: z.boolean(),
+});
+
 export const zLocalizedText = z.object({
   en: z.string(),
   fr: z.string(),
   es: z.string(),
+});
+
+export const zPlugin = z.object({
+  id: z.string(),
+  version: z.string(),
+  repo: z.string(),
+  enabled: z.boolean(),
+  pinned: z.boolean(),
+  installedAt: z.iso.datetime(),
+  name: zLocalizedText,
+  description: zLocalizedText,
+  commands: z.int(),
+});
+
+export const zPluginList = z.object({
+  platform: z.string(),
+  items: z.array(zPlugin),
 });
 
 export const zCommandParam = z.object({
@@ -455,6 +477,42 @@ export const zStartChecksumBody = zChecksumRequest;
  * The job was queued.
  */
 export const zStartChecksumResponse = zJob;
+
+/**
+ * The plugins.
+ */
+export const zListPluginsResponse = zPluginList;
+
+export const zInstallPluginBody = z.object({
+  manifest: z.string(),
+  checksums: z.string(),
+  binary: z.string(),
+});
+
+/**
+ * Installed and active.
+ */
+export const zInstallPluginResponse = zPlugin;
+
+export const zUninstallPluginPath = z.object({
+  pluginId: z.string().max(32),
+});
+
+/**
+ * Removed with its commands and files.
+ */
+export const zUninstallPluginResponse = z.void();
+
+export const zUpdatePluginBody = zPluginFlags;
+
+export const zUpdatePluginPath = z.object({
+  pluginId: z.string().max(32),
+});
+
+/**
+ * The plugin.
+ */
+export const zUpdatePluginResponse = zPlugin;
 
 /**
  * The visible entries.

@@ -135,6 +135,40 @@ export type ChecksumRequest = {
   algorithm: 'md5' | 'sha1' | 'sha256' | 'sha512';
 };
 
+export type Plugin = {
+  id: string;
+  version: string;
+  /**
+   * GitHub owner/name releases come from.
+   */
+  repo: string;
+  enabled: boolean;
+  /**
+   * Updates are not suggested.
+   */
+  pinned: boolean;
+  installedAt: string;
+  name: LocalizedText;
+  description: LocalizedText;
+  /**
+   * Catalog commands the plugin adds.
+   */
+  commands: number;
+};
+
+export type PluginList = {
+  /**
+   * This engine's platform, as manifests name it (linux-amd64).
+   */
+  platform: string;
+  items: Array<Plugin>;
+};
+
+export type PluginFlags = {
+  enabled: boolean;
+  pinned: boolean;
+};
+
 export type LocalizedText = {
   en: string;
   fr: string;
@@ -685,6 +719,142 @@ export type StartChecksumResponses = {
 };
 
 export type StartChecksumResponse = StartChecksumResponses[keyof StartChecksumResponses];
+
+export type ListPluginsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v1/plugins';
+};
+
+export type ListPluginsErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Administrators only (`auth.forbidden`).
+   */
+  403: Error;
+};
+
+export type ListPluginsError = ListPluginsErrors[keyof ListPluginsErrors];
+
+export type ListPluginsResponses = {
+  /**
+   * The plugins.
+   */
+  200: PluginList;
+};
+
+export type ListPluginsResponse = ListPluginsResponses[keyof ListPluginsResponses];
+
+export type InstallPluginData = {
+  body: {
+    manifest: string;
+    checksums: string;
+    binary: Blob | File;
+  };
+  path?: never;
+  query?: never;
+  url: '/v1/plugins';
+};
+
+export type InstallPluginErrors = {
+  /**
+   * Refused (`plugins.invalid_manifest`, `plugins.checksum_mismatch`, `plugins.unsupported_platform`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Administrators only (`auth.forbidden`).
+   */
+  403: Error;
+};
+
+export type InstallPluginError = InstallPluginErrors[keyof InstallPluginErrors];
+
+export type InstallPluginResponses = {
+  /**
+   * Installed and active.
+   */
+  201: Plugin;
+};
+
+export type InstallPluginResponse = InstallPluginResponses[keyof InstallPluginResponses];
+
+export type UninstallPluginData = {
+  body?: never;
+  path: {
+    pluginId: string;
+  };
+  query?: never;
+  url: '/v1/plugins/{pluginId}';
+};
+
+export type UninstallPluginErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Administrators only (`auth.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such plugin (`plugins.not_found`).
+   */
+  404: Error;
+};
+
+export type UninstallPluginError = UninstallPluginErrors[keyof UninstallPluginErrors];
+
+export type UninstallPluginResponses = {
+  /**
+   * Removed with its commands and files.
+   */
+  204: void;
+};
+
+export type UninstallPluginResponse = UninstallPluginResponses[keyof UninstallPluginResponses];
+
+export type UpdatePluginData = {
+  body: PluginFlags;
+  path: {
+    pluginId: string;
+  };
+  query?: never;
+  url: '/v1/plugins/{pluginId}';
+};
+
+export type UpdatePluginErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Administrators only (`auth.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such plugin (`plugins.not_found`).
+   */
+  404: Error;
+};
+
+export type UpdatePluginError = UpdatePluginErrors[keyof UpdatePluginErrors];
+
+export type UpdatePluginResponses = {
+  /**
+   * The plugin.
+   */
+  200: Plugin;
+};
+
+export type UpdatePluginResponse = UpdatePluginResponses[keyof UpdatePluginResponses];
 
 export type ListCommandsData = {
   body?: never;

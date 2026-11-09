@@ -46,6 +46,8 @@ services:
       - ${CANOPY_DATA_DIR:-./data}:/srv/canopy/root/data
       # Thumbnails (rebuildable, size-capped in the settings); must be writable by PUID:PGID.
       - ${CANOPY_CACHE_DIR:-./cache}:/srv/canopy/cache
+      # Plugin binaries (installed from Administration › Plugins); must be writable by PUID:PGID.
+      - ${CANOPY_PLUGINS_DIR:-./plugins}:/srv/canopy/plugins
     networks: [internal]
     depends_on:
       postgres:

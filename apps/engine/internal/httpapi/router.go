@@ -50,6 +50,8 @@ type Deps struct {
 	Commands     Commands
 	AdvancedMode func(ctx context.Context) bool
 	HostPaths    HostPaths
+	// Plugins manages installed plugins (administrators only).
+	Plugins Plugins
 	// StreamsDone closes when the server shuts down, ending event streams that would otherwise
 	// hold the shutdown open.
 	StreamsDone <-chan struct{}

@@ -133,17 +133,26 @@ func Parse(data []byte) ([]Entry, error) {
 	if err := decoder.Decode(&entries); err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrCatalog, err)
 	}
+	if err := Validate(entries); err != nil {
+		return nil, err
+	}
+	return entries, nil
+}
+
+// Validate checks decoded entries (a catalog file, or a plugin's commands) and prepares their
+// patterns. Ids must be unique.
+func Validate(entries []Entry) error {
 	seen := map[string]bool{}
 	for i := range entries {
 		if err := entries[i].validate(); err != nil {
-			return nil, fmt.Errorf("%w: entry %q: %w", ErrCatalog, entries[i].ID, err)
+			return fmt.Errorf("%w: entry %q: %w", ErrCatalog, entries[i].ID, err)
 		}
 		if seen[entries[i].ID] {
-			return nil, fmt.Errorf("%w: duplicate entry %q", ErrCatalog, entries[i].ID)
+			return fmt.Errorf("%w: duplicate entry %q", ErrCatalog, entries[i].ID)
 		}
 		seen[entries[i].ID] = true
 	}
-	return entries, nil
+	return nil
 }
 
 func (e *Entry) validate() error {

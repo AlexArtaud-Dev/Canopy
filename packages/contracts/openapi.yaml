@@ -420,6 +420,163 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/plugins:
+    get:
+      operationId: listPlugins
+      summary: Installed plugins
+      description: Administrators only. Also says which platform this engine runs on.
+      tags: [plugins]
+      security:
+        - engineToken: []
+      responses:
+        '200':
+          description: The plugins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginList'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Administrators only (`auth.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: installPlugin
+      summary: Install or update a plugin from its release files
+      description: >-
+        Administrators only. The web app downloads the release (the engine has no internet access)
+        and sends its `canopy-plugin.yaml`, its checksum file and the binary for this platform.
+        The manifest is checked strictly and the binary's SHA-256 must match the checksum file
+        before anything is stored; no install script ever runs.
+      tags: [plugins]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [manifest, checksums, binary]
+              properties:
+                manifest:
+                  type: string
+                checksums:
+                  type: string
+                binary:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Installed and active.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plugin'
+        '400':
+          description: Refused (`plugins.invalid_manifest`, `plugins.checksum_mismatch`, `plugins.unsupported_platform`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Administrators only (`auth.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/plugins/{pluginId}:
+    patch:
+      operationId: updatePlugin
+      summary: Enable, disable, pin or unpin a plugin
+      tags: [plugins]
+      security:
+        - engineToken: []
+      parameters:
+        - name: pluginId
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PluginFlags'
+      responses:
+        '200':
+          description: The plugin.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plugin'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Administrators only (`auth.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such plugin (`plugins.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: uninstallPlugin
+      summary: Uninstall a plugin
+      tags: [plugins]
+      security:
+        - engineToken: []
+      parameters:
+        - name: pluginId
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 32
+      responses:
+        '204':
+          description: Removed with its commands and files.
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Administrators only (`auth.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such plugin (`plugins.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/commands:
     get:
       operationId: listCommands
@@ -1387,6 +1544,46 @@ components:
         algorithm:
           type: string
           enum: [md5, sha1, sha256, sha512]
+    Plugin:
+      type: object
+      required: [id, version, repo, enabled, pinned, installedAt, name, description, commands]
+      properties:
+        id: { type: string }
+        version: { type: string }
+        repo:
+          description: GitHub owner/name releases come from.
+          type: string
+        enabled: { type: boolean }
+        pinned:
+          description: Updates are not suggested.
+          type: boolean
+        installedAt:
+          type: string
+          format: date-time
+        name:
+          $ref: '#/components/schemas/LocalizedText'
+        description:
+          $ref: '#/components/schemas/LocalizedText'
+        commands:
+          description: Catalog commands the plugin adds.
+          type: integer
+    PluginList:
+      type: object
+      required: [platform, items]
+      properties:
+        platform:
+          description: This engine's platform, as manifests name it (linux-amd64).
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Plugin'
+    PluginFlags:
+      type: object
+      required: [enabled, pinned]
+      properties:
+        enabled: { type: boolean }
+        pinned: { type: boolean }
     LocalizedText:
       type: object
       required: [en, fr, es]
