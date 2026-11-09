@@ -31,6 +31,7 @@ import { toast } from 'sonner';
 import { cn } from 'cn';
 import { ErrorState } from '@/shared/errors/error-state';
 import { useErrorMessage } from '@/shared/errors/use-error-message';
+import type { ActionResult } from '@/shared/lib/action';
 import { Button } from '@/shared/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty';
 import { Spinner } from '@/shared/ui/spinner';
@@ -60,8 +61,11 @@ import {
   operationTargets,
   pointerBadgeOffset,
   stemLength,
+  type ArchiveFormat,
+  type ChecksumAlgorithm,
   type TransferOperation,
 } from './operations.utils';
+import { startChecksum, startCompress, startExtract } from './server/operations';
 import { useFolder } from './model/use-folder';
 import { useSearch } from './model/use-search';
 import { useStreamTicket } from './model/use-stream-ticket';
@@ -296,6 +300,14 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     }
   };
 
+  /** A job started from the menu: its progress and result are in the operations panel. */
+  const announceJob = (started: Promise<ActionResult<unknown>>, name: string) => {
+    void started.then((result) => {
+      if (result.ok) toast(jobsT('started', { name }));
+      else toast.error(errorMessage(result.error.code, result.error.params));
+    });
+  };
+
   const menu = {
     onOpen: open,
     onShowInFolder: searching
@@ -307,10 +319,18 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
       void navigator.clipboard.writeText(entry.path).then(() => toast.success(t('pathCopied')));
     },
     onFolderSize: (entry: BrowserEntry) => {
-      void startFolderSize({ path: entry.path }).then((result) => {
-        if (result.ok) toast(jobsT('started', { name: entry.name }));
-        else toast.error(errorMessage(result.error.code, result.error.params));
-      });
+      announceJob(startFolderSize({ path: entry.path }), entry.name);
+    },
+    onCompress: (entry: BrowserEntry, format: ArchiveFormat) => {
+      const targets = operationTargets(selection.selected, entry.path);
+      if (allowed('copy', targets))
+        announceJob(startCompress({ sources: targets, format }), entry.name);
+    },
+    onExtract: (entry: BrowserEntry) => {
+      announceJob(startExtract({ path: entry.path }), entry.name);
+    },
+    onChecksum: (entry: BrowserEntry, algorithm: ChecksumAlgorithm) => {
+      announceJob(startChecksum({ path: entry.path, algorithm }), entry.name);
     },
     onRename: ops.openRename,
     onDelete: (entry: BrowserEntry, permanent: boolean) => {

@@ -9,6 +9,7 @@ import {
   isActive,
   jobPercent,
   recentJobMs,
+  resultText,
   retryableKinds,
   splitDuration,
   upsertJob,
@@ -106,5 +107,13 @@ describe('helpers', () => {
     expect(canRetry(job({ state: 'failed' }))).toBe(false);
     expect(canRetry(job({ state: 'failed', kind: 'copy', target: '/a' }))).toBe(false);
     expect(retryableKinds.has('folder_size')).toBe(true);
+  });
+});
+
+describe('resultText', () => {
+  it('keeps strings only', () => {
+    expect(resultText('/a.zip')).toBe('/a.zip');
+    expect(resultText(3)).toBe('');
+    expect(resultText(undefined)).toBe('');
   });
 });

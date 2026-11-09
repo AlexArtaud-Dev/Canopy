@@ -3,7 +3,13 @@ import {
   childPath,
   conflictStrategies,
   dragBadgeGap,
+  archiveFormats,
+  checksumAlgorithms,
+  checksumInputSchema,
+  compressInputSchema,
   downloadHref,
+  extractInputSchema,
+  isArchive,
   previewHref,
   thumbnailHref,
   dropOperation,
@@ -154,5 +160,20 @@ describe('downloadHref', () => {
       ]),
     ).toBe('/api/engine/stream/v1/fs/archive?path=%2Fa&path=%2Fb');
     expect(downloadHref([])).toBeNull();
+  });
+});
+
+describe('archive inputs', () => {
+  it('recognizes archives Canopy extracts', () => {
+    expect(['a.zip', 'b.TAR', 'c.tar.gz', 'd.tgz'].every(isArchive)).toBe(true);
+    expect(isArchive('e.rar')).toBe(false);
+  });
+
+  it('validates job requests', () => {
+    expect(compressInputSchema.safeParse({ sources: ['/a'], format: 'tar.gz' }).success).toBe(true);
+    expect(compressInputSchema.safeParse({ sources: [], format: 'zip' }).success).toBe(false);
+    expect(extractInputSchema.safeParse({ path: '/a.zip' }).success).toBe(true);
+    expect(checksumInputSchema.safeParse({ path: '/a', algorithm: 'crc' }).success).toBe(false);
+    expect([...archiveFormats, ...checksumAlgorithms]).toHaveLength(6);
   });
 });

@@ -1,7 +1,17 @@
 'use client';
 
-import { CircleAlert, CircleCheck, CircleSlash, Loader, RotateCcw, Square, X } from 'lucide-react';
+import {
+  CircleAlert,
+  CircleCheck,
+  CircleSlash,
+  Copy,
+  Loader,
+  RotateCcw,
+  Square,
+  X,
+} from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 import type { Job } from '@canopy/contracts';
 import { cn } from 'cn';
@@ -9,8 +19,9 @@ import { useErrorMessage } from '@/shared/errors/use-error-message';
 import { Button } from '@/shared/ui/button';
 import { Progress } from '@/shared/ui/progress';
 import { formatBytes } from '@/features/files/browser.utils';
+import { checksumAlgorithms } from '@/features/files/operations.utils';
 
-import { baseName, canRetry, isActive, jobPercent, splitDuration } from '../jobs.utils';
+import { baseName, canRetry, isActive, jobPercent, resultText, splitDuration } from '../jobs.utils';
 
 interface JobRowProps {
   job: Job;
@@ -180,5 +191,54 @@ function Outcome({ job, errorMessage }: { job: Job; errorMessage: (code: string)
     if (renamed > 0) notes.push(t('transferRenamed', { count: renamed }));
     return <p className="text-muted-foreground text-xs">{notes.join(' · ')}</p>;
   }
+  if (job.kind === 'compress') {
+    return (
+      <p className="text-muted-foreground truncate text-xs">
+        {t('compressResult', {
+          name: baseName(resultText(result.path)),
+          size: formatBytes(Number(result.bytes ?? 0), locale),
+        })}
+      </p>
+    );
+  }
+  if (job.kind === 'extract') {
+    return (
+      <p className="text-muted-foreground truncate text-xs">
+        {t('extractResult', {
+          files: Number(result.files ?? 0),
+          name: baseName(resultText(result.path)),
+        })}
+      </p>
+    );
+  }
+  if (job.kind === 'checksum' && typeof result.hash === 'string') {
+    return <ChecksumResult algorithm={resultText(result.algorithm)} hash={result.hash} />;
+  }
   return <p className="text-muted-foreground text-xs">{t('done')}</p>;
+}
+
+/** The digest, selectable in one click and copyable: it is usually compared with another. */
+function ChecksumResult({ algorithm, hash }: { algorithm: string; hash: string }) {
+  const t = useTranslations('jobs.dock');
+  const menuT = useTranslations('files.browser.menu');
+  const label = checksumAlgorithms.find((known) => known === algorithm);
+  return (
+    <div className="flex min-w-0 items-center gap-1.5 text-xs">
+      {label && (
+        // i18n-dynamic: files.browser.menu.algorithms
+        <span className="text-muted-foreground shrink-0">{menuT(`algorithms.${label}`)}</span>
+      )}
+      <code className="min-w-0 truncate font-mono select-all">{hash}</code>
+      <Button
+        variant="ghost"
+        size="icon-xs"
+        aria-label={t('copyHash')}
+        onClick={() => {
+          void navigator.clipboard.writeText(hash).then(() => toast.success(t('hashCopied')));
+        }}
+      >
+        <Copy aria-hidden />
+      </Button>
+    </div>
+  );
 }

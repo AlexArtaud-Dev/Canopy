@@ -222,6 +222,162 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/jobs/compress:
+    post:
+      operationId: startCompress
+      summary: Compress items into an archive
+      description: >-
+        Starts a job writing a zip or tar.gz of the sources into the folder that holds them (never replacing anything: a free name is picked). What the caller may not read is left out; links are skipped. The result carries the archive path.
+      tags: [jobs]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompressRequest'
+      responses:
+        '202':
+          description: The job was queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Invalid paths or format, or sources in different folders (`files.invalid_path`, `files.mixed_folders`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The caller may not copy a source or create in the folder (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: A source does not exist (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many active jobs for this person (`jobs.too_many`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs/extract:
+    post:
+      operationId: startExtract
+      summary: Extract an archive next to it
+      description: >-
+        Starts a job unpacking a zip, tar or tar.gz into a new folder next to it. Unsafe entry names fail the job (`files.bad_archive`); links and devices are skipped; extraction stops past the free space or 200 000 entries (`files.archive_too_large`). The result carries the folder path.
+      tags: [jobs]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtractRequest'
+      responses:
+        '202':
+          description: The job was queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Invalid path, or not an archive (`files.invalid_path`, `files.not_archive`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The caller may not copy the archive or create in its folder (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such file (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many active jobs for this person (`jobs.too_many`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs/checksum:
+    post:
+      operationId: startChecksum
+      summary: Compute a file checksum
+      description: >-
+        Starts a job hashing one file (MD5, SHA-1, SHA-256 or SHA-512). The result carries the hex digest.
+      tags: [jobs]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecksumRequest'
+      responses:
+        '202':
+          description: The job was queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Invalid path or algorithm (`files.invalid_path`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The caller may not download this file (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such file (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many active jobs for this person (`jobs.too_many`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/jobs/folder-size:
     post:
       operationId: startFolderSize
@@ -1033,6 +1189,38 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AccessDecision'
+    CompressRequest:
+      type: object
+      required: [sources, format]
+      properties:
+        sources:
+          description: Items to archive, all in the same folder.
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items:
+            type: string
+            maxLength: 4096
+        format:
+          type: string
+          enum: [zip, tar.gz]
+    ExtractRequest:
+      type: object
+      required: [path]
+      properties:
+        path:
+          type: string
+          maxLength: 4096
+    ChecksumRequest:
+      type: object
+      required: [path, algorithm]
+      properties:
+        path:
+          type: string
+          maxLength: 4096
+        algorithm:
+          type: string
+          enum: [md5, sha1, sha256, sha512]
     FolderSizeRequest:
       type: object
       required: [path]

@@ -68,7 +68,11 @@
     "volume_protected": "Las carpetas de primer nivel son volúmenes montados y no se pueden eliminar.",
     "no_preview": "Este archivo no se puede previsualizar. Descárgalo para abrirlo.",
     "no_thumbnail": "No hay miniatura para este archivo.",
-    "invalid_query": "Escribe entre 2 y 200 caracteres para buscar."
+    "invalid_query": "Escribe entre 2 y 200 caracteres para buscar.",
+    "not_archive": "Este archivo no es un archivo comprimido que Canopy pueda extraer (zip, tar, tar.gz).",
+    "bad_archive": "Este archivo comprimido está dañado o contiene nombres peligrosos, así que no se extrajo nada.",
+    "mixed_folders": "Solo se pueden comprimir juntos elementos de la misma carpeta.",
+    "archive_too_large": "Este archivo comprimido no cabe: supera el espacio libre o contiene demasiados archivos."
   },
   "mail": {
     "not_configured": "El correo no está configurado. Configura el SMTP en Administración › Correo.",

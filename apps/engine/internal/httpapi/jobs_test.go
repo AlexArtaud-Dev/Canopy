@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/api"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/archive"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/audit"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/authz"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
@@ -46,6 +47,7 @@ type fakeJobs struct {
 	owners      []string
 	notices     chan jobs.Notice
 	transfer    transfer.Args
+	compress    archive.CompressArgs
 }
 
 func (f *fakeJobs) StartFolderSize(context.Context, string, authz.Subject) (string, error) {
@@ -62,6 +64,19 @@ func (f *fakeJobs) StartDelete(context.Context, trash.DeleteArgs) (string, error
 }
 
 func (f *fakeJobs) StartEmptyTrash(context.Context, trash.EmptyArgs) (string, error) {
+	return jobID, f.startErr
+}
+
+func (f *fakeJobs) StartCompress(_ context.Context, args archive.CompressArgs) (string, error) {
+	f.compress = args
+	return jobID, f.startErr
+}
+
+func (f *fakeJobs) StartExtract(context.Context, archive.ExtractArgs) (string, error) {
+	return jobID, f.startErr
+}
+
+func (f *fakeJobs) StartChecksum(context.Context, archive.ChecksumArgs) (string, error) {
 	return jobID, f.startErr
 }
 

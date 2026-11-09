@@ -30,13 +30,20 @@
       "copy": "Copy",
       "move": "Move",
       "delete": "Permanent delete",
-      "trash_empty": "Emptying the trash"
+      "trash_empty": "Emptying the trash",
+      "compress": "Compress",
+      "extract": "Extract",
+      "checksum": "Checksum"
     },
     "transferResult": "{items, plural, one {# item} other {# items}} · {size}",
     "transferSkipped": "{count, plural, one {# skipped} other {# skipped}}",
     "transferRenamed": "{count, plural, one {# kept as a copy} other {# kept as copies}}",
     "uploadFailed": "Upload failed: {name}",
-    "removedResult": "{count, plural, one {# item deleted} other {# items deleted}}"
+    "removedResult": "{count, plural, one {# item deleted} other {# items deleted}}",
+    "compressResult": "Created {name} · {size}",
+    "extractResult": "{files, plural, one {# file} other {# files}} extracted into {name}",
+    "copyHash": "Copy the checksum",
+    "hashCopied": "Checksum copied"
   },
   "uploads": {
     "upload": "Upload",

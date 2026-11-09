@@ -68,7 +68,11 @@
     "volume_protected": "Top-level folders are mounted volumes and cannot be deleted.",
     "no_preview": "This file can't be previewed. Download it to open it.",
     "no_thumbnail": "No thumbnail for this file.",
-    "invalid_query": "Type 2 to 200 characters to search."
+    "invalid_query": "Type 2 to 200 characters to search.",
+    "not_archive": "This file is not an archive Canopy can extract (zip, tar, tar.gz).",
+    "bad_archive": "This archive is damaged or contains unsafe names, so nothing was extracted.",
+    "mixed_folders": "Only items from the same folder can be compressed together.",
+    "archive_too_large": "This archive would not fit: it expands beyond the free space or holds too many files."
   },
   "mail": {
     "not_configured": "Email is not configured. Set up SMTP in Administration › Email.",

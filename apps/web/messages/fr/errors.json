@@ -68,7 +68,11 @@
     "volume_protected": "Les dossiers de premier niveau sont des volumes montés et ne peuvent pas être supprimés.",
     "no_preview": "Ce fichier ne peut pas être prévisualisé. Téléchargez-le pour l’ouvrir.",
     "no_thumbnail": "Pas de miniature pour ce fichier.",
-    "invalid_query": "Saisissez entre 2 et 200 caractères pour rechercher."
+    "invalid_query": "Saisissez entre 2 et 200 caractères pour rechercher.",
+    "not_archive": "Ce fichier n’est pas une archive que Canopy sait extraire (zip, tar, tar.gz).",
+    "bad_archive": "Cette archive est endommagée ou contient des noms dangereux : rien n’a été extrait.",
+    "mixed_folders": "Seuls des éléments d’un même dossier peuvent être compressés ensemble.",
+    "archive_too_large": "Cette archive ne tient pas : elle dépasse l’espace libre ou contient trop de fichiers."
   },
   "mail": {
     "not_configured": "L’e-mail n’est pas configuré. Configurez le SMTP dans Administration › E-mail.",

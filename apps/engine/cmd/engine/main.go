@@ -14,6 +14,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/archive"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/audit"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/config"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/database"
@@ -185,6 +186,9 @@ func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, gra
 	jobs.Register(registry, transfer.Handler(files, grants))
 	jobs.Register(registry, trashService.DeleteHandler())
 	jobs.Register(registry, trashService.EmptyHandler())
+	jobs.Register(registry, archive.CompressHandler(files, grants))
+	jobs.Register(registry, archive.ExtractHandler(files))
+	jobs.Register(registry, archive.ChecksumHandler(files))
 	runner, err := jobs.Start(ctx, registry, pool, limits)
 	if err != nil {
 		return nil, err

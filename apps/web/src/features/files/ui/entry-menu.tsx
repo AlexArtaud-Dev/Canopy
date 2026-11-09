@@ -3,6 +3,9 @@
 import {
   CheckCheck,
   CopyPlus,
+  FileArchive,
+  FileCheck,
+  PackageOpen,
   Download,
   FolderInput,
   Eye,
@@ -23,9 +26,19 @@ import {
   ContextMenuItem,
   ContextMenuSeparator,
   ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '@/shared/ui/context-menu';
 
+import {
+  archiveFormats,
+  checksumAlgorithms,
+  isArchive,
+  type ArchiveFormat,
+  type ChecksumAlgorithm,
+} from '../operations.utils';
 import { canPreview } from '../preview.utils';
 import type { BrowserEntry } from '../server/browse';
 
@@ -45,6 +58,12 @@ export interface EntryMenuHandlers {
   onRefresh: () => void;
   /** Right-click (or long-press) on an unselected entry selects it first. */
   onMenuOpen: (entry: BrowserEntry) => void;
+  /** Archives the entry (or its selection) next to it, as a job. */
+  onCompress: (entry: BrowserEntry, format: ArchiveFormat) => void;
+  /** Unpacks an archive into a new folder next to it, as a job. */
+  onExtract: (entry: BrowserEntry) => void;
+  /** Hashes a file, as a job; the digest shows in the operations panel. */
+  onChecksum: (entry: BrowserEntry, algorithm: ChecksumAlgorithm) => void;
   /** Search results only: go to the folder that holds the entry. */
   onShowInFolder?: ((entry: BrowserEntry) => void) | undefined;
 }
@@ -95,6 +114,57 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
             <Download aria-hidden />
             {entry.isDirectory ? t('downloadZip') : t('download')}
           </ContextMenuItem>
+        )}
+        {entry.actions.includes('copy') && (
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              <FileArchive aria-hidden />
+              {t('compress')}
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              {archiveFormats.map((format) => (
+                <ContextMenuItem
+                  key={format}
+                  onSelect={() => {
+                    handlers.onCompress(entry, format);
+                  }}
+                >
+                  {format === 'zip' ? t('formats.zip') : t('formats.tarGz')}
+                </ContextMenuItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        )}
+        {!entry.isDirectory && isArchive(entry.name) && entry.actions.includes('copy') && (
+          <ContextMenuItem
+            onSelect={() => {
+              handlers.onExtract(entry);
+            }}
+          >
+            <PackageOpen aria-hidden />
+            {t('extract')}
+          </ContextMenuItem>
+        )}
+        {!entry.isDirectory && entry.actions.includes('download') && (
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              <FileCheck aria-hidden />
+              {t('checksum')}
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              {checksumAlgorithms.map((algorithm) => (
+                <ContextMenuItem
+                  key={algorithm}
+                  onSelect={() => {
+                    handlers.onChecksum(entry, algorithm);
+                  }}
+                >
+                  {/* i18n-dynamic: files.browser.menu.algorithms */}
+                  {t(`algorithms.${algorithm}`)}
+                </ContextMenuItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
         )}
         {entry.actions.includes('update') && (
           <ContextMenuItem

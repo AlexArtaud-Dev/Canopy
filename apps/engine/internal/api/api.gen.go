@@ -17,6 +17,48 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Defines values for ChecksumRequestAlgorithm.
+const (
+	Md5    ChecksumRequestAlgorithm = "md5"
+	Sha1   ChecksumRequestAlgorithm = "sha1"
+	Sha256 ChecksumRequestAlgorithm = "sha256"
+	Sha512 ChecksumRequestAlgorithm = "sha512"
+)
+
+// Valid indicates whether the value is a known member of the ChecksumRequestAlgorithm enum.
+func (e ChecksumRequestAlgorithm) Valid() bool {
+	switch e {
+	case Md5:
+		return true
+	case Sha1:
+		return true
+	case Sha256:
+		return true
+	case Sha512:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CompressRequestFormat.
+const (
+	TarGz CompressRequestFormat = "tar.gz"
+	Zip   CompressRequestFormat = "zip"
+)
+
+// Valid indicates whether the value is a known member of the CompressRequestFormat enum.
+func (e CompressRequestFormat) Valid() bool {
+	switch e {
+	case TarGz:
+		return true
+	case Zip:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ConflictStrategy.
 const (
 	KeepBoth  ConflictStrategy = "keep_both"
@@ -331,6 +373,26 @@ type AccessDecision struct {
 	Grant   *DecidingGrant `json:"grant,omitempty"`
 }
 
+// ChecksumRequest defines model for ChecksumRequest.
+type ChecksumRequest struct {
+	Algorithm ChecksumRequestAlgorithm `json:"algorithm"`
+	Path      string                   `json:"path"`
+}
+
+// ChecksumRequestAlgorithm defines model for ChecksumRequest.Algorithm.
+type ChecksumRequestAlgorithm string
+
+// CompressRequest defines model for CompressRequest.
+type CompressRequest struct {
+	Format CompressRequestFormat `json:"format"`
+
+	// Sources Items to archive, all in the same folder.
+	Sources []string `json:"sources"`
+}
+
+// CompressRequestFormat defines model for CompressRequest.Format.
+type CompressRequestFormat string
+
 // ConflictStrategy defines model for ConflictStrategy.
 type ConflictStrategy string
 
@@ -424,6 +486,11 @@ type ExplainRequest struct {
 type ExplainResponse struct {
 	Decisions []AccessDecision `json:"decisions"`
 	Path      string           `json:"path"`
+}
+
+// ExtractRequest defines model for ExtractRequest.
+type ExtractRequest struct {
+	Path string `json:"path"`
 }
 
 // FolderSizeRequest defines model for FolderSizeRequest.
@@ -676,11 +743,20 @@ type PlanTransferJSONRequestBody = TransferRequest
 // MoveToTrashJSONRequestBody defines body for MoveToTrash for application/json ContentType.
 type MoveToTrashJSONRequestBody = PathsRequest
 
+// StartChecksumJSONRequestBody defines body for StartChecksum for application/json ContentType.
+type StartChecksumJSONRequestBody = ChecksumRequest
+
+// StartCompressJSONRequestBody defines body for StartCompress for application/json ContentType.
+type StartCompressJSONRequestBody = CompressRequest
+
 // StartPermanentDeleteJSONRequestBody defines body for StartPermanentDelete for application/json ContentType.
 type StartPermanentDeleteJSONRequestBody = PathsRequest
 
 // StartEmptyTrashJSONRequestBody defines body for StartEmptyTrash for application/json ContentType.
 type StartEmptyTrashJSONRequestBody = TrashIdsRequest
+
+// StartExtractJSONRequestBody defines body for StartExtract for application/json ContentType.
+type StartExtractJSONRequestBody = ExtractRequest
 
 // StartFolderSizeJSONRequestBody defines body for StartFolderSize for application/json ContentType.
 type StartFolderSizeJSONRequestBody = FolderSizeRequest
@@ -726,12 +802,21 @@ type ServerInterface interface {
 	// ListJobs Recent jobs of the caller
 	// (GET /v1/jobs)
 	ListJobs(w http.ResponseWriter, r *http.Request, params ListJobsParams)
+	// StartChecksum Compute a file checksum
+	// (POST /v1/jobs/checksum)
+	StartChecksum(w http.ResponseWriter, r *http.Request)
+	// StartCompress Compress items into an archive
+	// (POST /v1/jobs/compress)
+	StartCompress(w http.ResponseWriter, r *http.Request)
 	// StartPermanentDelete Delete items permanently
 	// (POST /v1/jobs/delete)
 	StartPermanentDelete(w http.ResponseWriter, r *http.Request)
 	// StartEmptyTrash Remove trash items for good
 	// (POST /v1/jobs/empty-trash)
 	StartEmptyTrash(w http.ResponseWriter, r *http.Request)
+	// StartExtract Extract an archive next to it
+	// (POST /v1/jobs/extract)
+	StartExtract(w http.ResponseWriter, r *http.Request)
 	// StartFolderSize Measure a folder in the background
 	// (POST /v1/jobs/folder-size)
 	StartFolderSize(w http.ResponseWriter, r *http.Request)
@@ -825,6 +910,18 @@ func (_ Unimplemented) ListJobs(w http.ResponseWriter, r *http.Request, params L
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// StartChecksum Compute a file checksum
+// (POST /v1/jobs/checksum)
+func (_ Unimplemented) StartChecksum(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// StartCompress Compress items into an archive
+// (POST /v1/jobs/compress)
+func (_ Unimplemented) StartCompress(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // StartPermanentDelete Delete items permanently
 // (POST /v1/jobs/delete)
 func (_ Unimplemented) StartPermanentDelete(w http.ResponseWriter, r *http.Request) {
@@ -834,6 +931,12 @@ func (_ Unimplemented) StartPermanentDelete(w http.ResponseWriter, r *http.Reque
 // StartEmptyTrash Remove trash items for good
 // (POST /v1/jobs/empty-trash)
 func (_ Unimplemented) StartEmptyTrash(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// StartExtract Extract an archive next to it
+// (POST /v1/jobs/extract)
+func (_ Unimplemented) StartExtract(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1177,6 +1280,34 @@ func (siw *ServerInterfaceWrapper) ListJobs(w http.ResponseWriter, r *http.Reque
 	handler.ServeHTTP(w, r)
 }
 
+// StartChecksum operation middleware
+func (siw *ServerInterfaceWrapper) StartChecksum(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.StartChecksum(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// StartCompress operation middleware
+func (siw *ServerInterfaceWrapper) StartCompress(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.StartCompress(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // StartPermanentDelete operation middleware
 func (siw *ServerInterfaceWrapper) StartPermanentDelete(w http.ResponseWriter, r *http.Request) {
 
@@ -1196,6 +1327,20 @@ func (siw *ServerInterfaceWrapper) StartEmptyTrash(w http.ResponseWriter, r *htt
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.StartEmptyTrash(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// StartExtract operation middleware
+func (siw *ServerInterfaceWrapper) StartExtract(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.StartExtract(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1482,6 +1627,15 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/v1/authz/explain", wrapper.ExplainAccess)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/jobs/compress", wrapper.StartCompress)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/jobs/extract", wrapper.StartExtract)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/jobs/checksum", wrapper.StartChecksum)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/v1/jobs/folder-size", wrapper.StartFolderSize)
@@ -2262,6 +2416,190 @@ func (response ListJobs401JSONResponse) VisitListJobsResponse(w http.ResponseWri
 	return err
 }
 
+type StartChecksumRequestObject struct {
+	Body *StartChecksumJSONRequestBody
+}
+
+type StartChecksumResponseObject interface {
+	VisitStartChecksumResponse(w http.ResponseWriter) error
+}
+
+type StartChecksum202JSONResponse Job
+
+func (response StartChecksum202JSONResponse) VisitStartChecksumResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartChecksum400JSONResponse Error
+
+func (response StartChecksum400JSONResponse) VisitStartChecksumResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartChecksum401JSONResponse Error
+
+func (response StartChecksum401JSONResponse) VisitStartChecksumResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartChecksum403JSONResponse Error
+
+func (response StartChecksum403JSONResponse) VisitStartChecksumResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartChecksum404JSONResponse Error
+
+func (response StartChecksum404JSONResponse) VisitStartChecksumResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartChecksum429JSONResponse Error
+
+func (response StartChecksum429JSONResponse) VisitStartChecksumResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(429)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCompressRequestObject struct {
+	Body *StartCompressJSONRequestBody
+}
+
+type StartCompressResponseObject interface {
+	VisitStartCompressResponse(w http.ResponseWriter) error
+}
+
+type StartCompress202JSONResponse Job
+
+func (response StartCompress202JSONResponse) VisitStartCompressResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCompress400JSONResponse Error
+
+func (response StartCompress400JSONResponse) VisitStartCompressResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCompress401JSONResponse Error
+
+func (response StartCompress401JSONResponse) VisitStartCompressResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCompress403JSONResponse Error
+
+func (response StartCompress403JSONResponse) VisitStartCompressResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCompress404JSONResponse Error
+
+func (response StartCompress404JSONResponse) VisitStartCompressResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCompress429JSONResponse Error
+
+func (response StartCompress429JSONResponse) VisitStartCompressResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(429)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type StartPermanentDeleteRequestObject struct {
 	Body *StartPermanentDeleteJSONRequestBody
 }
@@ -2393,6 +2731,98 @@ func (response StartEmptyTrash401JSONResponse) VisitStartEmptyTrashResponse(w ht
 type StartEmptyTrash429JSONResponse Error
 
 func (response StartEmptyTrash429JSONResponse) VisitStartEmptyTrashResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(429)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartExtractRequestObject struct {
+	Body *StartExtractJSONRequestBody
+}
+
+type StartExtractResponseObject interface {
+	VisitStartExtractResponse(w http.ResponseWriter) error
+}
+
+type StartExtract202JSONResponse Job
+
+func (response StartExtract202JSONResponse) VisitStartExtractResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartExtract400JSONResponse Error
+
+func (response StartExtract400JSONResponse) VisitStartExtractResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartExtract401JSONResponse Error
+
+func (response StartExtract401JSONResponse) VisitStartExtractResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartExtract403JSONResponse Error
+
+func (response StartExtract403JSONResponse) VisitStartExtractResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartExtract404JSONResponse Error
+
+func (response StartExtract404JSONResponse) VisitStartExtractResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartExtract429JSONResponse Error
+
+func (response StartExtract429JSONResponse) VisitStartExtractResponse(w http.ResponseWriter) error {
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(response); err != nil {
@@ -2901,12 +3331,21 @@ type StrictServerInterface interface {
 	// ListJobs Recent jobs of the caller
 	// (GET /v1/jobs)
 	ListJobs(ctx context.Context, request ListJobsRequestObject) (ListJobsResponseObject, error)
+	// StartChecksum Compute a file checksum
+	// (POST /v1/jobs/checksum)
+	StartChecksum(ctx context.Context, request StartChecksumRequestObject) (StartChecksumResponseObject, error)
+	// StartCompress Compress items into an archive
+	// (POST /v1/jobs/compress)
+	StartCompress(ctx context.Context, request StartCompressRequestObject) (StartCompressResponseObject, error)
 	// StartPermanentDelete Delete items permanently
 	// (POST /v1/jobs/delete)
 	StartPermanentDelete(ctx context.Context, request StartPermanentDeleteRequestObject) (StartPermanentDeleteResponseObject, error)
 	// StartEmptyTrash Remove trash items for good
 	// (POST /v1/jobs/empty-trash)
 	StartEmptyTrash(ctx context.Context, request StartEmptyTrashRequestObject) (StartEmptyTrashResponseObject, error)
+	// StartExtract Extract an archive next to it
+	// (POST /v1/jobs/extract)
+	StartExtract(ctx context.Context, request StartExtractRequestObject) (StartExtractResponseObject, error)
 	// StartFolderSize Measure a folder in the background
 	// (POST /v1/jobs/folder-size)
 	StartFolderSize(ctx context.Context, request StartFolderSizeRequestObject) (StartFolderSizeResponseObject, error)
@@ -3281,6 +3720,68 @@ func (sh *strictHandler) ListJobs(w http.ResponseWriter, r *http.Request, params
 	}
 }
 
+// StartChecksum operation middleware
+func (sh *strictHandler) StartChecksum(w http.ResponseWriter, r *http.Request) {
+	var request StartChecksumRequestObject
+
+	var body StartChecksumJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.StartChecksum(ctx, request.(StartChecksumRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "StartChecksum")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(StartChecksumResponseObject); ok {
+		if err := validResponse.VisitStartChecksumResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// StartCompress operation middleware
+func (sh *strictHandler) StartCompress(w http.ResponseWriter, r *http.Request) {
+	var request StartCompressRequestObject
+
+	var body StartCompressJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.StartCompress(ctx, request.(StartCompressRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "StartCompress")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(StartCompressResponseObject); ok {
+		if err := validResponse.VisitStartCompressResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // StartPermanentDelete operation middleware
 func (sh *strictHandler) StartPermanentDelete(w http.ResponseWriter, r *http.Request) {
 	var request StartPermanentDeleteRequestObject
@@ -3336,6 +3837,37 @@ func (sh *strictHandler) StartEmptyTrash(w http.ResponseWriter, r *http.Request)
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(StartEmptyTrashResponseObject); ok {
 		if err := validResponse.VisitStartEmptyTrashResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// StartExtract operation middleware
+func (sh *strictHandler) StartExtract(w http.ResponseWriter, r *http.Request) {
+	var request StartExtractRequestObject
+
+	var body StartExtractJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.StartExtract(ctx, request.(StartExtractRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "StartExtract")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(StartExtractResponseObject); ok {
+		if err := validResponse.VisitStartExtractResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
