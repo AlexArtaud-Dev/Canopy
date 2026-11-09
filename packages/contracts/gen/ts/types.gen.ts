@@ -394,6 +394,41 @@ export type ListDirectoryResponses = {
 
 export type ListDirectoryResponse = ListDirectoryResponses[keyof ListDirectoryResponses];
 
+export type StatEntryData = {
+  body?: never;
+  path?: never;
+  query: {
+    path: string;
+  };
+  url: '/v1/fs/entry';
+};
+
+export type StatEntryErrors = {
+  /**
+   * Invalid path (`files.invalid_path`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * No such entry, or one the caller may not see (`files.not_found`).
+   */
+  404: Error;
+};
+
+export type StatEntryError = StatEntryErrors[keyof StatEntryErrors];
+
+export type StatEntryResponses = {
+  /**
+   * The entry.
+   */
+  200: DirectoryEntry;
+};
+
+export type StatEntryResponse = StatEntryResponses[keyof StatEntryResponses];
+
 export type SearchFilesData = {
   body?: never;
   path?: never;

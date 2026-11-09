@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 )
 
 const (
@@ -47,9 +49,14 @@ type Principal struct {
 	Groups      []string
 	// Stream is true for a stream ticket (see StreamAudience).
 	Stream bool
+	// Scope, when set, confines the token to reading under one path: a share link acting for
+	// its owner. Share is that link's id, recorded with every access.
+	Scope string
+	Share string
 }
 
-// IsAdmin reports whether the principal bypasses path grants.
+// IsAdmin reports whether the principal bypasses path grants. A share link made by an
+// administrator keeps the bypass, but authz applies its scope first: it reaches only what was shared.
 func (p Principal) IsAdmin() bool {
 	return slices.Contains(p.Permissions, AdminPermission)
 }
@@ -58,6 +65,8 @@ type claims struct {
 	SessionID   string   `json:"sid"`
 	Permissions []string `json:"perms"`
 	Groups      []string `json:"groups"`
+	Scope       string   `json:"scope,omitempty"`
+	Share       string   `json:"shr,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -110,12 +119,22 @@ func (v *Verifier) Verify(token string) (Principal, error) {
 	if !stream && !slices.Contains(parsed.Audience, audience) {
 		return Principal{}, ErrInvalid
 	}
+	scope := ""
+	if parsed.Scope != "" {
+		clean, err := fsx.Clean(parsed.Scope)
+		if err != nil || parsed.Share == "" {
+			return Principal{}, ErrInvalid
+		}
+		scope = clean
+	}
 	return Principal{
 		UserID:      parsed.Subject,
 		SessionID:   parsed.SessionID,
 		Permissions: parsed.Permissions,
 		Groups:      parsed.Groups,
 		Stream:      stream,
+		Scope:       scope,
+		Share:       parsed.Share,
 	}, nil
 }
 
@@ -137,7 +156,7 @@ type ErrorWriter func(w http.ResponseWriter, r *http.Request, status int, code s
 
 // Middleware requires a valid bearer token. A nil verifier (no key configured) refuses every
 // request rather than letting it through. Stream tickets pass only where streamRoute says so.
-func Middleware(verifier *Verifier, fail ErrorWriter, streamRoute func(*http.Request) bool) func(http.Handler) http.Handler {
+func Middleware(verifier *Verifier, fail ErrorWriter, streamRoute, scopedRoute func(*http.Request) bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if verifier == nil {
@@ -155,6 +174,11 @@ func Middleware(verifier *Verifier, fail ErrorWriter, streamRoute func(*http.Req
 				return
 			}
 			if principal.Stream && !streamRoute(r) {
+				fail(w, r, http.StatusForbidden, CodeInvalid)
+				return
+			}
+			// A share token reads files and nothing else (no jobs, no trash, no settings).
+			if principal.Scope != "" && !scopedRoute(r) {
 				fail(w, r, http.StatusForbidden, CodeInvalid)
 				return
 			}

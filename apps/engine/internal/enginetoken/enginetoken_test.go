@@ -28,6 +28,7 @@ type tokenOptions struct {
 	issuer, audience, subject string
 	lifetime                  time.Duration
 	method                    jwt.SigningMethod
+	scope, share              string
 }
 
 func sign(t *testing.T, private ed25519.PrivateKey, opts tokenOptions) string {
@@ -39,6 +40,8 @@ func sign(t *testing.T, private ed25519.PrivateKey, opts tokenOptions) string {
 		SessionID:   "s1",
 		Permissions: []string{"users:read", AdminPermission},
 		Groups:      []string{"g1"},
+		Scope:       opts.scope,
+		Share:       opts.share,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    opts.issuer,
 			Audience:  jwt.ClaimStrings{opts.audience},
@@ -153,6 +156,7 @@ func TestMiddleware(t *testing.T) {
 		{"stream ticket off a stream route", verifier, "Bearer " + sign(t, private, stream()), http.StatusForbidden, CodeInvalid},
 		{"stream ticket on a stream route", verifier, "Bearer " + sign(t, private, stream()), http.StatusNoContent, ""},
 		{"unknown audience", verifier, "Bearer " + sign(t, private, otherAudience()), http.StatusUnauthorized, CodeInvalid},
+		{"share token off its routes", verifier, "Bearer " + sign(t, private, shared("/media", "s1")), http.StatusForbidden, CodeInvalid},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -167,7 +171,8 @@ func TestMiddleware(t *testing.T) {
 			}
 			recorder := httptest.NewRecorder()
 			streamRoute := func(r *http.Request) bool { return r.URL.Path == "/v1/stream" }
-			Middleware(tc.verifier, fail, streamRoute)(next).ServeHTTP(recorder, request)
+			scopedRoute := func(r *http.Request) bool { return r.URL.Path == "/v1/stream" }
+			Middleware(tc.verifier, fail, streamRoute, scopedRoute)(next).ServeHTTP(recorder, request)
 			if recorder.Code != tc.status || gotCode != tc.code {
 				t.Fatalf("got %d %q, want %d %q", recorder.Code, gotCode, tc.status, tc.code)
 			}
@@ -191,4 +196,24 @@ func otherAudience() tokenOptions {
 	opts := valid()
 	opts.audience = "someone-else"
 	return opts
+}
+
+func shared(scope, share string) tokenOptions {
+	opts := valid()
+	opts.scope, opts.share = scope, share
+	return opts
+}
+
+func TestVerifyScope(t *testing.T) {
+	public, private := keys(t)
+	verifier := NewVerifier(public, func() time.Time { return now })
+	principal, err := verifier.Verify(sign(t, private, shared("/media/../media/photos/", "s1")))
+	if err != nil || principal.Scope != "/media/photos" || principal.Share != "s1" {
+		t.Fatalf("scoped: %+v %v", principal, err)
+	}
+	for _, opts := range []tokenOptions{shared("relative", "s1"), shared("/media", "")} {
+		if _, err := verifier.Verify(sign(t, private, opts)); !errors.Is(err, ErrInvalid) {
+			t.Fatalf("%+v accepted", opts)
+		}
+	}
 }

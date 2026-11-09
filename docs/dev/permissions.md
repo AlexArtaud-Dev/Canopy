@@ -32,6 +32,11 @@
 4. At equal depth: user-level beats group-level; at the same level, `deny` beats `allow`.
 5. No matching grant → no access (default deny). `system:admin` bypasses grants.
 6. Folders above a granted one are listed (names only) so users can reach it (`MayTraverse`).
+7. **Share links** act for their owner with a `scope` (engine token claims `scope` + `shr`): checked
+   before everything else, only `read` and `download` under the shared path are allowed, even for
+   an administrator's share, and never more than the owner's own grants. Share tokens may only call
+   `GET /v1/fs/entry`, `GET /v1/fs/list` and the download routes; each access is audited with the
+   share id.
 
 Implementation: `apps/engine/internal/authz` (pure, 100 % covered) and `internal/grantstore`
 (loads `app.path_grants`, written by the web app; the engine is read-only on `app`).

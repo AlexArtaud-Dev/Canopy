@@ -689,6 +689,11 @@ type TrashListing struct {
 	Limits TrashLimits `json:"limits"`
 }
 
+// StatEntryParams defines parameters for StatEntry.
+type StatEntryParams struct {
+	Path string `form:"path" json:"path"`
+}
+
 // ListDirectoryParams defines parameters for ListDirectory.
 type ListDirectoryParams struct {
 	// Path Virtual POSIX path (`/media/photos`).
@@ -781,6 +786,9 @@ type ServerInterface interface {
 	// PlanDelete Measure a deletion before doing it
 	// (POST /v1/fs/delete/plan)
 	PlanDelete(w http.ResponseWriter, r *http.Request)
+	// StatEntry Describe one file or folder
+	// (GET /v1/fs/entry)
+	StatEntry(w http.ResponseWriter, r *http.Request, params StatEntryParams)
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(w http.ResponseWriter, r *http.Request, params ListDirectoryParams)
@@ -865,6 +873,12 @@ func (_ Unimplemented) ExplainAccess(w http.ResponseWriter, r *http.Request) {
 // PlanDelete Measure a deletion before doing it
 // (POST /v1/fs/delete/plan)
 func (_ Unimplemented) PlanDelete(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// StatEntry Describe one file or folder
+// (GET /v1/fs/entry)
+func (_ Unimplemented) StatEntry(w http.ResponseWriter, r *http.Request, params StatEntryParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1038,6 +1052,39 @@ func (siw *ServerInterfaceWrapper) PlanDelete(w http.ResponseWriter, r *http.Req
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PlanDelete(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// StatEntry operation middleware
+func (siw *ServerInterfaceWrapper) StatEntry(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params StatEntryParams
+
+	// ------------- Required query parameter "path" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "path", r.URL.Query(), &params.Path, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "path"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "path", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.StatEntry(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1623,6 +1670,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/v1/fs/list", wrapper.ListDirectory)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/fs/entry", wrapper.StatEntry)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/v1/fs/search", wrapper.SearchFiles)
 	})
 	r.Group(func(r chi.Router) {
@@ -1873,6 +1923,70 @@ func (response PlanDelete403JSONResponse) VisitPlanDeleteResponse(w http.Respons
 type PlanDelete404JSONResponse Error
 
 func (response PlanDelete404JSONResponse) VisitPlanDeleteResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StatEntryRequestObject struct {
+	Params StatEntryParams
+}
+
+type StatEntryResponseObject interface {
+	VisitStatEntryResponse(w http.ResponseWriter) error
+}
+
+type StatEntry200JSONResponse DirectoryEntry
+
+func (response StatEntry200JSONResponse) VisitStatEntryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StatEntry400JSONResponse Error
+
+func (response StatEntry400JSONResponse) VisitStatEntryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StatEntry401JSONResponse Error
+
+func (response StatEntry401JSONResponse) VisitStatEntryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StatEntry404JSONResponse Error
+
+func (response StatEntry404JSONResponse) VisitStatEntryResponse(w http.ResponseWriter) error {
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(response); err != nil {
@@ -3310,6 +3424,9 @@ type StrictServerInterface interface {
 	// PlanDelete Measure a deletion before doing it
 	// (POST /v1/fs/delete/plan)
 	PlanDelete(ctx context.Context, request PlanDeleteRequestObject) (PlanDeleteResponseObject, error)
+	// StatEntry Describe one file or folder
+	// (GET /v1/fs/entry)
+	StatEntry(ctx context.Context, request StatEntryRequestObject) (StatEntryResponseObject, error)
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(ctx context.Context, request ListDirectoryRequestObject) (ListDirectoryResponseObject, error)
@@ -3511,6 +3628,32 @@ func (sh *strictHandler) PlanDelete(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(PlanDeleteResponseObject); ok {
 		if err := validResponse.VisitPlanDeleteResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// StatEntry operation middleware
+func (sh *strictHandler) StatEntry(w http.ResponseWriter, r *http.Request, params StatEntryParams) {
+	var request StatEntryRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.StatEntry(ctx, request.(StatEntryRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "StatEntry")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(StatEntryResponseObject); ok {
+		if err := validResponse.VisitStatEntryResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

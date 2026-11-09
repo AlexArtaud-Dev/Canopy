@@ -73,6 +73,9 @@ import type {
   StartTransferData,
   StartTransferErrors,
   StartTransferResponses,
+  StatEntryData,
+  StatEntryErrors,
+  StatEntryResponses,
 } from './types.gen';
 import {
   zCancelJobPath,
@@ -119,6 +122,8 @@ import {
   zStartPermanentDeleteResponse,
   zStartTransferBody,
   zStartTransferResponse,
+  zStatEntryQuery,
+  zStatEntryResponse,
 } from './zod.gen';
 
 export type Options<
@@ -201,6 +206,29 @@ export const listDirectory = <ThrowOnError extends boolean = false>(
     responseValidator: async (data) => await zListDirectoryResponse.parseAsync(data),
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v1/fs/list',
+    ...options,
+  });
+
+/**
+ * Describe one file or folder
+ *
+ * The entry as a listing would show it (actions, preview, thumbnail), when the caller may see it. Used before acting on a single path (sharing) and by share links.
+ */
+export const statEntry = <ThrowOnError extends boolean = false>(
+  options: Options<StatEntryData, ThrowOnError>,
+): RequestResult<StatEntryResponses, StatEntryErrors, ThrowOnError> =>
+  (options.client ?? client).get<StatEntryResponses, StatEntryErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: zStatEntryQuery,
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zStatEntryResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/fs/entry',
     ...options,
   });
 

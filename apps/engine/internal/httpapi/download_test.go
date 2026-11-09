@@ -188,3 +188,46 @@ func TestDownloadHelpers(t *testing.T) {
 		t.Fatal("a gone client stops the copy")
 	}
 }
+
+func TestShareToken(t *testing.T) {
+	public, private, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	verifier := enginetoken.NewVerifier(public, time.Now)
+	now := time.Now()
+	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, jwt.MapClaims{
+		"iss": "canopy-web", "aud": enginetoken.StreamAudience, "sub": "bob", "sid": "s1",
+		"perms": []string{}, "groups": []string{}, "scope": "/docs", "shr": "share-1",
+		"iat": now.Unix(), "exp": now.Add(time.Minute).Unix(),
+	})
+	ticket, err := token.SignedString(private)
+	if err != nil {
+		t.Fatal(err)
+	}
+	deps, auditLog := streamDeps(t, bobCanWork)
+	if got := get(t, deps, verifier, "/v1/fs/download?path=/docs/a.txt", ticket, nil); got.Code != http.StatusOK {
+		t.Fatalf("inside the share: %d", got.Code)
+	}
+	if len(auditLog.events) != 1 || auditLog.events[0].Meta["share"] != "share-1" {
+		t.Fatalf("audited as a share access: %+v", auditLog.events)
+	}
+	if got := get(t, deps, verifier, "/v1/fs/download?path=/other/c.txt", ticket, nil); got.Code != http.StatusForbidden {
+		t.Fatalf("outside the share: %d", got.Code)
+	}
+	if got := get(t, deps, verifier, "/v1/fs/preview?path=/docs/a.txt", ticket, nil); got.Code != http.StatusForbidden {
+		t.Fatalf("not a share route: %d", got.Code)
+	}
+	for _, request := range []*http.Request{
+		httptest.NewRequest(http.MethodGet, "/v1/fs/list", nil),
+		httptest.NewRequest(http.MethodHead, "/v1/fs/download", nil),
+		httptest.NewRequest(http.MethodGet, "/v1/fs/archive", nil),
+	} {
+		if !isScopedRoute(request) {
+			t.Fatalf("%s %s", request.Method, request.URL.Path)
+		}
+	}
+	if isScopedRoute(httptest.NewRequest(http.MethodPost, "/v1/fs/list", nil)) || isScopedRoute(httptest.NewRequest(http.MethodPost, "/v1/fs/archive", nil)) {
+		t.Fatal("reads only")
+	}
+}
