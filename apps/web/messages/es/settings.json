@@ -23,7 +23,8 @@
     "system": "Sistema",
     "appearance": "Apariencia",
     "jobs": "Tareas en segundo plano",
-    "uploads": "Subidas"
+    "uploads": "Subidas",
+    "trash": "Papelera"
   },
   "groups": {
     "sessions": "Sesiones",
@@ -123,6 +124,20 @@
       "blockedExtensions": {
         "label": "Tipos de archivo bloqueados",
         "description": "Extensiones rechazadas, separadas por comas, por ejemplo: exe, bat. Déjalo vacío para aceptarlo todo."
+      }
+    },
+    "trash": {
+      "retentionDays": {
+        "label": "Conservar los elementos eliminados (días)",
+        "description": "Los elementos más antiguos se eliminan definitivamente."
+      },
+      "maxSizeMb": {
+        "label": "Papelera máxima por volumen (MB)",
+        "description": "Por encima, se eliminan primero los elementos más antiguos. Las eliminaciones mayores se ofrecen como definitivas, con un aviso."
+      },
+      "maxFiles": {
+        "label": "Máximo de archivos por volumen",
+        "description": "Por encima, se eliminan primero los elementos más antiguos, así que borrar en masa no puede llenar un disco."
       }
     }
   },

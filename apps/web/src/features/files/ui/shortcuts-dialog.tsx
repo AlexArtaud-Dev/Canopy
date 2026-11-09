@@ -24,6 +24,8 @@ const shortcuts = [
   { id: 'cut', keys: ['Ctrl', 'X'] },
   { id: 'paste', keys: ['Ctrl', 'V'] },
   { id: 'dragCopy', keys: ['Ctrl', '⇱'] },
+  { id: 'delete', keys: ['Del'] },
+  { id: 'deletePermanently', keys: ['Shift', 'Del'] },
   { id: 'clear', keys: ['Esc'] },
   { id: 'menu', keys: ['Shift', 'F10'] },
   { id: 'help', keys: ['?'] },

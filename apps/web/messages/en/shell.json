@@ -12,7 +12,8 @@
     "roles": "Roles",
     "email": "Email",
     "settings": "Settings",
-    "audit": "Audit log"
+    "audit": "Audit log",
+    "trash": "Trash"
   },
   "preferences": {
     "appearance": "Appearance",

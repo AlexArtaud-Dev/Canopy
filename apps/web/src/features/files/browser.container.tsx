@@ -12,7 +12,7 @@ import {
   type Modifier,
 } from '@dnd-kit/core';
 import { createPortal } from 'react-dom';
-import { CopyPlus, Download, FolderInput, FolderOpen, FolderTree, X } from 'lucide-react';
+import { CopyPlus, Download, FolderInput, FolderOpen, FolderTree, Trash2, X } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -26,6 +26,7 @@ import { Button } from '@/shared/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty';
 import { Spinner } from '@/shared/ui/spinner';
 import { startFolderSize } from '@/features/jobs';
+import { DeleteDialogs, useDeleteFlow } from '@/features/trash';
 import { filesFromDrop, filesFromInput, useUploadFlow } from '@/features/uploads';
 
 import {
@@ -96,6 +97,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const width = useElementWidth(scrollRef);
   const ops = useFileOperations(query.path);
+  const deletion = useDeleteFlow();
   const [dragCount, setDragCount] = useState(0);
   // Copy-or-move is decided when the drop happens, as in desktop file managers.
   const dropModifiers = useRef({ ctrlKey: false, altKey: false, metaKey: false });
@@ -178,7 +180,10 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     [entries],
   );
   /** Every target allows the operation (the engine checks again; this only hides dead ends). */
-  const allowed = (operation: TransferOperation | 'download', paths: readonly string[]) =>
+  const allowed = (
+    operation: TransferOperation | 'download' | 'delete',
+    paths: readonly string[],
+  ) =>
     paths.length > 0 &&
     paths.every((path) => entryByPath.get(path)?.actions.includes(operation) === true);
   const selectedPaths = [...selection.selected];
@@ -234,6 +239,9 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
       dispatch({ type: 'toggle', key: focused.path });
     } else if (event.key === 'Escape') {
       dispatch({ type: 'clear' });
+    } else if (event.key === 'Delete' && allowed('delete', selectedPaths)) {
+      event.preventDefault();
+      void deletion.start(selectedPaths, event.shiftKey);
     } else if (event.key === 'F2' && focused?.actions.includes('update')) {
       event.preventDefault();
       ops.openRename(focused);
@@ -262,6 +270,10 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
       });
     },
     onRename: ops.openRename,
+    onDelete: (entry: BrowserEntry, permanent: boolean) => {
+      const targets = operationTargets(selection.selected, entry.path);
+      if (allowed('delete', targets)) void deletion.start(targets, permanent);
+    },
     onDownload: (entry: BrowserEntry) => {
       const targets = operationTargets(selection.selected, entry.path);
       if (!allowed('download', targets)) return;
@@ -437,6 +449,18 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           )}
           {selection.selected.size > 0 && (
             <span className="ml-auto flex items-center gap-1">
+              {allowed('delete', selectedPaths) && (
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => {
+                    void deletion.start(selectedPaths, false);
+                  }}
+                >
+                  <Trash2 aria-hidden data-icon="inline-start" />
+                  {t('menu.delete')}
+                </Button>
+              )}
               {allowed('download', selectedPaths) && (
                 <Button
                   variant="ghost"
@@ -477,6 +501,12 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           )}
         </footer>
         <ShortcutsDialog open={helpOpen} onOpenChange={setHelpOpen} />
+        <DeleteDialogs
+          dialog={deletion.dialog}
+          pending={deletion.pending}
+          onConfirm={() => void deletion.confirm()}
+          onClose={deletion.close}
+        />
         <input
           ref={filesInput}
           type="file"

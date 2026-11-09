@@ -23,7 +23,8 @@
     "system": "Système",
     "appearance": "Apparence",
     "jobs": "Tâches de fond",
-    "uploads": "Imports"
+    "uploads": "Imports",
+    "trash": "Corbeille"
   },
   "groups": {
     "sessions": "Sessions",
@@ -123,6 +124,20 @@
       "blockedExtensions": {
         "label": "Types de fichiers bloqués",
         "description": "Extensions refusées, séparées par des virgules, par exemple : exe, bat. Laissez vide pour tout accepter."
+      }
+    },
+    "trash": {
+      "retentionDays": {
+        "label": "Garder les éléments supprimés (jours)",
+        "description": "Les éléments plus anciens sont supprimés définitivement."
+      },
+      "maxSizeMb": {
+        "label": "Corbeille maximale par volume (Mo)",
+        "description": "Au-delà, les plus anciens éléments sont supprimés en premier. Les suppressions plus grosses sont proposées en définitif, avec un avertissement."
+      },
+      "maxFiles": {
+        "label": "Nombre maximal de fichiers par volume",
+        "description": "Au-delà, les plus anciens éléments sont supprimés en premier : des suppressions massives ne peuvent pas remplir un disque."
       }
     }
   },

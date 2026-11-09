@@ -230,3 +230,10 @@ entries:
       en: Upload files and whole folders with the Upload button or by dropping them on the list; large uploads resume after network drops, and administrators can cap file size and block file types
       fr: Importez des fichiers et des dossiers entiers avec le bouton Importer ou en les déposant sur la liste ; les gros imports reprennent après une coupure réseau, et les administrateurs peuvent limiter la taille et bloquer des types de fichiers
       es: Sube archivos y carpetas enteras con el botón Subir o soltándolos en la lista; las subidas grandes se reanudan tras un corte de red, y los administradores pueden limitar el tamaño y bloquear tipos de archivo
+  - type: feat
+    scope: files
+    issue: 53
+    text:
+      en: Deleted items go to a trash you can undo or restore from; it is capped per volume in size and number of files, and anything too large is deleted permanently only after a clear warning
+      fr: Les éléments supprimés vont dans une corbeille d’où l’on peut annuler ou restaurer ; sa taille et son nombre de fichiers sont limités par volume, et ce qui est trop gros n’est supprimé définitivement qu’après un avertissement clair
+      es: Los elementos eliminados van a una papelera desde la que se puede deshacer o restaurar; su tamaño y número de archivos están limitados por volumen, y lo que es demasiado grande solo se elimina definitivamente tras un aviso claro

@@ -160,6 +160,13 @@ function Outcome({ job, errorMessage }: { job: Job; errorMessage: (code: string)
       </p>
     );
   }
+  if (job.kind === 'delete' || job.kind === 'trash_empty') {
+    return (
+      <p className="text-muted-foreground text-xs">
+        {t('removedResult', { count: Number(result.items ?? 0) })}
+      </p>
+    );
+  }
   if (job.kind === 'copy' || job.kind === 'move') {
     const notes = [
       t('transferResult', {

@@ -93,7 +93,9 @@
       "copyTo": "Copiar a…",
       "moveTo": "Mover a…",
       "download": "Descargar",
-      "downloadZip": "Descargar como zip"
+      "downloadZip": "Descargar como zip",
+      "delete": "Eliminar",
+      "deletePermanently": "Eliminar definitivamente"
     },
     "shortcuts": {
       "title": "Atajos de teclado",
@@ -113,7 +115,9 @@
         "copy": "Copiar la selección",
         "cut": "Cortar la selección",
         "paste": "Pegar en esta carpeta",
-        "dragCopy": "Copiar en lugar de mover al soltar"
+        "dragCopy": "Copiar en lugar de mover al soltar",
+        "delete": "Mover a la papelera",
+        "deletePermanently": "Eliminar definitivamente"
       }
     },
     "ops": {

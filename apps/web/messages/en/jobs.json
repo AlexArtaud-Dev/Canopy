@@ -28,12 +28,15 @@
       "folder_size": "Folder size",
       "other": "Operation",
       "copy": "Copy",
-      "move": "Move"
+      "move": "Move",
+      "delete": "Permanent delete",
+      "trash_empty": "Emptying the trash"
     },
     "transferResult": "{items, plural, one {# item} other {# items}} · {size}",
     "transferSkipped": "{count, plural, one {# skipped} other {# skipped}}",
     "transferRenamed": "{count, plural, one {# kept as a copy} other {# kept as copies}}",
-    "uploadFailed": "Upload failed: {name}"
+    "uploadFailed": "Upload failed: {name}",
+    "removedResult": "{count, plural, one {# item deleted} other {# items deleted}}"
   },
   "uploads": {
     "upload": "Upload",

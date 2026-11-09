@@ -15,6 +15,7 @@ export const namespaces = [
   'settings',
   'shell',
   'system',
+  'trash',
   'users',
 ] as const;
 

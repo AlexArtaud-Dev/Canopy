@@ -9,6 +9,7 @@ import { jobsModule } from '@/features/jobs/jobs.module';
 import { mailModule } from '@/features/mail/mail.module';
 import { settingsModule } from '@/features/settings/settings.module';
 import { systemModule } from '@/features/system/system.module';
+import { trashModule } from '@/features/trash/trash.module';
 import { uploadsModule } from '@/features/uploads/uploads.module';
 import { usersModule } from '@/features/users/users.module';
 import { createRegistry } from '@/shared/modules/registry';
@@ -17,6 +18,7 @@ export const appRegistry = createRegistry([
   filesModule,
   jobsModule,
   uploadsModule,
+  trashModule,
   authModule,
   usersModule,
   groupsModule,
