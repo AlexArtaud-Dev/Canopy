@@ -1,6 +1,14 @@
-import type { CommandParam } from '@canopy/contracts';
+import type { CommandEntry, CommandParam } from '@canopy/contracts';
 
-import { displayArgv, initialValues, localized, requestValues } from './commands.utils';
+import {
+  displayArgv,
+  firstToFill,
+  folderParam,
+  initialValues,
+  localized,
+  pluginMenus,
+  requestValues,
+} from './commands.utils';
 
 const label = { en: 'L', fr: 'L', es: 'L' };
 const params: CommandParam[] = [
@@ -49,6 +57,41 @@ describe('commands utils', () => {
       'Synchroniser',
       'Sincronizar',
       'Sync',
+    ]);
+  });
+
+  it('presets some values', () => {
+    expect(initialValues(params, { source: '/Series', deep: false })).toMatchObject({
+      source: '/Series',
+      deep: false,
+      limit: '5',
+    });
+  });
+
+  it('focuses the first required field still empty', () => {
+    expect(firstToFill(params, initialValues(params))).toBe('source');
+    expect(firstToFill(params, initialValues(params, { source: '/a' }))).toBeUndefined();
+  });
+
+  it('groups plugin commands that take a folder', () => {
+    const plugin = { id: 'tool', name: label };
+    const entry = (id: string, extra: Partial<CommandEntry>): CommandEntry => ({
+      id,
+      name: label,
+      description: label,
+      mode: 'basic',
+      dryRun: false,
+      params,
+      ...extra,
+    });
+    const builtin = entry('rsync.sync', {});
+    const run = entry('tool.run', { plugin });
+    const check = entry('tool.check', { plugin });
+    const noFolder = entry('other.ping', { plugin: { id: 'other', name: label }, params: [] });
+    expect(folderParam(run)).toBe('source');
+    expect(folderParam(noFolder)).toBeUndefined();
+    expect(pluginMenus([builtin, run, noFolder, check])).toEqual([
+      { plugin, entries: [run, check] },
     ]);
   });
 });

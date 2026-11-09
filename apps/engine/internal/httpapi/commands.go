@@ -71,10 +71,14 @@ func toCommandEntry(entry commands.Entry) api.CommandEntry {
 		}
 		params = append(params, converted)
 	}
-	return api.CommandEntry{
+	converted := api.CommandEntry{
 		Id: entry.ID, Name: localized(entry.Name), Description: localized(entry.Description),
 		Mode: api.CommandEntryMode(entry.Mode), DryRun: entry.DryRun != nil, Params: params,
 	}
+	if entry.Plugin != nil {
+		converted.Plugin = &api.CommandPlugin{Id: entry.Plugin.ID, Name: localized(entry.Plugin.Name)}
+	}
+	return converted
 }
 
 func localized(text commands.Text) api.LocalizedText {

@@ -19,6 +19,7 @@
       "succeeded": "Terminado",
       "failed": "Error",
       "cancelled": "Cancelado"
-    }
+    },
+    "output": "Salida del comando"
   }
 }

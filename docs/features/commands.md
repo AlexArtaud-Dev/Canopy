@@ -35,3 +35,14 @@
   (read every second while it runs); its progress and result are in Operations.
 - Settings (module `commands`): **Advanced mode** (off). Permission `commands:advanced` (global,
   in roles) unlocks advanced entries once the mode is on; administrators hold it.
+
+## From the file browser
+
+- Right-click a folder (it needs the change right), or empty space in the open folder:
+  **Plugins › <plugin> › <command>** lists plugin commands that take a folder. The command opens
+  in a dialog over the files with its first path parameter filled in and the cursor in the first
+  required field still empty; Enter runs it. The output shows in the dialog; closing it does not
+  stop the run (it stays in Operations). When the job ends the listing refreshes.
+- The engine tells which plugin each catalog entry comes from (`CommandEntry.plugin`); built-in
+  entries stay on the Commands page only. The empty-space menu also has New folder, Select all and
+  Refresh.

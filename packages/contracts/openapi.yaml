@@ -1681,10 +1681,20 @@ components:
         values:
           type: array
           items: { type: string }
+    CommandPlugin:
+      description: The plugin a command comes from (absent for built-in commands).
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string }
+        name:
+          $ref: '#/components/schemas/LocalizedText'
     CommandEntry:
       type: object
       required: [id, name, description, mode, params, dryRun]
       properties:
+        plugin:
+          $ref: '#/components/schemas/CommandPlugin'
         id: { type: string }
         name:
           $ref: '#/components/schemas/LocalizedText'

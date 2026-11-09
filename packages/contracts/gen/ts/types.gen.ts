@@ -212,7 +212,16 @@ export type CommandParam = {
   values?: Array<string>;
 };
 
+/**
+ * The plugin a command comes from (absent for built-in commands).
+ */
+export type CommandPlugin = {
+  id: string;
+  name: LocalizedText;
+};
+
 export type CommandEntry = {
+  plugin?: CommandPlugin;
   id: string;
   name: LocalizedText;
   description: LocalizedText;

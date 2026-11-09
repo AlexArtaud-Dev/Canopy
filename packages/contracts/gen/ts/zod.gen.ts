@@ -181,7 +181,16 @@ export const zCommandParam = z.object({
   values: z.array(z.string()).optional(),
 });
 
+/**
+ * The plugin a command comes from (absent for built-in commands).
+ */
+export const zCommandPlugin = z.object({
+  id: z.string(),
+  name: zLocalizedText,
+});
+
 export const zCommandEntry = z.object({
+  plugin: zCommandPlugin.optional(),
   id: z.string(),
   name: zLocalizedText,
   description: zLocalizedText,

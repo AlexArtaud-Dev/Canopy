@@ -47,6 +47,7 @@ export type {
   CommandCatalog,
   CommandEntry,
   CommandParam,
+  CommandPlugin,
   CommandPreview,
   CommandRequest,
   CompressRequest,

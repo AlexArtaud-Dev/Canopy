@@ -215,6 +215,9 @@ func TestInstallLifecycle(t *testing.T) {
 	if len(catalog.located) != 1 || !strings.HasSuffix(catalog.located[0].Binary, filepath.Join("1.0.0", "mrename")) {
 		t.Fatalf("catalog: %+v", catalog.located)
 	}
+	if ref := catalog.located[0].Entry.Plugin; ref == nil || ref.ID != "mrename" || ref.Name.En != "Rename episodes" {
+		t.Fatalf("plugin reference: %+v", ref)
+	}
 	if err := service.SetFlags(ctx, "mrename", true, true); err != nil {
 		t.Fatal(err)
 	}
