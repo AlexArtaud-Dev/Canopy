@@ -21,9 +21,15 @@ const routes = [
   },
 ];
 
+// Download links read; upload links send files (tus). The engine checks which a ticket allows.
 const shareRoutes = [
   { methods: ['GET', 'HEAD'], path: /^\/v1\/fs\/download$/ },
   { methods: ['GET'], path: /^\/v1\/fs\/archive$/ },
+  { methods: ['POST'], path: /^\/v1\/uploads\/$/ },
+  {
+    methods: ['HEAD', 'PATCH', 'DELETE'],
+    path: /^\/v1\/uploads\/[0-9a-f]{32}(?:[0-9a-f]{2}){0,255}$/,
+  },
 ];
 
 const channels = [
@@ -121,18 +127,26 @@ export function upstreamHeaders(incoming, ticket, requestId) {
 }
 
 /** Headers returned to the browser: content, range and upload metadata only. */
-export function downstreamHeaders(engine) {
+export function downstreamHeaders(engine, prefix = streamPrefix) {
   const headers = { ...pick(engine, responseHeaders), 'x-accel-buffering': 'no' };
-  const location = relayLocation(engine.location);
+  const location = relayLocation(engine.location, prefix);
   if (location) headers.location = location;
   return headers;
 }
 
-/** tus answers with the engine's own URL for a new upload; the browser must use the relay. */
-export function relayLocation(location) {
+/**
+ * tus answers with the engine's own URL for a new upload; the browser must continue through the
+ * relay channel it started on (a share link's upload stays on the share channel and its cookie).
+ */
+export function relayLocation(location, prefix = streamPrefix) {
   if (typeof location !== 'string') return null;
   const path = new URL(location, 'http://canopy.invalid').pathname;
-  return path.startsWith('/v1/uploads/') ? streamPrefix + path : null;
+  return path.startsWith('/v1/uploads/') ? prefix + path : null;
+}
+
+/** The relay channel's prefix for a URL (null when the URL is not for the relay). */
+export function relayPrefixFor(url) {
+  return channelOf(url)?.prefix ?? null;
 }
 
 const safeMethods = new Set(['GET', 'HEAD', 'OPTIONS']);

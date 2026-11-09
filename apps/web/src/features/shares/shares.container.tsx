@@ -2,7 +2,7 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Copy, File, Folder, Link2, LockKeyhole, Unlink } from 'lucide-react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -13,6 +13,8 @@ import { ConfirmDialog } from '@/shared/ui/confirm-dialog';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table';
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group';
+
+import { formatBytes } from '@/features/files/browser.utils';
 
 import { loadShares, revokeShare, type ShareView } from './server/share-actions';
 
@@ -28,6 +30,7 @@ interface SharesContainerProps {
 export function SharesContainer({ initial, canManage, ownerNames }: SharesContainerProps) {
   const t = useTranslations('shares.page');
   const format = useFormatter();
+  const locale = useLocale();
   const errorMessage = useErrorMessage();
   const queryClient = useQueryClient();
   const [scope, setScope] = useState<'mine' | 'all'>('mine');
@@ -99,7 +102,7 @@ export function SharesContainer({ initial, canManage, ownerNames }: SharesContai
                 )}
                 <TableHead>{t('columns.status')}</TableHead>
                 <TableHead className="hidden sm:table-cell">{t('columns.expires')}</TableHead>
-                <TableHead className="hidden md:table-cell">{t('columns.downloads')}</TableHead>
+                <TableHead className="hidden md:table-cell">{t('columns.use')}</TableHead>
                 <TableHead className="w-24">
                   <span className="sr-only">{t('columns.actions')}</span>
                 </TableHead>
@@ -131,6 +134,7 @@ export function SharesContainer({ initial, canManage, ownerNames }: SharesContai
                             )}
                           </span>
                           <span className="text-muted-foreground block max-w-72 truncate text-xs">
+                            {share.kind === 'upload' ? t('kindUpload') : t('kindDownload')} ·{' '}
                             {share.path}
                           </span>
                         </span>
@@ -154,9 +158,14 @@ export function SharesContainer({ initial, canManage, ownerNames }: SharesContai
                       })}
                     </TableCell>
                     <TableCell className="text-muted-foreground hidden tabular-nums md:table-cell">
-                      {share.maxDownloads === null
-                        ? share.downloadCount
-                        : `${String(share.downloadCount)} / ${String(share.maxDownloads)}`}
+                      {share.kind === 'upload'
+                        ? t('received', {
+                            count: share.uploadedFiles,
+                            size: formatBytes(share.uploadedBytes, locale),
+                          })
+                        : share.maxDownloads === null
+                          ? share.downloadCount
+                          : `${String(share.downloadCount)} / ${String(share.maxDownloads)}`}
                     </TableCell>
                     <TableCell>
                       <span className="flex justify-end gap-1">

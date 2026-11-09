@@ -2,6 +2,7 @@ import {
   downstreamHeaders,
   readCookie,
   relayLocation,
+  relayPrefixFor,
   relayTarget,
   sameOrigin,
   shareCookie,
@@ -42,7 +43,11 @@ describe('relayTarget', () => {
       '/v1/fs/archive?path=%2Fa',
     );
     expect(relayTarget('GET', '/api/engine/share/v1/fs/preview?path=%2Fa')).toBeNull();
-    expect(relayTarget('POST', '/api/engine/share/v1/uploads/')).toBeNull();
+    expect(relayTarget('POST', '/api/engine/share/v1/uploads/')).toBe('/v1/uploads/');
+    expect(relayTarget('PATCH', `/api/engine/share/v1/uploads/${'b'.repeat(32)}`)).toBe(
+      `/v1/uploads/${'b'.repeat(32)}`,
+    );
+    expect(relayTarget('PUT', '/api/engine/share/v1/uploads/')).toBeNull();
     expect(ticketCookieFor('/api/engine/share/v1/fs/download')).toBe(shareCookie);
     expect(ticketCookieFor('/api/engine/stream/v1/fs/download')).toBe(ticketCookie);
     expect(ticketCookieFor('/files')).toBeNull();
@@ -96,6 +101,11 @@ describe('uploads', () => {
       '/api/engine/stream/v1/uploads/abc',
     );
     expect(relayLocation('/elsewhere')).toBeNull();
+    expect(relayLocation('http://engine:8080/v1/uploads/abc', sharePrefix)).toBe(
+      '/api/engine/share/v1/uploads/abc',
+    );
+    expect(relayPrefixFor('/api/engine/share/v1/uploads/')).toBe(sharePrefix);
+    expect(relayPrefixFor('/elsewhere')).toBeNull();
     expect(relayLocation(undefined)).toBeNull();
     expect(
       downstreamHeaders({ location: 'http://engine/v1/uploads/abc', 'upload-offset': '5' }),

@@ -30,15 +30,23 @@ import { formatBytes } from '@/features/files/browser.utils';
 import { prepareShareDownload, unlockShare } from './server/public-share-actions';
 import type { PublicShare, SharedItem } from './server/public-share';
 import { sharedCrumbs, sharePasswordMaxLength } from './shares.utils';
+import { LinkUpload } from './ui/link-upload';
 
 /** What a visitor of a share link sees: the password gate, the shared file, or the folder. */
 export function PublicShareContainer({ token, share }: { token: string; share: PublicShare }) {
   if (share.state === 'locked') return <Unlock token={token} item={share.item} />;
+  if (share.state === 'upload') {
+    return <LinkUpload token={token} item={share.item} rules={share.rules} usage={share.usage} />;
+  }
   if (share.state !== 'open') return <Unavailable state={share.state} />;
   return <Shared token={token} share={share} />;
 }
 
-function Unavailable({ state }: { state: Exclude<PublicShare['state'], 'open' | 'locked'> }) {
+function Unavailable({
+  state,
+}: {
+  state: Exclude<PublicShare['state'], 'open' | 'locked' | 'upload'>;
+}) {
   const t = useTranslations('shares.public');
   return (
     <Card className="w-full max-w-md">

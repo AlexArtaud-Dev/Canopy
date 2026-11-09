@@ -13,6 +13,7 @@ import { pipeline } from 'node:stream';
 import {
   downstreamHeaders,
   readCookie,
+  relayPrefixFor,
   relayTarget,
   sameOrigin,
   ticketCookieFor,
@@ -51,7 +52,10 @@ function relay(request, response) {
     headers: upstreamHeaders(request.headers, ticket, requestId),
   });
   upstream.on('response', (engine) => {
-    response.writeHead(engine.statusCode ?? 502, downstreamHeaders(engine.headers));
+    response.writeHead(
+      engine.statusCode ?? 502,
+      downstreamHeaders(engine.headers, relayPrefixFor(request.url) ?? undefined),
+    );
     pipeline(engine, response, () => {
       // Either side closed: pipeline tears both down.
     });

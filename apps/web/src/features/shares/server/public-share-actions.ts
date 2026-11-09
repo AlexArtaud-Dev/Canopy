@@ -20,10 +20,11 @@ import {
   sharedPathSchema,
   sharePasswordMaxLength,
   shareStatus,
+  uploadRefusal,
 } from '../shares.utils';
 import { findByToken, isSecure, isUnlocked, rememberUnlock } from './public-share';
-import { shareStreamTicket } from './share-engine';
-import { consumeDownload, type ShareRow } from './share-store';
+import { shareStreamTicket, shareUploadTicket } from './share-engine';
+import { consumeDownload, reserveUpload, type ShareRow } from './share-store';
 
 /** Wrong passwords per link and address: slow enough that guessing is hopeless. */
 const unlockRule = { limit: 10, windowSeconds: 15 * 60 };
@@ -108,4 +109,70 @@ export async function prepareShareDownload(
     const route = parsed.data.folder ? 'archive' : 'download';
     return { href: `${shareTicketPath}/v1/fs/${route}?path=${encodeURIComponent(target)}` };
   });
+}
+
+const uploadSchema = z.object({
+  token: z.string().max(64),
+  name: z.string().min(1).max(255),
+  size: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER),
+});
+
+/**
+ * Before each file sent through an upload link: checks it against the link's rules, reserves its
+ * place (atomically), then hands the browser a ticket for that one file. The engine checks the
+ * name, size and folder again and accepts the ticket for one upload only.
+ */
+export async function prepareLinkUpload(
+  input: unknown,
+): Promise<ActionResult<{ endpoint: string; folder: string }>> {
+  return runAction(async () => {
+    const parsed = uploadSchema.safeParse(input);
+    if (!parsed.success || !isFileName(parsed.data.name)) {
+      throw new AppBaseError('files.invalid_name', 'invalid file name');
+    }
+    const file = { name: parsed.data.name, size: parsed.data.size };
+    const share = await activeShare(parsed.data.token);
+    if (share.kind !== 'upload') throw new AppBaseError('shares.not_found', 'not an upload link');
+    if (!(await isUnlocked(share))) throw new AppBaseError('shares.locked', 'password needed');
+    const refusal = uploadRefusal(
+      {
+        allowedExtensions: share.allowedExtensions,
+        maxFileBytes: share.maxFileBytes,
+        maxTotalBytes: share.maxTotalBytes,
+        maxFiles: share.maxFiles,
+      },
+      share,
+      file,
+    );
+    if (refusal) throw new AppBaseError(refusal, 'outside the link rules');
+    if (!(await reserveUpload(share.id, file.size))) {
+      throw new AppBaseError('shares.total_exceeded', 'no room left on the link');
+    }
+    (await cookies()).set(shareTicketCookie, await shareUploadTicket(share, file), {
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: isSecure(),
+      path: shareTicketPath,
+      maxAge: engineTokenLifetimeSeconds,
+    });
+    await audit({
+      action: 'shares.upload',
+      result: 'success',
+      actorId: null,
+      target: share.path,
+      meta: { share: share.id, owner: share.ownerId, name: file.name, bytes: file.size },
+    });
+    return { endpoint: `${shareTicketPath}/v1/uploads/`, folder: share.path };
+  });
+}
+
+/** One plain file name: no folders, no control characters, nothing the system keeps for itself. */
+function isFileName(name: string): boolean {
+  if (name === '.' || name === '..' || name.startsWith('.canopy-')) return false;
+  for (let index = 0; index < name.length; index += 1) {
+    // Control characters and separators are all single UTF-16 units.
+    const code = name.charCodeAt(index);
+    if (code < 0x20 || code === 0x2f || code === 0x5c) return false;
+  }
+  return true;
 }

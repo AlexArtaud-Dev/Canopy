@@ -14,6 +14,8 @@ import {
   shareStatus,
   tokenSchema,
   type ShareStatus,
+  type UploadRules,
+  type UploadUsage,
 } from '../shares.utils';
 import { engineClientForShare } from './share-engine';
 import { findShareByTokenHash, touchShare, type ShareRow } from './share-store';
@@ -46,6 +48,13 @@ export type PublicShare =
   | { state: 'missing' }
   | { state: Exclude<ShareStatus, 'active'> }
   | { state: 'locked'; item: SharedItem }
+  | {
+      /** An upload link: visitors send files, they never see the folder's content. */
+      state: 'upload';
+      item: SharedItem;
+      rules: UploadRules;
+      usage: UploadUsage;
+    }
   | {
       state: 'open';
       item: SharedItem;
@@ -112,10 +121,34 @@ export async function loadPublicShare(token: string, relative: string): Promise<
   const share = await findByToken(token);
   if (!share) return { state: 'missing' };
   const status = shareStatus(share, new Date());
-  if (status !== 'active') return { state: status };
+  // A full upload link stays on its page (which says nothing more can be sent): visitors keep
+  // seeing what they just sent.
+  const full = status === 'exhausted' && share.kind === 'upload';
+  if (status !== 'active' && !full) return { state: status };
   if (!(await isUnlocked(share))) return { state: 'locked', item: itemOf(share) };
 
   const item = itemOf(share);
+  if (share.kind === 'upload') {
+    await touchShare(share.id);
+    await audit({
+      action: 'shares.open',
+      result: 'success',
+      actorId: null,
+      target: share.path,
+      meta: { share: share.id, owner: share.ownerId },
+    });
+    return {
+      state: 'upload',
+      item,
+      rules: {
+        allowedExtensions: share.allowedExtensions,
+        maxFileBytes: share.maxFileBytes,
+        maxTotalBytes: share.maxTotalBytes,
+        maxFiles: share.maxFiles,
+      },
+      usage: { uploadedBytes: share.uploadedBytes, uploadedFiles: share.uploadedFiles },
+    };
+  }
   let path = '/';
   let entries: SharedEntry[] = [];
   let truncated = false;

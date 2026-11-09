@@ -19,5 +19,6 @@ export const sharesModule = defineModule({
     'shares.open',
     'shares.unlock_failed',
     'shares.download',
+    'shares.upload',
   ],
 });
