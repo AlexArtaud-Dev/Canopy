@@ -14,8 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tus/tusd/v2/pkg/filelocker"
-	"github.com/tus/tusd/v2/pkg/filestore"
 	tusd "github.com/tus/tusd/v2/pkg/handler"
 	expslog "golang.org/x/exp/slog"
 
@@ -35,8 +33,8 @@ const (
 	HeaderResult = "X-Canopy-Result"
 )
 
-// uploadID matches the ids tusd's file store generates (hex), never a path.
-var uploadID = regexp.MustCompile(`^[0-9a-f]{16,64}$`)
+// uploadID matches ids made by NewID (random hex, then the volume name in hex), never a path.
+var uploadID = regexp.MustCompile(`^[0-9a-f]{32}(?:[0-9a-f]{2}){0,255}$`)
 
 // Files is the slice of fsx.Resolver uploads need.
 type Files interface {
@@ -55,11 +53,12 @@ type Auditor interface {
 
 // Config wires the service.
 type Config struct {
-	// HostDir is the staging folder on disk (<root>/.canopy-uploads), engine-owned.
-	HostDir string
-	Files   Files
-	Grants  transfer.Grants
-	Audit   Auditor
+	// Root is the managed root on disk; each volume stages its uploads in <volume>/.canopy-uploads.
+	Root   string
+	Stager Stager
+	Files  Files
+	Grants transfer.Grants
+	Audit  Auditor
 	// Limits reads the current upload settings (on each new upload, so changes apply at once).
 	Limits func(ctx context.Context) (Limits, error)
 	Logger *slog.Logger
@@ -69,17 +68,18 @@ type Config struct {
 // Service is the tus endpoint with Canopy's checks.
 type Service struct {
 	cfg     Config
-	store   filestore.FileStore
+	stores  *volumeStores
 	handler http.Handler
 }
 
-// New builds the tus handler over a file store in the staging folder.
+// New builds the tus handler over one file store per volume.
 func New(cfg Config) (*Service, error) {
-	store := filestore.New(cfg.HostDir)
+	stores := &volumeStores{root: cfg.Root, stager: cfg.Stager, dirs: map[string]string{}}
 	composer := tusd.NewStoreComposer()
-	store.UseIn(composer)
-	filelocker.New(cfg.HostDir).UseIn(composer)
-	service := &Service{cfg: cfg, store: store}
+	composer.UseCore(stores)
+	composer.UseTerminater(stores)
+	composer.UseLocker(stores)
+	service := &Service{cfg: cfg, stores: stores}
 	handler, err := tusd.NewHandler(tusd.Config{
 		BasePath:        BasePath,
 		StoreComposer:   composer,
@@ -120,7 +120,7 @@ func (s *Service) owns(ctx context.Context, id, user string) bool {
 	if !uploadID.MatchString(id) {
 		return false
 	}
-	upload, err := s.store.GetUpload(ctx, id)
+	upload, err := s.stores.GetUpload(ctx, id)
 	if err != nil {
 		return false
 	}
@@ -145,7 +145,11 @@ func (s *Service) beforeCreate(hook tusd.HookEvent) (tusd.HTTPResponse, tusd.Fil
 		"owner": principal.UserID, "destination": request.Folder, "relativeDir": request.RelativeDir,
 		"filename": request.Name, "strategy": request.Strategy,
 	}
-	return tusd.HTTPResponse{}, tusd.FileInfoChanges{MetaData: meta}, nil
+	id, err := NewID(VolumeOf(request.Folder))
+	if err != nil {
+		return tusd.HTTPResponse{}, none, err
+	}
+	return tusd.HTTPResponse{}, tusd.FileInfoChanges{ID: id, MetaData: meta}, nil
 }
 
 // checkCreate refuses an upload before any byte is sent: limits, permission, conflict, space.
@@ -201,7 +205,8 @@ func (s *Service) beforeFinish(hook tusd.HookEvent) (tusd.HTTPResponse, error) {
 		}
 		return tusd.HTTPResponse{}, err
 	}
-	if err := s.cfg.Files.ImportStaged(path.Join(fsx.StagingDir, hook.Upload.ID), target); err != nil {
+	staged, _ := StagedPath(hook.Upload.ID)
+	if err := s.cfg.Files.ImportStaged(staged, target); err != nil {
 		s.discard(hook.Upload.ID)
 		if errors.Is(err, fsx.ErrExists) {
 			return tusd.HTTPResponse{}, refusal(fsx.CodeExists, http.StatusConflict)
@@ -260,23 +265,58 @@ func (s *Service) place(ctx context.Context, principal enginetoken.Principal, re
 	}
 }
 
+// stagingDir is the host folder holding an upload (empty when the id is not one of ours).
+func (s *Service) stagingDir(id string) string {
+	staged, ok := StagedPath(id)
+	if !ok {
+		return ""
+	}
+	return filepath.Join(s.cfg.Root, filepath.FromSlash(path.Dir(staged)))
+}
+
 func (s *Service) removeMeta(id string) {
+	dir := s.stagingDir(id)
+	if dir == "" {
+		return
+	}
 	for _, suffix := range []string{".info", ".lock"} {
-		_ = os.Remove(filepath.Join(s.cfg.HostDir, id+suffix))
+		_ = os.Remove(filepath.Join(dir, id+suffix))
 	}
 }
 
 func (s *Service) discard(id string) {
-	if !uploadID.MatchString(id) {
+	dir := s.stagingDir(id)
+	if dir == "" {
 		return
 	}
-	_ = os.Remove(filepath.Join(s.cfg.HostDir, id))
+	_ = os.Remove(filepath.Join(dir, id))
 	s.removeMeta(id)
 }
 
-// PurgeStale deletes uploads abandoned for longer than maxAge (their .info file is untouched).
+// PurgeStale deletes uploads abandoned for longer than maxAge (their .info file is untouched),
+// in every volume's staging folder, including ones left by an earlier run.
 func (s *Service) PurgeStale(maxAge time.Duration) int {
-	entries, err := os.ReadDir(s.cfg.HostDir)
+	purged := 0
+	for _, dir := range s.stagingDirs() {
+		purged += s.purgeIn(dir, maxAge)
+	}
+	return purged
+}
+
+func (s *Service) stagingDirs() []string {
+	dirs := []string{filepath.Join(s.cfg.Root, fsx.StagingDir)}
+	if volumes, err := os.ReadDir(s.cfg.Root); err == nil {
+		for _, volume := range volumes {
+			if volume.IsDir() && !fsx.Reserved(volume.Name()) {
+				dirs = append(dirs, filepath.Join(s.cfg.Root, volume.Name(), fsx.StagingDir))
+			}
+		}
+	}
+	return dirs
+}
+
+func (s *Service) purgeIn(dir string, maxAge time.Duration) int {
+	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return 0
 	}

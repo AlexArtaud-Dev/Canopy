@@ -10,7 +10,11 @@ const routes = [
   { methods: ['GET'], path: /^\/v1\/fs\/archive$/ },
   // tus: create an upload, then resume (HEAD), send bytes (PATCH) or cancel (DELETE) it.
   { methods: ['POST'], path: /^\/v1\/uploads\/$/ },
-  { methods: ['HEAD', 'PATCH', 'DELETE'], path: /^\/v1\/uploads\/[0-9a-f]{16,64}$/ },
+  // Upload ids: 32 random hex characters, then the volume name in hex (engine's uploads.NewID).
+  {
+    methods: ['HEAD', 'PATCH', 'DELETE'],
+    path: /^\/v1\/uploads\/[0-9a-f]{32}(?:[0-9a-f]{2}){0,255}$/,
+  },
 ];
 
 /** Engine path and query for a relayed URL, or null when the route is not allowed. */

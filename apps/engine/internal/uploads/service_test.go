@@ -71,22 +71,19 @@ func newHarness(t *testing.T) *harness {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = resolver.Close() })
-	staging, err := resolver.EnsureStaging()
-	if err != nil {
-		t.Fatal(err)
-	}
 	h := &harness{t: t, dir: dir, audit: &fakeAudit{}, grants: fakeGrants{grants: []authz.Grant{
 		{SubjectType: authz.SubjectUser, SubjectID: "bob", Path: "/in", Actions: []string{"read", "upload", "create", "update"}, Effect: authz.EffectAllow},
 		{SubjectType: authz.SubjectUser, SubjectID: "bob", Path: "/in/locked", Actions: []string{"upload", "update"}, Effect: authz.EffectDeny},
 	}}}
 	h.service, err = New(Config{
-		HostDir: filepath.Join(dir, staging),
-		Files:   resolver,
-		Grants:  &h.grants,
-		Audit:   h.audit,
-		Limits:  func(context.Context) (Limits, error) { return h.limits, nil },
-		Logger:  slog.New(slog.NewTextHandler(io.Discard, nil)),
-		Now:     time.Now,
+		Root:   dir,
+		Stager: resolver,
+		Files:  resolver,
+		Grants: &h.grants,
+		Audit:  h.audit,
+		Limits: func(context.Context) (Limits, error) { return h.limits, nil },
+		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+		Now:    time.Now,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -164,7 +161,7 @@ func TestUploadFlows(t *testing.T) {
 		t.Fatalf("folder upload: %v", finished.Header())
 	}
 
-	staged, _ := os.ReadDir(filepath.Join(h.dir, fsx.StagingDir))
+	staged, _ := os.ReadDir(filepath.Join(h.dir, "in", fsx.StagingDir))
 	for _, entry := range staged {
 		if !strings.HasSuffix(entry.Name(), ".lock") {
 			t.Fatalf("staging is emptied after each upload: %s", entry.Name())
@@ -262,9 +259,9 @@ func TestPurgeStale(t *testing.T) {
 	if purged := h.service.PurgeStale(24 * time.Hour); purged != 1 {
 		t.Fatalf("abandoned upload purged: %d", purged)
 	}
-	h.service.cfg.HostDir = filepath.Join(h.dir, "missing")
+	h.service.cfg.Root = filepath.Join(h.dir, "missing")
 	if h.service.PurgeStale(time.Hour) != 0 {
-		t.Fatal("missing staging folder")
+		t.Fatal("missing root")
 	}
 }
 

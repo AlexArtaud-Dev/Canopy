@@ -27,11 +27,11 @@ describe('relayTarget', () => {
     expect(relayTarget('GET', undefined)).toBeNull();
     expect(streamPrefix).toBe('/api/engine/stream');
     expect(relayTarget('POST', '/api/engine/stream/v1/uploads/')).toBe('/v1/uploads/');
-    expect(relayTarget('PATCH', '/api/engine/stream/v1/uploads/0123456789abcdef')).toBe(
-      '/v1/uploads/0123456789abcdef',
-    );
+    const id = `${'a'.repeat(32)}6d65646961`;
+    expect(relayTarget('PATCH', `/api/engine/stream/v1/uploads/${id}`)).toBe(`/v1/uploads/${id}`);
+    expect(relayTarget('PATCH', '/api/engine/stream/v1/uploads/0123456789abcdef')).toBeNull();
     expect(relayTarget('PATCH', '/api/engine/stream/v1/uploads/not-an-id')).toBeNull();
-    expect(relayTarget('GET', '/api/engine/stream/v1/uploads/0123456789abcdef')).toBeNull();
+    expect(relayTarget('GET', `/api/engine/stream/v1/uploads/${id}`)).toBeNull();
   });
 });
 

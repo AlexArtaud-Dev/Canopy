@@ -19,9 +19,23 @@ func TestReservedNames(t *testing.T) {
 	}
 
 	r, dir := newOpsTree(t)
-	staging, err := r.EnsureStaging()
+	staging, err := r.EnsureStagingIn("")
 	if err != nil || staging != StagingDir {
 		t.Fatalf("staging: %s %v", staging, err)
+	}
+	if volume, err := r.EnsureStagingIn("a"); err != nil || volume != "a/"+StagingDir {
+		t.Fatalf("volume staging: %s %v", volume, err)
+	}
+	for _, bad := range []string{"a/b", "..", StagingDir} {
+		if _, err := r.EnsureStagingIn(bad); !errors.Is(err, ErrInvalidPath) {
+			t.Fatalf("volume %q: %v", bad, err)
+		}
+	}
+	if _, err := r.EnsureStagingIn("missing"); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("missing volume: %v", err)
+	}
+	if _, err := r.EnsureStagingIn("a.txt"); err == nil {
+		t.Fatal("a file is not a volume")
 	}
 	must(t, os.WriteFile(filepath.Join(dir, StagingDir, "upload"), []byte("x"), 0o600))
 	entries, err := r.ReadDir("/")
@@ -52,7 +66,7 @@ func TestReservedNames(t *testing.T) {
 
 func TestImportStaged(t *testing.T) {
 	r, dir := newOpsTree(t)
-	staging, err := r.EnsureStaging()
+	staging, err := r.EnsureStagingIn("a")
 	must(t, err)
 	write := func(name, content string) string {
 		must(t, os.WriteFile(filepath.Join(dir, staging, name), []byte(content), 0o600))
@@ -66,7 +80,7 @@ func TestImportStaged(t *testing.T) {
 	if err := r.ImportStaged(write("u2", "x"), "/a/new.txt"); !errors.Is(err, ErrExists) {
 		t.Fatalf("never replaces: %v", err)
 	}
-	for _, staged := range []string{"elsewhere/u2", staging, "../u2"} {
+	for _, staged := range []string{"elsewhere/u2", staging, "../u2", "a/b/" + StagingDir + "/u2", staging + "/../u2"} {
 		if err := r.ImportStaged(staged, "/a/z.txt"); !errors.Is(err, ErrInvalidPath) {
 			t.Fatalf("staged %q: %v", staged, err)
 		}

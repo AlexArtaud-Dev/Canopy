@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
@@ -175,21 +174,19 @@ func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, gra
 	return &jobService{runner: runner, hub: jobs.NewHub()}, nil
 }
 
-// startUploads prepares the staging folder inside the root and the tus endpoint, and purges
+// startUploads prepares the tus endpoint, and purges
 // uploads abandoned for a day, every hour.
 func startUploads(ctx context.Context, root string, resolver *fsx.Resolver, grants *grantstore.Store, pool *pgxpool.Pool, logger *slog.Logger) (*uploads.Service, error) {
-	staging, err := resolver.EnsureStaging()
-	if err != nil {
-		return nil, err
-	}
+	// Staging folders are created per volume on first use: the root may be read-only (Docker).
 	service, err := uploads.New(uploads.Config{
-		HostDir: filepath.Join(root, staging),
-		Files:   resolver,
-		Grants:  grants,
-		Audit:   audit.NewWriter(pool),
-		Limits:  func(ctx context.Context) (uploads.Limits, error) { return uploads.LoadLimits(ctx, pool) },
-		Logger:  logger,
-		Now:     time.Now,
+		Root:   root,
+		Stager: resolver,
+		Files:  resolver,
+		Grants: grants,
+		Audit:  audit.NewWriter(pool),
+		Limits: func(ctx context.Context) (uploads.Limits, error) { return uploads.LoadLimits(ctx, pool) },
+		Logger: logger,
+		Now:    time.Now,
 	})
 	if err != nil {
 		return nil, err

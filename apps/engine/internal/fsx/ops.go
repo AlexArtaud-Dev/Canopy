@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"strings"
 	"syscall"
 )
 
@@ -73,19 +74,37 @@ func (r *Resolver) OpenFile(virtual string) (*os.File, Entry, error) {
 	return file, toEntry(clean, info), nil
 }
 
-// EnsureStaging creates the upload staging folder and returns its name inside the root.
-func (r *Resolver) EnsureStaging() (string, error) {
-	if err := r.root.MkdirAll(StagingDir, 0o700); err != nil {
+// EnsureStagingIn creates a volume's upload staging folder (the root's own for "") and returns
+// it relative to the root. The volume must be an existing folder directly under the root.
+func (r *Resolver) EnsureStagingIn(volume string) (string, error) {
+	staging := StagingDir
+	if volume != "" {
+		if !ValidName(volume) || Reserved(volume) {
+			return "", ErrInvalidPath
+		}
+		info, err := r.root.Lstat(volume)
+		if err != nil {
+			return "", notFound(err)
+		}
+		if !info.IsDir() {
+			return "", ErrNotDir
+		}
+		staging = volume + "/" + StagingDir
+	}
+	if err := r.root.MkdirAll(staging, 0o700); err != nil {
 		return "", fmt.Errorf("staging folder: %w", err)
 	}
-	return StagingDir, nil
+	return staging, nil
 }
 
 // ImportStaged moves a finished upload (staged name, chosen by the engine, never by a client)
 // to its virtual path. Never replaces an existing entry; across filesystems it copies then
 // removes the staged file.
 func (r *Resolver) ImportStaged(staged, to string) error {
-	if path.Dir(staged) != StagingDir || path.Base(staged) == StagingDir {
+	// Engine-chosen: <volume>/.canopy-uploads/<id>, or .canopy-uploads/<id> at the root.
+	parent := path.Dir(staged)
+	if path.Base(parent) != StagingDir || strings.Contains(path.Dir(parent), "/") ||
+		path.Base(staged) == StagingDir || strings.Contains(staged, "..") {
 		return ErrInvalidPath
 	}
 	dst, err := Clean(to)
