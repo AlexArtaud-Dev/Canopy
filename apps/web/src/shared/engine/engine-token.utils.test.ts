@@ -10,6 +10,8 @@ import {
   pkcs8FromSeed,
   streamTicketAudience,
   streamTicketCookie,
+  shareTicketCookie,
+  shareTicketPath,
   streamTicketPath,
 } from './engine-token.utils';
 
@@ -38,5 +40,6 @@ describe('stream tickets', () => {
     expect(streamTicketAudience).toBe('canopy-engine-stream');
     expect(streamTicketCookie).toBe('canopy_stream');
     expect(streamTicketPath).toBe('/api/engine/stream');
+    expect([shareTicketCookie, shareTicketPath]).toEqual(['canopy_share', '/api/engine/share']);
   });
 });

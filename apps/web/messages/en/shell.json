@@ -13,7 +13,8 @@
     "email": "Email",
     "settings": "Settings",
     "audit": "Audit log",
-    "trash": "Trash"
+    "trash": "Trash",
+    "shares": "Shares"
   },
   "preferences": {
     "appearance": "Appearance",

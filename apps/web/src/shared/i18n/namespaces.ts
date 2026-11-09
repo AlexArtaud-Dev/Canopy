@@ -13,6 +13,7 @@ export const namespaces = [
   'jobs',
   'mail',
   'settings',
+  'shares',
   'shell',
   'system',
   'trash',

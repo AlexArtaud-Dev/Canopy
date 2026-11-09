@@ -1,0 +1,70 @@
+{
+  "dialog": {
+    "title": "Compartir «{name}»",
+    "description": "Cualquiera con el enlace puede descargarlo hasta que caduque. Puedes revocarlo en cualquier momento desde Compartidos.",
+    "expiry": "Enlace válido durante",
+    "days": "{count, plural, one {# día} other {# días}}",
+    "password": "Contraseña",
+    "passwordOptional": "Contraseña (opcional)",
+    "passwordHint": "Los visitantes deben escribirla antes de ver nada. Envíala por separado del enlace.",
+    "limit": "Limitar el número de descargas",
+    "limitCount": "Descargas máximas",
+    "create": "Crear enlace",
+    "cancel": "Cancelar",
+    "link": "Enlace",
+    "linkHint": "Podrás copiarlo de nuevo desde Compartidos.",
+    "copy": "Copiar",
+    "copied": "Enlace copiado",
+    "done": "Listo"
+  },
+  "page": {
+    "description": "Los enlaces que creaste a archivos y carpetas. Un enlace deja de funcionar cuando caduca, alcanza su límite de descargas o se revoca.",
+    "mine": "Mis enlaces",
+    "all": "Todos los enlaces",
+    "emptyTitle": "No hay enlaces compartidos",
+    "emptyDescription": "Haz clic derecho en un archivo o carpeta en Archivos y elige Compartir para crear uno.",
+    "columns": {
+      "item": "Elemento compartido",
+      "owner": "Creado por",
+      "status": "Estado",
+      "expires": "Caduca",
+      "downloads": "Descargas",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activo",
+      "expired": "Caducado",
+      "revoked": "Revocado",
+      "exhausted": "Límite alcanzado"
+    },
+    "protected": "Protegido con contraseña",
+    "copy": "Copiar el enlace a {name}",
+    "copied": "Enlace copiado",
+    "revoke": "Revocar el enlace a {name}",
+    "revokeTitle": "¿Revocar el enlace a «{name}»?",
+    "revokeDescription": "Deja de funcionar de inmediato para todos los que lo tienen. No se puede deshacer; podrás crear un enlace nuevo más tarde.",
+    "revokeConfirm": "Revocar",
+    "revoked": "Enlace revocado"
+  },
+  "public": {
+    "title": "Compartido contigo",
+    "locked": "Este enlace está protegido con contraseña.",
+    "password": "Contraseña",
+    "unlock": "Abrir",
+    "download": "Descargar",
+    "downloadAll": "Descargar todo (zip)",
+    "downloadItem": "Descargar {name}",
+    "breadcrumbs": "Ubicación en la carpeta compartida",
+    "expires": "Disponible hasta el {date}",
+    "downloadsLeft": "{count, plural, one {# descarga restante} other {# descargas restantes}}",
+    "emptyFolder": "Esta carpeta está vacía.",
+    "truncated": "Solo se muestran los primeros elementos. Descarga la carpeta para obtenerlo todo.",
+    "unavailable": {
+      "missing": "Este enlace no existe",
+      "expired": "Este enlace ha caducado",
+      "revoked": "Este enlace fue revocado",
+      "exhausted": "Este enlace alcanzó su límite de descargas"
+    },
+    "unavailableHint": "Pide un enlace nuevo a la persona que te lo envió."
+  }
+}

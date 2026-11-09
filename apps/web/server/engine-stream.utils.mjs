@@ -3,6 +3,10 @@
 
 export const streamPrefix = '/api/engine/stream';
 export const ticketCookie = 'canopy_stream';
+// Share links download through their own prefix and cookie, so a visitor who is also signed in
+// never has their own ticket replaced (and a share ticket never reaches upload routes).
+export const sharePrefix = '/api/engine/share';
+export const shareCookie = 'canopy_share';
 
 /** Engine routes the browser may reach through the relay, by method. Everything else is a 404. */
 const routes = [
@@ -17,13 +21,35 @@ const routes = [
   },
 ];
 
+const shareRoutes = [
+  { methods: ['GET', 'HEAD'], path: /^\/v1\/fs\/download$/ },
+  { methods: ['GET'], path: /^\/v1\/fs\/archive$/ },
+];
+
+const channels = [
+  { prefix: streamPrefix, cookie: ticketCookie, routes },
+  { prefix: sharePrefix, cookie: shareCookie, routes: shareRoutes },
+];
+
+function channelOf(url) {
+  return url ? channels.find((channel) => url.startsWith(`${channel.prefix}/`)) : undefined;
+}
+
+/** The ticket cookie for a relayed URL, or null when the URL is not for the relay. */
+export function ticketCookieFor(url) {
+  return channelOf(url)?.cookie ?? null;
+}
+
 /** Engine path and query for a relayed URL, or null when the route is not allowed. */
 export function relayTarget(method, url) {
-  if (!method || !url || !url.startsWith(`${streamPrefix}/`)) return null;
+  const channel = channelOf(url);
+  if (!method || !channel) return null;
   const parsed = new URL(url, 'http://canopy.invalid');
-  const path = parsed.pathname.slice(streamPrefix.length);
+  const path = parsed.pathname.slice(channel.prefix.length);
   if (path.includes('..') || path.includes('//')) return null;
-  const allowed = routes.some((route) => route.methods.includes(method) && route.path.test(path));
+  const allowed = channel.routes.some(
+    (route) => route.methods.includes(method) && route.path.test(path),
+  );
   return allowed ? path + parsed.search : null;
 }
 

@@ -1,0 +1,70 @@
+{
+  "dialog": {
+    "title": "Partager « {name} »",
+    "description": "Toute personne disposant du lien peut le télécharger jusqu’à son expiration. Vous pouvez le révoquer à tout moment depuis Partages.",
+    "expiry": "Lien valable",
+    "days": "{count, plural, one {# jour} other {# jours}}",
+    "password": "Mot de passe",
+    "passwordOptional": "Mot de passe (facultatif)",
+    "passwordHint": "Les visiteurs doivent le saisir avant de voir quoi que ce soit. Envoyez-le séparément du lien.",
+    "limit": "Limiter le nombre de téléchargements",
+    "limitCount": "Téléchargements maximum",
+    "create": "Créer le lien",
+    "cancel": "Annuler",
+    "link": "Lien",
+    "linkHint": "Vous pourrez le copier de nouveau depuis Partages.",
+    "copy": "Copier",
+    "copied": "Lien copié",
+    "done": "Terminé"
+  },
+  "page": {
+    "description": "Les liens que vous avez créés vers des fichiers et dossiers. Un lien cesse de fonctionner lorsqu’il expire, atteint sa limite de téléchargements ou est révoqué.",
+    "mine": "Mes liens",
+    "all": "Tous les liens",
+    "emptyTitle": "Aucun lien de partage",
+    "emptyDescription": "Faites un clic droit sur un fichier ou un dossier dans Fichiers et choisissez Partager pour en créer un.",
+    "columns": {
+      "item": "Élément partagé",
+      "owner": "Créé par",
+      "status": "État",
+      "expires": "Expire le",
+      "downloads": "Téléchargements",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Actif",
+      "expired": "Expiré",
+      "revoked": "Révoqué",
+      "exhausted": "Limite atteinte"
+    },
+    "protected": "Protégé par mot de passe",
+    "copy": "Copier le lien vers {name}",
+    "copied": "Lien copié",
+    "revoke": "Révoquer le lien vers {name}",
+    "revokeTitle": "Révoquer le lien vers « {name} » ?",
+    "revokeDescription": "Il cesse immédiatement de fonctionner pour tous ceux qui l’ont. C’est irréversible ; vous pourrez créer un nouveau lien plus tard.",
+    "revokeConfirm": "Révoquer",
+    "revoked": "Lien révoqué"
+  },
+  "public": {
+    "title": "Partagé avec vous",
+    "locked": "Ce lien est protégé par un mot de passe.",
+    "password": "Mot de passe",
+    "unlock": "Ouvrir",
+    "download": "Télécharger",
+    "downloadAll": "Tout télécharger (zip)",
+    "downloadItem": "Télécharger {name}",
+    "breadcrumbs": "Emplacement dans le dossier partagé",
+    "expires": "Disponible jusqu’au {date}",
+    "downloadsLeft": "{count, plural, one {# téléchargement restant} other {# téléchargements restants}}",
+    "emptyFolder": "Ce dossier est vide.",
+    "truncated": "Seuls les premiers éléments sont listés. Téléchargez le dossier pour tout obtenir.",
+    "unavailable": {
+      "missing": "Ce lien n’existe pas",
+      "expired": "Ce lien a expiré",
+      "revoked": "Ce lien a été révoqué",
+      "exhausted": "Ce lien a atteint sa limite de téléchargements"
+    },
+    "unavailableHint": "Demandez un nouveau lien à la personne qui vous l’a envoyé."
+  }
+}

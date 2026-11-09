@@ -6,7 +6,8 @@ import { isLocalRequest } from '@/shared/request/local-request';
 import { resolveRequestId } from '@/shared/request/request-id';
 import { buildContentSecurityPolicy } from '@/shared/security/csp';
 
-const publicPaths = ['/login', '/setup', '/forgot-password', '/set-password', '/maintenance'];
+// `/s/<token>`: share links, opened by people without an account.
+const publicPaths = ['/login', '/setup', '/forgot-password', '/set-password', '/maintenance', '/s'];
 const sessionCookies = ['canopy.session_token', '__Secure-canopy.session_token'];
 
 function isPublic(pathname: string): boolean {

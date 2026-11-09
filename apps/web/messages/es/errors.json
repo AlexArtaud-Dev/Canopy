@@ -91,5 +91,15 @@
   },
   "trash": {
     "not_found": "Este elemento ya no está en la papelera."
+  },
+  "shares": {
+    "not_found": "Este enlace no existe.",
+    "expired": "Este enlace ha caducado.",
+    "revoked": "Este enlace fue revocado.",
+    "exhausted": "Este enlace alcanzó su límite de descargas.",
+    "locked": "Escribe primero la contraseña.",
+    "wrong_password": "Contraseña incorrecta.",
+    "password_required": "Los enlaces compartidos necesitan contraseña.",
+    "expiry_too_long": "Un enlace puede ser válido {days, plural, one {# día} other {# días}} como máximo."
   }
 }
