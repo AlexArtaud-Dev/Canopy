@@ -67,7 +67,8 @@
     "upload_not_found": "Cet import n’existe plus. Relancez-le.",
     "volume_protected": "Les dossiers de premier niveau sont des volumes montés et ne peuvent pas être supprimés.",
     "no_preview": "Ce fichier ne peut pas être prévisualisé. Téléchargez-le pour l’ouvrir.",
-    "no_thumbnail": "Pas de miniature pour ce fichier."
+    "no_thumbnail": "Pas de miniature pour ce fichier.",
+    "invalid_query": "Saisissez entre 2 et 200 caractères pour rechercher."
   },
   "mail": {
     "not_configured": "L’e-mail n’est pas configuré. Configurez le SMTP dans Administration › E-mail.",

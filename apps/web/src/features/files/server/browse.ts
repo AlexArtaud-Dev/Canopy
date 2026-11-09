@@ -8,7 +8,7 @@ import { runAction, type ActionResult } from '@/shared/lib/action';
 import { AppBaseError } from '@/shared/lib/errors';
 import { requireSession } from '@/features/auth';
 
-import { browserPageSize, browserQuerySchema } from '../browser.utils';
+import { browserPageSize, browserQuerySchema, toBrowserEntry } from '../browser.utils';
 import type { PathAction } from '../files.utils';
 import { engineClientFor } from './engine-client';
 
@@ -65,16 +65,7 @@ export async function listFolder(input: unknown): Promise<ActionResult<FolderPag
       total: data.total,
       actions: data.actions,
       offset: query.offset,
-      entries: data.entries.map((entry) => ({
-        name: entry.name,
-        path: entry.path,
-        isDirectory: entry.kind === 'directory',
-        size: entry.size,
-        modified: entry.modified,
-        actions: entry.actions,
-        preview: entry.preview,
-        thumbnail: entry.thumbnail,
-      })),
+      entries: data.entries.map(toBrowserEntry),
     };
   });
 }

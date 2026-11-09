@@ -95,7 +95,8 @@
       "download": "Download",
       "downloadZip": "Download as zip",
       "delete": "Delete",
-      "deletePermanently": "Delete permanently"
+      "deletePermanently": "Delete permanently",
+      "showInFolder": "Show in folder"
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
@@ -163,6 +164,22 @@
       "upload": "Upload",
       "uploadFiles": "Files",
       "uploadFolder": "A folder"
+    },
+    "search": {
+      "placeholder": "Search this folder",
+      "label": "Search names in this folder and its subfolders",
+      "clear": "Clear the search",
+      "searching": "Searching…",
+      "count": "{count, plural, one {# result} other {# results}}",
+      "truncated": {
+        "results": "Showing the first results only: add words to narrow the search.",
+        "visited": "This folder is very large: only part of it was searched. Search in a subfolder.",
+        "timeout": "The search took too long: only part of the folder was searched. Search in a subfolder."
+      },
+      "none": {
+        "title": "No results",
+        "description": "No file or folder name here contains every word you typed. Check the spelling, or search from a parent folder."
+      }
     }
   },
   "preview": {

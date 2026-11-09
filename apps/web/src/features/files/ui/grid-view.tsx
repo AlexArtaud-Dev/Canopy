@@ -76,7 +76,7 @@ export function GridView(
                         id={props.idOf(index)}
                         role="option"
                         aria-selected={isSelected}
-                        title={entry.name}
+                        title={props.showLocation ? entry.path : entry.name}
                         className={cn(
                           'flex cursor-default flex-col items-center justify-center gap-2 rounded-xl border p-3 text-center text-sm select-none',
                           isSelected

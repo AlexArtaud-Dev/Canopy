@@ -34,6 +34,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip';
 import { sortKeys, type BrowserView, type SortKey, type SortOrder } from '../browser.utils';
 import { breadcrumbs } from '../files.utils';
 import { DropCrumb } from './dnd';
+import { SearchBox } from './search-box';
 
 interface BrowserToolbarProps {
   path: string;
@@ -54,6 +55,9 @@ interface BrowserToolbarProps {
   canUpload: boolean;
   onUploadFiles: () => void;
   onUploadFolder: () => void;
+  /** Search words (URL `q`); results replace the folder's entries. */
+  search: string;
+  onSearch: (q: string) => void;
 }
 
 export function BrowserToolbar(props: BrowserToolbarProps) {
@@ -92,6 +96,11 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
           );
         })}
       </nav>
+      <SearchBox
+        value={props.search}
+        onSearch={props.onSearch}
+        className="order-last w-full sm:order-none sm:w-56"
+      />
       <div className="flex items-center gap-1">
         {props.canUpload && (
           <DropdownMenu>

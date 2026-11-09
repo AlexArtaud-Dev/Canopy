@@ -95,7 +95,8 @@
       "download": "Descargar",
       "downloadZip": "Descargar como zip",
       "delete": "Eliminar",
-      "deletePermanently": "Eliminar definitivamente"
+      "deletePermanently": "Eliminar definitivamente",
+      "showInFolder": "Mostrar en la carpeta"
     },
     "shortcuts": {
       "title": "Atajos de teclado",
@@ -163,6 +164,22 @@
       "upload": "Subir",
       "uploadFiles": "Archivos",
       "uploadFolder": "Una carpeta"
+    },
+    "search": {
+      "placeholder": "Buscar en esta carpeta",
+      "label": "Buscar nombres en esta carpeta y sus subcarpetas",
+      "clear": "Borrar la búsqueda",
+      "searching": "Buscando…",
+      "count": "{count, plural, one {# resultado} other {# resultados}}",
+      "truncated": {
+        "results": "Solo se muestran los primeros resultados: añade palabras para afinar.",
+        "visited": "Esta carpeta es muy grande: solo se recorrió una parte. Busca en una subcarpeta.",
+        "timeout": "La búsqueda tardó demasiado: solo se recorrió una parte de la carpeta. Busca en una subcarpeta."
+      },
+      "none": {
+        "title": "Sin resultados",
+        "description": "Ningún nombre de archivo o carpeta contiene todas las palabras escritas. Revisa la ortografía o busca desde una carpeta superior."
+      }
     }
   },
   "preview": {

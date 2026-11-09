@@ -49,6 +49,9 @@ import type {
   RestoreFromTrashData,
   RestoreFromTrashErrors,
   RestoreFromTrashResponses,
+  SearchFilesData,
+  SearchFilesErrors,
+  SearchFilesResponses,
   StartEmptyTrashData,
   StartEmptyTrashErrors,
   StartEmptyTrashResponses,
@@ -91,6 +94,8 @@ import {
   zRenameEntryResponse,
   zRestoreFromTrashBody,
   zRestoreFromTrashResponse,
+  zSearchFilesQuery,
+  zSearchFilesResponse,
   zStartEmptyTrashBody,
   zStartEmptyTrashResponse,
   zStartFolderSizeBody,
@@ -181,6 +186,29 @@ export const listDirectory = <ThrowOnError extends boolean = false>(
     responseValidator: async (data) => await zListDirectoryResponse.parseAsync(data),
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v1/fs/list',
+    ...options,
+  });
+
+/**
+ * Find files and folders by name under a folder
+ *
+ * Walks the tree under `path` (only where the caller may see) and returns entries whose name contains every word of `q`, ignoring case and accents. The walk has hard limits; when one is reached, `truncated` says which and the results are what was found so far.
+ */
+export const searchFiles = <ThrowOnError extends boolean = false>(
+  options: Options<SearchFilesData, ThrowOnError>,
+): RequestResult<SearchFilesResponses, SearchFilesErrors, ThrowOnError> =>
+  (options.client ?? client).get<SearchFilesResponses, SearchFilesErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: zSearchFilesQuery,
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zSearchFilesResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/fs/search',
     ...options,
   });
 

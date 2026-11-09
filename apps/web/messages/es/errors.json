@@ -67,7 +67,8 @@
     "upload_not_found": "Esta subida ya no existe. Vuelve a empezarla.",
     "volume_protected": "Las carpetas de primer nivel son volúmenes montados y no se pueden eliminar.",
     "no_preview": "Este archivo no se puede previsualizar. Descárgalo para abrirlo.",
-    "no_thumbnail": "No hay miniatura para este archivo."
+    "no_thumbnail": "No hay miniatura para este archivo.",
+    "invalid_query": "Escribe entre 2 y 200 caracteres para buscar."
   },
   "mail": {
     "not_configured": "El correo no está configurado. Configura el SMTP en Administración › Correo.",

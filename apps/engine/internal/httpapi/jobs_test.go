@@ -33,8 +33,9 @@ type dirFiles struct {
 	err   error
 }
 
-func (f dirFiles) Stat(string) (fsx.Entry, error)      { return fsx.Entry{IsDir: f.isDir}, f.err }
-func (f dirFiles) ReadDir(string) ([]fsx.Entry, error) { return nil, f.err }
+func (f dirFiles) Stat(string) (fsx.Entry, error)                   { return fsx.Entry{IsDir: f.isDir}, f.err }
+func (f dirFiles) ReadDir(string) ([]fsx.Entry, error)              { return nil, f.err }
+func (f dirFiles) Walk(string, func(string, fsx.Entry) error) error { return f.err }
 
 type fakeJobs struct {
 	job                                          jobs.Job
