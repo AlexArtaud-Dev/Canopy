@@ -81,13 +81,12 @@ export function AccountMenu({
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              tooltip={accountT('menu')}
-              aria-label={newsUnseen ? accountT('menuWithNews') : accountT('menu')}
-              aria-busy={pending}
-            >
+            <SidebarMenuButton size="lg" tooltip={accountT('menu')} aria-busy={pending}>
               {identity}
+              {/* The visible name stays part of the accessible name (WCAG 2.5.3). */}
+              <span className="sr-only">
+                {newsUnseen ? accountT('menuWithNews') : accountT('menu')}
+              </span>
               <ChevronsUpDown className="ml-auto size-4" aria-hidden />
             </SidebarMenuButton>
           </DropdownMenuTrigger>

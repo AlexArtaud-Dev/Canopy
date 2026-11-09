@@ -30,7 +30,8 @@ func VolumeOfID(id string) (string, bool) {
 		return "", false
 	}
 	volume, err := hex.DecodeString(id[randomIDPart:])
-	if err != nil || strings.ContainsAny(string(volume), "/\\") {
+	// A crafted id must not name a folder outside the root ("..") or the root twice (".").
+	if err != nil || strings.ContainsAny(string(volume), "/\\") || string(volume) == "." || string(volume) == ".." {
 		return "", false
 	}
 	return string(volume), true
