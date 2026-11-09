@@ -1,0 +1,61 @@
+name: Release
+
+# Manual: computes the next CalVer version, moves changelog/unreleased.yaml to
+# changelog/releases/<version>.yaml, bumps the version and opens a "chore(release)" PR. Merging
+# that PR publishes the release (see publish.yml). Nothing is deployed automatically.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Prepare the release PR
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Move the changelog and bump the version
+        id: prepare
+        run: node scripts/release/prepare.mjs
+      - run: pnpm exec prettier --write changelog apps/web/package.json
+      - name: Commit (signed by GitHub) and open the PR
+        env:
+          # A PR opened with the default token does not start CI; a RELEASE_TOKEN secret
+          # (fine-grained: contents + pull requests write) avoids that.
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
+          HAS_RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN != '' }}
+          BASE_SHA: ${{ github.sha }}
+          VERSION: ${{ steps.prepare.outputs.version }}
+        run: |
+          branch="chore/release-${VERSION}"
+          node scripts/release/push-commit.mjs "$branch" "chore(release): ${VERSION}" \
+            changelog/unreleased.yaml "changelog/releases/${VERSION}.yaml" apps/web/package.json
+          {
+            echo "Release **${VERSION}**. Merging this PR tags \`v${VERSION}\`, publishes the GitHub Release and pushes the images to GHCR."
+            echo
+            if [ "$HAS_RELEASE_TOKEN" != "true" ]; then
+              echo "> CI does not start on PRs opened with the default workflow token: close and reopen this PR to run the checks (or add a \`RELEASE_TOKEN\` secret)."
+              echo
+            fi
+            echo "## Release notes"
+            echo
+            node scripts/release/notes.mjs "$VERSION" "$GITHUB_REPOSITORY"
+          } > pr-body.md
+          gh pr create --base main --head "$branch" --title "chore(release): ${VERSION}" \
+            --label no-changelog --label "type: chore" --body-file pr-body.md
+          echo "Opened the release PR for ${VERSION}" >> "$GITHUB_STEP_SUMMARY"

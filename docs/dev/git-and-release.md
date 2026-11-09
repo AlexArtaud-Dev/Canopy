@@ -50,10 +50,21 @@ Dependabot opens weekly grouped updates for npm, Go modules, Docker base images 
 
 ## Release flow (no automatic CD)
 
-1. Manual `workflow_dispatch` "Release": computes the next version, moves `changelog/unreleased.yaml`
-   to `changelog/releases/<version>.yaml`, bumps versions, opens a `chore(release): <version>` PR.
-2. On merge: tag `v<version>`, GitHub Release (notes rendered from the YAML), multi-arch images
-   (amd64, arm64) pushed to GHCR (`canopy-web`, `canopy-engine`) as `<version>` and `latest`.
+1. Actions → **Release** → Run workflow (on `main`). `scripts/release/prepare.mjs` computes the next
+   CalVer from `changelog/releases/`, moves `changelog/unreleased.yaml` to
+   `changelog/releases/<version>.yaml` (with its date), empties Unreleased and sets
+   `apps/web/package.json` `version`. The commit is created through GitHub's API
+   (`push-commit.mjs`), so it is signed as `main` requires, and a `chore(release): <version>` PR
+   opens with the notes.
+   - Add a `RELEASE_TOKEN` secret (fine-grained: contents + pull requests write) so CI starts on that
+     PR; without it, close and reopen the PR to run the checks.
+2. Merging it runs **Publish**: tag `v<version>`, GitHub Release (notes from the YAML,
+   `notes.mjs`), multi-arch images (amd64, arm64) pushed to GHCR (`canopy-web`, `canopy-engine`)
+   as `<version>` and `latest`. `docker/compose.yaml` runs `ghcr.io/alexartaud-dev/canopy-*` at
+   `CANOPY_VERSION` (default `latest`).
+
+- Release rules (schema, CalVer, notes) live in `scripts/release/release.lib.mjs`, tested at 100 %
+  by `pnpm test:scripts` (part of `pnpm test`).
 
 ## Changelog (hand-written, translated)
 
