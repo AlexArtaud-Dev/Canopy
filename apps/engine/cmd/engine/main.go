@@ -16,6 +16,7 @@ import (
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/archive"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/audit"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/commands"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/config"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/database"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
@@ -114,7 +115,12 @@ func run() error {
 	// Measures new items and removes what retention and the size/file limits no longer allow.
 	go trashService.Keep(ctx, time.Hour)
 
-	jobService, err := startJobs(startupCtx, pool, resolver, grants, trashService, logger)
+	catalog, launcher, err := loadCommands(logger)
+	if err != nil {
+		return err
+	}
+
+	jobService, err := startJobs(startupCtx, pool, resolver, grants, trashService, commandRunner{catalog, launcher}, logger)
 	if err != nil {
 		return err
 	}
@@ -131,18 +137,21 @@ func run() error {
 	server := &http.Server{
 		Addr: cfg.Addr,
 		Handler: httpapi.NewRouter(httpapi.Deps{
-			Logger:      logger,
-			Database:    pool,
-			Files:       resolver,
-			Ops:         resolver,
-			Grants:      grants,
-			Verifier:    verifier,
-			Jobs:        jobService,
-			Audit:       audit.NewWriter(pool),
-			StreamsDone: streamsDone,
-			Uploads:     uploadService,
-			Trash:       trashService,
-			Thumbs:      thumbService,
+			Logger:       logger,
+			Database:     pool,
+			Files:        resolver,
+			Ops:          resolver,
+			Grants:       grants,
+			Verifier:     verifier,
+			Jobs:         jobService,
+			Audit:        audit.NewWriter(pool),
+			StreamsDone:  streamsDone,
+			Uploads:      uploadService,
+			Trash:        trashService,
+			Thumbs:       thumbService,
+			Commands:     catalog,
+			AdvancedMode: advancedMode(pool, logger),
+			HostPaths:    resolver,
 		}),
 		ReadHeaderTimeout: readHeaderTimeout,
 		// No read/write timeouts: multi-GB transfers and SSE streams are legitimately long.
@@ -176,7 +185,13 @@ func run() error {
 }
 
 // startJobs registers every job kind and starts the runner with the configured concurrency.
-func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, grants *grantstore.Store, trashService *trash.Service, logger *slog.Logger) (*jobService, error) {
+// commandRunner carries what the command job needs.
+type commandRunner struct {
+	catalog  *commands.Available
+	launcher commands.Launcher
+}
+
+func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, grants *grantstore.Store, trashService *trash.Service, command commandRunner, logger *slog.Logger) (*jobService, error) {
 	limits, err := jobs.LoadLimits(ctx, pool)
 	if err != nil {
 		return nil, err
@@ -189,6 +204,7 @@ func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, gra
 	jobs.Register(registry, archive.CompressHandler(files, grants))
 	jobs.Register(registry, archive.ExtractHandler(files))
 	jobs.Register(registry, archive.ChecksumHandler(files))
+	jobs.Register(registry, commands.RunHandler(command.catalog, command.launcher))
 	runner, err := jobs.Start(ctx, registry, pool, limits)
 	if err != nil {
 		return nil, err

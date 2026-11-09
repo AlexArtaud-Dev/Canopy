@@ -420,6 +420,130 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/commands:
+    get:
+      operationId: listCommands
+      summary: Catalog commands the caller may run
+      description: >-
+        Installed catalog entries: basic ones for everyone, advanced ones when advanced mode is on
+        and the caller holds `commands:advanced`. There is no free-text command anywhere.
+      tags: [commands]
+      security:
+        - engineToken: []
+      responses:
+        '200':
+          description: The visible entries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandCatalog'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/commands/preview:
+    post:
+      operationId: previewCommand
+      summary: Show the exact arguments a run would use
+      description: >-
+        Validates the parameters exactly as a run would (types, ranges, path rights) and returns the
+        argument list, secrets hidden. Nothing runs.
+      tags: [commands]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandRequest'
+      responses:
+        '200':
+          description: The arguments.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandPreview'
+        '400':
+          description: Invalid parameters (`commands.unknown_param`, `commands.missing_param`, `commands.invalid_value`, `commands.no_dry_run`, `files.invalid_path`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not allowed (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such command, or not available to the caller (`commands.unavailable`, `files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs/command:
+    post:
+      operationId: startCommand
+      summary: Run a catalog command
+      description: >-
+        Starts a job running the entry with the given parameters (checked like a preview), without a
+        shell, with a scrubbed environment, lower priority and the entry's timeout. Output streams
+        to the job log (capped, secrets hidden) and progress to the job.
+      tags: [jobs]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandRequest'
+      responses:
+        '202':
+          description: The job was queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Invalid parameters (see previewCommand).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not allowed (`files.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such command (`commands.unavailable`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many active jobs for this person (`jobs.too_many`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/jobs/folder-size:
     post:
       operationId: startFolderSize
@@ -1263,6 +1387,87 @@ components:
         algorithm:
           type: string
           enum: [md5, sha1, sha256, sha512]
+    LocalizedText:
+      type: object
+      required: [en, fr, es]
+      properties:
+        en: { type: string }
+        fr: { type: string }
+        es: { type: string }
+    CommandParam:
+      type: object
+      required: [name, type, label, required, secret]
+      properties:
+        name: { type: string }
+        type:
+          type: string
+          enum: [path, bool, int, string, enum]
+        label:
+          $ref: '#/components/schemas/LocalizedText'
+        access:
+          description: Path parameters only.
+          type: string
+          enum: [read, create, update]
+        required: { type: boolean }
+        secret: { type: boolean }
+        default: {}
+        min: { type: integer, format: int64 }
+        max: { type: integer, format: int64 }
+        values:
+          type: array
+          items: { type: string }
+    CommandEntry:
+      type: object
+      required: [id, name, description, mode, params, dryRun]
+      properties:
+        id: { type: string }
+        name:
+          $ref: '#/components/schemas/LocalizedText'
+        description:
+          $ref: '#/components/schemas/LocalizedText'
+        mode:
+          type: string
+          enum: [basic, advanced]
+        dryRun:
+          description: The command can simulate a run.
+          type: boolean
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandParam'
+    CommandCatalog:
+      type: object
+      required: [advanced, entries]
+      properties:
+        advanced:
+          description: Advanced mode is available to the caller.
+          type: boolean
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandEntry'
+    CommandRequest:
+      type: object
+      required: [entry, params]
+      properties:
+        entry:
+          type: string
+          maxLength: 128
+        params:
+          description: Values by parameter name (paths are virtual paths).
+          type: object
+          additionalProperties: true
+        dryRun:
+          type: boolean
+          default: false
+    CommandPreview:
+      type: object
+      required: [binary, argv]
+      properties:
+        binary: { type: string }
+        argv:
+          type: array
+          items: { type: string }
     FolderSizeRequest:
       type: object
       required: [path]

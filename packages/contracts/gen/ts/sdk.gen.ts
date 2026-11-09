@@ -25,6 +25,9 @@ import type {
   GetReadinessData,
   GetReadinessErrors,
   GetReadinessResponses,
+  ListCommandsData,
+  ListCommandsErrors,
+  ListCommandsResponses,
   ListDirectoryData,
   ListDirectoryErrors,
   ListDirectoryResponses,
@@ -43,6 +46,9 @@ import type {
   PlanTransferData,
   PlanTransferErrors,
   PlanTransferResponses,
+  PreviewCommandData,
+  PreviewCommandErrors,
+  PreviewCommandResponses,
   RenameEntryData,
   RenameEntryErrors,
   RenameEntryResponses,
@@ -55,6 +61,9 @@ import type {
   StartChecksumData,
   StartChecksumErrors,
   StartChecksumResponses,
+  StartCommandData,
+  StartCommandErrors,
+  StartCommandResponses,
   StartCompressData,
   StartCompressErrors,
   StartCompressResponses,
@@ -91,6 +100,7 @@ import {
   zGetJobResponse,
   zGetLivenessResponse,
   zGetReadinessResponse,
+  zListCommandsResponse,
   zListDirectoryQuery,
   zListDirectoryResponse,
   zListJobsQuery,
@@ -102,6 +112,8 @@ import {
   zPlanDeleteResponse,
   zPlanTransferBody,
   zPlanTransferResponse,
+  zPreviewCommandBody,
+  zPreviewCommandResponse,
   zRenameEntryBody,
   zRenameEntryResponse,
   zRestoreFromTrashBody,
@@ -110,6 +122,8 @@ import {
   zSearchFilesResponse,
   zStartChecksumBody,
   zStartChecksumResponse,
+  zStartCommandBody,
+  zStartCommandResponse,
   zStartCompressBody,
   zStartCompressResponse,
   zStartEmptyTrashBody,
@@ -356,6 +370,83 @@ export const startChecksum = <ThrowOnError extends boolean = false>(
     responseValidator: async (data) => await zStartChecksumResponse.parseAsync(data),
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v1/jobs/checksum',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Catalog commands the caller may run
+ *
+ * Installed catalog entries: basic ones for everyone, advanced ones when advanced mode is on and the caller holds `commands:advanced`. There is no free-text command anywhere.
+ */
+export const listCommands = <ThrowOnError extends boolean = false>(
+  options?: Options<ListCommandsData, ThrowOnError>,
+): RequestResult<ListCommandsResponses, ListCommandsErrors, ThrowOnError> =>
+  (options?.client ?? client).get<ListCommandsResponses, ListCommandsErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zListCommandsResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/commands',
+    ...options,
+  });
+
+/**
+ * Show the exact arguments a run would use
+ *
+ * Validates the parameters exactly as a run would (types, ranges, path rights) and returns the argument list, secrets hidden. Nothing runs.
+ */
+export const previewCommand = <ThrowOnError extends boolean = false>(
+  options: Options<PreviewCommandData, ThrowOnError>,
+): RequestResult<PreviewCommandResponses, PreviewCommandErrors, ThrowOnError> =>
+  (options.client ?? client).post<PreviewCommandResponses, PreviewCommandErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zPreviewCommandBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zPreviewCommandResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/commands/preview',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Run a catalog command
+ *
+ * Starts a job running the entry with the given parameters (checked like a preview), without a shell, with a scrubbed environment, lower priority and the entry's timeout. Output streams to the job log (capped, secrets hidden) and progress to the job.
+ */
+export const startCommand = <ThrowOnError extends boolean = false>(
+  options: Options<StartCommandData, ThrowOnError>,
+): RequestResult<StartCommandResponses, StartCommandErrors, ThrowOnError> =>
+  (options.client ?? client).post<StartCommandResponses, StartCommandErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zStartCommandBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zStartCommandResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs/command',
     ...options,
     headers: {
       'Content-Type': 'application/json',

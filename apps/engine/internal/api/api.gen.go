@@ -41,6 +41,72 @@ func (e ChecksumRequestAlgorithm) Valid() bool {
 	}
 }
 
+// Defines values for CommandEntryMode.
+const (
+	Advanced CommandEntryMode = "advanced"
+	Basic    CommandEntryMode = "basic"
+)
+
+// Valid indicates whether the value is a known member of the CommandEntryMode enum.
+func (e CommandEntryMode) Valid() bool {
+	switch e {
+	case Advanced:
+		return true
+	case Basic:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CommandParamAccess.
+const (
+	CommandParamAccessCreate CommandParamAccess = "create"
+	CommandParamAccessRead   CommandParamAccess = "read"
+	CommandParamAccessUpdate CommandParamAccess = "update"
+)
+
+// Valid indicates whether the value is a known member of the CommandParamAccess enum.
+func (e CommandParamAccess) Valid() bool {
+	switch e {
+	case CommandParamAccessCreate:
+		return true
+	case CommandParamAccessRead:
+		return true
+	case CommandParamAccessUpdate:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CommandParamType.
+const (
+	Bool   CommandParamType = "bool"
+	Enum   CommandParamType = "enum"
+	Int    CommandParamType = "int"
+	Path   CommandParamType = "path"
+	String CommandParamType = "string"
+)
+
+// Valid indicates whether the value is a known member of the CommandParamType enum.
+func (e CommandParamType) Valid() bool {
+	switch e {
+	case Bool:
+		return true
+	case Enum:
+		return true
+	case Int:
+		return true
+	case Path:
+		return true
+	case String:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for CompressRequestFormat.
 const (
 	TarGz CompressRequestFormat = "tar.gz"
@@ -382,6 +448,64 @@ type ChecksumRequest struct {
 // ChecksumRequestAlgorithm defines model for ChecksumRequest.Algorithm.
 type ChecksumRequestAlgorithm string
 
+// CommandCatalog defines model for CommandCatalog.
+type CommandCatalog struct {
+	// Advanced Advanced mode is available to the caller.
+	Advanced bool           `json:"advanced"`
+	Entries  []CommandEntry `json:"entries"`
+}
+
+// CommandEntry defines model for CommandEntry.
+type CommandEntry struct {
+	Description LocalizedText `json:"description"`
+
+	// DryRun The command can simulate a run.
+	DryRun bool             `json:"dryRun"`
+	Id     string           `json:"id"`
+	Mode   CommandEntryMode `json:"mode"`
+	Name   LocalizedText    `json:"name"`
+	Params []CommandParam   `json:"params"`
+}
+
+// CommandEntryMode defines model for CommandEntry.Mode.
+type CommandEntryMode string
+
+// CommandParam defines model for CommandParam.
+type CommandParam struct {
+	// Access Path parameters only.
+	Access   *CommandParamAccess `json:"access,omitempty"`
+	Default  interface{}         `json:"default,omitempty"`
+	Label    LocalizedText       `json:"label"`
+	Max      *int64              `json:"max,omitempty"`
+	Min      *int64              `json:"min,omitempty"`
+	Name     string              `json:"name"`
+	Required bool                `json:"required"`
+	Secret   bool                `json:"secret"`
+	Type     CommandParamType    `json:"type"`
+	Values   *[]string           `json:"values,omitempty"`
+}
+
+// CommandParamAccess Path parameters only.
+type CommandParamAccess string
+
+// CommandParamType defines model for CommandParam.Type.
+type CommandParamType string
+
+// CommandPreview defines model for CommandPreview.
+type CommandPreview struct {
+	Argv   []string `json:"argv"`
+	Binary string   `json:"binary"`
+}
+
+// CommandRequest defines model for CommandRequest.
+type CommandRequest struct {
+	DryRun *bool  `json:"dryRun,omitempty"`
+	Entry  string `json:"entry"`
+
+	// Params Values by parameter name (paths are virtual paths).
+	Params map[string]interface{} `json:"params"`
+}
+
 // CompressRequest defines model for CompressRequest.
 type CompressRequest struct {
 	Format CompressRequestFormat `json:"format"`
@@ -561,6 +685,13 @@ type LivenessStatus struct {
 // LivenessStatusStatus defines model for LivenessStatus.Status.
 type LivenessStatusStatus string
 
+// LocalizedText defines model for LocalizedText.
+type LocalizedText struct {
+	En string `json:"en"`
+	Es string `json:"es"`
+	Fr string `json:"fr"`
+}
+
 // PathAction defines model for PathAction.
 type PathAction string
 
@@ -733,6 +864,9 @@ type GetJobLogsParams struct {
 // ExplainAccessJSONRequestBody defines body for ExplainAccess for application/json ContentType.
 type ExplainAccessJSONRequestBody = ExplainRequest
 
+// PreviewCommandJSONRequestBody defines body for PreviewCommand for application/json ContentType.
+type PreviewCommandJSONRequestBody = CommandRequest
+
 // PlanDeleteJSONRequestBody defines body for PlanDelete for application/json ContentType.
 type PlanDeleteJSONRequestBody = PathsRequest
 
@@ -750,6 +884,9 @@ type MoveToTrashJSONRequestBody = PathsRequest
 
 // StartChecksumJSONRequestBody defines body for StartChecksum for application/json ContentType.
 type StartChecksumJSONRequestBody = ChecksumRequest
+
+// StartCommandJSONRequestBody defines body for StartCommand for application/json ContentType.
+type StartCommandJSONRequestBody = CommandRequest
 
 // StartCompressJSONRequestBody defines body for StartCompress for application/json ContentType.
 type StartCompressJSONRequestBody = CompressRequest
@@ -783,6 +920,12 @@ type ServerInterface interface {
 	// ExplainAccess Explain a person's access to a folder
 	// (POST /v1/authz/explain)
 	ExplainAccess(w http.ResponseWriter, r *http.Request)
+	// ListCommands Catalog commands the caller may run
+	// (GET /v1/commands)
+	ListCommands(w http.ResponseWriter, r *http.Request)
+	// PreviewCommand Show the exact arguments a run would use
+	// (POST /v1/commands/preview)
+	PreviewCommand(w http.ResponseWriter, r *http.Request)
 	// PlanDelete Measure a deletion before doing it
 	// (POST /v1/fs/delete/plan)
 	PlanDelete(w http.ResponseWriter, r *http.Request)
@@ -813,6 +956,9 @@ type ServerInterface interface {
 	// StartChecksum Compute a file checksum
 	// (POST /v1/jobs/checksum)
 	StartChecksum(w http.ResponseWriter, r *http.Request)
+	// StartCommand Run a catalog command
+	// (POST /v1/jobs/command)
+	StartCommand(w http.ResponseWriter, r *http.Request)
 	// StartCompress Compress items into an archive
 	// (POST /v1/jobs/compress)
 	StartCompress(w http.ResponseWriter, r *http.Request)
@@ -867,6 +1013,18 @@ func (_ Unimplemented) GetReadiness(w http.ResponseWriter, r *http.Request) {
 // ExplainAccess Explain a person's access to a folder
 // (POST /v1/authz/explain)
 func (_ Unimplemented) ExplainAccess(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListCommands Catalog commands the caller may run
+// (GET /v1/commands)
+func (_ Unimplemented) ListCommands(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// PreviewCommand Show the exact arguments a run would use
+// (POST /v1/commands/preview)
+func (_ Unimplemented) PreviewCommand(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -927,6 +1085,12 @@ func (_ Unimplemented) ListJobs(w http.ResponseWriter, r *http.Request, params L
 // StartChecksum Compute a file checksum
 // (POST /v1/jobs/checksum)
 func (_ Unimplemented) StartChecksum(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// StartCommand Run a catalog command
+// (POST /v1/jobs/command)
+func (_ Unimplemented) StartCommand(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1038,6 +1202,34 @@ func (siw *ServerInterfaceWrapper) ExplainAccess(w http.ResponseWriter, r *http.
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ExplainAccess(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListCommands operation middleware
+func (siw *ServerInterfaceWrapper) ListCommands(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListCommands(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PreviewCommand operation middleware
+func (siw *ServerInterfaceWrapper) PreviewCommand(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PreviewCommand(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1332,6 +1524,20 @@ func (siw *ServerInterfaceWrapper) StartChecksum(w http.ResponseWriter, r *http.
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.StartChecksum(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// StartCommand operation middleware
+func (siw *ServerInterfaceWrapper) StartCommand(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.StartCommand(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1688,6 +1894,15 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/v1/jobs/checksum", wrapper.StartChecksum)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/commands", wrapper.ListCommands)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/commands/preview", wrapper.PreviewCommand)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/jobs/command", wrapper.StartCommand)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/v1/jobs/folder-size", wrapper.StartFolderSize)
 	})
 	r.Group(func(r chi.Router) {
@@ -1852,6 +2067,119 @@ func (response ExplainAccess403JSONResponse) VisitExplainAccessResponse(w http.R
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListCommandsRequestObject struct {
+}
+
+type ListCommandsResponseObject interface {
+	VisitListCommandsResponse(w http.ResponseWriter) error
+}
+
+type ListCommands200JSONResponse CommandCatalog
+
+func (response ListCommands200JSONResponse) VisitListCommandsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListCommands401JSONResponse Error
+
+func (response ListCommands401JSONResponse) VisitListCommandsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PreviewCommandRequestObject struct {
+	Body *PreviewCommandJSONRequestBody
+}
+
+type PreviewCommandResponseObject interface {
+	VisitPreviewCommandResponse(w http.ResponseWriter) error
+}
+
+type PreviewCommand200JSONResponse CommandPreview
+
+func (response PreviewCommand200JSONResponse) VisitPreviewCommandResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PreviewCommand400JSONResponse Error
+
+func (response PreviewCommand400JSONResponse) VisitPreviewCommandResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PreviewCommand401JSONResponse Error
+
+func (response PreviewCommand401JSONResponse) VisitPreviewCommandResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PreviewCommand403JSONResponse Error
+
+func (response PreviewCommand403JSONResponse) VisitPreviewCommandResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type PreviewCommand404JSONResponse Error
+
+func (response PreviewCommand404JSONResponse) VisitPreviewCommandResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -2611,6 +2939,98 @@ func (response StartChecksum404JSONResponse) VisitStartChecksumResponse(w http.R
 type StartChecksum429JSONResponse Error
 
 func (response StartChecksum429JSONResponse) VisitStartChecksumResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(429)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCommandRequestObject struct {
+	Body *StartCommandJSONRequestBody
+}
+
+type StartCommandResponseObject interface {
+	VisitStartCommandResponse(w http.ResponseWriter) error
+}
+
+type StartCommand202JSONResponse Job
+
+func (response StartCommand202JSONResponse) VisitStartCommandResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCommand400JSONResponse Error
+
+func (response StartCommand400JSONResponse) VisitStartCommandResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCommand401JSONResponse Error
+
+func (response StartCommand401JSONResponse) VisitStartCommandResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCommand403JSONResponse Error
+
+func (response StartCommand403JSONResponse) VisitStartCommandResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCommand404JSONResponse Error
+
+func (response StartCommand404JSONResponse) VisitStartCommandResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartCommand429JSONResponse Error
+
+func (response StartCommand429JSONResponse) VisitStartCommandResponse(w http.ResponseWriter) error {
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(response); err != nil {
@@ -3421,6 +3841,12 @@ type StrictServerInterface interface {
 	// ExplainAccess Explain a person's access to a folder
 	// (POST /v1/authz/explain)
 	ExplainAccess(ctx context.Context, request ExplainAccessRequestObject) (ExplainAccessResponseObject, error)
+	// ListCommands Catalog commands the caller may run
+	// (GET /v1/commands)
+	ListCommands(ctx context.Context, request ListCommandsRequestObject) (ListCommandsResponseObject, error)
+	// PreviewCommand Show the exact arguments a run would use
+	// (POST /v1/commands/preview)
+	PreviewCommand(ctx context.Context, request PreviewCommandRequestObject) (PreviewCommandResponseObject, error)
 	// PlanDelete Measure a deletion before doing it
 	// (POST /v1/fs/delete/plan)
 	PlanDelete(ctx context.Context, request PlanDeleteRequestObject) (PlanDeleteResponseObject, error)
@@ -3451,6 +3877,9 @@ type StrictServerInterface interface {
 	// StartChecksum Compute a file checksum
 	// (POST /v1/jobs/checksum)
 	StartChecksum(ctx context.Context, request StartChecksumRequestObject) (StartChecksumResponseObject, error)
+	// StartCommand Run a catalog command
+	// (POST /v1/jobs/command)
+	StartCommand(ctx context.Context, request StartCommandRequestObject) (StartCommandResponseObject, error)
 	// StartCompress Compress items into an archive
 	// (POST /v1/jobs/compress)
 	StartCompress(ctx context.Context, request StartCompressRequestObject) (StartCompressResponseObject, error)
@@ -3597,6 +4026,61 @@ func (sh *strictHandler) ExplainAccess(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(ExplainAccessResponseObject); ok {
 		if err := validResponse.VisitExplainAccessResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListCommands operation middleware
+func (sh *strictHandler) ListCommands(w http.ResponseWriter, r *http.Request) {
+	var request ListCommandsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListCommands(ctx, request.(ListCommandsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListCommands")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListCommandsResponseObject); ok {
+		if err := validResponse.VisitListCommandsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PreviewCommand operation middleware
+func (sh *strictHandler) PreviewCommand(w http.ResponseWriter, r *http.Request) {
+	var request PreviewCommandRequestObject
+
+	var body PreviewCommandJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.PreviewCommand(ctx, request.(PreviewCommandRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PreviewCommand")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(PreviewCommandResponseObject); ok {
+		if err := validResponse.VisitPreviewCommandResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -3887,6 +4371,37 @@ func (sh *strictHandler) StartChecksum(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(StartChecksumResponseObject); ok {
 		if err := validResponse.VisitStartChecksumResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// StartCommand operation middleware
+func (sh *strictHandler) StartCommand(w http.ResponseWriter, r *http.Request) {
+	var request StartCommandRequestObject
+
+	var body StartCommandJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.StartCommand(ctx, request.(StartCommandRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "StartCommand")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(StartCommandResponseObject); ok {
+		if err := validResponse.VisitStartCommandResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
