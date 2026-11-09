@@ -28,7 +28,7 @@ async function isDisabled(userId: string): Promise<boolean> {
 /** Request header carrying the client IP we resolved; anything the client sent is overwritten. */
 export const clientIpHeader = 'x-canopy-client-ip';
 
-function createAuth(lifetimeSeconds: number) {
+function createAuth(lifetimeSeconds: number, secureCookies: boolean) {
   const env = parseServerEnv(process.env);
   return betterAuth({
     appName: 'Canopy',
@@ -88,7 +88,8 @@ function createAuth(lifetimeSeconds: number) {
     },
     advanced: {
       cookiePrefix: 'canopy',
-      useSecureCookies: env.CANOPY_PUBLIC_URL.startsWith('https://'),
+      // Per request (HTTPS behind the proxy, plain HTTP on the LAN): see secure-request.utils.
+      useSecureCookies: secureCookies,
       // 'uuid' would leave ids to a column default; ours are generated here.
       database: { generateId: () => randomUUID() },
       // Full addresses: sessions list the device's IP, not its /64 (the default, made for limits).
@@ -108,12 +109,22 @@ function createAuth(lifetimeSeconds: number) {
 
 export type Auth = ReturnType<typeof createAuth>;
 
-let instance: { lifetimeSeconds: number; auth: Auth } | undefined;
+const instances = new Map<string, Auth>();
 
-/** One instance per lifetime value: changing the setting applies to new sessions. */
-export function getAuth(lifetimeSeconds: number): Auth {
-  if (instance?.lifetimeSeconds !== lifetimeSeconds) {
-    instance = { lifetimeSeconds, auth: createAuth(lifetimeSeconds) };
+/**
+ * One instance per lifetime and cookie security: changing the lifetime applies to new sessions,
+ * and HTTPS and plain-HTTP visits each get cookies their browser accepts.
+ */
+export function getAuth(lifetimeSeconds: number, secureCookies: boolean): Auth {
+  const key = `${String(lifetimeSeconds)}:${String(secureCookies)}`;
+  let auth = instances.get(key);
+  if (!auth) {
+    // A changed lifetime replaces the old instances.
+    for (const existing of instances.keys()) {
+      if (!existing.startsWith(`${String(lifetimeSeconds)}:`)) instances.delete(existing);
+    }
+    auth = createAuth(lifetimeSeconds, secureCookies);
+    instances.set(key, auth);
   }
-  return instance.auth;
+  return auth;
 }

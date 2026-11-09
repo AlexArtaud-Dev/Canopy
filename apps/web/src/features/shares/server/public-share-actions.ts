@@ -95,7 +95,7 @@ export async function prepareShareDownload(
     (await cookies()).set(shareTicketCookie, ticket, {
       httpOnly: true,
       sameSite: 'strict',
-      secure: isSecure(),
+      secure: await isSecure(),
       path: shareTicketPath,
       maxAge: engineTokenLifetimeSeconds,
     });
@@ -151,7 +151,7 @@ export async function prepareLinkUpload(
     (await cookies()).set(shareTicketCookie, await shareUploadTicket(share, file), {
       httpOnly: true,
       sameSite: 'strict',
-      secure: isSecure(),
+      secure: await isSecure(),
       path: shareTicketPath,
       maxAge: engineTokenLifetimeSeconds,
     });

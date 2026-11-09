@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 
-import { parseServerEnv } from '@/shared/config/env';
+import { currentRequestIsSecure } from '@/shared/request/secure-request';
 import {
   engineTokenLifetimeSeconds,
   streamTicketCookie,
@@ -30,8 +30,8 @@ export async function refreshStreamTicket(): Promise<ActionResult<{ expiresAt: n
     (await cookies()).set(streamTicketCookie, ticket, {
       httpOnly: true,
       sameSite: 'strict',
-      // Secure whenever Canopy is served over HTTPS; a plain-HTTP LAN install still works.
-      secure: parseServerEnv(process.env).CANOPY_PUBLIC_URL.startsWith('https:'),
+      // Secure whenever this visit is over HTTPS; a plain-HTTP LAN visit still works.
+      secure: await currentRequestIsSecure(),
       path: streamTicketPath,
       maxAge: engineTokenLifetimeSeconds,
     });

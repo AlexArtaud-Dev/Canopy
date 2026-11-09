@@ -25,6 +25,7 @@
     "cn": "0.5.2",
     "drizzle-orm": "0.45.4",
     "geist": "1.9.2",
+    "input-otp": "1.5.0",
     "jose": "6.2.15",
     "lucide-react": "1.70.0",
     "next": "16.4.5",

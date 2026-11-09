@@ -15,7 +15,7 @@
     yields no IP: local-only features fail closed.
 - An upstream SSO layer (e.g. Authelia) may sit in front; Canopy still requires its own login.
 - Headers: strict CSP with nonces, `frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`,
-  `Referrer-Policy`, `Permissions-Policy`. Secure cookies when the public URL is https.
+  `Referrer-Policy`, `Permissions-Policy`. Secure cookies on HTTPS visits (decided per request, so a plain-HTTP LAN visit still signs in).
   - `src/proxy.ts` mints a nonce and request ID per request; the CSP comes from
     `shared/security/csp.ts` (styles keep `'unsafe-inline'` for Radix positioning; `'unsafe-eval'`
     only in development). Static headers are set in `next.config.ts`. HSTS belongs to the TLS proxy.

@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { cache } from 'react';
 
 import { getDb } from '@/shared/db/client';
+import { currentRequestIsSecure } from '@/shared/request/secure-request';
 import { getRequestContext, isLocalRequest } from '@/shared/request/request-context';
 import { getSettings } from '@/features/settings/server/settings-store';
 import { adminPermission } from '@/features/access/access.utils';
@@ -39,8 +40,11 @@ export interface CurrentSession {
 
 /** Better Auth configured from the current settings, plus those settings. */
 export async function getConfiguredAuth() {
-  const { values } = await getSettings('auth', authSettings);
-  return { auth: getAuth(values.sessionLifetimeDays * 24 * 60 * 60), policy: values };
+  const [{ values }, secure] = await Promise.all([
+    getSettings('auth', authSettings),
+    currentRequestIsSecure(),
+  ]);
+  return { auth: getAuth(values.sessionLifetimeDays * 24 * 60 * 60, secure), policy: values };
 }
 
 /** Incoming headers with our resolved client IP, the only one Better Auth may record. */

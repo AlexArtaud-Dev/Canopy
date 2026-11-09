@@ -8,6 +8,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Blinking caret of the one-time code boxes (shadcn input-otp). */
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
   --font-heading: var(--font-geist-sans);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -149,5 +151,17 @@
   }
   .dark .shiki span {
     color: var(--shiki-dark);
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  70%,
+  100% {
+    opacity: 1;
+  }
+  20%,
+  50% {
+    opacity: 0;
   }
 }
