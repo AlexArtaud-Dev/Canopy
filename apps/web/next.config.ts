@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
   logging: { serverFunctions: false },
   // postgres.js ships ESM only; transpiling it lets Jest (next/jest) load it. Next already bundles it.
   transpilePackages: ['postgres'],
+  // Thumbnails and previews come from the engine already sized: no image optimizer (the image
+  // build drops sharp, which Next.js would otherwise ship).
+  images: { unoptimized: true },
   headers() {
     return Promise.resolve([{ source: '/:path*', headers: [...staticSecurityHeaders] }]);
   },

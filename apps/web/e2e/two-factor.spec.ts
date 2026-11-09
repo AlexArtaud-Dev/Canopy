@@ -32,7 +32,9 @@ test('two-factor: turn it on, then sign in with a code', async ({ page, browser,
   // A wrong code is refused before the right one gets in.
   await second.page.getByLabel('Authentication code').fill('000000');
   await second.page.getByRole('button', { name: 'Verify' }).click();
-  await expect(second.page.getByRole('alert')).toBeVisible();
+  await expect(
+    second.page.getByRole('alert').filter({ hasText: 'This code is not valid' }),
+  ).toBeVisible();
   await second.page.getByLabel('Authentication code').fill(await nextStepCode(secret, enrolledAt));
   await second.page.getByRole('button', { name: 'Verify' }).click();
   await expect(second.page.getByRole('heading', { level: 1, name: 'Files' })).toBeVisible();
