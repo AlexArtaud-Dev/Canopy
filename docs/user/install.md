@@ -22,7 +22,10 @@ git clone --branch v2026.11.0 --depth 1 https://github.com/AlexArtaud-Dev/Canopy
 cd canopy
 ```
 
-Only the `docker/` folder is used at run time; the images come from GitHub's registry.
+Only the `docker/` folder is used at run time; the images come from GitHub's registry
+(`ghcr.io/alexartaud-dev/canopy-web` and `canopy-engine`). They are also on Docker Hub as
+`izoniks/canopy:<version>-web` and `izoniks/canopy:<version>-engine`: to use those, set the two
+`image:` lines in `docker/compose.yaml` accordingly.
 
 ## 2. Configure
 
