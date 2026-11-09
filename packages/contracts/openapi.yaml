@@ -853,7 +853,7 @@ components:
       enum: [read, upload, create, update, move, copy, delete, download, share, execute]
     DirectoryEntry:
       type: object
-      required: [name, path, kind, size, modified, actions]
+      required: [name, path, kind, size, modified, actions, preview]
       properties:
         name:
           type: string
@@ -874,6 +874,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PathAction'
+        preview:
+          $ref: '#/components/schemas/PreviewKind'
+    PreviewKind:
+      description: >-
+        How the file can be shown in the browser, decided by the engine from its extension
+        (`none` for folders and unknown files: download only).
+      type: string
+      enum: [none, image, pdf, text, audio, video, html]
     DirectoryListing:
       type: object
       required: [path, entries, total, actions]

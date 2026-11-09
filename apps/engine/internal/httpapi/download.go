@@ -17,6 +17,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/logging"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/preview"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
 )
 
@@ -24,6 +25,7 @@ import (
 // strict server). Stream tickets are accepted here and nowhere else.
 const (
 	routeDownload = "/v1/fs/download"
+	routePreview  = "/v1/fs/preview"
 	routeArchive  = "/v1/fs/archive"
 	routeUploads  = "/v1/uploads/"
 	maxArchived   = 1000
@@ -31,19 +33,28 @@ const (
 
 // isStreamRoute tells the token middleware where stream tickets may be used.
 func isStreamRoute(r *http.Request) bool {
-	return r.URL.Path == routeDownload || r.URL.Path == routeArchive ||
+	return r.URL.Path == routeDownload || r.URL.Path == routePreview || r.URL.Path == routeArchive ||
 		strings.HasPrefix(r.URL.Path, routeUploads)
 }
 
 // ContentDisposition names a download safely: an ASCII fallback plus the exact UTF-8 name.
 func ContentDisposition(name string) string {
+	return disposition("attachment", name)
+}
+
+// sandboxPolicy is served with every preview the browser could interpret (HTML, SVG, text): no
+// scripts, an opaque origin, nothing loaded from elsewhere. Only the app itself may frame it.
+const sandboxPolicy = "sandbox; default-src 'none'; img-src data:; media-src 'self'; " +
+	"style-src 'unsafe-inline'; frame-ancestors 'self'"
+
+func disposition(kind, name string) string {
 	fallback := strings.Map(func(r rune) rune {
 		if r < 0x20 || r > 0x7e || r == '"' || r == '\\' {
 			return '_'
 		}
 		return r
 	}, name)
-	return fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, fallback, url.PathEscape(name))
+	return fmt.Sprintf(`%s; filename="%s"; filename*=UTF-8''%s`, kind, fallback, url.PathEscape(name))
 }
 
 // ArchiveName picks the downloaded file name for a selection.
@@ -67,8 +78,18 @@ func (s *server) refuse(w http.ResponseWriter, r *http.Request, err error) {
 	errorHandler(s.deps.Logger, refusal.status, refusal.code)(w, r, err)
 }
 
-// download serves one file with Range support (resumable downloads, video seeking later).
+// download serves one file with Range support (resumable downloads).
 func (s *server) download(w http.ResponseWriter, r *http.Request) {
+	s.serveFile(w, r, false)
+}
+
+// preview serves one file inline for the viewer (video seeking uses Range). Seeing the content is
+// getting it, so it needs the same `download` right; formats outside the allowlist are refused.
+func (s *server) preview(w http.ResponseWriter, r *http.Request) {
+	s.serveFile(w, r, true)
+}
+
+func (s *server) serveFile(w http.ResponseWriter, r *http.Request, inline bool) {
 	ctx := r.Context()
 	principal, ok := enginetoken.FromContext(ctx)
 	if !ok {
@@ -78,6 +99,11 @@ func (s *server) download(w http.ResponseWriter, r *http.Request) {
 	clean, err := fsx.Clean(r.URL.Query().Get("path"))
 	if err != nil {
 		s.refuse(w, r, err)
+		return
+	}
+	kind, contentType := preview.Classify(clean)
+	if inline && kind == preview.None {
+		s.refuse(w, r, errNoPreview)
 		return
 	}
 	access, err := s.accessOf(ctx, principal)
@@ -100,15 +126,29 @@ func (s *server) download(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func() { _ = file.Close() }()
 
-	// Resumed downloads send ranges: only the first request is audited.
+	// Resumed downloads and media seeking send ranges: only the first request is audited.
 	if rng := r.Header.Get("Range"); rng == "" || strings.HasPrefix(rng, "bytes=0-") {
-		s.record(ctx, principal, "fs.download", clean, map[string]any{"bytes": entry.Size})
+		action := "fs.download"
+		if inline {
+			action = "fs.preview"
+		}
+		s.record(ctx, principal, action, clean, map[string]any{"bytes": entry.Size})
 	}
 	header := w.Header()
-	header.Set("Content-Type", "application/octet-stream")
-	header.Set("Content-Disposition", ContentDisposition(entry.Name))
 	header.Set("X-Content-Type-Options", "nosniff")
 	header.Set("Cache-Control", "private, no-store")
+	if inline {
+		header.Set("Content-Type", contentType)
+		header.Set("Content-Disposition", disposition("inline", entry.Name))
+		if preview.Sandboxed(kind) {
+			header.Set("Content-Security-Policy", sandboxPolicy)
+		} else {
+			header.Set("Content-Security-Policy", "frame-ancestors 'self'")
+		}
+	} else {
+		header.Set("Content-Type", "application/octet-stream")
+		header.Set("Content-Disposition", ContentDisposition(entry.Name))
+	}
 	http.ServeContent(w, r, entry.Name, entry.Modified, file)
 }
 

@@ -15,6 +15,9 @@ describe('relayTarget', () => {
       '/v1/fs/download?path=%2Fa',
     );
     expect(relayTarget('HEAD', '/api/engine/stream/v1/fs/download')).toBe('/v1/fs/download');
+    expect(relayTarget('GET', '/api/engine/stream/v1/fs/preview?path=%2Fa')).toBe(
+      '/v1/fs/preview?path=%2Fa',
+    );
     expect(relayTarget('GET', '/api/engine/stream/v1/fs/archive?path=/a&path=/b')).toBe(
       '/v1/fs/archive?path=/a&path=/b',
     );

@@ -61,6 +61,8 @@ func NewRouter(deps Deps) http.Handler {
 	r.Get("/v1/jobs/events", srv.jobEvents)
 	r.Get(routeDownload, srv.download)
 	r.Head(routeDownload, srv.download)
+	r.Get(routePreview, srv.preview)
+	r.Head(routePreview, srv.preview)
 	r.Get(routeArchive, srv.archive)
 	if deps.Uploads != nil {
 		r.Handle(routeUploads+"*", deps.Uploads)

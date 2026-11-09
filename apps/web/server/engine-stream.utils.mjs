@@ -6,7 +6,7 @@ export const ticketCookie = 'canopy_stream';
 
 /** Engine routes the browser may reach through the relay, by method. Everything else is a 404. */
 const routes = [
-  { methods: ['GET', 'HEAD'], path: /^\/v1\/fs\/download$/ },
+  { methods: ['GET', 'HEAD'], path: /^\/v1\/fs\/(?:download|preview)$/ },
   { methods: ['GET'], path: /^\/v1\/fs\/archive$/ },
   // tus: create an upload, then resume (HEAD), send bytes (PATCH) or cancel (DELETE) it.
   { methods: ['POST'], path: /^\/v1\/uploads\/$/ },
@@ -62,6 +62,8 @@ const responseHeaders = [
   'last-modified',
   'etag',
   'x-content-type-options',
+  // Previews: the engine's sandbox for anything the browser could interpret.
+  'content-security-policy',
   'cache-control',
   'tus-resumable',
   'tus-version',

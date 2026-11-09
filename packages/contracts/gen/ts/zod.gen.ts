@@ -32,6 +32,11 @@ export const zPathAction = z.enum([
   'execute',
 ]);
 
+/**
+ * How the file can be shown in the browser, decided by the engine from its extension (`none` for folders and unknown files: download only).
+ */
+export const zPreviewKind = z.enum(['none', 'image', 'pdf', 'text', 'audio', 'video', 'html']);
+
 export const zDirectoryEntry = z.object({
   name: z.string(),
   path: z.string(),
@@ -46,6 +51,7 @@ export const zDirectoryEntry = z.object({
     }),
   modified: z.iso.datetime(),
   actions: z.array(zPathAction),
+  preview: zPreviewKind,
 });
 
 export const zDirectoryListing = z.object({

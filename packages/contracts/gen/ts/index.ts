@@ -107,6 +107,7 @@ export type {
   PlanTransferErrors,
   PlanTransferResponse,
   PlanTransferResponses,
+  PreviewKind,
   ReadinessStatus,
   RenameEntryData,
   RenameEntryError,

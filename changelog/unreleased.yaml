@@ -237,3 +237,10 @@ entries:
       en: Deleted items go to a trash you can undo or restore from; it is capped per volume in size and number of files, and anything too large is deleted permanently only after a clear warning
       fr: Les éléments supprimés vont dans une corbeille d’où l’on peut annuler ou restaurer ; sa taille et son nombre de fichiers sont limités par volume, et ce qui est trop gros n’est supprimé définitivement qu’après un avertissement clair
       es: Los elementos eliminados van a una papelera desde la que se puede deshacer o restaurar; su tamaño y número de archivos están limitados por volumen, y lo que es demasiado grande solo se elimina definitivamente tras un aviso claro
+  - type: feat
+    scope: files
+    issue: 55
+    text:
+      en: Preview images, PDFs, text and code (with syntax highlighting), audio and video without leaving the folder
+      fr: Aperçu des images, PDF, textes et code (avec coloration syntaxique), audio et vidéo sans quitter le dossier
+      es: Vista previa de imágenes, PDF, texto y código (con resaltado de sintaxis), audio y vídeo sin salir de la carpeta

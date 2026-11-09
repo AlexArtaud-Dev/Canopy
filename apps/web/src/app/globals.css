@@ -139,3 +139,13 @@
     @apply font-sans;
   }
 }
+
+/* Highlighted code in previews: shiki emits both themes as variables, the app theme picks one. */
+@layer components {
+  .shiki span {
+    color: var(--shiki-light);
+  }
+  .dark .shiki span {
+    color: var(--shiki-dark);
+  }
+}

@@ -2,7 +2,7 @@
 
 import { Upload, type DetailedError } from 'tus-js-client';
 
-import { refreshStreamTicket } from '@/features/files/server/stream-ticket';
+import { ensureStreamTicket } from '@/features/files/model/stream-ticket';
 
 import {
   isActive,
@@ -15,26 +15,6 @@ import {
   type UploadStrategy,
 } from '../uploads.utils';
 import { uploadStore } from './upload-store';
-
-/** Ask for a new stream ticket this long before the current one expires. */
-const ticketMarginMs = 30_000;
-
-let ticketExpiresAt = 0;
-let ticketRequest: Promise<void> | null = null;
-
-/** One ticket refresh at a time, shared by every upload request that needs it. */
-async function ensureTicket(): Promise<void> {
-  if (Date.now() < ticketExpiresAt - ticketMarginMs) return;
-  ticketRequest ??= refreshStreamTicket()
-    .then((result) => {
-      if (!result.ok) throw new Error(result.error.code);
-      ticketExpiresAt = result.data.expiresAt;
-    })
-    .finally(() => {
-      ticketRequest = null;
-    });
-  await ticketRequest;
-}
 
 const controls = new Map<string, Upload>();
 const waiting: string[] = [];
@@ -78,7 +58,7 @@ function create(item: UploadItem, file: File, strategy: UploadStrategy): Upload 
     metadata: uploadMetadata({ ...item, strategy }),
     // Resuming after a reload would need the file picked again: retries cover network blips.
     storeFingerprintForResuming: false,
-    onBeforeRequest: () => ensureTicket(),
+    onBeforeRequest: () => ensureStreamTicket(),
     onProgress: (sent) => {
       uploadStore.update(item.id, { sent });
     },
