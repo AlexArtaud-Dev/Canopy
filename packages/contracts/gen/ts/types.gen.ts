@@ -118,6 +118,23 @@ export type ExplainResponse = {
   decisions: Array<AccessDecision>;
 };
 
+export type CompressRequest = {
+  /**
+   * Items to archive, all in the same folder.
+   */
+  sources: Array<string>;
+  format: 'zip' | 'tar.gz';
+};
+
+export type ExtractRequest = {
+  path: string;
+};
+
+export type ChecksumRequest = {
+  path: string;
+  algorithm: 'md5' | 'sha1' | 'sha256' | 'sha512';
+};
+
 export type FolderSizeRequest = {
   path: string;
 };
@@ -452,6 +469,129 @@ export type ExplainAccessResponses = {
 };
 
 export type ExplainAccessResponse = ExplainAccessResponses[keyof ExplainAccessResponses];
+
+export type StartCompressData = {
+  body: CompressRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/jobs/compress';
+};
+
+export type StartCompressErrors = {
+  /**
+   * Invalid paths or format, or sources in different folders (`files.invalid_path`, `files.mixed_folders`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * The caller may not copy a source or create in the folder (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * A source does not exist (`files.not_found`).
+   */
+  404: Error;
+  /**
+   * Too many active jobs for this person (`jobs.too_many`).
+   */
+  429: Error;
+};
+
+export type StartCompressError = StartCompressErrors[keyof StartCompressErrors];
+
+export type StartCompressResponses = {
+  /**
+   * The job was queued.
+   */
+  202: Job;
+};
+
+export type StartCompressResponse = StartCompressResponses[keyof StartCompressResponses];
+
+export type StartExtractData = {
+  body: ExtractRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/jobs/extract';
+};
+
+export type StartExtractErrors = {
+  /**
+   * Invalid path, or not an archive (`files.invalid_path`, `files.not_archive`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * The caller may not copy the archive or create in its folder (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such file (`files.not_found`).
+   */
+  404: Error;
+  /**
+   * Too many active jobs for this person (`jobs.too_many`).
+   */
+  429: Error;
+};
+
+export type StartExtractError = StartExtractErrors[keyof StartExtractErrors];
+
+export type StartExtractResponses = {
+  /**
+   * The job was queued.
+   */
+  202: Job;
+};
+
+export type StartExtractResponse = StartExtractResponses[keyof StartExtractResponses];
+
+export type StartChecksumData = {
+  body: ChecksumRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/jobs/checksum';
+};
+
+export type StartChecksumErrors = {
+  /**
+   * Invalid path or algorithm (`files.invalid_path`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * The caller may not download this file (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such file (`files.not_found`).
+   */
+  404: Error;
+  /**
+   * Too many active jobs for this person (`jobs.too_many`).
+   */
+  429: Error;
+};
+
+export type StartChecksumError = StartChecksumErrors[keyof StartChecksumErrors];
+
+export type StartChecksumResponses = {
+  /**
+   * The job was queued.
+   */
+  202: Job;
+};
+
+export type StartChecksumResponse = StartChecksumResponses[keyof StartChecksumResponses];
 
 export type StartFolderSizeData = {
   body: FolderSizeRequest;

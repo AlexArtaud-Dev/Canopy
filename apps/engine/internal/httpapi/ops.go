@@ -8,6 +8,7 @@ import (
 	"path"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/api"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/archive"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
@@ -50,6 +51,10 @@ func classify(err error) (failure, bool) {
 	case errors.Is(err, thumbs.ErrUnsupported), errors.Is(err, thumbs.ErrTooLarge),
 		errors.Is(err, thumbs.ErrDisabled):
 		return failure{http.StatusNotFound, codeNoThumbnail}, true
+	case errors.Is(err, archive.ErrMixedFolders):
+		return failure{http.StatusBadRequest, archive.CodeMixedFolders}, true
+	case errors.Is(err, archive.ErrNotArchive):
+		return failure{http.StatusBadRequest, archive.CodeNotArchive}, true
 	case errors.Is(err, errNoPreview):
 		return failure{http.StatusUnsupportedMediaType, codeNoPreview}, true
 	case errors.Is(err, errInvalidName):

@@ -52,9 +52,18 @@ import type {
   SearchFilesData,
   SearchFilesErrors,
   SearchFilesResponses,
+  StartChecksumData,
+  StartChecksumErrors,
+  StartChecksumResponses,
+  StartCompressData,
+  StartCompressErrors,
+  StartCompressResponses,
   StartEmptyTrashData,
   StartEmptyTrashErrors,
   StartEmptyTrashResponses,
+  StartExtractData,
+  StartExtractErrors,
+  StartExtractResponses,
   StartFolderSizeData,
   StartFolderSizeErrors,
   StartFolderSizeResponses,
@@ -96,8 +105,14 @@ import {
   zRestoreFromTrashResponse,
   zSearchFilesQuery,
   zSearchFilesResponse,
+  zStartChecksumBody,
+  zStartChecksumResponse,
+  zStartCompressBody,
+  zStartCompressResponse,
   zStartEmptyTrashBody,
   zStartEmptyTrashResponse,
+  zStartExtractBody,
+  zStartExtractResponse,
   zStartFolderSizeBody,
   zStartFolderSizeResponse,
   zStartPermanentDeleteBody,
@@ -232,6 +247,87 @@ export const explainAccess = <ThrowOnError extends boolean = false>(
     responseValidator: async (data) => await zExplainAccessResponse.parseAsync(data),
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v1/authz/explain',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Compress items into an archive
+ *
+ * Starts a job writing a zip or tar.gz of the sources into the folder that holds them (never replacing anything: a free name is picked). What the caller may not read is left out; links are skipped. The result carries the archive path.
+ */
+export const startCompress = <ThrowOnError extends boolean = false>(
+  options: Options<StartCompressData, ThrowOnError>,
+): RequestResult<StartCompressResponses, StartCompressErrors, ThrowOnError> =>
+  (options.client ?? client).post<StartCompressResponses, StartCompressErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zStartCompressBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zStartCompressResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs/compress',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Extract an archive next to it
+ *
+ * Starts a job unpacking a zip, tar or tar.gz into a new folder next to it. Unsafe entry names fail the job (`files.bad_archive`); links and devices are skipped; extraction stops past the free space or 200 000 entries (`files.archive_too_large`). The result carries the folder path.
+ */
+export const startExtract = <ThrowOnError extends boolean = false>(
+  options: Options<StartExtractData, ThrowOnError>,
+): RequestResult<StartExtractResponses, StartExtractErrors, ThrowOnError> =>
+  (options.client ?? client).post<StartExtractResponses, StartExtractErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zStartExtractBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zStartExtractResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs/extract',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Compute a file checksum
+ *
+ * Starts a job hashing one file (MD5, SHA-1, SHA-256 or SHA-512). The result carries the hex digest.
+ */
+export const startChecksum = <ThrowOnError extends boolean = false>(
+  options: Options<StartChecksumData, ThrowOnError>,
+): RequestResult<StartChecksumResponses, StartChecksumErrors, ThrowOnError> =>
+  (options.client ?? client).post<StartChecksumResponses, StartChecksumErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zStartChecksumBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zStartChecksumResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/jobs/checksum',
     ...options,
     headers: {
       'Content-Type': 'application/json',

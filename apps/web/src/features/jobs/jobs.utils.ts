@@ -87,3 +87,8 @@ export function canRetry(job: Job): boolean {
     job.target !== undefined
   );
 }
+
+/** A text field of a job's result (results are free-form JSON written by the engine). */
+export function resultText(value: unknown): string {
+  return typeof value === 'string' ? value : '';
+}

@@ -30,13 +30,20 @@
       "copy": "Copia",
       "move": "Traslado",
       "delete": "Eliminación definitiva",
-      "trash_empty": "Vaciado de la papelera"
+      "trash_empty": "Vaciado de la papelera",
+      "compress": "Compresión",
+      "extract": "Extracción",
+      "checksum": "Suma de verificación"
     },
     "transferResult": "{items, plural, one {# elemento} other {# elementos}} · {size}",
     "transferSkipped": "{count, plural, one {# omitido} other {# omitidos}}",
     "transferRenamed": "{count, plural, one {# conservado como copia} other {# conservados como copia}}",
     "uploadFailed": "Falló la subida: {name}",
-    "removedResult": "{count, plural, one {# elemento eliminado} other {# elementos eliminados}}"
+    "removedResult": "{count, plural, one {# elemento eliminado} other {# elementos eliminados}}",
+    "compressResult": "{name} creado · {size}",
+    "extractResult": "{files, plural, one {# archivo extraído} other {# archivos extraídos}} en {name}",
+    "copyHash": "Copiar la suma de verificación",
+    "hashCopied": "Suma de verificación copiada"
   },
   "uploads": {
     "upload": "Subida",

@@ -258,3 +258,10 @@ entries:
       en: Search file and folder names in the current folder and its subfolders, ignoring case and accents
       fr: Recherche des noms de fichiers et dossiers dans le dossier courant et ses sous-dossiers, sans tenir compte de la casse ni des accents
       es: Búsqueda de nombres de archivos y carpetas en la carpeta actual y sus subcarpetas, sin distinguir mayúsculas ni acentos
+  - type: feat
+    scope: files
+    issue: 58
+    text:
+      en: Compress items to zip or tar.gz, extract archives safely, and compute file checksums, with live progress
+      fr: Compression en zip ou tar.gz, extraction sécurisée des archives et calcul de sommes de contrôle, avec progression en direct
+      es: Compresión en zip o tar.gz, extracción segura de archivos comprimidos y cálculo de sumas de verificación, con progreso en directo

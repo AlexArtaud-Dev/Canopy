@@ -42,6 +42,26 @@ export const transferJobInputSchema = transferInputSchema.extend({
   decisions: z.record(z.string(), z.enum(conflictStrategies)).optional(),
 });
 
+export const archiveFormats = ['zip', 'tar.gz'] as const;
+export type ArchiveFormat = (typeof archiveFormats)[number];
+export const checksumAlgorithms = ['md5', 'sha1', 'sha256', 'sha512'] as const;
+export type ChecksumAlgorithm = (typeof checksumAlgorithms)[number];
+
+export const compressInputSchema = z.object({
+  sources: z.array(virtualPathSchema).min(1).max(1000),
+  format: z.enum(archiveFormats),
+});
+export const extractInputSchema = z.object({ path: virtualPathSchema });
+export const checksumInputSchema = z.object({
+  path: virtualPathSchema,
+  algorithm: z.enum(checksumAlgorithms),
+});
+
+/** Archives Canopy can extract, by name (the engine decides again). */
+export function isArchive(name: string): boolean {
+  return /\.(zip|tar|tar\.gz|tgz)$/i.test(name);
+}
+
 export function childPath(folder: string, name: string): string {
   return folder === '/' ? `/${name}` : `${folder}/${name}`;
 }

@@ -95,6 +95,20 @@ export const zExplainResponse = z.object({
   decisions: z.array(zAccessDecision),
 });
 
+export const zCompressRequest = z.object({
+  sources: z.array(z.string().max(4096)).min(1).max(1000),
+  format: z.enum(['zip', 'tar.gz']),
+});
+
+export const zExtractRequest = z.object({
+  path: z.string().max(4096),
+});
+
+export const zChecksumRequest = z.object({
+  path: z.string().max(4096),
+  algorithm: z.enum(['md5', 'sha1', 'sha256', 'sha512']),
+});
+
 export const zFolderSizeRequest = z.object({
   path: z.string(),
 });
@@ -351,6 +365,27 @@ export const zExplainAccessBody = zExplainRequest;
  * One decision per action.
  */
 export const zExplainAccessResponse = zExplainResponse;
+
+export const zStartCompressBody = zCompressRequest;
+
+/**
+ * The job was queued.
+ */
+export const zStartCompressResponse = zJob;
+
+export const zStartExtractBody = zExtractRequest;
+
+/**
+ * The job was queued.
+ */
+export const zStartExtractResponse = zJob;
+
+export const zStartChecksumBody = zChecksumRequest;
+
+/**
+ * The job was queued.
+ */
+export const zStartChecksumResponse = zJob;
 
 export const zStartFolderSizeBody = zFolderSizeRequest;
 

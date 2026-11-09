@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/archive"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/authz"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/foldersize"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
@@ -38,6 +39,27 @@ func (j *jobService) StartDelete(ctx context.Context, args trash.DeleteArgs) (st
 
 func (j *jobService) StartEmptyTrash(ctx context.Context, args trash.EmptyArgs) (string, error) {
 	return jobs.Enqueue(ctx, j.runner, args.Subject.UserID, "", func(id string) trash.EmptyArgs {
+		args.Job = id
+		return args
+	})
+}
+
+func (j *jobService) StartCompress(ctx context.Context, args archive.CompressArgs) (string, error) {
+	return jobs.Enqueue(ctx, j.runner, args.Subject.UserID, args.Folder, func(id string) archive.CompressArgs {
+		args.Job = id
+		return args
+	})
+}
+
+func (j *jobService) StartExtract(ctx context.Context, args archive.ExtractArgs) (string, error) {
+	return jobs.Enqueue(ctx, j.runner, args.Subject.UserID, args.Archive, func(id string) archive.ExtractArgs {
+		args.Job = id
+		return args
+	})
+}
+
+func (j *jobService) StartChecksum(ctx context.Context, args archive.ChecksumArgs) (string, error) {
+	return jobs.Enqueue(ctx, j.runner, args.Subject.UserID, args.Path, func(id string) archive.ChecksumArgs {
 		args.Job = id
 		return args
 	})

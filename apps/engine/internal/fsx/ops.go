@@ -10,6 +10,7 @@ import (
 	"path"
 	"strings"
 	"syscall"
+	"time"
 )
 
 // Error codes of write operations (translated by the web app).
@@ -279,6 +280,39 @@ func (r *Resolver) CopyFile(ctx context.Context, from, to string, overwrite bool
 		return err
 	}
 	if err := r.root.Chtimes(Relative(dst), info.ModTime(), info.ModTime()); err != nil {
+		return fmt.Errorf("keep modification time: %w", err)
+	}
+	return nil
+}
+
+// WriteNew creates a file that must not exist yet and fills it with write. On any failure the
+// partial file is removed, so no truncated file is left behind. The modification time is set
+// when modified is not zero (extracted files keep theirs).
+func (r *Resolver) WriteNew(virtual string, modified time.Time, write func(io.Writer) error) (err error) {
+	clean, err := Clean(virtual)
+	if err != nil {
+		return err
+	}
+	out, err := r.root.OpenFile(Relative(clean), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o666)
+	if err != nil {
+		return mapWriteError(err)
+	}
+	defer func() {
+		closeErr := out.Close()
+		if err == nil && closeErr != nil {
+			err = fmt.Errorf("close: %w", closeErr)
+		}
+		if err != nil {
+			_ = r.root.Remove(Relative(clean))
+		}
+	}()
+	if err := write(out); err != nil {
+		return err
+	}
+	if modified.IsZero() {
+		return nil
+	}
+	if err := r.root.Chtimes(Relative(clean), modified, modified); err != nil {
 		return fmt.Errorf("keep modification time: %w", err)
 	}
 	return nil

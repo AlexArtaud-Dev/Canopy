@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/api"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/archive"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/audit"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/authz"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
@@ -28,6 +29,9 @@ type Jobs interface {
 	StartTransfer(ctx context.Context, args transfer.Args) (string, error)
 	StartDelete(ctx context.Context, args trash.DeleteArgs) (string, error)
 	StartEmptyTrash(ctx context.Context, args trash.EmptyArgs) (string, error)
+	StartCompress(ctx context.Context, args archive.CompressArgs) (string, error)
+	StartExtract(ctx context.Context, args archive.ExtractArgs) (string, error)
+	StartChecksum(ctx context.Context, args archive.ChecksumArgs) (string, error)
 	Get(ctx context.Context, id, owner string) (jobs.Job, error)
 	List(ctx context.Context, owner string, limit int) ([]jobs.Job, error)
 	Cancel(ctx context.Context, job jobs.Job) error

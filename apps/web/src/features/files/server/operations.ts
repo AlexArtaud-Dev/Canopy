@@ -7,6 +7,9 @@ import {
   listDirectory,
   planTransfer as planEngineTransfer,
   renameEntry as renameEngineEntry,
+  startChecksum as startEngineChecksum,
+  startCompress as startEngineCompress,
+  startExtract as startEngineExtract,
   startTransfer as startEngineTransfer,
   type Job,
 } from '@canopy/contracts';
@@ -17,7 +20,10 @@ import { requireSession } from '@/features/auth';
 
 import { cleanVirtualPath, type PathAction } from '../files.utils';
 import {
+  checksumInputSchema,
+  compressInputSchema,
   entryNameSchema,
+  extractInputSchema,
   transferInputSchema,
   transferJobInputSchema,
   type TransferConflict,
@@ -123,6 +129,36 @@ export async function startTransfer(input: unknown): Promise<ActionResult<Job>> 
       client: await client(),
       body: { ...request, decisions: decisions ?? {} },
     });
+    if (!data) refused(response, error);
+    return data;
+  });
+}
+
+/** Archives the sources (all in one folder) into that folder, as a job. */
+export async function startCompress(input: unknown): Promise<ActionResult<Job>> {
+  return runAction(async () => {
+    const body = parse(compressInputSchema, input);
+    const { data, error, response } = await startEngineCompress({ client: await client(), body });
+    if (!data) refused(response, error);
+    return data;
+  });
+}
+
+/** Unpacks an archive into a new folder next to it, as a job. */
+export async function startExtract(input: unknown): Promise<ActionResult<Job>> {
+  return runAction(async () => {
+    const body = parse(extractInputSchema, input);
+    const { data, error, response } = await startEngineExtract({ client: await client(), body });
+    if (!data) refused(response, error);
+    return data;
+  });
+}
+
+/** Hashes one file, as a job; the digest arrives in the job's result. */
+export async function startChecksum(input: unknown): Promise<ActionResult<Job>> {
+  return runAction(async () => {
+    const body = parse(checksumInputSchema, input);
+    const { data, error, response } = await startEngineChecksum({ client: await client(), body });
     if (!data) refused(response, error);
     return data;
   });
