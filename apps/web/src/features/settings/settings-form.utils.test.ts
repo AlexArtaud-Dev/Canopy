@@ -5,7 +5,10 @@ import { defineSettings } from '@/shared/modules/settings.types';
 import {
   describeField,
   describeModule,
+  groupByCategory,
   matchesSearch,
+  selectedTab,
+  settingsCategories,
   parseFieldInput,
   settingResetSchema,
   settingUpdateSchema,
@@ -102,5 +105,29 @@ describe('action schemas', () => {
       true,
     );
     expect(settingResetSchema.safeParse({ module: '', key: 'x' }).success).toBe(false);
+  });
+});
+
+describe('settings tabs', () => {
+  it('groups modules by category, unknown ones last', () => {
+    expect(groupByCategory(['auth', 'appearance', 'plugins', 'newcomer', 'system'])).toEqual([
+      { id: 'general', modules: ['appearance', 'system'] },
+      { id: 'security', modules: ['auth'] },
+      { id: 'tools', modules: ['plugins'] },
+      { id: 'other', modules: ['newcomer'] },
+    ]);
+    expect(groupByCategory([])).toEqual([]);
+    expect(settingsCategories.map((category) => category.id)).toEqual([
+      'general',
+      'security',
+      'files',
+      'tools',
+    ]);
+  });
+
+  it('picks the requested tab when it exists', () => {
+    expect(selectedTab('plugins', ['auth', 'plugins'])).toBe('plugins');
+    expect(selectedTab('nope', ['auth', 'plugins'])).toBe('auth');
+    expect(selectedTab(null, [])).toBeUndefined();
   });
 });

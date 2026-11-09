@@ -11,6 +11,7 @@ export const settingsModule = defineModule({
       labelKey: 'settings',
       icon: SlidersHorizontal,
       group: 'administration',
+      section: 'configuration',
       permission: 'settings:read',
     },
   ],

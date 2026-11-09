@@ -18,6 +18,7 @@ export const systemModule = defineModule({
       labelKey: 'system',
       icon: Activity,
       group: 'administration',
+      section: 'monitoring',
       permission: 'system:read',
     },
   ],

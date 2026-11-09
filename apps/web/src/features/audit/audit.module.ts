@@ -14,6 +14,7 @@ export const auditModule = defineModule({
       labelKey: 'audit',
       icon: ScrollText,
       group: 'administration',
+      section: 'monitoring',
       permission: 'audit:read',
     },
   ],

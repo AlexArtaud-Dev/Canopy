@@ -11,6 +11,7 @@ export const usersModule = defineModule({
       labelKey: 'users',
       icon: Users,
       group: 'administration',
+      section: 'people',
       permission: 'users:read',
     },
   ],

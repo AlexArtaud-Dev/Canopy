@@ -14,6 +14,7 @@ export const mailModule = defineModule({
       labelKey: 'email',
       icon: Mail,
       group: 'administration',
+      section: 'configuration',
       permission: 'mail:read',
     },
   ],

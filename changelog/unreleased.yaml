@@ -300,3 +300,10 @@ entries:
       en: Right-click a folder or empty space to run a plugin command in a dialog with the folder already filled in; the files refresh when it ends
       fr: Un clic droit sur un dossier ou dans le vide lance une commande de plugin dans une fenêtre où le dossier est déjà rempli ; les fichiers s’actualisent à la fin
       es: Un clic derecho en una carpeta o en un espacio vacío ejecuta un comando de plugin en una ventana con la carpeta ya indicada; los archivos se actualizan al terminar
+  - type: feat
+    scope: shell
+    issue: 129
+    text:
+      en: The sidebar groups administration pages into collapsible sections, and settings are organized in vertical tabs by category
+      fr: La barre latérale regroupe les pages d’administration en sections repliables, et les réglages sont rangés en onglets verticaux par catégorie
+      es: La barra lateral agrupa las páginas de administración en secciones plegables y los ajustes se ordenan en pestañas verticales por categoría
