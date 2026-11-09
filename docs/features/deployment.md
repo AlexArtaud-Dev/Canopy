@@ -13,10 +13,13 @@ reverse proxy with TLS in front of it; none is shipped.
 
 ## Images
 
-| Image           | Base                          | Runs as               | Size    |
-| --------------- | ----------------------------- | --------------------- | ------- |
-| `canopy-web`    | `node:24-alpine` (standalone) | `node` (1000)         | ~210 MB |
-| `canopy-engine` | `distroless/static` (nonroot) | `PUID:PGID` (compose) | ~15 MB  |
+| Image           | Base                                        | Runs as               | Size    |
+| --------------- | ------------------------------------------- | --------------------- | ------- |
+| `canopy-web`    | `alpine` + the node binary (standalone app) | `node` (1000)         | ~180 MB |
+| `canopy-engine` | `distroless/static` (nonroot)               | `PUID:PGID` (compose) | ~19 MB  |
+
+The web image keeps only what runs: no npm, corepack or yarn, and no sharp (images are served
+unoptimized; thumbnails come from the engine already sized). Node.js itself is ~125 MB of it.
 
 Base images are pinned by digest. Both have a `HEALTHCHECK`; the engine image has no shell, so it
 probes itself with `engine healthcheck`.

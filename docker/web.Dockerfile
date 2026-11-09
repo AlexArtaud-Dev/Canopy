@@ -17,9 +17,14 @@ COPY packages/ packages/
 COPY apps/web/ apps/web/
 COPY prettier.config.js ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --offline
-RUN pnpm --filter @canopy/web build
+# Next.js copies sharp (image optimizer, ~20 MB with libvips) into standalone; images are unoptimized.
+RUN pnpm --filter @canopy/web build     && rm -rf apps/web/.next/standalone/node_modules/.pnpm/sharp@* apps/web/.next/standalone/node_modules/.pnpm/@img+*
 
-FROM node:24-alpine@sha256:a34ab6d7f6f4813f4d0c5469d74685604b962fbdbf5793a7bc7b4998ecb867c8 AS runtime
+# Runtime: plain Alpine (same release as the node image) with only the node binary and the C++
+# runtime it links. npm, corepack and yarn never run in production and are left behind.
+FROM alpine:3.24@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf AS runtime
+RUN apk add --no-cache libstdc++     && addgroup -g 1000 node     && adduser -u 1000 -G node -s /sbin/nologin -D -H node
+COPY --from=base /usr/local/bin/node /usr/local/bin/node
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
 WORKDIR /app
 COPY --from=build --chown=node:node /repo/apps/web/.next/standalone ./
