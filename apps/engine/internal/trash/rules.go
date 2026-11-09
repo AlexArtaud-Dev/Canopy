@@ -7,11 +7,10 @@ package trash
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"slices"
 	"time"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/appsettings"
 )
 
 // Error codes (translated by the web app).
@@ -69,26 +68,11 @@ func positive(raw json.RawMessage) int64 {
 	return value
 }
 
-// Querier reads app.settings.
-type Querier interface {
-	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
-}
-
 // LoadLimits reads the trash settings written by the web app.
-func LoadLimits(ctx context.Context, db Querier) (Limits, error) {
-	rows, err := db.Query(ctx, `SELECT key, value FROM app.settings WHERE module = 'trash'`)
+func LoadLimits(ctx context.Context, db appsettings.Querier) (Limits, error) {
+	values, err := appsettings.Load(ctx, db, "trash")
 	if err != nil {
-		return Limits{}, fmt.Errorf("read trash settings: %w", err)
-	}
-	values := map[string]json.RawMessage{}
-	var key string
-	var value []byte
-	_, err = pgx.ForEachRow(rows, []any{&key, &value}, func() error {
-		values[key] = append(json.RawMessage(nil), value...)
-		return nil
-	})
-	if err != nil {
-		return Limits{}, fmt.Errorf("read trash settings: %w", err)
+		return Limits{}, err
 	}
 	return LimitsFrom(values), nil
 }

@@ -52,6 +52,10 @@ export type DirectoryEntry = {
   modified: string;
   actions: Array<PathAction>;
   preview: PreviewKind;
+  /**
+   * The engine can render a thumbnail for this file (`/v1/fs/thumbnail`): a supported image, or a video when ffmpeg is installed, with thumbnails turned on.
+   */
+  thumbnail: boolean;
 };
 
 /**

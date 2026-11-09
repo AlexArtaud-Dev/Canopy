@@ -244,3 +244,10 @@ entries:
       en: Preview images, PDFs, text and code (with syntax highlighting), audio and video without leaving the folder
       fr: Aperçu des images, PDF, textes et code (avec coloration syntaxique), audio et vidéo sans quitter le dossier
       es: Vista previa de imágenes, PDF, texto y código (con resaltado de sintaxis), audio y vídeo sin salir de la carpeta
+  - type: feat
+    scope: files
+    issue: 56
+    text:
+      en: Thumbnails for images and videos in the grid view, cached by the server, with a setting to turn them off
+      fr: Miniatures des images et vidéos en vue grille, mises en cache par le serveur, avec un réglage pour les désactiver
+      es: Miniaturas de imágenes y vídeos en la vista de cuadrícula, en caché en el servidor, con un ajuste para desactivarlas

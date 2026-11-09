@@ -24,7 +24,7 @@ func TestLoad(t *testing.T) {
 		{
 			name: "defaults",
 			env:  map[string]string{"CANOPY_DATABASE_URL": dsn},
-			want: Config{Addr: ":8080", DatabaseURL: dsn, Root: "/srv/canopy/root", LogLevel: slog.LevelInfo, Umask: 0o022},
+			want: Config{Addr: ":8080", DatabaseURL: dsn, Root: "/srv/canopy/root", CacheDir: "/srv/canopy/cache", LogLevel: slog.LevelInfo, Umask: 0o022},
 		},
 		{
 			name: "overrides are trimmed and cleaned",
@@ -32,10 +32,11 @@ func TestLoad(t *testing.T) {
 				"CANOPY_DATABASE_URL": " " + dsn + " ",
 				"CANOPY_ENGINE_ADDR":  " 127.0.0.1:9000 ",
 				"CANOPY_ROOT":         "/data/root/../root/",
+				"CANOPY_CACHE_DIR":    "/var/cache//canopy/",
 				"CANOPY_LOG_LEVEL":    "debug",
 				"UMASK":               "002",
 			},
-			want: Config{Addr: "127.0.0.1:9000", DatabaseURL: dsn, Root: "/data/root", LogLevel: slog.LevelDebug, Umask: 0o002},
+			want: Config{Addr: "127.0.0.1:9000", DatabaseURL: dsn, Root: "/data/root", CacheDir: "/var/cache/canopy", LogLevel: slog.LevelDebug, Umask: 0o002},
 		},
 		{
 			name:    "missing database url",
@@ -46,6 +47,11 @@ func TestLoad(t *testing.T) {
 			name:    "relative root",
 			env:     map[string]string{"CANOPY_DATABASE_URL": dsn, "CANOPY_ROOT": "data"},
 			wantErr: &Error{Code: CodeInvalid, Key: "CANOPY_ROOT"},
+		},
+		{
+			name:    "relative cache folder",
+			env:     map[string]string{"CANOPY_DATABASE_URL": dsn, "CANOPY_CACHE_DIR": "cache"},
+			wantErr: &Error{Code: CodeInvalid, Key: "CANOPY_CACHE_DIR"},
 		},
 		{
 			name:    "non-octal umask",

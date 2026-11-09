@@ -6,17 +6,23 @@ import { useEffect } from 'react';
 
 import { cn } from 'cn';
 
-import { fileKind, formatBytes } from '../browser.utils';
-import { EntryIcon } from './entry-icon';
+import { formatBytes } from '../browser.utils';
 import { DndEntry, dropHighlight } from './dnd';
 import { EntryMenu } from './entry-menu';
+import { EntryThumbnail } from './entry-thumbnail';
 import { initialViewport, modifiersOf, type EntryViewProps } from './view-props';
 
 export const tileMinWidth = 132;
 export const tileGap = 12;
-const tileHeight = 128;
+const tileHeight = 144;
 
-export function GridView(props: EntryViewProps & { columns: number }) {
+export function GridView(
+  props: EntryViewProps & {
+    columns: number;
+    /** Thumbnails may load (the stream ticket is set). */
+    thumbnails: boolean;
+  },
+) {
   const { entries, selected, focusIndex, scrollRef, onRendered, columns } = props;
   const locale = useLocale();
   const rowCount = Math.ceil(entries.length / columns);
@@ -86,11 +92,7 @@ export function GridView(props: EntryViewProps & { columns: number }) {
                           props.onOpen(index);
                         }}
                       >
-                        <EntryIcon
-                          kind={fileKind(entry.name, entry.isDirectory)}
-                          className="size-10"
-                          strokeWidth={1.5}
-                        />
+                        <EntryThumbnail key={entry.path} entry={entry} enabled={props.thumbnails} />
                         <span className="line-clamp-2 w-full font-medium break-all">
                           {entry.name}
                         </span>

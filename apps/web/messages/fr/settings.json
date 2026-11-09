@@ -24,7 +24,8 @@
     "appearance": "Apparence",
     "jobs": "Tâches de fond",
     "uploads": "Imports",
-    "trash": "Corbeille"
+    "trash": "Corbeille",
+    "thumbnails": "Miniatures"
   },
   "groups": {
     "sessions": "Sessions",
@@ -35,7 +36,8 @@
     "privacy": "Vie privée",
     "theme": "Thème",
     "language": "Langue",
-    "limits": "Limites"
+    "limits": "Limites",
+    "display": "Affichage"
   },
   "fields": {
     "auth": {
@@ -138,6 +140,16 @@
       "maxFiles": {
         "label": "Nombre maximal de fichiers par volume",
         "description": "Au-delà, les plus anciens éléments sont supprimés en premier : des suppressions massives ne peuvent pas remplir un disque."
+      }
+    },
+    "thumbnails": {
+      "enabled": {
+        "label": "Afficher les miniatures",
+        "description": "Les images, et les vidéos si ffmpeg est installé, affichent un petit aperçu au lieu de leur icône."
+      },
+      "maxCacheMb": {
+        "label": "Taille maximale du cache de miniatures (Mo)",
+        "description": "Au-delà, les miniatures les moins récemment vues sont supprimées. Elles sont recréées au besoin."
       }
     }
   },

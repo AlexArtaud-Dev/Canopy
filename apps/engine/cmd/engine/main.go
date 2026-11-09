@@ -119,6 +119,8 @@ func run() error {
 	}
 	go jobService.hub.Listen(ctx, pool, logger)
 
+	thumbService := startThumbnails(ctx, cfg.CacheDir, resolver, pool, logger)
+
 	uploadService, err := startUploads(ctx, cfg.Root, resolver, grants, pool, logger)
 	if err != nil {
 		return err
@@ -139,6 +141,7 @@ func run() error {
 			StreamsDone: streamsDone,
 			Uploads:     uploadService,
 			Trash:       trashService,
+			Thumbs:      thumbService,
 		}),
 		ReadHeaderTimeout: readHeaderTimeout,
 		// No read/write timeouts: multi-GB transfers and SSE streams are legitimately long.

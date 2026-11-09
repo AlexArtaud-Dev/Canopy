@@ -44,6 +44,8 @@ type Deps struct {
 	Audit    Auditor
 	// Uploads is the tus endpoint (nil disables uploads, e.g. in tests).
 	Uploads http.Handler
+	// Thumbs renders thumbnails (nil: none offered).
+	Thumbs Thumbnails
 	// StreamsDone closes when the server shuts down, ending event streams that would otherwise
 	// hold the shutdown open.
 	StreamsDone <-chan struct{}
@@ -63,6 +65,7 @@ func NewRouter(deps Deps) http.Handler {
 	r.Head(routeDownload, srv.download)
 	r.Get(routePreview, srv.preview)
 	r.Head(routePreview, srv.preview)
+	r.Get(routeThumbnail, srv.thumbnail)
 	r.Get(routeArchive, srv.archive)
 	if deps.Uploads != nil {
 		r.Handle(routeUploads+"*", deps.Uploads)

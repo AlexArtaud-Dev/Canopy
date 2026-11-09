@@ -26,14 +26,17 @@ import (
 const (
 	routeDownload = "/v1/fs/download"
 	routePreview  = "/v1/fs/preview"
-	routeArchive  = "/v1/fs/archive"
-	routeUploads  = "/v1/uploads/"
-	maxArchived   = 1000
+	// Not under /download or /preview: thumbnails are rendered, never the file itself.
+	routeThumbnail = "/v1/fs/thumbnail"
+	routeArchive   = "/v1/fs/archive"
+	routeUploads   = "/v1/uploads/"
+	maxArchived    = 1000
 )
 
 // isStreamRoute tells the token middleware where stream tickets may be used.
 func isStreamRoute(r *http.Request) bool {
-	return r.URL.Path == routeDownload || r.URL.Path == routePreview || r.URL.Path == routeArchive ||
+	return r.URL.Path == routeDownload || r.URL.Path == routePreview || r.URL.Path == routeThumbnail ||
+		r.URL.Path == routeArchive ||
 		strings.HasPrefix(r.URL.Path, routeUploads)
 }
 

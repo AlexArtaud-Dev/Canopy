@@ -359,6 +359,9 @@ type DirectoryEntry struct {
 
 	// Size Bytes (0 for folders).
 	Size int64 `json:"size"`
+
+	// Thumbnail The engine can render a thumbnail for this file (`/v1/fs/thumbnail`): a supported image, or a video when ffmpeg is installed, with thumbnails turned on.
+	Thumbnail bool `json:"thumbnail"`
 }
 
 // DirectoryEntryKind defines model for DirectoryEntry.Kind.

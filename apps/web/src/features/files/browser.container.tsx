@@ -52,6 +52,7 @@ import {
   type TransferOperation,
 } from './operations.utils';
 import { useFolder } from './model/use-folder';
+import { useStreamTicket } from './model/use-stream-ticket';
 import { canPreview } from './preview.utils';
 import type { BrowserEntry, FolderPage } from './server/browse';
 import { BrowserToolbar } from './ui/browser-toolbar';
@@ -122,6 +123,10 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   // A drag starts after 6 px so clicks and double-clicks stay clicks. Mouse only: on touch screens
   // the same moves are in the item menu ("Move to"), and dragging would fight scrolling.
   const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 6 } }));
+  // Thumbnails are stream requests: the grid keeps a ticket while it shows any.
+  const thumbnailTicket = useStreamTicket(
+    view === 'grid' && entries.some((entry) => entry.thumbnail),
+  );
   const columns = view === 'grid' ? gridColumns(width - gridPadding, tileMinWidth, tileGap) : 1;
 
   const dispatch = useCallback(
@@ -427,7 +432,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           ) : entries.length === 0 ? (
             <EmptyFolder isRoot={query.path === '/'} />
           ) : view === 'grid' ? (
-            <GridView {...viewProps} columns={columns} />
+            <GridView {...viewProps} columns={columns} thumbnails={thumbnailTicket === 'ready'} />
           ) : (
             <ListView {...viewProps} />
           )}

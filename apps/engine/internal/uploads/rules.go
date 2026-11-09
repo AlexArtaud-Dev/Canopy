@@ -6,12 +6,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"path"
 	"strings"
 
-	"github.com/jackc/pgx/v5"
-
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/appsettings"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
 )
@@ -130,26 +128,11 @@ func LimitsFrom(values map[string]json.RawMessage) Limits {
 	return limits
 }
 
-// Querier reads app.settings (a pool or a transaction).
-type Querier interface {
-	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
-}
-
 // LoadLimits reads the uploads settings written by the web app; none stored means no limit.
-func LoadLimits(ctx context.Context, db Querier) (Limits, error) {
-	rows, err := db.Query(ctx, `SELECT key, value FROM app.settings WHERE module = 'uploads'`)
+func LoadLimits(ctx context.Context, db appsettings.Querier) (Limits, error) {
+	values, err := appsettings.Load(ctx, db, "uploads")
 	if err != nil {
-		return Limits{}, fmt.Errorf("read uploads settings: %w", err)
-	}
-	values := map[string]json.RawMessage{}
-	var key string
-	var value []byte
-	_, err = pgx.ForEachRow(rows, []any{&key, &value}, func() error {
-		values[key] = append(json.RawMessage(nil), value...)
-		return nil
-	})
-	if err != nil {
-		return Limits{}, fmt.Errorf("read uploads settings: %w", err)
+		return Limits{}, err
 	}
 	return LimitsFrom(values), nil
 }

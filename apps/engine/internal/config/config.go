@@ -14,6 +14,7 @@ import (
 const (
 	defaultAddr     = ":8080"
 	defaultRoot     = "/srv/canopy/root"
+	defaultCacheDir = "/srv/canopy/cache"
 	defaultLogLevel = slog.LevelInfo
 	defaultUmask    = 0o022
 )
@@ -23,6 +24,8 @@ type Config struct {
 	Addr        string
 	DatabaseURL string
 	Root        string
+	// CacheDir holds rebuildable data (thumbnails), outside the root so it never shows as files.
+	CacheDir string
 	// PublicKey verifies web-signed engine tokens; empty disables the /v1 API.
 	PublicKey string
 	LogLevel  slog.Level
@@ -55,6 +58,7 @@ func Load(getenv func(string) string) (Config, error) {
 		Addr:        valueOr(getenv("CANOPY_ENGINE_ADDR"), defaultAddr),
 		DatabaseURL: strings.TrimSpace(getenv("CANOPY_DATABASE_URL")),
 		Root:        valueOr(getenv("CANOPY_ROOT"), defaultRoot),
+		CacheDir:    valueOr(getenv("CANOPY_CACHE_DIR"), defaultCacheDir),
 		PublicKey:   strings.TrimSpace(getenv("CANOPY_ENGINE_PUBLIC_KEY")),
 		LogLevel:    defaultLogLevel,
 		Umask:       defaultUmask,
@@ -69,6 +73,10 @@ func Load(getenv func(string) string) (Config, error) {
 		return Config{}, &Error{Code: CodeInvalid, Key: "CANOPY_ROOT"}
 	}
 	cfg.Root = filepath.ToSlash(filepath.Clean(cfg.Root))
+	if !path.IsAbs(cfg.CacheDir) && !filepath.IsAbs(cfg.CacheDir) {
+		return Config{}, &Error{Code: CodeInvalid, Key: "CANOPY_CACHE_DIR"}
+	}
+	cfg.CacheDir = filepath.ToSlash(filepath.Clean(cfg.CacheDir))
 
 	if raw := strings.TrimSpace(getenv("CANOPY_LOG_LEVEL")); raw != "" {
 		if err := cfg.LogLevel.UnmarshalText([]byte(raw)); err != nil {

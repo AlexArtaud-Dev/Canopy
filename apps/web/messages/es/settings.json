@@ -24,7 +24,8 @@
     "appearance": "Apariencia",
     "jobs": "Tareas en segundo plano",
     "uploads": "Subidas",
-    "trash": "Papelera"
+    "trash": "Papelera",
+    "thumbnails": "Miniaturas"
   },
   "groups": {
     "sessions": "Sesiones",
@@ -35,7 +36,8 @@
     "privacy": "Privacidad",
     "theme": "Tema",
     "language": "Idioma",
-    "limits": "Límites"
+    "limits": "Límites",
+    "display": "Visualización"
   },
   "fields": {
     "auth": {
@@ -138,6 +140,16 @@
       "maxFiles": {
         "label": "Máximo de archivos por volumen",
         "description": "Por encima, se eliminan primero los elementos más antiguos, así que borrar en masa no puede llenar un disco."
+      }
+    },
+    "thumbnails": {
+      "enabled": {
+        "label": "Mostrar miniaturas",
+        "description": "Las imágenes, y los vídeos si ffmpeg está instalado, muestran una pequeña vista previa en lugar de su icono."
+      },
+      "maxCacheMb": {
+        "label": "Tamaño máximo de la caché de miniaturas (MB)",
+        "description": "Por encima, se eliminan las miniaturas vistas hace más tiempo. Se vuelven a crear cuando hace falta."
       }
     }
   },
