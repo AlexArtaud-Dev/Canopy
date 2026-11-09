@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronsUpDown, Languages, LogOut, UserRound } from 'lucide-react';
+import { ChevronsUpDown, Languages, LogOut, Sparkles, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
@@ -34,6 +34,8 @@ interface AccountMenuProps {
   onThemeChange: (theme: ThemeChoice) => void;
   onLocaleChange: (locale: Locale) => void;
   onSignOut: () => void;
+  /** A release came out since the person last opened "What's new". */
+  newsUnseen: boolean;
 }
 
 export function AccountMenu({
@@ -44,17 +46,26 @@ export function AccountMenu({
   onThemeChange,
   onLocaleChange,
   onSignOut,
+  newsUnseen,
 }: AccountMenuProps) {
   const t = useTranslations('shell.preferences');
   const accountT = useTranslations('auth.account');
 
   const identity = (
     <>
-      <Avatar className="size-8 rounded-lg">
-        <AvatarFallback className="rounded-lg text-xs font-medium">
-          {account.initials}
-        </AvatarFallback>
-      </Avatar>
+      <span className="relative">
+        <Avatar className="size-8 rounded-lg">
+          <AvatarFallback className="rounded-lg text-xs font-medium">
+            {account.initials}
+          </AvatarFallback>
+        </Avatar>
+        {newsUnseen && (
+          <span
+            aria-hidden
+            className="bg-primary ring-sidebar absolute -top-0.5 -right-0.5 size-2.5 rounded-full ring-2"
+          />
+        )}
+      </span>
       <span className="grid flex-1 text-left leading-tight">
         <span className="truncate text-sm font-medium">{account.name}</span>
         <span className="text-muted-foreground truncate text-xs">
@@ -73,7 +84,7 @@ export function AccountMenu({
             <SidebarMenuButton
               size="lg"
               tooltip={accountT('menu')}
-              aria-label={accountT('menu')}
+              aria-label={newsUnseen ? accountT('menuWithNews') : accountT('menu')}
               aria-busy={pending}
             >
               {identity}
@@ -93,6 +104,17 @@ export function AccountMenu({
               <Link href="/account">
                 <UserRound aria-hidden />
                 {accountT('open')}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/whats-new">
+                <Sparkles aria-hidden />
+                {accountT('whatsNew')}
+                {newsUnseen && (
+                  <span className="bg-primary text-primary-foreground ms-auto rounded-full px-1.5 text-[10px] font-medium">
+                    {accountT('newBadge')}
+                  </span>
+                )}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

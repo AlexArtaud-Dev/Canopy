@@ -1,0 +1,19 @@
+{
+  "title": "What's new",
+  "version": "You are running version {version}.",
+  "devBuild": "Development build: changes not released yet are listed first.",
+  "unreleased": "Not released yet",
+  "newBadge": "New",
+  "emptyTitle": "Nothing to show yet",
+  "emptyDescription": "Changes appear here once a version is released.",
+  "issue": "Issue {issue} on GitHub",
+  "types": {
+    "feat": "New",
+    "fix": "Fixes",
+    "perf": "Performance",
+    "security": "Security",
+    "refactor": "Under the hood",
+    "docs": "Documentation",
+    "chore": "Maintenance"
+  }
+}

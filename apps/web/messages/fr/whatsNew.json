@@ -1,0 +1,19 @@
+{
+  "title": "Quoi de neuf",
+  "version": "Vous utilisez la version {version}.",
+  "devBuild": "Version de développement : les changements pas encore publiés apparaissent en premier.",
+  "unreleased": "Pas encore publié",
+  "newBadge": "Nouveau",
+  "emptyTitle": "Rien à afficher pour l’instant",
+  "emptyDescription": "Les changements apparaissent ici dès qu’une version est publiée.",
+  "issue": "Ticket {issue} sur GitHub",
+  "types": {
+    "feat": "Nouveautés",
+    "fix": "Corrections",
+    "perf": "Performances",
+    "security": "Sécurité",
+    "refactor": "Sous le capot",
+    "docs": "Documentation",
+    "chore": "Maintenance"
+  }
+}

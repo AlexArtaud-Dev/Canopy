@@ -1,42 +1,20 @@
 // Release logic shared by the CI checks and the release workflows. Pure: no file or network
 // access here, so every rule is covered by release.lib.test.mjs.
+import {
+  changeTypes,
+  changelogFile,
+  compareVersionsDesc,
+  parseVersion,
+} from '@canopy/contracts/changelog';
 import { parse, stringify } from 'yaml';
-import { z } from 'zod';
 
-export const changeTypes = ['feat', 'fix', 'perf', 'security', 'refactor', 'docs', 'chore'];
+// The schema and version rules live in @canopy/contracts, shared with the web app.
+export { changeTypes, changelogFile, compareVersionsDesc, parseVersion };
 export const locales = ['en', 'fr', 'es'];
-
-const translatedText = z.object({
-  en: z.string().trim().min(1),
-  fr: z.string().trim().min(1),
-  es: z.string().trim().min(1),
-});
-
-export const changelogEntry = z.object({
-  type: z.enum(changeTypes),
-  scope: z.string().regex(/^[a-z][a-z0-9-]*$/, 'kebab-case scope'),
-  issue: z.number().int().positive(),
-  text: translatedText,
-});
-
-/** `changelog/unreleased.yaml`, and `changelog/releases/<version>.yaml` (which adds `date`). */
-export const changelogFile = z
-  .object({ date: z.iso.date().optional(), entries: z.array(changelogEntry) })
-  .strict();
 
 /** Reads a changelog file; an empty file means no entries. */
 export function parseChangelog(raw) {
   return changelogFile.safeParse(parse(raw) ?? { entries: [] });
-}
-
-const calver = /^(\d{4})\.(\d{1,2})\.(\d+)$/;
-
-/** `2026.11.0` → its parts, or null when the text is not a CalVer version. */
-export function parseVersion(text) {
-  const match = calver.exec(text);
-  if (!match) return null;
-  const [year, month, micro] = match.slice(1).map(Number);
-  return month >= 1 && month <= 12 ? { year, month, micro } : null;
 }
 
 /**
@@ -52,13 +30,6 @@ export function nextVersion(now, existing) {
     .map((version) => version.micro);
   const micro = micros.length === 0 ? 0 : Math.max(...micros) + 1;
   return `${year}.${month}.${micro}`;
-}
-
-/** Newest first: what the in-app "What's new" and release listings use. */
-export function compareVersionsDesc(a, b) {
-  const left = parseVersion(a) ?? { year: 0, month: 0, micro: 0 };
-  const right = parseVersion(b) ?? { year: 0, month: 0, micro: 0 };
-  return right.year - left.year || right.month - left.month || right.micro - left.micro;
 }
 
 /** The YAML of a release file: the release date, then the entries moved out of Unreleased. */

@@ -1,0 +1,19 @@
+{
+  "title": "Novedades",
+  "version": "Estás usando la versión {version}.",
+  "devBuild": "Versión de desarrollo: los cambios aún no publicados aparecen primero.",
+  "unreleased": "Aún no publicado",
+  "newBadge": "Nuevo",
+  "emptyTitle": "Nada que mostrar por ahora",
+  "emptyDescription": "Los cambios aparecen aquí en cuanto se publica una versión.",
+  "issue": "Incidencia {issue} en GitHub",
+  "types": {
+    "feat": "Novedades",
+    "fix": "Correcciones",
+    "perf": "Rendimiento",
+    "security": "Seguridad",
+    "refactor": "Por dentro",
+    "docs": "Documentación",
+    "chore": "Mantenimiento"
+  }
+}

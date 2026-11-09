@@ -16,14 +16,18 @@
     "./zod": {
       "types": "./dist/zod.gen.d.ts",
       "default": "./dist/zod.gen.js"
+    },
+    "./changelog": {
+      "types": "./dist/changelog.d.ts",
+      "default": "./dist/changelog.js"
     }
   },
   "scripts": {
     "contracts:gen": "pnpm gen:ts && pnpm gen:go && pnpm build",
     "gen:ts": "openapi-ts",
     "gen:go": "go -C ../../apps/engine tool oapi-codegen -config ../../packages/contracts/oapi-codegen.yaml ../../packages/contracts/openapi.yaml",
-    "build": "tsc -p tsconfig.json",
-    "prepare": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.src.json",
+    "prepare": "tsc -p tsconfig.json && tsc -p tsconfig.src.json"
   },
   "dependencies": {
     "zod": "4.6.7"

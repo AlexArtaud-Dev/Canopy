@@ -6,9 +6,10 @@ import { AccountContainer, AppSidebar } from '@/features/shell';
 import { PermissionsProvider } from '@/shared/permissions/can';
 import { QueryProvider } from '@/shared/query/query-provider';
 import { SidebarInset, SidebarProvider } from '@/shared/ui/sidebar';
+import { loadWhatsNew } from '@/features/whats-new/server/changelog';
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
-  const { user } = await requireSession();
+  const [{ user }, whatsNew] = await Promise.all([requireSession(), loadWhatsNew()]);
 
   return (
     <PermissionsProvider permissions={user.permissions}>
@@ -25,6 +26,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
                   isAdmin: user.isAdmin,
                 }}
                 signOutAction={signOut}
+                latestRelease={whatsNew.latest}
               />
             }
           />

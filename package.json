@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@canopy/config": "workspace:*",
+    "@canopy/contracts": "workspace:*",
     "lint-staged": "17.6.0",
     "prettier": "3.9.10",
     "yaml": "2.9.1",

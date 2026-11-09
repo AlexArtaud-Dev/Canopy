@@ -25,6 +25,9 @@ WORKDIR /app
 COPY --from=build --chown=node:node /repo/apps/web/.next/standalone ./
 COPY --from=build --chown=node:node /repo/apps/web/.next/static ./apps/web/.next/static
 COPY --from=build --chown=node:node /repo/apps/web/drizzle ./apps/web/drizzle
+# Release notes for "What's new" (read at run time; .dockerignore keeps Unreleased out).
+COPY --chown=node:node changelog/releases ./changelog/releases
+ENV CANOPY_CHANGELOG_DIR=/app/changelog
 COPY --from=build --chown=node:node /repo/apps/web/server/peer-address.mjs ./peer-address.mjs
 COPY --from=build --chown=node:node /repo/apps/web/server/engine-stream.mjs /repo/apps/web/server/engine-stream.utils.mjs ./
 USER node
