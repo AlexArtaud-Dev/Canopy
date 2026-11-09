@@ -286,3 +286,10 @@ entries:
       en: A Commands page runs tools installed on the server from a catalog, showing the exact command, a dry run and live output
       fr: Une page Commandes lance des outils installés sur le serveur depuis un catalogue, avec la commande exacte, une simulation et la sortie en direct
       es: Una página Comandos ejecuta herramientas instaladas en el servidor desde un catálogo, con el comando exacto, una simulación y la salida en directo
+  - type: feat
+    scope: plugins
+    issue: 62
+    text:
+      en: Administrators install, update, pin and remove plugins from allowed GitHub repositories; every download is checked against the release checksums
+      fr: Les administrateurs installent, mettent à jour, figent et retirent des plugins issus de dépôts GitHub autorisés ; chaque téléchargement est vérifié avec les sommes de contrôle de la version
+      es: Los administradores instalan, actualizan, fijan y quitan plugins de repositorios de GitHub permitidos; cada descarga se comprueba con las sumas de verificación de la versión

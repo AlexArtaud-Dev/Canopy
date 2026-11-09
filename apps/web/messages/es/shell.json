@@ -15,7 +15,8 @@
     "audit": "Registro de auditoría",
     "trash": "Papelera",
     "shares": "Compartidos",
-    "commands": "Comandos"
+    "commands": "Comandos",
+    "plugins": "Plugins"
   },
   "preferences": {
     "appearance": "Apariencia",

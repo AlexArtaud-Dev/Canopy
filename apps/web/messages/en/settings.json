@@ -27,7 +27,8 @@
     "trash": "Trash",
     "thumbnails": "Thumbnails",
     "shares": "Share links",
-    "commands": "Commands"
+    "commands": "Commands",
+    "plugins": "Plugins"
   },
   "groups": {
     "sessions": "Sessions",
@@ -41,7 +42,8 @@
     "limits": "Limits",
     "display": "Display",
     "links": "Links",
-    "advanced": "Advanced"
+    "advanced": "Advanced",
+    "sources": "Sources"
   },
   "fields": {
     "auth": {
@@ -174,6 +176,12 @@
       "advancedMode": {
         "label": "Advanced mode",
         "description": "Lets people with the “advanced” commands permission use advanced catalog commands, with every option they offer."
+      }
+    },
+    "plugins": {
+      "allowedRepos": {
+        "label": "Allowed repositories",
+        "description": "GitHub repositories (owner/name, separated by commas) plugins can be installed from. Nothing else can be installed."
       }
     }
   },

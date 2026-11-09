@@ -1,0 +1,33 @@
+{
+  "page": {
+    "description": "Les plugins ajoutent des commandes issues d’outils de confiance. Ils sont téléchargés depuis des dépôts GitHub autorisés, et chaque fichier est vérifié avec les sommes de contrôle de la version avant toute exécution.",
+    "installedTitle": "Installés",
+    "platform": "Serveur : {platform}",
+    "emptyTitle": "Aucun plugin installé",
+    "emptyDescription": "Installez-en un depuis les dépôts autorisés ci-dessous.",
+    "availableTitle": "Disponibles",
+    "availableDescription": "Dernières versions des dépôts autorisés. Modifiez la liste dans les <settings>Paramètres</settings>.",
+    "nothingAvailable": "Tout ce que proposent les dépôts autorisés est installé.",
+    "installed": "{name} {version} installé",
+    "uninstalled": "{name} désinstallé",
+    "uninstallTitle": "Désinstaller ce plugin ?",
+    "uninstallDescription": "{name} et ses commandes seront retirés. Les commandes en cours ne sont pas arrêtées.",
+    "uninstallConfirm": "Désinstaller"
+  },
+  "installed": {
+    "disabled": "Désactivé",
+    "updateBadge": "{version} disponible",
+    "uninstall": "Désinstaller {name}",
+    "commands": "{count, plural, one {# commande} other {# commandes}}",
+    "installedAt": "Installé le {date}",
+    "enabled": "Activé",
+    "pinned": "Garder cette version",
+    "update": "Mettre à jour vers {version}"
+  },
+  "available": {
+    "releasePage": "Version",
+    "install": "Installer",
+    "installing": "Installation…",
+    "notes": "Notes de version"
+  }
+}

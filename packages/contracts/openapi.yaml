@@ -498,6 +498,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/plugins/inspect:
+    post:
+      operationId: inspectPlugin
+      summary: Check a release manifest before downloading its binary
+      description: >-
+        Administrators only. Checks a `canopy-plugin.yaml` strictly and names the release assets
+        to download for this engine's platform, so a bad release is refused before any binary is
+        fetched.
+      tags: [plugins]
+      security:
+        - engineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PluginManifestText'
+      responses:
+        '200':
+          description: The release as it would install.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginRelease'
+        '400':
+          description: Refused (`plugins.invalid_manifest`, `plugins.unsupported_platform`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Administrators only (`auth.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/plugins/{pluginId}:
     patch:
       operationId: updatePlugin
@@ -1578,6 +1620,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Plugin'
+    PluginManifestText:
+      type: object
+      required: [manifest]
+      properties:
+        manifest:
+          type: string
+          maxLength: 65536
+    PluginRelease:
+      type: object
+      required: [id, version, repo, name, description, commands, binaryAsset, checksumsAsset]
+      properties:
+        id: { type: string }
+        version: { type: string }
+        repo: { type: string }
+        name:
+          $ref: '#/components/schemas/LocalizedText'
+        description:
+          $ref: '#/components/schemas/LocalizedText'
+        commands:
+          type: integer
+        binaryAsset:
+          description: Release asset holding the binary for this engine's platform.
+          type: string
+        checksumsAsset:
+          description: Release asset listing SHA-256 sums.
+          type: string
     PluginFlags:
       type: object
       required: [enabled, pinned]

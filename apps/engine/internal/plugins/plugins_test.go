@@ -194,6 +194,10 @@ func TestInstallLifecycle(t *testing.T) {
 	if Platform() == "" || (&Service{}).platform() != Platform() {
 		t.Fatal("host platform by default")
 	}
+	release, err := service.Inspect([]byte(manifestFor("1.0.0")))
+	if err != nil || release.BinaryAsset != "mrename-linux-amd64" || release.ChecksumsAsset != "SHA256SUMS" {
+		t.Fatalf("inspect: %+v %v", release, err)
+	}
 	binary := []byte("#!/bin/true\n")
 	install := func(version string, content []byte, sums []byte) error {
 		_, err := service.Install(ctx, []byte(manifestFor(version)), sums, bytes.NewReader(content), "root")

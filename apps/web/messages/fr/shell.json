@@ -15,7 +15,8 @@
     "audit": "Journal d’audit",
     "trash": "Corbeille",
     "shares": "Partages",
-    "commands": "Commandes"
+    "commands": "Commandes",
+    "plugins": "Plugins"
   },
   "preferences": {
     "appearance": "Apparence",

@@ -32,6 +32,9 @@ import type {
   GetReadinessData,
   GetReadinessErrors,
   GetReadinessResponses,
+  InspectPluginData,
+  InspectPluginErrors,
+  InspectPluginResponses,
   InstallPluginData,
   InstallPluginErrors,
   InstallPluginResponses,
@@ -119,6 +122,8 @@ import {
   zGetJobResponse,
   zGetLivenessResponse,
   zGetReadinessResponse,
+  zInspectPluginBody,
+  zInspectPluginResponse,
   zInstallPluginBody,
   zInstallPluginResponse,
   zListCommandsResponse,
@@ -451,6 +456,33 @@ export const installPlugin = <ThrowOnError extends boolean = false>(
     ...options,
     headers: {
       'Content-Type': null,
+      ...options.headers,
+    },
+  });
+
+/**
+ * Check a release manifest before downloading its binary
+ *
+ * Administrators only. Checks a `canopy-plugin.yaml` strictly and names the release assets to download for this engine's platform, so a bad release is refused before any binary is fetched.
+ */
+export const inspectPlugin = <ThrowOnError extends boolean = false>(
+  options: Options<InspectPluginData, ThrowOnError>,
+): RequestResult<InspectPluginResponses, InspectPluginErrors, ThrowOnError> =>
+  (options.client ?? client).post<InspectPluginResponses, InspectPluginErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zInspectPluginBody,
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zInspectPluginResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/plugins/inspect',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
       ...options.headers,
     },
   });

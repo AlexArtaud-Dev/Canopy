@@ -96,18 +96,35 @@ func (s *Service) List(ctx context.Context) ([]Installed, error) {
 	return installed, nil
 }
 
-// Install checks the manifest, the platform and the binary's SHA-256 against the checksum file,
-// then stores the binary (executable) and activates the plugin. Nothing is kept on failure.
-func (s *Service) Install(ctx context.Context, manifestData, checksums []byte, binary io.Reader, by string) (Manifest, error) {
+// Release is a checked manifest and the assets to download for this platform.
+type Release struct {
+	Manifest       Manifest
+	BinaryAsset    string
+	ChecksumsAsset string
+}
+
+// Inspect checks a manifest and names what to download, before any binary is fetched.
+func (s *Service) Inspect(manifestData []byte) (Release, error) {
 	manifest, err := ParseManifest(manifestData)
 	if err != nil {
-		return Manifest{}, err
+		return Release{}, err
 	}
 	asset, err := manifest.Asset(s.platform())
 	if err != nil {
+		return Release{}, err
+	}
+	return Release{Manifest: manifest, BinaryAsset: asset, ChecksumsAsset: manifest.Source.Checksums}, nil
+}
+
+// Install checks the manifest, the platform and the binary's SHA-256 against the checksum file,
+// then stores the binary (executable) and activates the plugin. Nothing is kept on failure.
+func (s *Service) Install(ctx context.Context, manifestData, checksums []byte, binary io.Reader, by string) (Manifest, error) {
+	release, err := s.Inspect(manifestData)
+	if err != nil {
 		return Manifest{}, err
 	}
-	expected, err := ExpectedSum(checksums, asset)
+	manifest := release.Manifest
+	expected, err := ExpectedSum(checksums, release.BinaryAsset)
 	if err != nil {
 		return Manifest{}, err
 	}

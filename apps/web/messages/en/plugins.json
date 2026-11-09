@@ -1,0 +1,33 @@
+{
+  "page": {
+    "description": "Plugins add commands from trusted tools. They are downloaded from allowed GitHub repositories, and every file is checked against the release checksums before anything runs.",
+    "installedTitle": "Installed",
+    "platform": "Server: {platform}",
+    "emptyTitle": "No plugin installed",
+    "emptyDescription": "Install one from the allowed repositories below.",
+    "availableTitle": "Available",
+    "availableDescription": "Latest releases of the allowed repositories. Change the list in <settings>Settings</settings>.",
+    "nothingAvailable": "Everything from the allowed repositories is installed.",
+    "installed": "{name} {version} installed",
+    "uninstalled": "{name} uninstalled",
+    "uninstallTitle": "Uninstall this plugin?",
+    "uninstallDescription": "{name} and its commands will be removed. Running commands are not stopped.",
+    "uninstallConfirm": "Uninstall"
+  },
+  "installed": {
+    "disabled": "Disabled",
+    "updateBadge": "{version} available",
+    "uninstall": "Uninstall {name}",
+    "commands": "{count, plural, one {# command} other {# commands}}",
+    "installedAt": "Installed {date}",
+    "enabled": "Enabled",
+    "pinned": "Keep this version",
+    "update": "Update to {version}"
+  },
+  "available": {
+    "releasePage": "Release",
+    "install": "Install",
+    "installing": "Installing…",
+    "notes": "Release notes"
+  }
+}

@@ -115,5 +115,15 @@
     "unavailable": "This command is not available (not installed, or advanced mode is off).",
     "failed": "The command ended with an error. See its output.",
     "timeout": "The command took too long and was stopped."
+  },
+  "plugins": {
+    "invalid_manifest": "This release is not a valid Canopy plugin.",
+    "checksum_mismatch": "The downloaded file does not match the release checksums. Nothing was installed.",
+    "unsupported_platform": "This release has no build for this server.",
+    "not_found": "This plugin is not installed.",
+    "github_unavailable": "GitHub could not be reached. Try again later.",
+    "no_release": "This repository has no published release.",
+    "incomplete_release": "This release is missing a file Canopy needs.",
+    "repo_not_allowed": "This repository is not in the allowed list."
   }
 }

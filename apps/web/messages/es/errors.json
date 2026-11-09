@@ -115,5 +115,15 @@
     "unavailable": "Este comando no está disponible (no instalado o modo avanzado desactivado).",
     "failed": "El comando terminó con un error. Consulta su salida.",
     "timeout": "El comando tardó demasiado y se detuvo."
+  },
+  "plugins": {
+    "invalid_manifest": "Esta versión no es un plugin de Canopy válido.",
+    "checksum_mismatch": "El archivo descargado no coincide con las sumas de verificación de la versión. No se instaló nada.",
+    "unsupported_platform": "Esta versión no tiene compilación para este servidor.",
+    "not_found": "Este plugin no está instalado.",
+    "github_unavailable": "No se pudo contactar con GitHub. Inténtalo más tarde.",
+    "no_release": "Este repositorio no tiene ninguna versión publicada.",
+    "incomplete_release": "A esta versión le falta un archivo que Canopy necesita.",
+    "repo_not_allowed": "Este repositorio no está en la lista permitida."
   }
 }
