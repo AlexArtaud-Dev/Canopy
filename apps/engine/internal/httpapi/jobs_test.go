@@ -20,6 +20,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/archive"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/audit"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/authz"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/commands"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
@@ -48,6 +49,7 @@ type fakeJobs struct {
 	notices     chan jobs.Notice
 	transfer    transfer.Args
 	compress    archive.CompressArgs
+	command     commands.RunArgs
 }
 
 func (f *fakeJobs) StartFolderSize(context.Context, string, authz.Subject) (string, error) {
@@ -77,6 +79,11 @@ func (f *fakeJobs) StartExtract(context.Context, archive.ExtractArgs) (string, e
 }
 
 func (f *fakeJobs) StartChecksum(context.Context, archive.ChecksumArgs) (string, error) {
+	return jobID, f.startErr
+}
+
+func (f *fakeJobs) StartCommand(_ context.Context, args commands.RunArgs) (string, error) {
+	f.command = args
 	return jobID, f.startErr
 }
 
@@ -131,10 +138,12 @@ func sampleJob() jobs.Job {
 }
 
 type jobsHarness struct {
-	t      *testing.T
-	user   string
-	admin  string
-	verify *enginetoken.Verifier
+	t     *testing.T
+	user  string
+	admin string
+	// userAdvanced is bob holding commands:advanced.
+	userAdvanced string
+	verify       *enginetoken.Verifier
 }
 
 func newJobsHarness(t *testing.T) jobsHarness {
@@ -146,6 +155,7 @@ func newJobsHarness(t *testing.T) jobsHarness {
 	return jobsHarness{
 		t: t, verify: enginetoken.NewVerifier(public, time.Now),
 		user: signToken(t, private, nil), admin: signToken(t, private, []string{enginetoken.AdminPermission}),
+		userAdvanced: signToken(t, private, []string{"commands:advanced"}),
 	}
 }
 

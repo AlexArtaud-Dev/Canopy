@@ -46,6 +46,10 @@ type Deps struct {
 	Uploads http.Handler
 	// Thumbs renders thumbnails (nil: none offered).
 	Thumbs Thumbnails
+	// Commands is the installed catalog (nil: none); AdvancedMode reads the global setting.
+	Commands     Commands
+	AdvancedMode func(ctx context.Context) bool
+	HostPaths    HostPaths
 	// StreamsDone closes when the server shuts down, ending event streams that would otherwise
 	// hold the shutdown open.
 	StreamsDone <-chan struct{}

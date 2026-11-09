@@ -109,6 +109,66 @@ export const zChecksumRequest = z.object({
   algorithm: z.enum(['md5', 'sha1', 'sha256', 'sha512']),
 });
 
+export const zLocalizedText = z.object({
+  en: z.string(),
+  fr: z.string(),
+  es: z.string(),
+});
+
+export const zCommandParam = z.object({
+  name: z.string(),
+  type: z.enum(['path', 'bool', 'int', 'string', 'enum']),
+  label: zLocalizedText,
+  access: z.enum(['read', 'create', 'update']).optional(),
+  required: z.boolean(),
+  secret: z.boolean(),
+  default: z.unknown().optional(),
+  min: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  max: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  values: z.array(z.string()).optional(),
+});
+
+export const zCommandEntry = z.object({
+  id: z.string(),
+  name: zLocalizedText,
+  description: zLocalizedText,
+  mode: z.enum(['basic', 'advanced']),
+  dryRun: z.boolean(),
+  params: z.array(zCommandParam),
+});
+
+export const zCommandCatalog = z.object({
+  advanced: z.boolean(),
+  entries: z.array(zCommandEntry),
+});
+
+export const zCommandRequest = z.object({
+  entry: z.string().max(128),
+  params: z.record(z.string(), z.unknown()),
+  dryRun: z.boolean().optional().default(false),
+});
+
+export const zCommandPreview = z.object({
+  binary: z.string(),
+  argv: z.array(z.string()),
+});
+
 export const zFolderSizeRequest = z.object({
   path: z.string(),
 });
@@ -395,6 +455,25 @@ export const zStartChecksumBody = zChecksumRequest;
  * The job was queued.
  */
 export const zStartChecksumResponse = zJob;
+
+/**
+ * The visible entries.
+ */
+export const zListCommandsResponse = zCommandCatalog;
+
+export const zPreviewCommandBody = zCommandRequest;
+
+/**
+ * The arguments.
+ */
+export const zPreviewCommandResponse = zCommandPreview;
+
+export const zStartCommandBody = zCommandRequest;
+
+/**
+ * The job was queued.
+ */
+export const zStartCommandResponse = zJob;
 
 export const zStartFolderSizeBody = zFolderSizeRequest;
 

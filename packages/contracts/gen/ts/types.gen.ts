@@ -135,6 +135,64 @@ export type ChecksumRequest = {
   algorithm: 'md5' | 'sha1' | 'sha256' | 'sha512';
 };
 
+export type LocalizedText = {
+  en: string;
+  fr: string;
+  es: string;
+};
+
+export type CommandParam = {
+  name: string;
+  type: 'path' | 'bool' | 'int' | 'string' | 'enum';
+  label: LocalizedText;
+  /**
+   * Path parameters only.
+   */
+  access?: 'read' | 'create' | 'update';
+  required: boolean;
+  secret: boolean;
+  default?: unknown;
+  min?: number;
+  max?: number;
+  values?: Array<string>;
+};
+
+export type CommandEntry = {
+  id: string;
+  name: LocalizedText;
+  description: LocalizedText;
+  mode: 'basic' | 'advanced';
+  /**
+   * The command can simulate a run.
+   */
+  dryRun: boolean;
+  params: Array<CommandParam>;
+};
+
+export type CommandCatalog = {
+  /**
+   * Advanced mode is available to the caller.
+   */
+  advanced: boolean;
+  entries: Array<CommandEntry>;
+};
+
+export type CommandRequest = {
+  entry: string;
+  /**
+   * Values by parameter name (paths are virtual paths).
+   */
+  params: {
+    [key: string]: unknown;
+  };
+  dryRun?: boolean;
+};
+
+export type CommandPreview = {
+  binary: string;
+  argv: Array<string>;
+};
+
 export type FolderSizeRequest = {
   path: string;
 };
@@ -627,6 +685,109 @@ export type StartChecksumResponses = {
 };
 
 export type StartChecksumResponse = StartChecksumResponses[keyof StartChecksumResponses];
+
+export type ListCommandsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v1/commands';
+};
+
+export type ListCommandsErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+};
+
+export type ListCommandsError = ListCommandsErrors[keyof ListCommandsErrors];
+
+export type ListCommandsResponses = {
+  /**
+   * The visible entries.
+   */
+  200: CommandCatalog;
+};
+
+export type ListCommandsResponse = ListCommandsResponses[keyof ListCommandsResponses];
+
+export type PreviewCommandData = {
+  body: CommandRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/commands/preview';
+};
+
+export type PreviewCommandErrors = {
+  /**
+   * Invalid parameters (`commands.unknown_param`, `commands.missing_param`, `commands.invalid_value`, `commands.no_dry_run`, `files.invalid_path`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Not allowed (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such command, or not available to the caller (`commands.unavailable`, `files.not_found`).
+   */
+  404: Error;
+};
+
+export type PreviewCommandError = PreviewCommandErrors[keyof PreviewCommandErrors];
+
+export type PreviewCommandResponses = {
+  /**
+   * The arguments.
+   */
+  200: CommandPreview;
+};
+
+export type PreviewCommandResponse = PreviewCommandResponses[keyof PreviewCommandResponses];
+
+export type StartCommandData = {
+  body: CommandRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/jobs/command';
+};
+
+export type StartCommandErrors = {
+  /**
+   * Invalid parameters (see previewCommand).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Not allowed (`files.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such command (`commands.unavailable`).
+   */
+  404: Error;
+  /**
+   * Too many active jobs for this person (`jobs.too_many`).
+   */
+  429: Error;
+};
+
+export type StartCommandError = StartCommandErrors[keyof StartCommandErrors];
+
+export type StartCommandResponses = {
+  /**
+   * The job was queued.
+   */
+  202: Job;
+};
+
+export type StartCommandResponse = StartCommandResponses[keyof StartCommandResponses];
 
 export type StartFolderSizeData = {
   body: FolderSizeRequest;

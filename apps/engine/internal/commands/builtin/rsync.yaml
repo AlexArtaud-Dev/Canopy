@@ -1,0 +1,50 @@
+# Built-in catalog entries. Each is offered only when its program is installed on the engine host.
+- id: rsync.sync
+  name:
+    {
+      en: Sync a folder (rsync),
+      fr: Synchroniser un dossier (rsync),
+      es: Sincronizar una carpeta (rsync),
+    }
+  description:
+    en: Copies new and changed files from the source folder into the destination folder.
+    fr: Copie les fichiers nouveaux et modifiés du dossier source vers le dossier de destination.
+    es: Copia los archivos nuevos y modificados de la carpeta de origen a la de destino.
+  binary: rsync
+  mode: advanced
+  params:
+    - name: source
+      type: path
+      access: read
+      required: true
+      label: { en: Source folder, fr: Dossier source, es: Carpeta de origen }
+    - name: destination
+      type: path
+      access: create
+      required: true
+      label: { en: Destination folder, fr: Dossier de destination, es: Carpeta de destino }
+    - name: deleteExtra
+      type: bool
+      default: false
+      flag: '--delete'
+      label:
+        {
+          en: Delete files missing from the source,
+          fr: Supprimer les fichiers absents de la source,
+          es: Borrar los archivos que faltan en el origen,
+        }
+    - name: bandwidthLimit
+      type: int
+      min: 1
+      max: 10000000
+      flag: '--bwlimit={value}'
+      label:
+        {
+          en: Bandwidth limit (KB/s),
+          fr: Limite de débit (Ko/s),
+          es: Límite de ancho de banda (KB/s),
+        }
+  args: ['-a', '--info=progress2', '--no-inc-recursive', '{flags}', '{source}/', '{destination}/']
+  progressParser: rsync-progress2
+  dryRun: { flag: '--dry-run' }
+  timeout: 24h

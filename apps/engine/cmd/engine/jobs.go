@@ -5,6 +5,7 @@ import (
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/archive"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/authz"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/commands"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/foldersize"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
@@ -60,6 +61,13 @@ func (j *jobService) StartExtract(ctx context.Context, args archive.ExtractArgs)
 
 func (j *jobService) StartChecksum(ctx context.Context, args archive.ChecksumArgs) (string, error) {
 	return jobs.Enqueue(ctx, j.runner, args.Subject.UserID, args.Path, func(id string) archive.ChecksumArgs {
+		args.Job = id
+		return args
+	})
+}
+
+func (j *jobService) StartCommand(ctx context.Context, args commands.RunArgs) (string, error) {
+	return jobs.Enqueue(ctx, j.runner, args.Subject.UserID, args.Entry, func(id string) commands.RunArgs {
 		args.Job = id
 		return args
 	})
