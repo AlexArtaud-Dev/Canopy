@@ -12,7 +12,8 @@
     "roles": "Rôles",
     "email": "E-mail",
     "settings": "Réglages",
-    "audit": "Journal d’audit"
+    "audit": "Journal d’audit",
+    "trash": "Corbeille"
   },
   "preferences": {
     "appearance": "Apparence",

@@ -31,3 +31,15 @@ unbounded amount of data or files.
 
 `POST /v1/fs/delete/plan`, `POST /v1/fs/trash`, `POST /v1/jobs/delete`, `GET /v1/trash`,
 `POST /v1/trash/restore`, `POST /v1/jobs/empty-trash`.
+
+## In the web app
+
+- **Delete** (item menu, Delete key, selection bar) measures the selection first. If it fits the
+  trash: a confirmation, then a toast with **Undo** (10 s) that restores at once. If it does not
+  fit (or with **Shift+Delete**): a red warning stating the size and that nothing can be
+  restored, then a permanent delete job in the operations panel.
+- **Trash** page (sidebar, under Files): deleted items with where they were, when, how long they
+  are kept, their size (measured shortly after deletion); restore one or a selection, delete a
+  selection for good, or empty the trash (both behind a red confirmation). Administrators also
+  see who deleted each item (by username).
+- Settings › Trash: retention, maximum size and maximum files per volume.

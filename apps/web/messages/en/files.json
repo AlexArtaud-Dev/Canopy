@@ -93,7 +93,9 @@
       "copyTo": "Copy to…",
       "moveTo": "Move to…",
       "download": "Download",
-      "downloadZip": "Download as zip"
+      "downloadZip": "Download as zip",
+      "delete": "Delete",
+      "deletePermanently": "Delete permanently"
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
@@ -113,7 +115,9 @@
         "copy": "Copy the selection",
         "cut": "Cut the selection",
         "paste": "Paste into this folder",
-        "dragCopy": "Copy instead of move when dropping"
+        "dragCopy": "Copy instead of move when dropping",
+        "delete": "Move to the trash",
+        "deletePermanently": "Delete permanently"
       }
     },
     "ops": {

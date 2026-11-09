@@ -1,0 +1,46 @@
+{
+  "delete": {
+    "trashTitle": "Move to the trash: {count, plural, one {# item} other {# items}}?",
+    "trashDescription": "{size} in total. You can restore it from the Trash for {days} days, or undo right after.",
+    "trashConfirm": "Move to trash",
+    "moved": "{count, plural, one {# item moved to the trash} other {# items moved to the trash}}",
+    "undo": "Undo",
+    "restored": "{count, plural, one {# item restored} other {# items restored}}",
+    "permanentTitle": "Delete permanently: {count, plural, one {# item} other {# items}}?",
+    "permanentAsked": "This bypasses the trash.",
+    "permanentTooBig": "This is larger than the trash keeps ({max} or {files} files per volume), so it cannot go to the trash.",
+    "permanentUnmeasured": "This is too large to measure quickly, so it may not fit the trash.",
+    "permanentSize": "{size} in {files, plural, one {# file} other {# files}}.",
+    "permanentWarning": "It cannot be undone or restored.",
+    "permanentConfirm": "Delete permanently",
+    "permanentStarted": "Permanent delete started: {count, plural, one {# item} other {# items}}"
+  },
+  "page": {
+    "description": "Items you deleted. Restore them, or delete them for good.",
+    "limits": "Items are kept {days} days. Each volume keeps at most {size} and {files} files in its trash; beyond that, the oldest items are deleted first.",
+    "restoreSelected": "Restore ({count})",
+    "deleteSelected": "Delete ({count})",
+    "empty": "Empty trash",
+    "emptyTitle": "The trash is empty",
+    "emptyDescription": "Deleted items appear here until they are restored or removed.",
+    "selectAll": "Select all",
+    "select": "Select {name}",
+    "restore": "Restore {name}",
+    "restored": "{count, plural, one {# item restored} other {# items restored}}",
+    "removing": "Deleting from the trash…",
+    "measuring": "Measuring…",
+    "daysLeft": "{count, plural, one {# day left} other {# days left}}",
+    "emptyTitleConfirm": "Empty the trash?",
+    "deleteTitle": "Delete for good: {count, plural, one {# item} other {# items}}?",
+    "deleteWarning": "This cannot be undone.",
+    "deleteConfirm": "Delete for good",
+    "columns": {
+      "name": "Name",
+      "location": "Was in",
+      "deleted": "Deleted",
+      "owner": "Deleted by",
+      "size": "Size",
+      "actions": "Actions"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "delete": {
+    "trashTitle": "Mover a la papelera: ¿{count, plural, one {# elemento} other {# elementos}}?",
+    "trashDescription": "{size} en total. Podrás restaurarlo desde la papelera durante {days} días, o deshacerlo enseguida.",
+    "trashConfirm": "Mover a la papelera",
+    "moved": "{count, plural, one {# elemento movido a la papelera} other {# elementos movidos a la papelera}}",
+    "undo": "Deshacer",
+    "restored": "{count, plural, one {# elemento restaurado} other {# elementos restaurados}}",
+    "permanentTitle": "Eliminar definitivamente: ¿{count, plural, one {# elemento} other {# elementos}}?",
+    "permanentAsked": "Se omite la papelera.",
+    "permanentTooBig": "Es más de lo que guarda la papelera ({max} o {files} archivos por volumen), así que no puede ir a la papelera.",
+    "permanentUnmeasured": "Es demasiado grande para medirlo rápido, así que puede no caber en la papelera.",
+    "permanentSize": "{size} en {files, plural, one {# archivo} other {# archivos}}.",
+    "permanentWarning": "No se puede deshacer ni restaurar.",
+    "permanentConfirm": "Eliminar definitivamente",
+    "permanentStarted": "Eliminación definitiva iniciada: {count, plural, one {# elemento} other {# elementos}}"
+  },
+  "page": {
+    "description": "Los elementos que eliminaste. Restáuralos o elimínalos definitivamente.",
+    "limits": "Los elementos se guardan {days} días. Cada volumen guarda como máximo {size} y {files} archivos en su papelera; por encima, se eliminan primero los más antiguos.",
+    "restoreSelected": "Restaurar ({count})",
+    "deleteSelected": "Eliminar ({count})",
+    "empty": "Vaciar la papelera",
+    "emptyTitle": "La papelera está vacía",
+    "emptyDescription": "Los elementos eliminados aparecen aquí hasta que se restauran o se eliminan.",
+    "selectAll": "Seleccionar todo",
+    "select": "Seleccionar {name}",
+    "restore": "Restaurar {name}",
+    "restored": "{count, plural, one {# elemento restaurado} other {# elementos restaurados}}",
+    "removing": "Eliminando de la papelera…",
+    "measuring": "Midiendo…",
+    "daysLeft": "{count, plural, one {# día restante} other {# días restantes}}",
+    "emptyTitleConfirm": "¿Vaciar la papelera?",
+    "deleteTitle": "Eliminar definitivamente: ¿{count, plural, one {# elemento} other {# elementos}}?",
+    "deleteWarning": "No se puede deshacer.",
+    "deleteConfirm": "Eliminar definitivamente",
+    "columns": {
+      "name": "Nombre",
+      "location": "Estaba en",
+      "deleted": "Eliminado",
+      "owner": "Eliminado por",
+      "size": "Tamaño",
+      "actions": "Acciones"
+    }
+  }
+}

@@ -28,12 +28,15 @@
       "folder_size": "Tamaño de la carpeta",
       "other": "Operación",
       "copy": "Copia",
-      "move": "Traslado"
+      "move": "Traslado",
+      "delete": "Eliminación definitiva",
+      "trash_empty": "Vaciado de la papelera"
     },
     "transferResult": "{items, plural, one {# elemento} other {# elementos}} · {size}",
     "transferSkipped": "{count, plural, one {# omitido} other {# omitidos}}",
     "transferRenamed": "{count, plural, one {# conservado como copia} other {# conservados como copia}}",
-    "uploadFailed": "Falló la subida: {name}"
+    "uploadFailed": "Falló la subida: {name}",
+    "removedResult": "{count, plural, one {# elemento eliminado} other {# elementos eliminados}}"
   },
   "uploads": {
     "upload": "Subida",

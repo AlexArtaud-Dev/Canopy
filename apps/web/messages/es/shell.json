@@ -12,7 +12,8 @@
     "roles": "Roles",
     "email": "Correo",
     "settings": "Ajustes",
-    "audit": "Registro de auditoría"
+    "audit": "Registro de auditoría",
+    "trash": "Papelera"
   },
   "preferences": {
     "appearance": "Apariencia",

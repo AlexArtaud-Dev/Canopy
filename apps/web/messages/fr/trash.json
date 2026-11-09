@@ -1,0 +1,46 @@
+{
+  "delete": {
+    "trashTitle": "Mettre à la corbeille : {count, plural, one {# élément} other {# éléments}} ?",
+    "trashDescription": "{size} au total. Vous pourrez le restaurer depuis la corbeille pendant {days} jours, ou annuler tout de suite.",
+    "trashConfirm": "Mettre à la corbeille",
+    "moved": "{count, plural, one {# élément mis à la corbeille} other {# éléments mis à la corbeille}}",
+    "undo": "Annuler",
+    "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
+    "permanentTitle": "Supprimer définitivement : {count, plural, one {# élément} other {# éléments}} ?",
+    "permanentAsked": "La corbeille est contournée.",
+    "permanentTooBig": "C’est plus que ce que la corbeille garde ({max} ou {files} fichiers par volume) : cela ne peut pas aller à la corbeille.",
+    "permanentUnmeasured": "C’est trop volumineux pour être mesuré rapidement : cela peut dépasser la corbeille.",
+    "permanentSize": "{size} dans {files, plural, one {# fichier} other {# fichiers}}.",
+    "permanentWarning": "Cette action est irréversible : rien ne pourra être restauré.",
+    "permanentConfirm": "Supprimer définitivement",
+    "permanentStarted": "Suppression définitive lancée : {count, plural, one {# élément} other {# éléments}}"
+  },
+  "page": {
+    "description": "Les éléments que vous avez supprimés. Restaurez-les, ou supprimez-les définitivement.",
+    "limits": "Les éléments sont gardés {days} jours. Chaque volume garde au plus {size} et {files} fichiers dans sa corbeille ; au-delà, les plus anciens sont supprimés en premier.",
+    "restoreSelected": "Restaurer ({count})",
+    "deleteSelected": "Supprimer ({count})",
+    "empty": "Vider la corbeille",
+    "emptyTitle": "La corbeille est vide",
+    "emptyDescription": "Les éléments supprimés apparaissent ici jusqu’à leur restauration ou leur suppression.",
+    "selectAll": "Tout sélectionner",
+    "select": "Sélectionner {name}",
+    "restore": "Restaurer {name}",
+    "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
+    "removing": "Suppression depuis la corbeille…",
+    "measuring": "Mesure…",
+    "daysLeft": "{count, plural, one {# jour restant} other {# jours restants}}",
+    "emptyTitleConfirm": "Vider la corbeille ?",
+    "deleteTitle": "Supprimer définitivement : {count, plural, one {# élément} other {# éléments}} ?",
+    "deleteWarning": "Cette action est irréversible.",
+    "deleteConfirm": "Supprimer définitivement",
+    "columns": {
+      "name": "Nom",
+      "location": "Emplacement",
+      "deleted": "Supprimé",
+      "owner": "Supprimé par",
+      "size": "Taille",
+      "actions": "Actions"
+    }
+  }
+}

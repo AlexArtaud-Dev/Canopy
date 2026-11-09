@@ -23,7 +23,8 @@
     "system": "System",
     "appearance": "Appearance",
     "jobs": "Background jobs",
-    "uploads": "Uploads"
+    "uploads": "Uploads",
+    "trash": "Trash"
   },
   "groups": {
     "sessions": "Sessions",
@@ -123,6 +124,20 @@
       "blockedExtensions": {
         "label": "Blocked file types",
         "description": "Extensions refused, separated by commas, for example: exe, bat. Leave empty to accept everything."
+      }
+    },
+    "trash": {
+      "retentionDays": {
+        "label": "Keep deleted items for (days)",
+        "description": "Older items are deleted for good."
+      },
+      "maxSizeMb": {
+        "label": "Largest trash per volume (MB)",
+        "description": "Beyond this, the oldest items are deleted first. Bigger deletions are offered as permanent, with a warning."
+      },
+      "maxFiles": {
+        "label": "Most files in the trash per volume",
+        "description": "Beyond this, the oldest items are deleted first, so mass deletions cannot fill a disk."
       }
     }
   },
