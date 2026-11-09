@@ -9,6 +9,7 @@ import { filesModule } from '@/features/files/files.module';
 import { thumbnailsModule } from '@/features/files/thumbnails.module';
 import { jobsModule } from '@/features/jobs/jobs.module';
 import { mailModule } from '@/features/mail/mail.module';
+import { pluginsModule } from '@/features/plugins/plugins.module';
 import { settingsModule } from '@/features/settings/settings.module';
 import { sharesModule } from '@/features/shares/shares.module';
 import { systemModule } from '@/features/system/system.module';
@@ -25,6 +26,7 @@ export const appRegistry = createRegistry([
   thumbnailsModule,
   sharesModule,
   commandsModule,
+  pluginsModule,
   authModule,
   usersModule,
   groupsModule,

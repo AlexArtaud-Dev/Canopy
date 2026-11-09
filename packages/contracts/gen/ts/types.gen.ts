@@ -164,6 +164,27 @@ export type PluginList = {
   items: Array<Plugin>;
 };
 
+export type PluginManifestText = {
+  manifest: string;
+};
+
+export type PluginRelease = {
+  id: string;
+  version: string;
+  repo: string;
+  name: LocalizedText;
+  description: LocalizedText;
+  commands: number;
+  /**
+   * Release asset holding the binary for this engine's platform.
+   */
+  binaryAsset: string;
+  /**
+   * Release asset listing SHA-256 sums.
+   */
+  checksumsAsset: string;
+};
+
 export type PluginFlags = {
   enabled: boolean;
   pinned: boolean;
@@ -785,6 +806,39 @@ export type InstallPluginResponses = {
 };
 
 export type InstallPluginResponse = InstallPluginResponses[keyof InstallPluginResponses];
+
+export type InspectPluginData = {
+  body: PluginManifestText;
+  path?: never;
+  query?: never;
+  url: '/v1/plugins/inspect';
+};
+
+export type InspectPluginErrors = {
+  /**
+   * Refused (`plugins.invalid_manifest`, `plugins.unsupported_platform`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Administrators only (`auth.forbidden`).
+   */
+  403: Error;
+};
+
+export type InspectPluginError = InspectPluginErrors[keyof InspectPluginErrors];
+
+export type InspectPluginResponses = {
+  /**
+   * The release as it would install.
+   */
+  200: PluginRelease;
+};
+
+export type InspectPluginResponse = InspectPluginResponses[keyof InspectPluginResponses];
 
 export type UninstallPluginData = {
   body?: never;

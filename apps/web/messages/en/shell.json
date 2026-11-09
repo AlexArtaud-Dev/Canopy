@@ -15,7 +15,8 @@
     "audit": "Audit log",
     "trash": "Trash",
     "shares": "Shares",
-    "commands": "Commands"
+    "commands": "Commands",
+    "plugins": "Plugins"
   },
   "preferences": {
     "appearance": "Appearance",

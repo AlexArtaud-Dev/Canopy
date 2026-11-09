@@ -738,6 +738,26 @@ type PluginList struct {
 	Platform string `json:"platform"`
 }
 
+// PluginManifestText defines model for PluginManifestText.
+type PluginManifestText struct {
+	Manifest string `json:"manifest"`
+}
+
+// PluginRelease defines model for PluginRelease.
+type PluginRelease struct {
+	// BinaryAsset Release asset holding the binary for this engine's platform.
+	BinaryAsset string `json:"binaryAsset"`
+
+	// ChecksumsAsset Release asset listing SHA-256 sums.
+	ChecksumsAsset string        `json:"checksumsAsset"`
+	Commands       int           `json:"commands"`
+	Description    LocalizedText `json:"description"`
+	Id             string        `json:"id"`
+	Name           LocalizedText `json:"name"`
+	Repo           string        `json:"repo"`
+	Version        string        `json:"version"`
+}
+
 // PreviewKind How the file can be shown in the browser, decided by the engine from its extension (`none` for folders and unknown files: download only).
 type PreviewKind string
 
@@ -949,6 +969,9 @@ type StartTransferJSONRequestBody = TransferJobRequest
 // InstallPluginMultipartRequestBody defines body for InstallPlugin for multipart/form-data ContentType.
 type InstallPluginMultipartRequestBody InstallPluginMultipartBody
 
+// InspectPluginJSONRequestBody defines body for InspectPlugin for application/json ContentType.
+type InspectPluginJSONRequestBody = PluginManifestText
+
 // UpdatePluginJSONRequestBody defines body for UpdatePlugin for application/json ContentType.
 type UpdatePluginJSONRequestBody = PluginFlags
 
@@ -1038,6 +1061,9 @@ type ServerInterface interface {
 	// InstallPlugin Install or update a plugin from its release files
 	// (POST /v1/plugins)
 	InstallPlugin(w http.ResponseWriter, r *http.Request)
+	// InspectPlugin Check a release manifest before downloading its binary
+	// (POST /v1/plugins/inspect)
+	InspectPlugin(w http.ResponseWriter, r *http.Request)
 	// UninstallPlugin Uninstall a plugin
 	// (DELETE /v1/plugins/{pluginId})
 	UninstallPlugin(w http.ResponseWriter, r *http.Request, pluginId string)
@@ -1215,6 +1241,12 @@ func (_ Unimplemented) ListPlugins(w http.ResponseWriter, r *http.Request) {
 // InstallPlugin Install or update a plugin from its release files
 // (POST /v1/plugins)
 func (_ Unimplemented) InstallPlugin(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// InspectPlugin Check a release manifest before downloading its binary
+// (POST /v1/plugins/inspect)
+func (_ Unimplemented) InspectPlugin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1835,6 +1867,20 @@ func (siw *ServerInterfaceWrapper) InstallPlugin(w http.ResponseWriter, r *http.
 	handler.ServeHTTP(w, r)
 }
 
+// InspectPlugin operation middleware
+func (siw *ServerInterfaceWrapper) InspectPlugin(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.InspectPlugin(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // UninstallPlugin operation middleware
 func (siw *ServerInterfaceWrapper) UninstallPlugin(w http.ResponseWriter, r *http.Request) {
 
@@ -2060,6 +2106,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/v1/plugins", wrapper.InstallPlugin)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/plugins/inspect", wrapper.InspectPlugin)
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/v1/plugins/{pluginId}", wrapper.UninstallPlugin)
@@ -4004,6 +4053,70 @@ func (response InstallPlugin403JSONResponse) VisitInstallPluginResponse(w http.R
 	return err
 }
 
+type InspectPluginRequestObject struct {
+	Body *InspectPluginJSONRequestBody
+}
+
+type InspectPluginResponseObject interface {
+	VisitInspectPluginResponse(w http.ResponseWriter) error
+}
+
+type InspectPlugin200JSONResponse PluginRelease
+
+func (response InspectPlugin200JSONResponse) VisitInspectPluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type InspectPlugin400JSONResponse Error
+
+func (response InspectPlugin400JSONResponse) VisitInspectPluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type InspectPlugin401JSONResponse Error
+
+func (response InspectPlugin401JSONResponse) VisitInspectPluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type InspectPlugin403JSONResponse Error
+
+func (response InspectPlugin403JSONResponse) VisitInspectPluginResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type UninstallPluginRequestObject struct {
 	PluginId string `json:"pluginId"`
 }
@@ -4323,6 +4436,9 @@ type StrictServerInterface interface {
 	// InstallPlugin Install or update a plugin from its release files
 	// (POST /v1/plugins)
 	InstallPlugin(ctx context.Context, request InstallPluginRequestObject) (InstallPluginResponseObject, error)
+	// InspectPlugin Check a release manifest before downloading its binary
+	// (POST /v1/plugins/inspect)
+	InspectPlugin(ctx context.Context, request InspectPluginRequestObject) (InspectPluginResponseObject, error)
 	// UninstallPlugin Uninstall a plugin
 	// (DELETE /v1/plugins/{pluginId})
 	UninstallPlugin(ctx context.Context, request UninstallPluginRequestObject) (UninstallPluginResponseObject, error)
@@ -5144,6 +5260,37 @@ func (sh *strictHandler) InstallPlugin(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(InstallPluginResponseObject); ok {
 		if err := validResponse.VisitInstallPluginResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// InspectPlugin operation middleware
+func (sh *strictHandler) InspectPlugin(w http.ResponseWriter, r *http.Request) {
+	var request InspectPluginRequestObject
+
+	var body InspectPluginJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.InspectPlugin(ctx, request.(InspectPluginRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "InspectPlugin")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(InspectPluginResponseObject); ok {
+		if err := validResponse.VisitInspectPluginResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

@@ -1,0 +1,33 @@
+{
+  "page": {
+    "description": "Los plugins añaden comandos de herramientas de confianza. Se descargan de repositorios de GitHub permitidos y cada archivo se comprueba con las sumas de verificación de la versión antes de ejecutar nada.",
+    "installedTitle": "Instalados",
+    "platform": "Servidor: {platform}",
+    "emptyTitle": "Ningún plugin instalado",
+    "emptyDescription": "Instala uno desde los repositorios permitidos de abajo.",
+    "availableTitle": "Disponibles",
+    "availableDescription": "Últimas versiones de los repositorios permitidos. Cambia la lista en <settings>Ajustes</settings>.",
+    "nothingAvailable": "Todo lo de los repositorios permitidos está instalado.",
+    "installed": "{name} {version} instalado",
+    "uninstalled": "{name} desinstalado",
+    "uninstallTitle": "¿Desinstalar este plugin?",
+    "uninstallDescription": "Se quitarán {name} y sus comandos. Los comandos en curso no se detienen.",
+    "uninstallConfirm": "Desinstalar"
+  },
+  "installed": {
+    "disabled": "Desactivado",
+    "updateBadge": "{version} disponible",
+    "uninstall": "Desinstalar {name}",
+    "commands": "{count, plural, one {# comando} other {# comandos}}",
+    "installedAt": "Instalado el {date}",
+    "enabled": "Activado",
+    "pinned": "Mantener esta versión",
+    "update": "Actualizar a {version}"
+  },
+  "available": {
+    "releasePage": "Versión",
+    "install": "Instalar",
+    "installing": "Instalando…",
+    "notes": "Notas de la versión"
+  }
+}

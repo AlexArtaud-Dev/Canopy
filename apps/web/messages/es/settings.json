@@ -27,7 +27,8 @@
     "trash": "Papelera",
     "thumbnails": "Miniaturas",
     "shares": "Enlaces compartidos",
-    "commands": "Comandos"
+    "commands": "Comandos",
+    "plugins": "Plugins"
   },
   "groups": {
     "sessions": "Sesiones",
@@ -41,7 +42,8 @@
     "limits": "Límites",
     "display": "Visualización",
     "links": "Enlaces",
-    "advanced": "Avanzado"
+    "advanced": "Avanzado",
+    "sources": "Fuentes"
   },
   "fields": {
     "auth": {
@@ -174,6 +176,12 @@
       "advancedMode": {
         "label": "Modo avanzado",
         "description": "Permite a quienes tienen el permiso «avanzado» de comandos usar los comandos avanzados del catálogo, con todas sus opciones."
+      }
+    },
+    "plugins": {
+      "allowedRepos": {
+        "label": "Repositorios permitidos",
+        "description": "Repositorios de GitHub (propietario/nombre, separados por comas) desde los que se pueden instalar plugins. No se puede instalar nada más."
       }
     }
   },

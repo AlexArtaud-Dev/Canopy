@@ -23,6 +23,7 @@ type fakePlugins struct {
 	installErr error
 	flagsErr   error
 	removeErr  error
+	inspectErr error
 	received   string
 }
 
@@ -34,6 +35,10 @@ func (f *fakePlugins) Install(_ context.Context, manifest, _ []byte, binary io.R
 	data, _ := io.ReadAll(binary)
 	f.received = string(manifest) + "|" + string(data)
 	return plugins.Manifest{ID: "tool", Version: "1.0.0"}, f.installErr
+}
+
+func (f *fakePlugins) Inspect([]byte) (plugins.Release, error) {
+	return plugins.Release{Manifest: plugins.Manifest{ID: "tool", Version: "1.0.0"}, BinaryAsset: "tool-linux-amd64"}, f.inspectErr
 }
 
 func (f *fakePlugins) SetFlags(context.Context, string, bool, bool) error { return f.flagsErr }
@@ -123,6 +128,19 @@ func TestPluginEndpoints(t *testing.T) {
 		t.Fatalf("disk: %d", got.Code)
 	}
 
+	inspect := `{"manifest":"id: tool"}`
+	if got := call(service, http.MethodPost, "/v1/plugins/inspect", h.admin, inspect, "application/json"); got.Code != http.StatusOK {
+		t.Fatalf("inspect: %d", got.Code)
+	}
+	if got := call(service, http.MethodPost, "/v1/plugins/inspect", h.user, inspect, "application/json"); got.Code != http.StatusForbidden {
+		t.Fatalf("inspect by a user: %d", got.Code)
+	}
+	for _, err := range []error{plugins.ErrPlatform, plugins.ErrManifest} {
+		if got := call(&fakePlugins{inspectErr: err}, http.MethodPost, "/v1/plugins/inspect", h.admin, inspect, "application/json"); got.Code != http.StatusBadRequest {
+			t.Errorf("inspect %v: %d", err, got.Code)
+		}
+	}
+
 	flags := `{"enabled":false,"pinned":true}`
 	if got := call(service, http.MethodPatch, "/v1/plugins/tool", h.admin, flags, "application/json"); got.Code != http.StatusOK {
 		t.Fatalf("flags: %d", got.Code)
@@ -155,6 +173,10 @@ func TestPluginEndpoints(t *testing.T) {
 	install, _ := s.InstallPlugin(ctx, api.InstallPluginRequestObject{})
 	update, _ := s.UpdatePlugin(ctx, api.UpdatePluginRequestObject{})
 	remove, _ := s.UninstallPlugin(ctx, api.UninstallPluginRequestObject{})
+	inspected, _ := s.InspectPlugin(ctx, api.InspectPluginRequestObject{})
+	if _, ok := inspected.(api.InspectPlugin401JSONResponse); !ok {
+		t.Fatal("inspect without principal")
+	}
 	_, a := list.(api.ListPlugins401JSONResponse)
 	_, b := install.(api.InstallPlugin401JSONResponse)
 	_, c := update.(api.UpdatePlugin401JSONResponse)

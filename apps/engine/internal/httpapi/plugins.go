@@ -21,6 +21,7 @@ const maxPluginText = 64 << 10
 // Plugins manages installed plugins.
 type Plugins interface {
 	List(ctx context.Context) ([]plugins.Installed, error)
+	Inspect(manifest []byte) (plugins.Release, error)
 	Install(ctx context.Context, manifest, checksums []byte, binary io.Reader, by string) (plugins.Manifest, error)
 	SetFlags(ctx context.Context, id string, enabled, pinned bool) error
 	Uninstall(ctx context.Context, id string) error
@@ -72,6 +73,29 @@ func (s *server) ListPlugins(ctx context.Context, _ api.ListPluginsRequestObject
 		body.Items = append(body.Items, toPlugin(item))
 	}
 	return body, nil
+}
+
+func (s *server) InspectPlugin(ctx context.Context, request api.InspectPluginRequestObject) (api.InspectPluginResponseObject, error) {
+	_, ok, admin := adminPrincipal(ctx)
+	switch {
+	case !ok:
+		return api.InspectPlugin401JSONResponse(newError(ctx, codeUnauthorized)), nil
+	case !admin:
+		return api.InspectPlugin403JSONResponse(newError(ctx, codeAdminOnly)), nil
+	}
+	release, err := s.deps.Plugins.Inspect([]byte(request.Body.Manifest))
+	if errors.Is(err, plugins.ErrPlatform) {
+		return api.InspectPlugin400JSONResponse(newError(ctx, plugins.CodePlatform)), nil
+	}
+	if err != nil {
+		return api.InspectPlugin400JSONResponse(newError(ctx, plugins.CodeManifest)), nil
+	}
+	manifest := release.Manifest
+	return api.InspectPlugin200JSONResponse{
+		Id: manifest.ID, Version: manifest.Version, Repo: manifest.Source.Repo,
+		Name: localized(manifest.Name), Description: localized(manifest.Description), Commands: len(manifest.Commands),
+		BinaryAsset: release.BinaryAsset, ChecksumsAsset: release.ChecksumsAsset,
+	}, nil
 }
 
 func (s *server) InstallPlugin(ctx context.Context, request api.InstallPluginRequestObject) (api.InstallPluginResponseObject, error) {

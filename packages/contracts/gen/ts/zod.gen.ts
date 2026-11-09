@@ -109,6 +109,10 @@ export const zChecksumRequest = z.object({
   algorithm: z.enum(['md5', 'sha1', 'sha256', 'sha512']),
 });
 
+export const zPluginManifestText = z.object({
+  manifest: z.string().max(65536),
+});
+
 export const zPluginFlags = z.object({
   enabled: z.boolean(),
   pinned: z.boolean(),
@@ -135,6 +139,17 @@ export const zPlugin = z.object({
 export const zPluginList = z.object({
   platform: z.string(),
   items: z.array(zPlugin),
+});
+
+export const zPluginRelease = z.object({
+  id: z.string(),
+  version: z.string(),
+  repo: z.string(),
+  name: zLocalizedText,
+  description: zLocalizedText,
+  commands: z.int(),
+  binaryAsset: z.string(),
+  checksumsAsset: z.string(),
 });
 
 export const zCommandParam = z.object({
@@ -493,6 +508,13 @@ export const zInstallPluginBody = z.object({
  * Installed and active.
  */
 export const zInstallPluginResponse = zPlugin;
+
+export const zInspectPluginBody = zPluginManifestText;
+
+/**
+ * The release as it would install.
+ */
+export const zInspectPluginResponse = zPluginRelease;
 
 export const zUninstallPluginPath = z.object({
   pluginId: z.string().max(32),
