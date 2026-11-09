@@ -36,6 +36,16 @@ type Subject struct {
 	UserID string
 	Groups []string
 	Admin  bool
+	// Scope confines a share link to reading and downloading under one path, on top of its
+	// owner's own grants (a share never reaches more than its owner can).
+	Scope string
+}
+
+// scopedActions are all a share link may do.
+var scopedActions = []string{"read", "download"}
+
+func (s Subject) outOfScope(target, action string) bool {
+	return s.Scope != "" && (!fsx.IsWithin(target, s.Scope) || !slices.Contains(scopedActions, action))
 }
 
 func (s Subject) owns(grant Grant) bool {
@@ -85,6 +95,9 @@ type Decision struct {
 // Explain decides one action on one clean virtual path and names what decided it.
 // Administrators bypass grants; otherwise the most specific matching grant decides.
 func Explain(grants []Grant, subject Subject, target, action string) Decision {
+	if subject.outOfScope(target, action) {
+		return Decision{}
+	}
 	if subject.Admin {
 		return Decision{Allowed: true, ByAdmin: true}
 	}
@@ -121,6 +134,9 @@ func Capabilities(grants []Grant, subject Subject, target string) []string {
 // MayTraverse reports whether some grant below target lets the subject read deeper, so a parent
 // folder is shown (names only) on the way to a granted subfolder.
 func MayTraverse(grants []Grant, subject Subject, target string) bool {
+	if subject.outOfScope(target, "read") {
+		return false
+	}
 	if subject.Admin || Allowed(grants, subject, target, "read") {
 		return true
 	}

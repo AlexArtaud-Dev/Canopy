@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"maps"
 	"time"
 
 	"github.com/go-chi/chi/v5/middleware"
@@ -53,6 +54,14 @@ func ownerScope(principal enginetoken.Principal) string {
 }
 
 func (s *server) record(ctx context.Context, principal enginetoken.Principal, action, target string, meta map[string]any) {
+	if principal.Share != "" {
+		// The owner is the actor; the share says it was a link, not the owner, that read it.
+		meta = maps.Clone(meta)
+		if meta == nil {
+			meta = map[string]any{}
+		}
+		meta["share"] = principal.Share
+	}
 	err := s.deps.Audit.Record(ctx, audit.Event{
 		ActorID: principal.UserID, Action: action, Target: target, Result: audit.ResultSuccess,
 		RequestID: middleware.GetReqID(ctx), Meta: meta,

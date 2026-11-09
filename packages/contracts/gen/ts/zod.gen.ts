@@ -349,6 +349,15 @@ export const zListDirectoryQuery = z.object({
  */
 export const zListDirectoryResponse = zDirectoryListing;
 
+export const zStatEntryQuery = z.object({
+  path: z.string().max(4096),
+});
+
+/**
+ * The entry.
+ */
+export const zStatEntryResponse = zDirectoryEntry;
+
 export const zSearchFilesQuery = z.object({
   path: z.string().max(4096),
   q: z.string().min(2).max(200),

@@ -140,3 +140,28 @@ func TestExplain(t *testing.T) {
 		t.Fatalf("admin: %+v", byAdmin)
 	}
 }
+
+func TestScope(t *testing.T) {
+	grants := []Grant{{SubjectType: SubjectUser, SubjectID: "bob", Path: "/media", Actions: Actions, Effect: EffectAllow}}
+	shared := Subject{UserID: "bob", Scope: "/media/photos"}
+	if !Allowed(grants, shared, "/media/photos/a.jpg", "download") || !Allowed(grants, shared, "/media/photos", "read") {
+		t.Fatal("reads inside the share")
+	}
+	if Allowed(grants, shared, "/media/photos/a.jpg", "delete") || Allowed(grants, shared, "/media/music", "read") {
+		t.Fatal("nothing else")
+	}
+	if MayTraverse(grants, shared, "/media") || !MayTraverse(grants, shared, "/media/photos/2024") {
+		t.Fatal("no way up")
+	}
+	admin := Subject{UserID: "root", Admin: true, Scope: "/media/photos"}
+	if Allowed(nil, admin, "/media/music", "read") {
+		t.Fatal("scope applies before the administrator bypass")
+	}
+	if got := Capabilities(grants, shared, "/media/photos"); len(got) != 2 {
+		t.Fatalf("capabilities: %v", got)
+	}
+	owner := Subject{UserID: "carol", Scope: "/media/photos"}
+	if Allowed(grants, owner, "/media/photos/a.jpg", "read") {
+		t.Fatal("a share never reaches more than its owner can")
+	}
+}

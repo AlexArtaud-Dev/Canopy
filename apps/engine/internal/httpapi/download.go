@@ -40,6 +40,19 @@ func isStreamRoute(r *http.Request) bool {
 		strings.HasPrefix(r.URL.Path, routeUploads)
 }
 
+// isScopedRoute lists what a share token may call: describing and listing what was shared, and
+// downloading it.
+func isScopedRoute(r *http.Request) bool {
+	switch r.URL.Path {
+	case "/v1/fs/list", "/v1/fs/entry", routeArchive:
+		return r.Method == http.MethodGet
+	case routeDownload:
+		return r.Method == http.MethodGet || r.Method == http.MethodHead
+	default:
+		return false
+	}
+}
+
 // ContentDisposition names a download safely: an ASCII fallback plus the exact UTF-8 name.
 func ContentDisposition(name string) string {
 	return disposition("attachment", name)

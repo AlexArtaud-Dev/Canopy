@@ -25,6 +25,7 @@ export {
   startFolderSize,
   startPermanentDelete,
   startTransfer,
+  statEntry,
 } from './sdk.gen';
 export type {
   AccessDecision,
@@ -170,6 +171,11 @@ export type {
   StartTransferErrors,
   StartTransferResponse,
   StartTransferResponses,
+  StatEntryData,
+  StatEntryError,
+  StatEntryErrors,
+  StatEntryResponse,
+  StatEntryResponses,
   TransferConflict,
   TransferJobRequest,
   TransferOperation,
