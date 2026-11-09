@@ -223,3 +223,10 @@ entries:
       en: Download files, or folders and selections as a zip streamed on the fly; downloads can be resumed
       fr: Téléchargez des fichiers, ou des dossiers et sélections en zip généré à la volée ; les téléchargements peuvent reprendre
       es: Descarga archivos, o carpetas y selecciones como zip generado al vuelo; las descargas se pueden reanudar
+  - type: feat
+    scope: files
+    issue: 52
+    text:
+      en: Upload files and whole folders with the Upload button or by dropping them on the list; large uploads resume after network drops, and administrators can cap file size and block file types
+      fr: Importez des fichiers et des dossiers entiers avec le bouton Importer ou en les déposant sur la liste ; les gros imports reprennent après une coupure réseau, et les administrateurs peuvent limiter la taille et bloquer des types de fichiers
+      es: Sube archivos y carpetas enteras con el botón Subir o soltándolos en la lista; las subidas grandes se reanudan tras un corte de red, y los administradores pueden limitar el tamaño y bloquear tipos de archivo

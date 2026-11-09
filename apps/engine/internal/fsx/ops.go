@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"strings"
 	"syscall"
 )
 
@@ -71,6 +72,88 @@ func (r *Resolver) OpenFile(virtual string) (*os.File, Entry, error) {
 		return nil, Entry{}, notFound(err)
 	}
 	return file, toEntry(clean, info), nil
+}
+
+// EnsureStagingIn creates a volume's upload staging folder (the root's own for "") and returns
+// it relative to the root. The volume must be an existing folder directly under the root.
+func (r *Resolver) EnsureStagingIn(volume string) (string, error) {
+	staging := StagingDir
+	if volume != "" {
+		if !ValidName(volume) || Reserved(volume) {
+			return "", ErrInvalidPath
+		}
+		info, err := r.root.Lstat(volume)
+		if err != nil {
+			return "", notFound(err)
+		}
+		if !info.IsDir() {
+			return "", ErrNotDir
+		}
+		staging = volume + "/" + StagingDir
+	}
+	if err := r.root.MkdirAll(staging, 0o700); err != nil {
+		return "", fmt.Errorf("staging folder: %w", err)
+	}
+	return staging, nil
+}
+
+// ImportStaged moves a finished upload (staged name, chosen by the engine, never by a client)
+// to its virtual path. Never replaces an existing entry; across filesystems it copies then
+// removes the staged file.
+func (r *Resolver) ImportStaged(staged, to string) error {
+	// Engine-chosen: <volume>/.canopy-uploads/<id>, or .canopy-uploads/<id> at the root.
+	parent := path.Dir(staged)
+	if path.Base(parent) != StagingDir || strings.Contains(path.Dir(parent), "/") ||
+		path.Base(staged) == StagingDir || strings.Contains(staged, "..") {
+		return ErrInvalidPath
+	}
+	dst, err := Clean(to)
+	if err != nil {
+		return err
+	}
+	exists, err := r.Exists(dst)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return ErrExists
+	}
+	err = r.root.Rename(staged, Relative(dst))
+	if err == nil {
+		return nil
+	}
+	if mapped := mapWriteError(err); !errors.Is(mapped, ErrCrossDevice) {
+		return mapped
+	}
+	return r.copyStaged(staged, dst)
+}
+
+func (r *Resolver) copyStaged(staged, dst string) (err error) {
+	in, err := r.root.Open(staged)
+	if err != nil {
+		return notFound(err)
+	}
+	defer func() { _ = in.Close() }()
+	out, err := r.root.OpenFile(Relative(dst), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o666)
+	if err != nil {
+		return mapWriteError(err)
+	}
+	defer func() {
+		closeErr := out.Close()
+		if err == nil && closeErr != nil {
+			err = fmt.Errorf("close import: %w", closeErr)
+		}
+		if err != nil {
+			_ = r.root.Remove(Relative(dst))
+		}
+	}()
+	if _, err := io.Copy(out, in); err != nil {
+		return fmt.Errorf("import: %w", err)
+	}
+	if err := r.root.Remove(staged); err != nil {
+		return fmt.Errorf("remove staged: %w", err)
+	}
+	return nil
 }
 
 // Mkdir creates one directory; its parent must exist and the name must be free.

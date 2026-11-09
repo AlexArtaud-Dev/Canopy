@@ -21,6 +21,19 @@ var ErrInvalidPath = errors.New("invalid virtual path")
 
 const maxPathBytes = 4096
 
+// ReservedPrefix marks Canopy's own folders inside the root (upload staging, trash): never
+// listed, never reachable through a client path.
+const ReservedPrefix = ".canopy-"
+
+// StagingDir holds uploads in progress, inside the root so a finished upload is renamed into
+// place (instant on the same filesystem).
+const StagingDir = ReservedPrefix + "uploads"
+
+// Reserved reports whether a single name belongs to Canopy itself.
+func Reserved(name string) bool {
+	return strings.HasPrefix(name, ReservedPrefix)
+}
+
 // Clean validates a client-supplied virtual POSIX path ("/photos/2024") and returns its canonical
 // form. Relative paths, NUL bytes, invalid UTF-8 and oversized paths are refused; "." and ".."
 // are resolved lexically, never above "/".
@@ -33,7 +46,13 @@ func Clean(virtual string) (string, error) {
 		!utf8.ValidString(virtual):
 		return "", ErrInvalidPath
 	}
-	return path.Clean(virtual), nil
+	clean := path.Clean(virtual)
+	for _, segment := range strings.Split(clean, "/") {
+		if Reserved(segment) {
+			return "", ErrInvalidPath
+		}
+	}
+	return clean, nil
 }
 
 // Relative turns a clean virtual path into the name os.Root expects ("." for the root).

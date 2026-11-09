@@ -32,6 +32,20 @@
     },
     "transferResult": "{items, plural, one {# item} other {# items}} · {size}",
     "transferSkipped": "{count, plural, one {# skipped} other {# skipped}}",
-    "transferRenamed": "{count, plural, one {# kept as a copy} other {# kept as copies}}"
+    "transferRenamed": "{count, plural, one {# kept as a copy} other {# kept as copies}}",
+    "uploadFailed": "Upload failed: {name}"
+  },
+  "uploads": {
+    "upload": "Upload",
+    "cancel": "Cancel uploading {name}",
+    "retry": "Resume uploading {name}",
+    "dismiss": "Dismiss {name}",
+    "progress": "Upload progress of {name}",
+    "queued": "Waiting to start",
+    "rate": "{rate}/s",
+    "done": "Uploaded · {size}",
+    "storedAs": "Saved as “{name}”",
+    "skipped": "Skipped: the name is taken",
+    "cancelled": "Cancelled"
   }
 }

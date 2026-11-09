@@ -29,6 +29,8 @@ interface ConflictDialogProps {
   operation: TransferOperation;
   conflicts: readonly TransferConflict[];
   truncated: boolean;
+  /** Replaces the Copy/Move confirm label (uploads). */
+  confirmLabel?: string;
   onConfirm: (choice: {
     strategy: ConflictStrategy;
     decisions: Record<string, ConflictStrategy>;
@@ -137,7 +139,7 @@ export function ConflictDialog(props: ConflictDialogProps) {
               props.onConfirm(transferDecisions(props.conflicts, choices, fallback));
             }}
           >
-            {props.operation === 'copy' ? t('copyNow') : t('moveNow')}
+            {props.confirmLabel ?? (props.operation === 'copy' ? t('copyNow') : t('moveNow'))}
           </Button>
         </DialogFooter>
       </DialogContent>

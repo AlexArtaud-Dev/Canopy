@@ -25,12 +25,14 @@ import (
 const (
 	routeDownload = "/v1/fs/download"
 	routeArchive  = "/v1/fs/archive"
+	routeUploads  = "/v1/uploads/"
 	maxArchived   = 1000
 )
 
 // isStreamRoute tells the token middleware where stream tickets may be used.
 func isStreamRoute(r *http.Request) bool {
-	return r.URL.Path == routeDownload || r.URL.Path == routeArchive
+	return r.URL.Path == routeDownload || r.URL.Path == routeArchive ||
+		strings.HasPrefix(r.URL.Path, routeUploads)
 }
 
 // ContentDisposition names a download safely: an ASCII fallback plus the exact UTF-8 name.

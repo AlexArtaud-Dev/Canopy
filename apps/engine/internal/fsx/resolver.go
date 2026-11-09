@@ -84,6 +84,9 @@ func (r *Resolver) ReadDir(virtual string) ([]Entry, error) {
 	}
 	entries := make([]Entry, 0, len(items))
 	for _, item := range items {
+		if Reserved(item.Name()) {
+			continue
+		}
 		itemInfo, err := item.Info()
 		if err != nil {
 			// Vanished between listing and stat: skip rather than fail the whole listing.
@@ -146,6 +149,12 @@ func (r *Resolver) Walk(virtual string, visit func(path string, entry Entry) err
 				return fs.SkipDir
 			}
 			return walkErr
+		}
+		if Reserved(item.Name()) {
+			if item.IsDir() {
+				return fs.SkipDir
+			}
+			return nil
 		}
 		itemInfo, err := item.Info()
 		if err != nil {

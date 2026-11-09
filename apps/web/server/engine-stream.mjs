@@ -14,6 +14,7 @@ import {
   downstreamHeaders,
   readCookie,
   relayTarget,
+  sameOrigin,
   streamPrefix,
   ticketCookie,
   upstreamHeaders,
@@ -34,6 +35,10 @@ function relay(request, response) {
   const target = relayTarget(request.method, request.url);
   if (!target) {
     fail(response, 404, 'system.not_found', requestId);
+    return true;
+  }
+  if (!sameOrigin(request.method, request.headers.origin, request.headers.host)) {
+    fail(response, 403, 'auth.forbidden', requestId);
     return true;
   }
   const ticket = readCookie(request.headers.cookie, ticketCookie);

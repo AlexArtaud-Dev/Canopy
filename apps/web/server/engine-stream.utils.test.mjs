@@ -1,7 +1,9 @@
 import {
   downstreamHeaders,
   readCookie,
+  relayLocation,
   relayTarget,
+  sameOrigin,
   streamPrefix,
   ticketCookie,
   upstreamHeaders,
@@ -24,6 +26,12 @@ describe('relayTarget', () => {
     expect(relayTarget(undefined, '/api/engine/stream/v1/fs/download')).toBeNull();
     expect(relayTarget('GET', undefined)).toBeNull();
     expect(streamPrefix).toBe('/api/engine/stream');
+    expect(relayTarget('POST', '/api/engine/stream/v1/uploads/')).toBe('/v1/uploads/');
+    const id = `${'a'.repeat(32)}6d65646961`;
+    expect(relayTarget('PATCH', `/api/engine/stream/v1/uploads/${id}`)).toBe(`/v1/uploads/${id}`);
+    expect(relayTarget('PATCH', '/api/engine/stream/v1/uploads/0123456789abcdef')).toBeNull();
+    expect(relayTarget('PATCH', '/api/engine/stream/v1/uploads/not-an-id')).toBeNull();
+    expect(relayTarget('GET', `/api/engine/stream/v1/uploads/${id}`)).toBeNull();
   });
 });
 
@@ -57,5 +65,31 @@ describe('headers', () => {
       'content-disposition': 'attachment',
       'x-accel-buffering': 'no',
     });
+  });
+});
+
+describe('uploads', () => {
+  it('rewrites tus locations to the relay', () => {
+    expect(relayLocation('http://engine:8080/v1/uploads/abc')).toBe(
+      '/api/engine/stream/v1/uploads/abc',
+    );
+    expect(relayLocation('/elsewhere')).toBeNull();
+    expect(relayLocation(undefined)).toBeNull();
+    expect(
+      downstreamHeaders({ location: 'http://engine/v1/uploads/abc', 'upload-offset': '5' }),
+    ).toEqual({
+      location: '/api/engine/stream/v1/uploads/abc',
+      'upload-offset': '5',
+      'x-accel-buffering': 'no',
+    });
+  });
+
+  it('accepts writes from this origin only', () => {
+    expect(sameOrigin('GET', undefined, 'canopy.lan')).toBe(true);
+    expect(sameOrigin('PATCH', 'https://canopy.lan', 'canopy.lan')).toBe(true);
+    expect(sameOrigin('PATCH', 'https://evil.example', 'canopy.lan')).toBe(false);
+    expect(sameOrigin('POST', undefined, 'canopy.lan')).toBe(false);
+    expect(sameOrigin('POST', 'not a url', 'canopy.lan')).toBe(false);
+    expect(sameOrigin(undefined, 'https://canopy.lan', undefined)).toBe(false);
   });
 });
