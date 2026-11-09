@@ -100,6 +100,11 @@
     "locked": "Saisissez d’abord le mot de passe.",
     "wrong_password": "Mot de passe incorrect.",
     "password_required": "Un mot de passe est obligatoire pour les liens de partage.",
-    "expiry_too_long": "Un lien peut être valable {days, plural, one {# jour} other {# jours}} au maximum."
+    "expiry_too_long": "Un lien peut être valable {days, plural, one {# jour} other {# jours}} au maximum.",
+    "type_not_allowed": "Ce type de fichier n’est pas accepté par ce lien.",
+    "file_too_large": "Ce fichier dépasse la taille acceptée par ce lien.",
+    "total_exceeded": "Ce lien ne peut pas recevoir autant de données en plus.",
+    "files_exceeded": "Ce lien ne peut plus recevoir de fichiers.",
+    "upload_failed": "Le fichier n’a pas pu être envoyé. Réessayez."
   }
 }

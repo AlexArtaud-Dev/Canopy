@@ -17,9 +17,12 @@ import { sharesSettings } from '../shares.settings';
 import {
   createShareSchema,
   expiryDate,
+  megabytes,
+  parseExtensions,
   shareIdSchema,
   shareLink,
   shareStatus,
+  type ShareKind,
   type ShareStatus,
 } from '../shares.utils';
 import { findShare, insertShare, listShares, revokeShareRow, type ShareRow } from './share-store';
@@ -33,6 +36,7 @@ export interface ShareView {
   name: string;
   path: string;
   isDirectory: boolean;
+  kind: ShareKind;
   ownerId: string;
   status: ShareStatus;
   /** ISO 8601. */
@@ -42,6 +46,10 @@ export interface ShareView {
   hasPassword: boolean;
   downloadCount: number;
   maxDownloads: number | null;
+  /** Upload links: what was received, and the limit on files. */
+  uploadedFiles: number;
+  uploadedBytes: number;
+  maxFiles: number | null;
   /** Only for the person's own links: administrators manage others' links, they do not use them. */
   link: string | null;
 }
@@ -53,6 +61,7 @@ function viewOf(share: ShareRow, viewerId: string, now: Date): ShareView {
     name: share.name,
     path: share.path,
     isDirectory: share.isDirectory,
+    kind: share.kind,
     ownerId: share.ownerId,
     status: shareStatus(share, now),
     expiresAt: share.expiresAt.toISOString(),
@@ -61,6 +70,9 @@ function viewOf(share: ShareRow, viewerId: string, now: Date): ShareView {
     hasPassword: share.passwordHash !== null,
     downloadCount: share.downloadCount,
     maxDownloads: share.maxDownloads,
+    uploadedFiles: share.uploadedFiles,
+    uploadedBytes: share.uploadedBytes,
+    maxFiles: share.maxFiles,
     link:
       share.ownerId === viewerId
         ? shareLink(origin, openSecret(share.tokenSealed, tokenPurpose))
@@ -108,7 +120,12 @@ export async function createShare(input: unknown): Promise<ActionResult<ShareVie
     });
     if (!response) throw new AppBaseError('system.engine_unavailable', 'engine unreachable');
     if (!entry) throw new AppBaseError(error.code, 'engine refused');
-    if (!entry.actions.includes('share')) {
+    // An upload link sends files into a folder: its owner must be allowed to upload there too.
+    const upload = request.kind === 'upload';
+    const allowed =
+      entry.actions.includes('share') &&
+      (!upload || (entry.kind === 'directory' && entry.actions.includes('upload')));
+    if (!allowed) {
       await audit({
         action: 'shares.create',
         result: 'denied',
@@ -128,7 +145,16 @@ export async function createShare(input: unknown): Promise<ActionResult<ShareVie
       isDirectory: entry.kind === 'directory',
       passwordHash: request.password === '' ? null : await hashPassword(request.password),
       expiresAt: expiryDate(request.expiresInDays, now),
-      maxDownloads: request.maxDownloads,
+      maxDownloads: upload ? null : request.maxDownloads,
+      kind: request.kind,
+      ...(upload
+        ? {
+            allowedExtensions: parseExtensions(request.upload.extensions),
+            maxFileBytes: megabytes(request.upload.maxFileMb),
+            maxTotalBytes: megabytes(request.upload.maxTotalMb),
+            maxFiles: request.upload.maxFiles,
+          }
+        : {}),
     });
     await audit({
       action: 'shares.create',
@@ -139,7 +165,9 @@ export async function createShare(input: unknown): Promise<ActionResult<ShareVie
         share: share.id,
         expiresInDays: request.expiresInDays,
         password: request.password !== '',
-        maxDownloads: request.maxDownloads,
+        kind: request.kind,
+        maxDownloads: upload ? null : request.maxDownloads,
+        ...(upload ? { upload: request.upload } : {}),
       },
     });
     return viewOf(share, session.user.id, now);

@@ -100,6 +100,11 @@
     "locked": "Escribe primero la contraseña.",
     "wrong_password": "Contraseña incorrecta.",
     "password_required": "Los enlaces compartidos necesitan contraseña.",
-    "expiry_too_long": "Un enlace puede ser válido {days, plural, one {# día} other {# días}} como máximo."
+    "expiry_too_long": "Un enlace puede ser válido {days, plural, one {# día} other {# días}} como máximo.",
+    "type_not_allowed": "Este enlace no acepta este tipo de archivo.",
+    "file_too_large": "Este archivo supera el tamaño que acepta este enlace.",
+    "total_exceeded": "Este enlace no puede recibir tantos datos más.",
+    "files_exceeded": "Este enlace no puede recibir más archivos.",
+    "upload_failed": "No se pudo enviar el archivo. Inténtalo de nuevo."
   }
 }

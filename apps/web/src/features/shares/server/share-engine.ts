@@ -16,7 +16,11 @@ import type { ShareRow } from './share-store';
  * The owner, as the engine sees them, confined to `scope`: a link never reaches more than what was
  * shared, nor more than its owner may still read today.
  */
-async function principalFor(share: ShareRow, scope: string): Promise<EnginePrincipal> {
+async function principalFor(
+  share: ShareRow,
+  scope: string,
+  upload?: { name: string; size: number },
+): Promise<EnginePrincipal> {
   const [permissions, groups] = await Promise.all([
     loadPermissions(share.ownerId),
     loadGroupIds(share.ownerId),
@@ -26,7 +30,7 @@ async function principalFor(share: ShareRow, scope: string): Promise<EnginePrinc
     sessionId: `share:${share.id}`,
     permissions,
     groups,
-    share: { id: share.id, path: scope },
+    share: { id: share.id, path: scope, ...(upload ? { upload } : {}) },
   };
 }
 
@@ -42,4 +46,12 @@ export async function engineClientForShare(share: ShareRow) {
 /** A stream ticket for one download from a link, scoped to exactly what is downloaded. */
 export async function shareStreamTicket(share: ShareRow, scope: string): Promise<string> {
   return signStreamTicket(await principalFor(share, scope));
+}
+
+/** A stream ticket for one upload through an upload link: that file, into the shared folder. */
+export async function shareUploadTicket(
+  share: ShareRow,
+  file: { name: string; size: number },
+): Promise<string> {
+  return signStreamTicket(await principalFor(share, share.path, file));
 }

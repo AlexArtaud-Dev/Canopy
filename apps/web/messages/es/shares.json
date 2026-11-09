@@ -15,7 +15,17 @@
     "linkHint": "Podrás copiarlo de nuevo desde Compartidos.",
     "copy": "Copiar",
     "copied": "Enlace copiado",
-    "done": "Listo"
+    "done": "Listo",
+    "kindDownload": "Enlace de descarga",
+    "kindUpload": "Enlace de subida",
+    "uploadHint": "Quien tenga el enlace puede enviar archivos a esta carpeta. Nunca ve lo que ya contiene y nada se sobrescribe.",
+    "types": "Tipos de archivo aceptados",
+    "typesPlaceholder": "pdf, jpg, png",
+    "typesHint": "Déjalo vacío para aceptar cualquier tipo.",
+    "maxFileMb": "Máx. por archivo (MB)",
+    "maxTotalMb": "Máx. en total (MB)",
+    "maxFiles": "Máx. de archivos",
+    "noLimit": "Sin límite"
   },
   "page": {
     "description": "Los enlaces que creaste a archivos y carpetas. Un enlace deja de funcionar cuando caduca, alcanza su límite de descargas o se revoca.",
@@ -28,8 +38,8 @@
       "owner": "Creado por",
       "status": "Estado",
       "expires": "Caduca",
-      "downloads": "Descargas",
-      "actions": "Acciones"
+      "actions": "Acciones",
+      "use": "Uso"
     },
     "status": {
       "active": "Activo",
@@ -44,7 +54,10 @@
     "revokeTitle": "¿Revocar el enlace a «{name}»?",
     "revokeDescription": "Deja de funcionar de inmediato para todos los que lo tienen. No se puede deshacer; podrás crear un enlace nuevo más tarde.",
     "revokeConfirm": "Revocar",
-    "revoked": "Enlace revocado"
+    "revoked": "Enlace revocado",
+    "kindDownload": "Descarga",
+    "kindUpload": "Subida",
+    "received": "{count, plural, one {# archivo recibido} other {# archivos recibidos}} · {size}"
   },
   "public": {
     "title": "Compartido contigo",
@@ -65,6 +78,18 @@
       "revoked": "Este enlace fue revocado",
       "exhausted": "Este enlace alcanzó su límite de descargas"
     },
-    "unavailableHint": "Pide un enlace nuevo a la persona que te lo envió."
+    "unavailableHint": "Pide un enlace nuevo a la persona que te lo envió.",
+    "uploadTitle": "Enviar archivos a {name}",
+    "uploadDescription": "Los archivos que envíes se añaden a esta carpeta. Puedes enviarlos hasta el {date}.",
+    "dropHere": "Suelta archivos aquí, o",
+    "chooseFiles": "Elegir archivos",
+    "allowedTypes": "Tipos aceptados: {types}",
+    "anyType": "Se acepta cualquier tipo de archivo.",
+    "maxFile": "Hasta {size} por archivo.",
+    "filesLeft": "{count, plural, one {# archivo más puede enviarse.} other {# archivos más pueden enviarse.}}",
+    "spaceLeft": "Aún se pueden enviar {size}.",
+    "waiting": "En espera…",
+    "sent": "Enviado",
+    "sending": "Enviando {name}"
   }
 }

@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { createPrivateKey, type KeyObject } from 'node:crypto';
+import { createPrivateKey, randomUUID, type KeyObject } from 'node:crypto';
 
 import { SignJWT } from 'jose';
 
@@ -25,7 +25,12 @@ export interface EnginePrincipal {
    * A share link acting for its owner: the engine allows only reading and downloading under
    * `path`, and records `id` with every access.
    */
-  share?: { id: string; path: string };
+  share?: {
+    id: string;
+    path: string;
+    /** Download links read; upload links only send this one file into `path`. */
+    upload?: { name: string; size: number };
+  };
 }
 
 let signingKey: KeyObject | undefined;
@@ -58,17 +63,22 @@ export function signStreamTicket(principal: EnginePrincipal): Promise<string> {
 }
 
 function sign(principal: EnginePrincipal, audience: string): Promise<string> {
-  return new SignJWT({
-    sid: principal.sessionId,
-    perms: principal.permissions,
-    groups: principal.groups,
-    ...(principal.share ? { scope: principal.share.path, shr: principal.share.id } : {}),
-  })
-    .setProtectedHeader({ alg: 'EdDSA' })
-    .setIssuer(engineTokenIssuer)
-    .setAudience(audience)
-    .setSubject(principal.userId)
-    .setIssuedAt()
-    .setExpirationTime(`${String(engineTokenLifetimeSeconds)}s`)
-    .sign(getSigningKey());
+  return (
+    new SignJWT({
+      sid: principal.sessionId,
+      perms: principal.permissions,
+      groups: principal.groups,
+      ...(principal.share ? { scope: principal.share.path, shr: principal.share.id } : {}),
+      ...(principal.share?.upload ? { smode: 'upload', upl: principal.share.upload } : {}),
+    })
+      // Upload link tickets start one upload each: the engine refuses an id seen before.
+      .setJti(randomUUID())
+      .setProtectedHeader({ alg: 'EdDSA' })
+      .setIssuer(engineTokenIssuer)
+      .setAudience(audience)
+      .setSubject(principal.userId)
+      .setIssuedAt()
+      .setExpirationTime(`${String(engineTokenLifetimeSeconds)}s`)
+      .sign(getSigningKey())
+  );
 }

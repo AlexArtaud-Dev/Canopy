@@ -13,6 +13,13 @@ const columns = {
   path: sharesTable.path,
   name: sharesTable.name,
   isDirectory: sharesTable.isDirectory,
+  kind: sharesTable.kind,
+  allowedExtensions: sharesTable.allowedExtensions,
+  maxFileBytes: sharesTable.maxFileBytes,
+  maxTotalBytes: sharesTable.maxTotalBytes,
+  maxFiles: sharesTable.maxFiles,
+  uploadedBytes: sharesTable.uploadedBytes,
+  uploadedFiles: sharesTable.uploadedFiles,
   passwordHash: sharesTable.passwordHash,
   expiresAt: sharesTable.expiresAt,
   maxDownloads: sharesTable.maxDownloads,
@@ -29,6 +36,13 @@ export interface ShareRow {
   path: string;
   name: string;
   isDirectory: boolean;
+  kind: 'download' | 'upload';
+  allowedExtensions: string[] | null;
+  maxFileBytes: number | null;
+  maxTotalBytes: number | null;
+  maxFiles: number | null;
+  uploadedBytes: number;
+  uploadedFiles: number;
   passwordHash: string | null;
   expiresAt: Date;
   maxDownloads: number | null;
@@ -101,6 +115,35 @@ export async function consumeDownload(id: string): Promise<boolean> {
         or(
           isNull(sharesTable.maxDownloads),
           lt(sharesTable.downloadCount, sharesTable.maxDownloads),
+        ),
+      ),
+    )
+    .returning({ id: sharesTable.id });
+  return rows.length > 0;
+}
+
+/**
+ * Reserves one file's place on an upload link, in one statement: count and total stay within the
+ * link's limits even when visitors upload at the same time. Counted when the upload starts.
+ */
+export async function reserveUpload(id: string, size: number): Promise<boolean> {
+  const rows = await getDb()
+    .update(sharesTable)
+    .set({
+      uploadedFiles: sql`${sharesTable.uploadedFiles} + 1`,
+      uploadedBytes: sql`${sharesTable.uploadedBytes} + ${size}`,
+      lastAccessAt: sql`now()`,
+    })
+    .where(
+      and(
+        eq(sharesTable.id, id),
+        eq(sharesTable.kind, 'upload'),
+        isNull(sharesTable.revokedAt),
+        gt(sharesTable.expiresAt, sql`now()`),
+        or(isNull(sharesTable.maxFiles), lt(sharesTable.uploadedFiles, sharesTable.maxFiles)),
+        or(
+          isNull(sharesTable.maxTotalBytes),
+          sql`${sharesTable.uploadedBytes} + ${size} <= ${sharesTable.maxTotalBytes}`,
         ),
       ),
     )

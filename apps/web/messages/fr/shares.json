@@ -15,7 +15,17 @@
     "linkHint": "Vous pourrez le copier de nouveau depuis Partages.",
     "copy": "Copier",
     "copied": "Lien copié",
-    "done": "Terminé"
+    "done": "Terminé",
+    "kindDownload": "Lien de téléchargement",
+    "kindUpload": "Lien de dépôt",
+    "uploadHint": "Les personnes disposant du lien peuvent envoyer des fichiers dans ce dossier. Elles ne voient jamais son contenu et rien n’est écrasé.",
+    "types": "Types de fichiers acceptés",
+    "typesPlaceholder": "pdf, jpg, png",
+    "typesHint": "Laissez vide pour accepter tous les types.",
+    "maxFileMb": "Max par fichier (Mo)",
+    "maxTotalMb": "Max au total (Mo)",
+    "maxFiles": "Fichiers max",
+    "noLimit": "Sans limite"
   },
   "page": {
     "description": "Les liens que vous avez créés vers des fichiers et dossiers. Un lien cesse de fonctionner lorsqu’il expire, atteint sa limite de téléchargements ou est révoqué.",
@@ -28,8 +38,8 @@
       "owner": "Créé par",
       "status": "État",
       "expires": "Expire le",
-      "downloads": "Téléchargements",
-      "actions": "Actions"
+      "actions": "Actions",
+      "use": "Utilisation"
     },
     "status": {
       "active": "Actif",
@@ -44,7 +54,10 @@
     "revokeTitle": "Révoquer le lien vers « {name} » ?",
     "revokeDescription": "Il cesse immédiatement de fonctionner pour tous ceux qui l’ont. C’est irréversible ; vous pourrez créer un nouveau lien plus tard.",
     "revokeConfirm": "Révoquer",
-    "revoked": "Lien révoqué"
+    "revoked": "Lien révoqué",
+    "kindDownload": "Téléchargement",
+    "kindUpload": "Dépôt",
+    "received": "{count, plural, one {# fichier reçu} other {# fichiers reçus}} · {size}"
   },
   "public": {
     "title": "Partagé avec vous",
@@ -65,6 +78,18 @@
       "revoked": "Ce lien a été révoqué",
       "exhausted": "Ce lien a atteint sa limite de téléchargements"
     },
-    "unavailableHint": "Demandez un nouveau lien à la personne qui vous l’a envoyé."
+    "unavailableHint": "Demandez un nouveau lien à la personne qui vous l’a envoyé.",
+    "uploadTitle": "Envoyer des fichiers dans {name}",
+    "uploadDescription": "Les fichiers envoyés sont ajoutés à ce dossier. Vous pouvez en envoyer jusqu’au {date}.",
+    "dropHere": "Déposez des fichiers ici, ou",
+    "chooseFiles": "Choisir des fichiers",
+    "allowedTypes": "Types acceptés : {types}",
+    "anyType": "Tous les types de fichiers sont acceptés.",
+    "maxFile": "Jusqu’à {size} par fichier.",
+    "filesLeft": "{count, plural, one {# fichier peut encore être envoyé.} other {# fichiers peuvent encore être envoyés.}}",
+    "spaceLeft": "Encore {size} peuvent être envoyés.",
+    "waiting": "En attente…",
+    "sent": "Envoyé",
+    "sending": "Envoi de {name}"
   }
 }

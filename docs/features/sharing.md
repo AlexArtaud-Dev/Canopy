@@ -12,6 +12,20 @@
 - **Settings** (module `shares`): default validity (7 days), longest validity (90 days), require
   a password (off).
 
+## Upload links
+
+- For a folder you may upload into, the Share dialog offers **Upload link**: visitors send files
+  into that folder (drop or pick), one after the other with progress. They never see what the
+  folder contains; a name already taken is kept as a copy, never overwritten; no subfolders.
+- Optional rules: allowed types (extensions), max size per file, max total, max number of files.
+  The page shows them; each file is checked before it starts.
+- Each file first goes through `prepareLinkUpload`: rules checked, then its place reserved in one
+  statement (count and total stay within limits even with simultaneous visitors; a file counts
+  when it starts), then a ticket for that one file is set in the share cookie. The engine accepts
+  it only for that name and size, into that folder, once (`docs/dev/permissions.md` rule 7).
+- The Shares page shows each link's type and, for upload links, files and bytes received.
+  Audit: `shares.upload` per file, plus the engine's `fs.upload` with `meta.share`.
+
 ## How it is secured
 
 - The token is 32 random bytes. Only its SHA-256 is used for lookup; the token itself is stored

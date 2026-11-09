@@ -272,3 +272,10 @@ entries:
       en: Share links to files and folders, with expiry, optional password and download limit, and a page to manage or revoke them
       fr: Liens de partage vers des fichiers et dossiers, avec expiration, mot de passe et limite de téléchargements facultatifs, et une page pour les gérer ou les révoquer
       es: Enlaces para compartir archivos y carpetas, con caducidad, contraseña y límite de descargas opcionales, y una página para gestionarlos o revocarlos
+  - type: feat
+    scope: shares
+    issue: 121
+    text:
+      en: Upload links let people without an account send files into a folder, with optional password, allowed types and size limits
+      fr: Les liens de dépôt permettent à des personnes sans compte d’envoyer des fichiers dans un dossier, avec mot de passe, types autorisés et limites de taille facultatifs
+      es: Los enlaces de subida permiten a personas sin cuenta enviar archivos a una carpeta, con contraseña, tipos permitidos y límites de tamaño opcionales

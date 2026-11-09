@@ -15,7 +15,17 @@
     "linkHint": "You can copy it again later from Shares.",
     "copy": "Copy",
     "copied": "Link copied",
-    "done": "Done"
+    "done": "Done",
+    "kindDownload": "Download link",
+    "kindUpload": "Upload link",
+    "uploadHint": "People with the link can send files into this folder. They never see what it already contains, and nothing is overwritten.",
+    "types": "Allowed file types",
+    "typesPlaceholder": "pdf, jpg, png",
+    "typesHint": "Leave empty to accept any type.",
+    "maxFileMb": "Max per file (MB)",
+    "maxTotalMb": "Max in total (MB)",
+    "maxFiles": "Max files",
+    "noLimit": "No limit"
   },
   "page": {
     "description": "Links you created to files and folders. A link stops working when it expires, reaches its download limit or is revoked.",
@@ -28,8 +38,8 @@
       "owner": "Created by",
       "status": "Status",
       "expires": "Expires",
-      "downloads": "Downloads",
-      "actions": "Actions"
+      "actions": "Actions",
+      "use": "Use"
     },
     "status": {
       "active": "Active",
@@ -44,7 +54,10 @@
     "revokeTitle": "Revoke the link to “{name}”?",
     "revokeDescription": "It stops working at once for everyone who has it. This cannot be undone; you can create a new link later.",
     "revokeConfirm": "Revoke",
-    "revoked": "Link revoked"
+    "revoked": "Link revoked",
+    "kindDownload": "Download",
+    "kindUpload": "Upload",
+    "received": "{count, plural, one {# file received} other {# files received}} · {size}"
   },
   "public": {
     "title": "Shared with you",
@@ -65,6 +78,18 @@
       "revoked": "This link was revoked",
       "exhausted": "This link reached its download limit"
     },
-    "unavailableHint": "Ask the person who sent it for a new link."
+    "unavailableHint": "Ask the person who sent it for a new link.",
+    "uploadTitle": "Send files to {name}",
+    "uploadDescription": "Files you send are added to this folder. You can send files until {date}.",
+    "dropHere": "Drop files here, or",
+    "chooseFiles": "Choose files",
+    "allowedTypes": "Accepted types: {types}",
+    "anyType": "Any type of file is accepted.",
+    "maxFile": "Up to {size} per file.",
+    "filesLeft": "{count, plural, one {# more file can be sent.} other {# more files can be sent.}}",
+    "spaceLeft": "{size} can still be sent.",
+    "waiting": "Waiting…",
+    "sent": "Sent",
+    "sending": "Sending {name}"
   }
 }
