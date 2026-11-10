@@ -1,0 +1,16 @@
+date: 2026-11-10
+entries:
+  - type: feat
+    scope: files
+    issue: 143
+    text:
+      en: MKV and other videos the browser cannot play are converted on the fly by the engine image with ffmpeg, with seeking
+      fr: Les MKV et autres vidéos que le navigateur ne sait pas lire sont convertis à la volée par l’image du moteur avec ffmpeg, avec avance rapide
+      es: Los MKV y otros vídeos que el navegador no puede reproducir se convierten al vuelo con la imagen del motor con ffmpeg, con búsqueda
+  - type: feat
+    scope: docker
+    issue: 143
+    text:
+      en: New engine image with ffmpeg (canopy-engine-ffmpeg, or the -engine-ffmpeg tags on Docker Hub) for video thumbnails and playback
+      fr: Nouvelle image du moteur avec ffmpeg (canopy-engine-ffmpeg, ou les tags -engine-ffmpeg sur Docker Hub) pour les miniatures et la lecture des vidéos
+      es: Nueva imagen del motor con ffmpeg (canopy-engine-ffmpeg, o las etiquetas -engine-ffmpeg en Docker Hub) para miniaturas y reproducción de vídeos
