@@ -10,3 +10,4 @@ minimumReleaseAgeExclude:
 # Security floors for transitive dev tooling (Dependabot alerts); drop once parents catch up.
 overrides:
   'js-yaml@>=4 <4.3.2': ^4.3.2
+  'esbuild@<0.25.0': ^0.25.12
