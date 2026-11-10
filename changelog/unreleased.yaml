@@ -1,15 +1,1 @@
-entries:
-  - type: feat
-    scope: files
-    issue: 153
-    text:
-      en: 7-Zip is built in. Extract here opens 7z, RAR (multi-part too) and ISO archives, and Compress can write 7z
-      fr: 7-Zip est intégré. Extraire ici ouvre les archives 7z, RAR (y compris en plusieurs parties) et ISO, et Compresser peut écrire du 7z
-      es: 7-Zip viene incluido. Extraer aquí abre archivos 7z, RAR (también en varias partes) e ISO, y Comprimir puede crear 7z
-  - type: feat
-    scope: commands
-    issue: 153
-    text:
-      en: Advanced mode gains 7-Zip commands to create 7z or zip archives with every option (level, method, split parts, AES-256 password), extract with a password, test and list archives
-      fr: Le mode avancé gagne des commandes 7-Zip pour créer des archives 7z ou zip avec toutes les options (niveau, méthode, découpage, mot de passe AES-256), extraire avec un mot de passe, tester et lister des archives
-      es: El modo avanzado gana comandos de 7-Zip para crear archivos 7z o zip con todas las opciones (nivel, método, división en partes, contraseña AES-256), extraer con contraseña, probar y listar archivos
+entries: []
