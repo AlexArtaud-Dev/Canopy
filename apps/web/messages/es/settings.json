@@ -15,7 +15,8 @@
   "saved": "Ajuste guardado",
   "resetDone": "Valor por defecto restablecido",
   "ownPage": {
-    "mail": "Los ajustes de correo (SMTP) están en la página Correo."
+    "mail": "Los ajustes de correo (SMTP) están en la página Correo.",
+    "plugins": "Las fuentes de plugins (repositorios permitidos) están en la página Plugins."
   },
   "modules": {
     "auth": "Inicio de sesión y sesiones",

@@ -7,8 +7,14 @@
   switches, **Update to x.y.z** when a newer release exists, **Uninstall** (confirmation). Below,
   the latest release of each allowlisted repository not installed yet, with its notes and
   **Install**. The engine's platform (`linux-amd64`) is shown: only its binary is downloaded.
-- Settings (module `plugins`): **Allowed repositories** (`owner/name`, comma separated; default
-  `AlexArtaud-Dev/mrename`).
+- **Sources** (same page): the allowed repositories, default `AlexArtaud-Dev/mrename`. **Add**
+  takes `owner/name` or a GitHub address and checks the latest release first: it must carry
+  `canopy-plugin.yaml`, accepted by the engine and naming this very repository
+  (`plugins.invalid_repo`, `plugins.repo_already_allowed`, `plugins.no_release`,
+  `plugins.incomplete_release`, `plugins.invalid_manifest`). **Remove** asks for confirmation; a
+  plugin installed from it stays installed but can no longer be updated. Both change the
+  `plugins.allowedRepos` setting (audited as `settings.update`), which no longer shows on the
+  generated settings page.
 - **Install flow** (the engine has no internet access, the web app downloads):
   1. GitHub `releases/latest` of the repository (15 s timeout).
   2. `canopy-plugin.yaml` (≤ 64 KiB) → `POST /v1/plugins/inspect`: the engine checks it strictly

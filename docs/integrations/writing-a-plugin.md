@@ -14,8 +14,9 @@ Publish a GitHub release (not a draft or pre-release: Canopy reads `releases/lat
 | a checksum file         | `sha256sum` output listing every binary (`<hex>  <asset name>`)      |
 | one binary per platform | Statically linked executables for `linux-amd64` and/or `linux-arm64` |
 
-The administrator must add your repository (`owner/name`) to **Settings → Plugins → Allowed
-repositories** before it can be installed.
+The administrator must add your repository (`owner/name`) under **Administration → Plugins →
+Sources** before it can be installed. Canopy checks your latest release when it is added, so
+publish one first.
 
 ## The manifest
 

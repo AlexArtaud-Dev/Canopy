@@ -129,7 +129,9 @@
     "github_unavailable": "No se pudo contactar con GitHub. Inténtalo más tarde.",
     "no_release": "Este repositorio no tiene ninguna versión publicada.",
     "incomplete_release": "A esta versión le falta un archivo que Canopy necesita.",
-    "repo_not_allowed": "Este repositorio no está en la lista permitida."
+    "repo_not_allowed": "Este repositorio no está en la lista permitida.",
+    "invalid_repo": "Escribe un repositorio de GitHub como propietario/nombre o su dirección.",
+    "repo_already_allowed": "Este repositorio ya está en la lista."
   },
   "media": {
     "busy": "Hay demasiados vídeos convirtiéndose ahora mismo. Inténtalo de nuevo en un momento.",
