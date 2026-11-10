@@ -9,6 +9,8 @@ import (
 	"os/exec"
 	"strconv"
 	"time"
+
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fileinput"
 )
 
 // maxFrameBytes caps what ffmpeg may write back.
@@ -47,8 +49,8 @@ func (g *FrameGrabber) Grab(ctx context.Context, file *os.File) ([]byte, error) 
 	ctx, cancel := context.WithTimeout(ctx, g.Timeout)
 	defer cancel()
 	// The binary comes from PATH at startup and every argument is a constant.
-	command := exec.CommandContext(ctx, g.Binary, Args(videoInput)...) //nolint:gosec // fixed argv, no shell
-	attachInput(command, file)
+	command := exec.CommandContext(ctx, g.Binary, Args(fileinput.Path)...) //nolint:gosec // fixed argv, no shell
+	fileinput.Attach(command, file)
 	output := &cappedBuffer{limit: maxFrameBytes}
 	command.Stdout = output
 	// ffmpeg's messages can quote file metadata: never kept.

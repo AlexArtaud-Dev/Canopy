@@ -12,6 +12,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/media"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/thumbs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/trash"
@@ -65,6 +66,14 @@ func classify(err error) (failure, bool) {
 		return failure{http.StatusForbidden, codeForbidden}, true
 	case errors.Is(err, trash.ErrNotFound):
 		return failure{http.StatusNotFound, trash.CodeNotFound}, true
+	case errors.Is(err, media.ErrBusy):
+		return failure{http.StatusServiceUnavailable, media.CodeBusy}, true
+	case errors.Is(err, media.ErrUnreadable):
+		return failure{http.StatusBadRequest, media.CodeUnreadable}, true
+	case errors.Is(err, errNoStream):
+		return failure{http.StatusNotFound, codeNoStream}, true
+	case errors.Is(err, errInvalidStart):
+		return failure{http.StatusBadRequest, codeInvalidStart}, true
 	case errors.Is(err, jobs.ErrTooMany):
 		return failure{http.StatusTooManyRequests, jobs.CodeTooMany}, true
 	default:

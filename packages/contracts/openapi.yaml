@@ -165,6 +165,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/fs/media:
+    get:
+      operationId: getMediaInfo
+      summary: How a video can be played in the browser
+      description: >-
+        Codecs and duration (read with ffprobe when the engine has it) and the cheapest way to
+        play the file: as stored (`direct`), or streamed by the engine as fragmented MP4 from
+        `/v1/fs/stream?path=&start=`, copying the video (`remux`) or re-encoding it (`transcode`).
+        `streamable` is false when the engine has no ffmpeg.
+      tags: [files]
+      security:
+        - engineToken: []
+      parameters:
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+            maxLength: 4096
+      responses:
+        '200':
+          description: How to play it.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaInfo'
+        '400':
+          description: Invalid path, or not a video (`files.invalid_path`, `media.unreadable`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The caller may not download this file (`auth.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such file (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/fs/search:
     get:
       operationId: searchFiles
@@ -1620,6 +1670,27 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Plugin'
+    MediaInfo:
+      type: object
+      required: [mode, streamable, duration]
+      properties:
+        mode:
+          type: string
+          enum: [direct, remux, transcode]
+        streamable:
+          description: The engine can stream a converted copy (ffmpeg is installed).
+          type: boolean
+        duration:
+          description: Seconds; 0 when unknown.
+          type: number
+        video:
+          description: Video codec (h264, hevc…), when known.
+          type: string
+        audio:
+          description: First audio track's codec, when known.
+          type: string
+        width: { type: integer }
+        height: { type: integer }
     PluginManifestText:
       type: object
       required: [manifest]

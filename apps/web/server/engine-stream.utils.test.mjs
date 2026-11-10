@@ -22,6 +22,9 @@ describe('relayTarget', () => {
     expect(relayTarget('GET', '/api/engine/stream/v1/fs/thumbnail?path=%2Fa')).toBe(
       '/v1/fs/thumbnail?path=%2Fa',
     );
+    expect(relayTarget('GET', '/api/engine/stream/v1/fs/stream?path=%2Fa&start=3')).toBe(
+      '/v1/fs/stream?path=%2Fa&start=3',
+    );
     expect(relayTarget('GET', '/api/engine/stream/v1/fs/preview?path=%2Fa')).toBe(
       '/v1/fs/preview?path=%2Fa',
     );

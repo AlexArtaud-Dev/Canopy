@@ -36,7 +36,7 @@ const (
 // isStreamRoute tells the token middleware where stream tickets may be used.
 func isStreamRoute(r *http.Request) bool {
 	return r.URL.Path == routeDownload || r.URL.Path == routePreview || r.URL.Path == routeThumbnail ||
-		r.URL.Path == routeArchive ||
+		r.URL.Path == routeArchive || r.URL.Path == routeStream ||
 		strings.HasPrefix(r.URL.Path, routeUploads)
 }
 

@@ -4,6 +4,7 @@ import {
   canPreview,
   codeLanguage,
   decodeText,
+  formatTimecode,
   previewNeighbours,
   textPreviewBytes,
 } from './preview.utils';
@@ -54,5 +55,18 @@ describe('decodeText', () => {
     expect(decodeText(new TextEncoder().encode('héllo'))).toEqual({ kind: 'text', text: 'héllo' });
     expect(decodeText(new Uint8Array([104, 0, 105]))).toEqual({ kind: 'binary' });
     expect(textPreviewBytes).toBe(524288);
+  });
+});
+
+describe('formatTimecode', () => {
+  it('shows minutes, then hours past an hour', () => {
+    expect(formatTimecode(0)).toBe('0:00');
+    expect(formatTimecode(61.9)).toBe('1:01');
+    expect(formatTimecode(5423.12)).toBe('1:30:23');
+  });
+
+  it('treats unknown or negative times as zero', () => {
+    expect(formatTimecode(Number.NaN)).toBe('0:00');
+    expect(formatTimecode(-5)).toBe('0:00');
   });
 });

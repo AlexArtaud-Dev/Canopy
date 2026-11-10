@@ -11,7 +11,7 @@ export const shareCookie = 'canopy_share';
 /** Engine routes the browser may reach through the relay, by method. Everything else is a 404. */
 const routes = [
   { methods: ['GET', 'HEAD'], path: /^\/v1\/fs\/(?:download|preview)$/ },
-  { methods: ['GET'], path: /^\/v1\/fs\/(?:archive|thumbnail)$/ },
+  { methods: ['GET'], path: /^\/v1\/fs\/(?:archive|thumbnail|stream)$/ },
   // tus: create an upload, then resume (HEAD), send bytes (PATCH) or cancel (DELETE) it.
   { methods: ['POST'], path: /^\/v1\/uploads\/$/ },
   // Upload ids: 32 random hex characters, then the volume name in hex (engine's uploads.NewID).

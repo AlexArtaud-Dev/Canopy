@@ -17,4 +17,14 @@ default-src 'none' …` — no scripts, an opaque origin, nothing loaded from el
   is longer); files with a NUL byte near the start are treated as binary. Highlighting uses shiki
   with the JavaScript regex engine (no WebAssembly, so the page CSP is unchanged), loaded lazily
   with one chunk per grammar, up to 100 000 characters.
-- Audit: `fs.preview` (once per opening; media range requests are not counted again).
+- **Videos the browser cannot play** (MKV with HEVC, AC-3, DTS…; AVI): `GET /v1/fs/media` probes
+  the file with `ffprobe` and answers a mode — `direct` (play as stored), `remux` (H.264 video
+  copied into MP4) or `transcode` (H.264, longest edge capped at 1920) — plus the duration. The
+  viewer plays `direct` files natively and falls back to `/v1/fs/stream?path=&start=` (fragmented
+  MP4 from ffmpeg) for the others, or when native playback fails. Such a stream cannot seek: the
+  player's own seek bar asks for a new stream from the chosen time. Audio is copied when AAC or
+  MP3, otherwise AAC stereo. At most 2 conversions run at once (`media.busy`, 503, otherwise).
+  The file is handed to ffmpeg already open (fd 3, `internal/fileinput`), arguments are a fixed
+  list, ffmpeg output is never logged. Needs the `engine-ffmpeg` image (or ffmpeg and ffprobe on
+  the engine's `PATH`); without it, unplayable videos offer a download.
+- Audit: `fs.preview` (once per opening; media range requests and seeks are not counted again).

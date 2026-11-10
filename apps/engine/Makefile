@@ -6,7 +6,7 @@ GOLANGCI := $(shell command -v golangci-lint 2>/dev/null || echo docker run --rm
 
 # Pure-logic packages must keep at least MIN_COVERAGE % statement coverage (target 100 %);
 # I/O edges (database, main) are covered by integration tests instead.
-PURE_PKGS := ./internal/config ./internal/healthcheck ./internal/httpapi ./internal/logging ./internal/enginetoken ./internal/fsx ./internal/authz ./internal/listing ./internal/foldersize ./internal/transfer ./internal/preview ./internal/search ./internal/archive ./internal/commands
+PURE_PKGS := ./internal/config ./internal/healthcheck ./internal/httpapi ./internal/logging ./internal/enginetoken ./internal/fsx ./internal/authz ./internal/listing ./internal/foldersize ./internal/transfer ./internal/preview ./internal/search ./internal/archive ./internal/commands ./internal/media
 MIN_COVERAGE := 90
 
 build:

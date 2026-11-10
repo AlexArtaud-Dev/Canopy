@@ -46,6 +46,8 @@ type Deps struct {
 	Uploads http.Handler
 	// Thumbs renders thumbnails (nil: none offered).
 	Thumbs Thumbnails
+	// Media probes and converts videos (nil: no ffmpeg, videos play only as stored).
+	Media Media
 	// Commands is the installed catalog (nil: none); AdvancedMode reads the global setting.
 	Commands     Commands
 	AdvancedMode func(ctx context.Context) bool
@@ -72,6 +74,7 @@ func NewRouter(deps Deps) http.Handler {
 	r.Get(routePreview, srv.preview)
 	r.Head(routePreview, srv.preview)
 	r.Get(routeThumbnail, srv.thumbnail)
+	r.Get(routeStream, srv.stream)
 	r.Get(routeArchive, srv.archive)
 	if deps.Uploads != nil {
 		r.Handle(routeUploads+"*", deps.Uploads)

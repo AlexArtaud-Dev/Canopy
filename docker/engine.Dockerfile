@@ -10,7 +10,19 @@ ARG VERSION=dev
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -X main.version=${VERSION}" -o /out/engine ./cmd/engine
 
-# Distroless: no shell, no package manager. Runs as an unprivileged user by default; compose
+# Variant with ffmpeg (target `ffmpeg`): video thumbnails, and videos the browser cannot play
+# (MKV with HEVC, AC-3...) converted on the fly. Larger, so it is a separate image.
+FROM alpine:3.24@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf AS ffmpeg
+RUN apk add --no-cache ffmpeg ca-certificates
+COPY --from=build /out/engine /usr/local/bin/engine
+ENV CANOPY_ROOT=/srv/canopy/root
+# Same unprivileged user as the distroless image.
+USER 65532:65532
+EXPOSE 8080
+HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3     CMD ["/usr/local/bin/engine", "healthcheck"]
+ENTRYPOINT ["/usr/local/bin/engine"]
+
+# Default target. Distroless: no shell, no package manager. Runs as an unprivileged user by default; compose
 # overrides it with PUID:PGID so created files belong to the host user.
 FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab
 COPY --from=build /out/engine /usr/local/bin/engine

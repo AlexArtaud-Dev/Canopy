@@ -126,5 +126,11 @@
     "no_release": "This repository has no published release.",
     "incomplete_release": "This release is missing a file Canopy needs.",
     "repo_not_allowed": "This repository is not in the allowed list."
+  },
+  "media": {
+    "busy": "Too many videos are being converted right now. Try again in a moment.",
+    "unreadable": "This video could not be read.",
+    "unavailable": "This server cannot convert videos.",
+    "invalid_start": "This position is outside the video."
   }
 }

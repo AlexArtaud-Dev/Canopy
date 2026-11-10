@@ -29,6 +29,9 @@ import type {
   GetJobResponses,
   GetLivenessData,
   GetLivenessResponses,
+  GetMediaInfoData,
+  GetMediaInfoErrors,
+  GetMediaInfoResponses,
   GetReadinessData,
   GetReadinessErrors,
   GetReadinessResponses,
@@ -121,6 +124,8 @@ import {
   zGetJobPath,
   zGetJobResponse,
   zGetLivenessResponse,
+  zGetMediaInfoQuery,
+  zGetMediaInfoResponse,
   zGetReadinessResponse,
   zInspectPluginBody,
   zInspectPluginResponse,
@@ -275,6 +280,29 @@ export const statEntry = <ThrowOnError extends boolean = false>(
     responseValidator: async (data) => await zStatEntryResponse.parseAsync(data),
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v1/fs/entry',
+    ...options,
+  });
+
+/**
+ * How a video can be played in the browser
+ *
+ * Codecs and duration (read with ffprobe when the engine has it) and the cheapest way to play the file: as stored (`direct`), or streamed by the engine as fragmented MP4 from `/v1/fs/stream?path=&start=`, copying the video (`remux`) or re-encoding it (`transcode`). `streamable` is false when the engine has no ffmpeg.
+ */
+export const getMediaInfo = <ThrowOnError extends boolean = false>(
+  options: Options<GetMediaInfoData, ThrowOnError>,
+): RequestResult<GetMediaInfoResponses, GetMediaInfoErrors, ThrowOnError> =>
+  (options.client ?? client).get<GetMediaInfoResponses, GetMediaInfoErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: zGetMediaInfoQuery,
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zGetMediaInfoResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/fs/media',
     ...options,
   });
 

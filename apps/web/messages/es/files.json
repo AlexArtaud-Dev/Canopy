@@ -204,6 +204,16 @@
     "failed": "No se pudo cargar este archivo.",
     "binary": "Este archivo parece binario, así que no se muestra como texto.",
     "truncated": "Solo se muestra el principio de este archivo. Descárgalo para verlo entero.",
-    "unsupported": "Este archivo no se puede previsualizar."
+    "unsupported": "Este archivo no se puede previsualizar.",
+    "videoUnplayable": "Este vídeo no se puede reproducir en el navegador. Descárgalo para verlo.",
+    "videoFailed": "No se pudo reproducir el vídeo. Inténtalo de nuevo en un momento.",
+    "retry": "Reintentar",
+    "play": "Reproducir",
+    "pause": "Pausa",
+    "mute": "Silenciar",
+    "unmute": "Activar sonido",
+    "fullscreen": "Pantalla completa",
+    "position": "Posición en el vídeo",
+    "converted": "Convertido para tu navegador"
   }
 }

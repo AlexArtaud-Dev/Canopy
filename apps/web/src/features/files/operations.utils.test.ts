@@ -11,6 +11,7 @@ import {
   extractInputSchema,
   isArchive,
   previewHref,
+  convertedVideoHref,
   thumbnailHref,
   dropOperation,
   entryNameSchema,
@@ -175,5 +176,16 @@ describe('archive inputs', () => {
     expect(extractInputSchema.safeParse({ path: '/a.zip' }).success).toBe(true);
     expect(checksumInputSchema.safeParse({ path: '/a', algorithm: 'crc' }).success).toBe(false);
     expect([...archiveFormats, ...checksumAlgorithms]).toHaveLength(6);
+  });
+});
+
+describe('convertedVideoHref', () => {
+  it('starts from the beginning or from a time', () => {
+    expect(convertedVideoHref('/a b.mkv', 0)).toBe(
+      '/api/engine/stream/v1/fs/stream?path=%2Fa%20b.mkv',
+    );
+    expect(convertedVideoHref('/a.mkv', 61.5)).toBe(
+      '/api/engine/stream/v1/fs/stream?path=%2Fa.mkv&start=61.500',
+    );
   });
 });
