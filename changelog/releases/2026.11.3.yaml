@@ -1,0 +1,16 @@
+date: 2026-11-10
+entries:
+  - type: feat
+    scope: files
+    issue: 145
+    text:
+      en: A Properties dialog (right-click or Alt+Enter) shows an item's details, permissions and owner on the server, your access, media details, and computes folder size or checksum on demand
+      fr: Une fenêtre Propriétés (clic droit ou Alt+Entrée) affiche les détails d’un élément, ses permissions et son propriétaire sur le serveur, vos droits, les infos média, et calcule à la demande la taille d’un dossier ou une somme de contrôle
+      es: Un cuadro de Propiedades (clic derecho o Alt+Intro) muestra los detalles de un elemento, sus permisos y propietario en el servidor, tus permisos, datos multimedia, y calcula a petición el tamaño de una carpeta o una suma de verificación
+  - type: feat
+    scope: files
+    issue: 144
+    text:
+      en: Favorite folders, pinned from the right-click menu or the breadcrumb star, listed in the sidebar and in the Copy to / Move to picker
+      fr: Dossiers favoris, épinglés depuis le clic droit ou l’étoile du fil d’Ariane, listés dans la barre latérale et dans le sélecteur Copier vers / Déplacer vers
+      es: Carpetas favoritas, fijadas desde el clic derecho o la estrella de la ruta, listadas en la barra lateral y en el selector Copiar a / Mover a
