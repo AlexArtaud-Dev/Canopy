@@ -74,7 +74,10 @@
     "mixed_folders": "Only items from the same folder can be compressed together.",
     "archive_too_large": "This archive would not fit: it expands beyond the free space or holds too many files.",
     "host_denied": "The server account Canopy runs as is not allowed to open this folder. Give it access on the host (for example by adding its group to the folder), then try again.",
-    "favorites_full": "You have reached {max} favorites. Remove one first."
+    "favorites_full": "You have reached {max} favorites. Remove one first.",
+    "archive_encrypted": "This archive is protected by a password. Extract it from Commands › Extract an archive (7-Zip), which asks for it.",
+    "sevenzip_unavailable": "7-Zip is not installed on this server, so this archive format is not available.",
+    "nothing_to_compress": "Nothing to compress: the selection holds no file you may read."
   },
   "mail": {
     "not_configured": "Email is not configured. Set up SMTP in Administration › Email.",

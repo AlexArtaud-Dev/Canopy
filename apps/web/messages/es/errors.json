@@ -74,7 +74,10 @@
     "mixed_folders": "Solo se pueden comprimir juntos elementos de la misma carpeta.",
     "archive_too_large": "Este archivo comprimido no cabe: supera el espacio libre o contiene demasiados archivos.",
     "host_denied": "La cuenta con la que Canopy se ejecuta en el servidor no puede abrir esta carpeta. Dale acceso en la máquina (por ejemplo, añadiéndola al grupo de la carpeta) e inténtalo de nuevo.",
-    "favorites_full": "Has llegado a {max} favoritos. Quita uno primero."
+    "favorites_full": "Has llegado a {max} favoritos. Quita uno primero.",
+    "archive_encrypted": "Este archivo está protegido con contraseña. Extráelo desde Comandos › Extraer un archivo (7-Zip), que la pide.",
+    "sevenzip_unavailable": "7-Zip no está instalado en este servidor, así que este formato no está disponible.",
+    "nothing_to_compress": "Nada que comprimir: la selección no contiene ningún archivo que puedas leer."
   },
   "mail": {
     "not_configured": "El correo no está configurado. Configura el SMTP en Administración › Correo.",

@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/authz"
@@ -118,18 +119,22 @@ func RunHandler(available *Available, launcher Launcher) jobs.Handler[RunArgs] {
 func stream(ctx context.Context, output io.Reader, parser Parser, secrets []string, report *jobs.Reporter) int {
 	scanner := bufio.NewScanner(output)
 	scanner.Buffer(make([]byte, 64*1024), 1024*1024)
-	scanner.Split(scanLines)
+	scanner.Split(ScanLines)
 	progress := jobs.Progress{}
 	count := 0
 	for scanner.Scan() {
 		line := scanner.Text()
+		// Redrawn progress leaves empty pieces between the backspaces.
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
 		count++
 		reading := parser.Read(line)
 		if apply(&progress, reading) {
 			_ = report.Progress(ctx, progress)
 		}
 		// Progress lines repeat many times a second: they update progress, not the log.
-		if reading.Percent != nil && reading.Bytes != nil {
+		if reading.Percent != nil {
 			continue
 		}
 		switch {
@@ -167,12 +172,13 @@ func apply(progress *jobs.Progress, reading Reading) bool {
 	return changed
 }
 
-// scanLines splits on \n, \r\n and lone \r.
-func scanLines(data []byte, atEOF bool) (int, []byte, error) {
+// ScanLines splits tool output on \n, \r\n, lone \r (rsync) and backspaces (7-Zip redraws its
+// progress with them).
+func ScanLines(data []byte, atEOF bool) (int, []byte, error) {
 	if atEOF && len(data) == 0 {
 		return 0, nil, nil
 	}
-	if i := bytes.IndexAny(data, "\r\n"); i >= 0 {
+	if i := bytes.IndexAny(data, "\r\n\b"); i >= 0 {
 		advance := i + 1
 		if data[i] == '\r' && i+1 < len(data) && data[i+1] == '\n' {
 			advance++

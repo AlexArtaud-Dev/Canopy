@@ -47,6 +47,7 @@ export type {
   ChecksumRequest,
   ClientOptions,
   CommandCatalog,
+  CommandChoice,
   CommandEntry,
   CommandParam,
   CommandPlugin,

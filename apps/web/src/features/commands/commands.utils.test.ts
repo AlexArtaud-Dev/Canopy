@@ -1,6 +1,7 @@
 import type { CommandEntry, CommandParam } from '@canopy/contracts';
 
 import {
+  choiceLabel,
   displayArgv,
   firstToFill,
   folderParam,
@@ -93,5 +94,18 @@ describe('commands utils', () => {
     expect(pluginMenus([builtin, run, noFolder, check])).toEqual([
       { plugin, entries: [run, check] },
     ]);
+  });
+});
+
+describe('choiceLabel', () => {
+  const param = { choices: [{ value: 's', label: { en: 'Skip', fr: 'Ignorer', es: 'Omitir' } }] };
+
+  it('names a value in the person language', () => {
+    expect(choiceLabel(param, 's', 'fr')).toBe('Ignorer');
+  });
+
+  it('falls back to the raw value', () => {
+    expect(choiceLabel(param, 'a', 'en')).toBe('a');
+    expect(choiceLabel({}, 'fast', 'en')).toBe('fast');
   });
 });

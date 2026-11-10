@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Spinner } from '@/shared/ui/spinner';
 
 import {
+  choiceLabel,
   displayArgv,
   firstToFill,
   initialValues,
@@ -187,7 +188,7 @@ function ParamField({ id, param, value, locale, autoFocus, onChange }: ParamFiel
           <SelectContent>
             {(param.values ?? []).map((choice) => (
               <SelectItem key={choice} value={choice}>
-                {choice}
+                {choiceLabel(param, choice, locale)}
               </SelectItem>
             ))}
           </SelectContent>

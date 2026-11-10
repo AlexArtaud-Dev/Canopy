@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -144,21 +145,28 @@ func TestAvailableAndLauncher(t *testing.T) {
 		t.Fatal("no prefix without the tools")
 	}
 	builtin, err := Builtin()
-	if err != nil || len(builtin) == 0 || builtin[0].ID != "rsync.sync" {
-		t.Fatalf("built-in: %v %v", builtin, err)
+	ids := make([]string, 0, len(builtin))
+	for _, entry := range builtin {
+		ids = append(ids, entry.ID)
+	}
+	if err != nil || !slices.Contains(ids, "rsync.sync") || !slices.Contains(ids, "sevenzip.extract") {
+		t.Fatalf("built-in: %v %v", ids, err)
 	}
 	progress := jobs.Progress{}
 	fifty := 50.0
 	if !apply(&progress, Reading{Percent: &fifty}) || *progress.ItemsTotal != 100 || progress.ItemsDone != 50 {
 		t.Fatalf("percent only: %+v", progress)
 	}
-	if advance, token, _ := scanLines([]byte("a\r\nb"), false); advance != 3 || string(token) != "a" {
+	if advance, token, _ := ScanLines([]byte("a\r\nb"), false); advance != 3 || string(token) != "a" {
 		t.Fatal("crlf")
 	}
-	if advance, _, _ := scanLines([]byte("partial"), false); advance != 0 {
+	if advance, token, _ := ScanLines([]byte(" 42%\b\b\b\b"), false); advance != 5 || string(token) != " 42%" {
+		t.Fatal("backspaces end a progress redraw")
+	}
+	if advance, _, _ := ScanLines([]byte("partial"), false); advance != 0 {
 		t.Fatal("waits for more")
 	}
-	if advance, _, _ := scanLines(nil, true); advance != 0 {
+	if advance, _, _ := ScanLines(nil, true); advance != 0 {
 		t.Fatal("end")
 	}
 }

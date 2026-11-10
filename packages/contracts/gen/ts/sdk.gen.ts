@@ -391,7 +391,7 @@ export const explainAccess = <ThrowOnError extends boolean = false>(
 /**
  * Compress items into an archive
  *
- * Starts a job writing a zip or tar.gz of the sources into the folder that holds them (never replacing anything: a free name is picked). What the caller may not read is left out; links are skipped. The result carries the archive path.
+ * Starts a job writing a zip, tar.gz or 7z (through 7-Zip) of the sources into the folder that holds them (never replacing anything: a free name is picked). What the caller may not read is left out; links are skipped. The result carries the archive path.
  */
 export const startCompress = <ThrowOnError extends boolean = false>(
   options: Options<StartCompressData, ThrowOnError>,
@@ -418,7 +418,7 @@ export const startCompress = <ThrowOnError extends boolean = false>(
 /**
  * Extract an archive next to it
  *
- * Starts a job unpacking a zip, tar or tar.gz into a new folder next to it. Unsafe entry names fail the job (`files.bad_archive`); links and devices are skipped; extraction stops past the free space or 200 000 entries (`files.archive_too_large`). The result carries the folder path.
+ * Starts a job unpacking a zip, tar, tar.gz, 7z, RAR or ISO (the last three through 7-Zip) into a new folder next to it. Unsafe entry names fail the job (`files.bad_archive`), an encrypted archive fails with `files.archive_encrypted`; links and devices are skipped; extraction stops past the free space or 200 000 entries (`files.archive_too_large`). The result carries the folder path.
  */
 export const startExtract = <ThrowOnError extends boolean = false>(
   options: Options<StartExtractData, ThrowOnError>,

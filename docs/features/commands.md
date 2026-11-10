@@ -5,7 +5,8 @@
   program is installed on the engine host (looked up once at start).
 - **Entry**: id (`tool.action`), name/description (en/fr/es), bare `binary`, `mode` (basic for
   everyone, advanced only in advanced mode), typed `params` (path with `access` read/create/update,
-  bool, int with min/max, enum, string with optional pattern; `flag` templates; `secret`), `args`
+  bool, int with min/max, enum with `values` or labelled `choices` (en/fr/es, shown in the form instead
+  of the raw value), string with optional pattern; `flag` templates; `secret`), `args`
   template, `progressParser`, optional `dryRun.flag`, `timeout` (≤ 7 days). Files are decoded
   strictly (unknown fields refused) and checked at load.
 - **Building**: values are validated (types, ranges, choices, patterns; unknown and missing params
@@ -24,7 +25,11 @@
 - **API**: `GET /v1/commands`, `POST /v1/commands/preview` (exact argv, secrets hidden, nothing
   runs), `POST /v1/jobs/command` (audited as `jobs.start`). Advanced entries need the
   `commands.advancedMode` setting and `commands:advanced` (administrators hold every permission).
-- Built-in: `rsync.sync` (advanced, dry run). The default engine image has no rsync.
+- Built-in: `rsync.sync` (advanced, dry run; the default engine image has no rsync) and 7-Zip
+  (advanced, in every image): `sevenzip.create` (7z: level, method, solid, split volumes,
+  AES-256 password, hidden names), `sevenzip.zip` (level, method, split, AES-256 or ZipCrypto),
+  `sevenzip.extract` (what to do with existing files, password), `sevenzip.test`,
+  `sevenzip.list`. Each 7-Zip option set is run against the real 7zz in the Go tests.
 
 ## Commands page (web)
 

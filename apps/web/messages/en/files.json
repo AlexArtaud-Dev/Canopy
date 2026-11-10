@@ -101,7 +101,8 @@
       "checksum": "Checksum",
       "formats": {
         "zip": "ZIP archive",
-        "tarGz": "TAR.GZ archive"
+        "tarGz": "TAR.GZ archive",
+        "sevenZ": "7Z archive"
       },
       "algorithms": {
         "md5": "MD5",

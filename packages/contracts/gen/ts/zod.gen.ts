@@ -125,7 +125,7 @@ export const zExplainResponse = z.object({
 
 export const zCompressRequest = z.object({
   sources: z.array(z.string().max(4096)).min(1).max(1000),
-  format: z.enum(['zip', 'tar.gz']),
+  format: z.enum(['zip', 'tar.gz', '7z']),
 });
 
 export const zExtractRequest = z.object({
@@ -190,6 +190,11 @@ export const zPluginRelease = z.object({
   checksumsAsset: z.string(),
 });
 
+export const zCommandChoice = z.object({
+  value: z.string(),
+  label: zLocalizedText,
+});
+
 export const zCommandParam = z.object({
   name: z.string(),
   type: z.enum(['path', 'bool', 'int', 'string', 'enum']),
@@ -217,6 +222,7 @@ export const zCommandParam = z.object({
     })
     .optional(),
   values: z.array(z.string()).optional(),
+  choices: z.array(zCommandChoice).optional(),
 });
 
 /**

@@ -20,6 +20,9 @@ params:
   - { name: destination,    type: path, access: create }
   - { name: deleteExtra,    type: bool, default: false, flag: "--delete" }
   - { name: bandwidthLimit, type: int,  min: 0, flag: "--bwlimit={value}" }
+  - name: existing          # enum: `values: [...]`, or `choices` with en/fr/es labels
+    type: enum
+    choices: [{ value: s, label: { en: Skip, fr: Ignorer, es: Omitir } }]
 args: ["-a", "--info=progress2", "{flags}", "{source}/", "{destination}/"]
 progressParser: rsync-progress2
 dryRun: { flag: "--dry-run" }

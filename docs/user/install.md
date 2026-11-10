@@ -30,7 +30,8 @@ Only the `docker/` folder is used at run time; the images come from GitHub's reg
 **Videos**: the default engine image has no ffmpeg. For video thumbnails and in-browser playback
 of videos the browser cannot read by itself (most MKV files: HEVC, AC-3, DTS…), use the engine
 image with ffmpeg instead: `ghcr.io/alexartaud-dev/canopy-engine-ffmpeg` or
-`izoniks/canopy:<version>-engine-ffmpeg` (about 160 MB instead of 20 MB).
+`izoniks/canopy:<version>-engine-ffmpeg` (about 160 MB instead of 23 MB). Both include 7-Zip
+(7z, RAR and ISO archives).
 
 ## 2. Configure
 

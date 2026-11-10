@@ -74,7 +74,10 @@
     "mixed_folders": "Seuls des éléments d’un même dossier peuvent être compressés ensemble.",
     "archive_too_large": "Cette archive ne tient pas : elle dépasse l’espace libre ou contient trop de fichiers.",
     "host_denied": "Le compte avec lequel Canopy tourne sur le serveur n’a pas le droit d’ouvrir ce dossier. Donnez-lui l’accès sur la machine (par exemple en l’ajoutant au groupe du dossier), puis réessayez.",
-    "favorites_full": "Vous avez atteint {max} favoris. Retirez-en un d'abord."
+    "favorites_full": "Vous avez atteint {max} favoris. Retirez-en un d'abord.",
+    "archive_encrypted": "Cette archive est protégée par un mot de passe. Extrayez-la depuis Commandes › Extraire une archive (7-Zip), qui le demande.",
+    "sevenzip_unavailable": "7-Zip n'est pas installé sur ce serveur : ce format d'archive n'est pas disponible.",
+    "nothing_to_compress": "Rien à compresser : la sélection ne contient aucun fichier que vous pouvez lire."
   },
   "mail": {
     "not_configured": "L’e-mail n’est pas configuré. Configurez le SMTP dans Administration › E-mail.",
