@@ -3,7 +3,6 @@
 import type { Plugin, PluginList } from '@canopy/contracts';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Puzzle } from 'lucide-react';
-import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -18,14 +17,17 @@ import { localized } from '@/features/commands/commands.utils';
 
 import { sameRepo, updateAvailable, type RepoView } from './plugins.utils';
 import {
+  addSource,
   installPlugin,
   loadPlugins,
   loadReleases,
+  removeSource,
   uninstallPlugin,
   updatePlugin,
 } from './server/plugins-actions';
 import { AvailablePlugin } from './ui/available-plugin';
 import { InstalledPlugin } from './ui/installed-plugin';
+import { PluginSources } from './ui/plugin-sources';
 
 interface PluginsContainerProps {
   initial: PluginList;
@@ -92,6 +94,24 @@ export function PluginsContainer({ initial }: PluginsContainerProps) {
         }),
     );
 
+  const addRepo = async (repo: string): Promise<string | null> => {
+    const result = await addSource({ repo });
+    if (!result.ok) return errorMessage(result.error.code);
+    await queryClient.invalidateQueries({ queryKey: ['plugins', 'releases'] });
+    toast.success(t('sourceAdded', { repo: result.data.repo }));
+    return null;
+  };
+
+  const removeRepo = async (repo: string) => {
+    const result = await removeSource({ repo });
+    if (!result.ok) {
+      toast.error(errorMessage(result.error.code));
+      return;
+    }
+    await queryClient.invalidateQueries({ queryKey: ['plugins', 'releases'] });
+    toast.success(t('sourceRemoved', { repo }));
+  };
+
   const uninstall = async () => {
     if (!removing) return;
     const plugin = removing;
@@ -155,18 +175,7 @@ export function PluginsContainer({ initial }: PluginsContainerProps) {
           <h2 id="plugins-available" className="text-base font-semibold">
             {t('availableTitle')}
           </h2>
-          <p className="text-muted-foreground text-sm">
-            {t.rich('availableDescription', {
-              settings: (chunks) => (
-                <Link
-                  className="text-foreground underline underline-offset-4"
-                  href="/admin/settings?tab=plugins"
-                >
-                  {chunks}
-                </Link>
-              ),
-            })}
-          </p>
+          <p className="text-muted-foreground text-sm">{t('availableDescription')}</p>
         </div>
         {releases.isPending && <Skeleton className="h-16 w-full" />}
         {releases.isError && (
@@ -192,6 +201,13 @@ export function PluginsContainer({ initial }: PluginsContainerProps) {
             </ul>
           ))}
       </section>
+
+      <PluginSources
+        sources={releases.isError ? [] : releases.data}
+        errorMessage={errorMessage}
+        onAdd={addRepo}
+        onRemove={removeRepo}
+      />
 
       <ConfirmDialog
         open={removing !== null}

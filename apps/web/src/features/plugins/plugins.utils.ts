@@ -24,6 +24,22 @@ export function parseRepos(text: string): string[] {
   return repos;
 }
 
+/** How the allowlist is stored: the setting stays a plain text field. */
+export function formatRepos(repos: readonly string[]): string {
+  return repos.join(', ');
+}
+
+const githubUrl =
+  /^(?:https?:\/\/)?(?:www\.)?github\.com\/([^/\s]+)\/([^/\s#?]+?)(?:\.git)?(?:[/#?].*)?$/i;
+
+/** A repository typed by an admin, as `owner/name` or its GitHub address; null when neither. */
+export function repoFromInput(input: string): string | null {
+  const text = input.trim();
+  const fromUrl = githubUrl.exec(text);
+  const repo = fromUrl ? `${fromUrl[1]}/${fromUrl[2]}` : text;
+  return repoPattern.test(repo) ? repo : null;
+}
+
 export function sameRepo(a: string, b: string): boolean {
   return a.toLowerCase() === b.toLowerCase();
 }
@@ -150,3 +166,5 @@ export const flagsSchema = z.object({
 export const pluginIdSchema = z.object({ id: z.string().min(1).max(32) });
 
 export const installSchema = z.object({ repo: z.string().regex(repoPattern) });
+
+export const sourceInputSchema = z.object({ repo: z.string().max(300) });

@@ -15,7 +15,8 @@
   "saved": "Setting saved",
   "resetDone": "Back to the default value",
   "ownPage": {
-    "mail": "Email (SMTP) settings are on the Email page."
+    "mail": "Email (SMTP) settings are on the Email page.",
+    "plugins": "Plugin sources (allowed repositories) are on the Plugins page."
   },
   "modules": {
     "auth": "Sign-in & sessions",

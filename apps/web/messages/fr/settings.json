@@ -15,7 +15,8 @@
   "saved": "Réglage enregistré",
   "resetDone": "Valeur par défaut rétablie",
   "ownPage": {
-    "mail": "Les réglages e-mail (SMTP) sont sur la page E-mail."
+    "mail": "Les réglages e-mail (SMTP) sont sur la page E-mail.",
+    "plugins": "Les sources de plugins (dépôts autorisés) sont sur la page Plugins."
   },
   "modules": {
     "auth": "Connexion et sessions",

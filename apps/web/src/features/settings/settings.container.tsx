@@ -179,6 +179,9 @@ export function SettingsContainer({
           <Link href="/admin/email" className="underline underline-offset-4">
             {t('ownPage.mail')}
           </Link>
+          <Link href="/admin/plugins" className="underline underline-offset-4">
+            {t('ownPage.plugins')}
+          </Link>
         </AlertDescription>
       </Alert>
 

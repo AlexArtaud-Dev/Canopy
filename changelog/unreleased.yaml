@@ -1,1 +1,8 @@
-entries: []
+entries:
+  - type: feat
+    scope: plugins
+    issue: 156
+    text:
+      en: Plugin sources are managed on the Plugins page; a repository is checked (its latest release must hold a valid Canopy plugin) before it is added
+      fr: Les sources de plugins se gèrent sur la page Plugins ; un dépôt est vérifié (sa dernière release doit contenir un plugin Canopy valide) avant d’être ajouté
+      es: Las fuentes de plugins se gestionan en la página Plugins; un repositorio se comprueba (su última versión debe contener un plugin de Canopy válido) antes de añadirlo

@@ -19,18 +19,21 @@ import { AppBaseError, isErrorCode } from '@/shared/lib/errors';
 import { adminPermission } from '@/features/access/access.utils';
 import { authorize } from '@/features/auth';
 import { engineTokenFor } from '@/features/files/server/engine-client';
-import { getSettings } from '@/features/settings/server/settings-store';
+import { getSettings, updateSetting } from '@/features/settings/server/settings-store';
 
 import { pluginsSettings } from '../plugins.settings';
 import {
   findAsset,
   flagsSchema,
+  formatRepos,
   installSchema,
   manifestAssetName,
   multipartFrame,
   parseRepos,
   pluginIdSchema,
+  repoFromInput,
   sameRepo,
+  sourceInputSchema,
   toReleaseView,
   type GithubRelease,
   type RepoView,
@@ -42,7 +45,7 @@ async function adminEngine() {
   const session = await authorize(adminPermission);
   const token = await engineTokenFor(session);
   const baseUrl = parseServerEnv(process.env).CANOPY_ENGINE_URL;
-  return { token, baseUrl, client: createClient({ baseUrl, auth: () => token }) };
+  return { session, token, baseUrl, client: createClient({ baseUrl, auth: () => token }) };
 }
 
 function refused(response: Response | undefined, error: { code: string } | undefined): never {
@@ -210,6 +213,53 @@ export async function uninstallPlugin(input: unknown): Promise<ActionResult<null
       path: { pluginId: parsed.data.id },
     });
     if (!response?.ok) refused(response, error);
+    return null;
+  });
+}
+
+/** Saves the allowlist (audited as `settings.update`, like an edit on the settings page). */
+async function saveRepos(repos: readonly string[], actorId: string): Promise<void> {
+  await updateSetting('plugins', pluginsSettings, 'allowedRepos', formatRepos(repos), actorId);
+}
+
+/**
+ * Adds a repository to the allowlist once its latest release is checked: it must carry a plugin
+ * manifest the engine accepts, naming this very repository. Nothing is installed.
+ */
+export async function addSource(input: unknown): Promise<ActionResult<RepoView>> {
+  return runAction(async () => {
+    const parsed = sourceInputSchema.safeParse(input);
+    const repo = parsed.success ? repoFromInput(parsed.data.repo) : null;
+    if (!repo) throw new AppBaseError('plugins.invalid_repo', 'not a GitHub repository');
+    const { client, session } = await adminEngine();
+    const repos = await allowedRepos();
+    if (repos.some((allowed) => sameRepo(allowed, repo))) {
+      throw new AppBaseError('plugins.repo_already_allowed', 'already in the list');
+    }
+    const release = await latestRelease(repo);
+    const manifest = await downloadText(
+      requiredAsset(release, manifestAssetName).browser_download_url,
+      repo,
+    );
+    const inspected = await inspectPlugin({ client, body: { manifest } });
+    if (!inspected.data) refused(inspected.response, inspected.error);
+    if (!sameRepo(inspected.data.repo, repo)) {
+      throw new AppBaseError('plugins.invalid_manifest', 'manifest names another repository');
+    }
+    await saveRepos([...repos, repo], session.user.id);
+    return { repo, release: toReleaseView(release), error: null };
+  });
+}
+
+/** Removes a repository from the allowlist; plugins installed from it stay installed. */
+export async function removeSource(input: unknown): Promise<ActionResult<null>> {
+  return runAction(async () => {
+    const parsed = sourceInputSchema.safeParse(input);
+    if (!parsed.success) throw new AppBaseError('system.bad_request', 'invalid repository');
+    const { session } = await adminEngine();
+    const repos = await allowedRepos();
+    const kept = repos.filter((allowed) => !sameRepo(allowed, parsed.data.repo));
+    if (kept.length !== repos.length) await saveRepos(kept, session.user.id);
     return null;
   });
 }

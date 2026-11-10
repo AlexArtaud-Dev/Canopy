@@ -1,6 +1,7 @@
 import {
   compareVersions,
   findAsset,
+  formatRepos,
   flagsSchema,
   githubReleaseSchema,
   installSchema,
@@ -12,7 +13,9 @@ import {
   parseRepos,
   pluginIdSchema,
   releaseVersion,
+  repoFromInput,
   sameRepo,
+  sourceInputSchema,
   toReleaseView,
   updateAvailable,
 } from './plugins.utils';
@@ -120,5 +123,28 @@ describe('inputs', () => {
     expect(installSchema.safeParse({ repo: 'o/tool' }).success).toBe(true);
     expect(installSchema.safeParse({ repo: 'https://x' }).success).toBe(false);
     expect(maxTextAssetBytes).toBe(65536);
+  });
+});
+
+describe('repository sources', () => {
+  it('reads owner/name or a GitHub address', () => {
+    expect(repoFromInput(' AlexArtaud-Dev/mrename ')).toBe('AlexArtaud-Dev/mrename');
+    expect(repoFromInput('https://github.com/AlexArtaud-Dev/mrename')).toBe(
+      'AlexArtaud-Dev/mrename',
+    );
+    expect(repoFromInput('github.com/owner/tool.git')).toBe('owner/tool');
+    expect(repoFromInput('https://github.com/owner/tool/releases/tag/v1')).toBe('owner/tool');
+  });
+
+  it('refuses anything else', () => {
+    expect(repoFromInput('mrename')).toBeNull();
+    expect(repoFromInput('https://gitlab.com/owner/tool')).toBeNull();
+    expect(repoFromInput('owner/tool; rm -rf /')).toBeNull();
+  });
+
+  it('stores the list as text the setting can parse back', () => {
+    const list = ['a/b', 'c/d'];
+    expect(parseRepos(formatRepos(list))).toEqual(list);
+    expect(sourceInputSchema.safeParse({ repo: 'x'.repeat(301) }).success).toBe(false);
   });
 });

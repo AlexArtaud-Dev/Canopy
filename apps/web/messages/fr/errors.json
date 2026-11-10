@@ -129,7 +129,9 @@
     "github_unavailable": "GitHub est injoignable. Réessayez plus tard.",
     "no_release": "Ce dépôt n’a aucune version publiée.",
     "incomplete_release": "Il manque à cette version un fichier dont Canopy a besoin.",
-    "repo_not_allowed": "Ce dépôt ne fait pas partie de la liste autorisée."
+    "repo_not_allowed": "Ce dépôt ne fait pas partie de la liste autorisée.",
+    "invalid_repo": "Saisissez un dépôt GitHub comme propriétaire/nom ou son adresse.",
+    "repo_already_allowed": "Ce dépôt est déjà dans la liste."
   },
   "media": {
     "busy": "Trop de vidéos sont en cours de conversion. Réessayez dans un instant.",

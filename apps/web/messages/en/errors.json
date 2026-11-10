@@ -129,7 +129,9 @@
     "github_unavailable": "GitHub could not be reached. Try again later.",
     "no_release": "This repository has no published release.",
     "incomplete_release": "This release is missing a file Canopy needs.",
-    "repo_not_allowed": "This repository is not in the allowed list."
+    "repo_not_allowed": "This repository is not in the allowed list.",
+    "invalid_repo": "Enter a GitHub repository like owner/name or its address.",
+    "repo_already_allowed": "This repository is already in the list."
   },
   "media": {
     "busy": "Too many videos are being converted right now. Try again in a moment.",
