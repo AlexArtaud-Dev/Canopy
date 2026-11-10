@@ -126,5 +126,11 @@
     "no_release": "Ce dépôt n’a aucune version publiée.",
     "incomplete_release": "Il manque à cette version un fichier dont Canopy a besoin.",
     "repo_not_allowed": "Ce dépôt ne fait pas partie de la liste autorisée."
+  },
+  "media": {
+    "busy": "Trop de vidéos sont en cours de conversion. Réessayez dans un instant.",
+    "unreadable": "Cette vidéo n'a pas pu être lue.",
+    "unavailable": "Ce serveur ne peut pas convertir les vidéos.",
+    "invalid_start": "Cette position est en dehors de la vidéo."
   }
 }

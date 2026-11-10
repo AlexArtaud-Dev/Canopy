@@ -44,6 +44,8 @@ var formats = map[string]format{
 
 	".mp4": {Video, "video/mp4"}, ".m4v": {Video, "video/mp4"}, ".webm": {Video, "video/webm"},
 	".ogv": {Video, "video/ogg"}, ".mov": {Video, "video/quicktime"},
+	// Chromium-based browsers play Matroska as stored; others get a converted stream (media).
+	".mkv": {Video, "video/x-matroska"}, ".avi": {Video, "video/x-msvideo"},
 
 	".html": {HTML, "text/html; charset=utf-8"}, ".htm": {HTML, "text/html; charset=utf-8"},
 }

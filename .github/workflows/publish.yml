@@ -67,7 +67,11 @@ jobs:
       packages: write
     strategy:
       matrix:
-        image: [web, engine]
+        include:
+          - { image: web, file: web, target: '' }
+          - { image: engine, file: engine, target: '' }
+          # The engine with ffmpeg: video thumbnails and in-browser playback of any video.
+          - { image: engine-ffmpeg, file: engine, target: ffmpeg }
     env:
       # Optional: without the secret, only GHCR receives the images.
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -107,7 +111,8 @@ jobs:
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
-          file: docker/${{ matrix.image }}.Dockerfile
+          file: docker/${{ matrix.file }}.Dockerfile
+          target: ${{ matrix.target }}
           platforms: linux/amd64,linux/arm64
           push: true
           build-args: VERSION=${{ needs.release.outputs.version }}

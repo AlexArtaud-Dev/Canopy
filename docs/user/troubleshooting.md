@@ -79,7 +79,15 @@ They can sign in with one of their recovery codes. Otherwise another administrat
 two-factor off from Administration › Users. With a single administrator and no recovery code,
 restore a database backup from before two-factor was set up.
 
-## Video thumbnails are missing
+## Video thumbnails are missing, or an MKV video does not play
 
-The default engine image has no `ffmpeg`, so videos keep their icon; images still get
-thumbnails.
+The default engine image has no `ffmpeg`, so videos keep their icon, and videos the browser cannot
+play by itself (most MKV files: HEVC video, AC-3 or DTS audio) only offer a download. Use the
+engine image with ffmpeg instead, for the `engine` service (and `setup`, `setup-db`, which share
+it):
+
+- GitHub: `ghcr.io/alexartaud-dev/canopy-engine-ffmpeg:<version>`
+- Docker Hub: `izoniks/canopy:<version>-engine-ffmpeg` (or `latest-engine-ffmpeg`)
+
+It is larger (about 160 MB instead of 20 MB). Converting a video uses the CPU of the server;
+at most two videos are converted at once.

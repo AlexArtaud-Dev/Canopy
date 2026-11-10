@@ -155,6 +155,15 @@ export function previewHref(path: string): string {
 }
 
 /**
+ * A video converted by the engine (fragmented MP4) from `start` seconds: such a stream cannot
+ * seek, so the player asks for a new one from the chosen time.
+ */
+export function convertedVideoHref(path: string, start: number): string {
+  const from = start > 0 ? `&start=${start.toFixed(3)}` : '';
+  return `${streamRoot}/stream?path=${encodeURIComponent(path)}${from}`;
+}
+
+/**
  * A file's thumbnail. The modification time is part of the URL, so the browser's day-long cache
  * never shows a thumbnail of a file that has changed since.
  */

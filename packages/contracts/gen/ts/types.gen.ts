@@ -164,6 +164,28 @@ export type PluginList = {
   items: Array<Plugin>;
 };
 
+export type MediaInfo = {
+  mode: 'direct' | 'remux' | 'transcode';
+  /**
+   * The engine can stream a converted copy (ffmpeg is installed).
+   */
+  streamable: boolean;
+  /**
+   * Seconds; 0 when unknown.
+   */
+  duration: number;
+  /**
+   * Video codec (h264, hevc…), when known.
+   */
+  video?: string;
+  /**
+   * First audio track's codec, when known.
+   */
+  audio?: string;
+  width?: number;
+  height?: number;
+};
+
 export type PluginManifestText = {
   manifest: string;
 };
@@ -550,6 +572,45 @@ export type StatEntryResponses = {
 };
 
 export type StatEntryResponse = StatEntryResponses[keyof StatEntryResponses];
+
+export type GetMediaInfoData = {
+  body?: never;
+  path?: never;
+  query: {
+    path: string;
+  };
+  url: '/v1/fs/media';
+};
+
+export type GetMediaInfoErrors = {
+  /**
+   * Invalid path, or not a video (`files.invalid_path`, `media.unreadable`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * The caller may not download this file (`auth.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such file (`files.not_found`).
+   */
+  404: Error;
+};
+
+export type GetMediaInfoError = GetMediaInfoErrors[keyof GetMediaInfoErrors];
+
+export type GetMediaInfoResponses = {
+  /**
+   * How to play it.
+   */
+  200: MediaInfo;
+};
+
+export type GetMediaInfoResponse = GetMediaInfoResponses[keyof GetMediaInfoResponses];
 
 export type SearchFilesData = {
   body?: never;

@@ -109,6 +109,16 @@ export const zChecksumRequest = z.object({
   algorithm: z.enum(['md5', 'sha1', 'sha256', 'sha512']),
 });
 
+export const zMediaInfo = z.object({
+  mode: z.enum(['direct', 'remux', 'transcode']),
+  streamable: z.boolean(),
+  duration: z.number(),
+  video: z.string().optional(),
+  audio: z.string().optional(),
+  width: z.int().optional(),
+  height: z.int().optional(),
+});
+
 export const zPluginManifestText = z.object({
   manifest: z.string().max(65536),
 });
@@ -463,6 +473,15 @@ export const zStatEntryQuery = z.object({
  * The entry.
  */
 export const zStatEntryResponse = zDirectoryEntry;
+
+export const zGetMediaInfoQuery = z.object({
+  path: z.string().max(4096),
+});
+
+/**
+ * How to play it.
+ */
+export const zGetMediaInfoResponse = zMediaInfo;
 
 export const zSearchFilesQuery = z.object({
   path: z.string().max(4096),

@@ -22,6 +22,7 @@ import { previewNeighbours } from '../../preview.utils';
 import type { BrowserEntry } from '../../server/browse';
 import { PreviewMessage } from './preview-message';
 import { TextPreview } from './text-preview';
+import { VideoPreview } from './video-preview';
 
 interface PreviewDialogProps {
   /** The loaded entries of the folder: previous / next walk through them. */
@@ -125,7 +126,13 @@ export function PreviewDialog({
         </header>
         <div className="bg-muted/40 relative min-h-0 flex-1">
           {ticket === 'ready' ? (
-            <PreviewBody key={entry.path} entry={entry} />
+            <PreviewBody
+              key={entry.path}
+              entry={entry}
+              onDownload={() => {
+                onDownload(entry);
+              }}
+            />
           ) : ticket === 'failed' ? (
             <PreviewMessage title={t('failed')} />
           ) : (
@@ -140,7 +147,7 @@ export function PreviewDialog({
 }
 
 /** The viewer for one file; remounted per file so media and errors start fresh. */
-function PreviewBody({ entry }: { entry: BrowserEntry }) {
+function PreviewBody({ entry, onDownload }: { entry: BrowserEntry; onDownload: () => void }) {
   const t = useTranslations('files.preview');
   const [failed, setFailed] = useState(false);
   const href = previewHref(entry.path);
@@ -162,15 +169,7 @@ function PreviewBody({ entry }: { entry: BrowserEntry }) {
         />
       );
     case 'video':
-      return (
-        <video
-          src={href}
-          controls
-          playsInline
-          className="size-full object-contain"
-          onError={onError}
-        />
-      );
+      return <VideoPreview entry={entry} onDownload={onDownload} />;
     case 'audio':
       return (
         <div className="grid h-full place-items-center p-6">

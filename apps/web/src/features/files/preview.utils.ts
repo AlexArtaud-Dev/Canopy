@@ -98,3 +98,12 @@ export function decodeText(bytes: Uint8Array): DecodedText {
   if (bytes.subarray(0, binaryProbeBytes).includes(0)) return { kind: 'binary' };
   return { kind: 'text', text: new TextDecoder('utf-8').decode(bytes) };
 }
+
+/** A video position as `m:ss`, or `h:mm:ss` past an hour. */
+export function formatTimecode(seconds: number): string {
+  const total = Number.isFinite(seconds) && seconds > 0 ? Math.floor(seconds) : 0;
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const rest = String(total % 60).padStart(2, '0');
+  return hours > 0 ? `${hours}:${String(minutes).padStart(2, '0')}:${rest}` : `${minutes}:${rest}`;
+}

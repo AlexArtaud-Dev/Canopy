@@ -264,6 +264,27 @@ func (e LivenessStatusStatus) Valid() bool {
 	}
 }
 
+// Defines values for MediaInfoMode.
+const (
+	Direct    MediaInfoMode = "direct"
+	Remux     MediaInfoMode = "remux"
+	Transcode MediaInfoMode = "transcode"
+)
+
+// Valid indicates whether the value is a known member of the MediaInfoMode enum.
+func (e MediaInfoMode) Valid() bool {
+	switch e {
+	case Direct:
+		return true
+	case Remux:
+		return true
+	case Transcode:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for PathAction.
 const (
 	PathActionCopy     PathAction = "copy"
@@ -702,6 +723,27 @@ type LocalizedText struct {
 	Fr string `json:"fr"`
 }
 
+// MediaInfo defines model for MediaInfo.
+type MediaInfo struct {
+	// Audio First audio track's codec, when known.
+	Audio *string `json:"audio,omitempty"`
+
+	// Duration Seconds; 0 when unknown.
+	Duration float32       `json:"duration"`
+	Height   *int          `json:"height,omitempty"`
+	Mode     MediaInfoMode `json:"mode"`
+
+	// Streamable The engine can stream a converted copy (ffmpeg is installed).
+	Streamable bool `json:"streamable"`
+
+	// Video Video codec (h264, hevc…), when known.
+	Video *string `json:"video,omitempty"`
+	Width *int    `json:"width,omitempty"`
+}
+
+// MediaInfoMode defines model for MediaInfo.Mode.
+type MediaInfoMode string
+
 // PathAction defines model for PathAction.
 type PathAction string
 
@@ -906,6 +948,11 @@ type ListDirectoryParamsSort string
 // ListDirectoryParamsOrder defines parameters for ListDirectory.
 type ListDirectoryParamsOrder string
 
+// GetMediaInfoParams defines parameters for GetMediaInfo.
+type GetMediaInfoParams struct {
+	Path string `form:"path" json:"path"`
+}
+
 // SearchFilesParams defines parameters for SearchFiles.
 type SearchFilesParams struct {
 	// Path Folder to search in (`/` for every volume).
@@ -1013,6 +1060,9 @@ type ServerInterface interface {
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(w http.ResponseWriter, r *http.Request, params ListDirectoryParams)
+	// GetMediaInfo How a video can be played in the browser
+	// (GET /v1/fs/media)
+	GetMediaInfo(w http.ResponseWriter, r *http.Request, params GetMediaInfoParams)
 	// CreateFolder Create a folder
 	// (POST /v1/fs/mkdir)
 	CreateFolder(w http.ResponseWriter, r *http.Request)
@@ -1136,6 +1186,12 @@ func (_ Unimplemented) StatEntry(w http.ResponseWriter, r *http.Request, params 
 // ListDirectory List a directory the caller may see
 // (GET /v1/fs/list)
 func (_ Unimplemented) ListDirectory(w http.ResponseWriter, r *http.Request, params ListDirectoryParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// GetMediaInfo How a video can be played in the browser
+// (GET /v1/fs/media)
+func (_ Unimplemented) GetMediaInfo(w http.ResponseWriter, r *http.Request, params GetMediaInfoParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1498,6 +1554,39 @@ func (siw *ServerInterfaceWrapper) ListDirectory(w http.ResponseWriter, r *http.
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListDirectory(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetMediaInfo operation middleware
+func (siw *ServerInterfaceWrapper) GetMediaInfo(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetMediaInfoParams
+
+	// ------------- Required query parameter "path" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "path", r.URL.Query(), &params.Path, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "path"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "path", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetMediaInfo(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2096,6 +2185,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/v1/fs/entry", wrapper.StatEntry)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/fs/media", wrapper.GetMediaInfo)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/v1/fs/search", wrapper.SearchFiles)
 	})
 	r.Group(func(r chi.Router) {
@@ -2625,6 +2717,84 @@ func (response ListDirectory403JSONResponse) VisitListDirectoryResponse(w http.R
 type ListDirectory404JSONResponse Error
 
 func (response ListDirectory404JSONResponse) VisitListDirectoryResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetMediaInfoRequestObject struct {
+	Params GetMediaInfoParams
+}
+
+type GetMediaInfoResponseObject interface {
+	VisitGetMediaInfoResponse(w http.ResponseWriter) error
+}
+
+type GetMediaInfo200JSONResponse MediaInfo
+
+func (response GetMediaInfo200JSONResponse) VisitGetMediaInfoResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetMediaInfo400JSONResponse Error
+
+func (response GetMediaInfo400JSONResponse) VisitGetMediaInfoResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetMediaInfo401JSONResponse Error
+
+func (response GetMediaInfo401JSONResponse) VisitGetMediaInfoResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetMediaInfo403JSONResponse Error
+
+func (response GetMediaInfo403JSONResponse) VisitGetMediaInfoResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetMediaInfo404JSONResponse Error
+
+func (response GetMediaInfo404JSONResponse) VisitGetMediaInfoResponse(w http.ResponseWriter) error {
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(response); err != nil {
@@ -4388,6 +4558,9 @@ type StrictServerInterface interface {
 	// ListDirectory List a directory the caller may see
 	// (GET /v1/fs/list)
 	ListDirectory(ctx context.Context, request ListDirectoryRequestObject) (ListDirectoryResponseObject, error)
+	// GetMediaInfo How a video can be played in the browser
+	// (GET /v1/fs/media)
+	GetMediaInfo(ctx context.Context, request GetMediaInfoRequestObject) (GetMediaInfoResponseObject, error)
 	// CreateFolder Create a folder
 	// (POST /v1/fs/mkdir)
 	CreateFolder(ctx context.Context, request CreateFolderRequestObject) (CreateFolderResponseObject, error)
@@ -4711,6 +4884,32 @@ func (sh *strictHandler) ListDirectory(w http.ResponseWriter, r *http.Request, p
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(ListDirectoryResponseObject); ok {
 		if err := validResponse.VisitListDirectoryResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetMediaInfo operation middleware
+func (sh *strictHandler) GetMediaInfo(w http.ResponseWriter, r *http.Request, params GetMediaInfoParams) {
+	var request GetMediaInfoRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetMediaInfo(ctx, request.(GetMediaInfoRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetMediaInfo")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetMediaInfoResponseObject); ok {
+		if err := validResponse.VisitGetMediaInfoResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
