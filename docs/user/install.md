@@ -27,6 +27,11 @@ Only the `docker/` folder is used at run time; the images come from GitHub's reg
 `izoniks/canopy:<version>-web` and `izoniks/canopy:<version>-engine`: to use those, set the two
 `image:` lines in `docker/compose.yaml` accordingly.
 
+**Videos**: the default engine image has no ffmpeg. For video thumbnails and in-browser playback
+of videos the browser cannot read by itself (most MKV files: HEVC, AC-3, DTS…), use the engine
+image with ffmpeg instead: `ghcr.io/alexartaud-dev/canopy-engine-ffmpeg` or
+`izoniks/canopy:<version>-engine-ffmpeg` (about 160 MB instead of 20 MB).
+
 ## 2. Configure
 
 ```bash
