@@ -73,7 +73,8 @@
     "bad_archive": "This archive is damaged or contains unsafe names, so nothing was extracted.",
     "mixed_folders": "Only items from the same folder can be compressed together.",
     "archive_too_large": "This archive would not fit: it expands beyond the free space or holds too many files.",
-    "host_denied": "The server account Canopy runs as is not allowed to open this folder. Give it access on the host (for example by adding its group to the folder), then try again."
+    "host_denied": "The server account Canopy runs as is not allowed to open this folder. Give it access on the host (for example by adding its group to the folder), then try again.",
+    "favorites_full": "You have reached {max} favorites. Remove one first."
   },
   "mail": {
     "not_configured": "Email is not configured. Set up SMTP in Administration › Email.",

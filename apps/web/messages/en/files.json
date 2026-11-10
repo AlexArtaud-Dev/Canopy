@@ -110,7 +110,10 @@
         "sha512": "SHA-512"
       },
       "share": "Share…",
-      "plugins": "Plugins"
+      "plugins": "Plugins",
+      "properties": "Properties",
+      "addFavorite": "Add to favorites",
+      "removeFavorite": "Remove from favorites"
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
@@ -132,7 +135,8 @@
         "paste": "Paste into this folder",
         "dragCopy": "Copy instead of move when dropping",
         "delete": "Move to the trash",
-        "deletePermanently": "Delete permanently"
+        "deletePermanently": "Delete permanently",
+        "properties": "Show properties"
       }
     },
     "ops": {
@@ -215,5 +219,47 @@
     "fullscreen": "Full screen",
     "position": "Position in the video",
     "converted": "Converted for your browser"
+  },
+  "properties": {
+    "title": "Properties",
+    "description": "Details of this item on the server.",
+    "location": "Location",
+    "copyPath": "Copy path",
+    "copied": "Copied",
+    "copyFailed": "Could not copy",
+    "type": "Type",
+    "folder": "Folder",
+    "file": "File",
+    "linkTo": "Symbolic link to {target}",
+    "linkOutside": "Symbolic link to a place outside Canopy",
+    "size": "Size",
+    "bytes": "{count, plural, one {# byte} other {# bytes}}",
+    "calculate": "Calculate",
+    "measuring": "Measuring…",
+    "contents": "{files, plural, one {# file} other {# files}}, {folders, plural, one {# folder} other {# folders}}",
+    "skipped": "{count, plural, one {# item unreadable} other {# items unreadable}}",
+    "modified": "Modified",
+    "changed": "Details changed",
+    "owner": "Owner on the server",
+    "ownerIds": "user {uid}, group {gid}",
+    "permissions": "Permissions",
+    "access": "Your access",
+    "noAccess": "View only",
+    "duration": "Duration",
+    "dimensions": "Dimensions",
+    "pixels": "{width} × {height} px",
+    "codecs": "Codecs",
+    "checksum": "Checksum",
+    "algorithm": "Algorithm",
+    "compute": "Compute",
+    "copyChecksum": "Copy checksum"
+  },
+  "favorites": {
+    "title": "Favorites",
+    "empty": "Right-click a folder › Add to favorites.",
+    "unavailable": "{name} (no longer available)",
+    "remove": "Remove {name} from favorites",
+    "added": "Added to favorites",
+    "removed": "Removed from favorites"
   }
 }
