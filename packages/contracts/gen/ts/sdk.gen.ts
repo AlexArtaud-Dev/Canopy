@@ -21,6 +21,9 @@ import type {
   ExplainAccessData,
   ExplainAccessErrors,
   ExplainAccessResponses,
+  GetEntryPropertiesData,
+  GetEntryPropertiesErrors,
+  GetEntryPropertiesResponses,
   GetJobData,
   GetJobErrors,
   GetJobLogsData,
@@ -118,6 +121,8 @@ import {
   zCreateFolderResponse,
   zExplainAccessBody,
   zExplainAccessResponse,
+  zGetEntryPropertiesQuery,
+  zGetEntryPropertiesResponse,
   zGetJobLogsPath,
   zGetJobLogsQuery,
   zGetJobLogsResponse,
@@ -280,6 +285,33 @@ export const statEntry = <ThrowOnError extends boolean = false>(
     responseValidator: async (data) => await zStatEntryResponse.parseAsync(data),
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v1/fs/entry',
+    ...options,
+  });
+
+/**
+ * Details of one file or folder for the Properties dialog
+ *
+ * The entry as a listing shows it, plus what the host knows about it: type, permission bits, numeric owner, last metadata change and, for a symbolic link, its relative target. Visible entries only; reading changes nothing, so it is not audited.
+ */
+export const getEntryProperties = <ThrowOnError extends boolean = false>(
+  options: Options<GetEntryPropertiesData, ThrowOnError>,
+): RequestResult<GetEntryPropertiesResponses, GetEntryPropertiesErrors, ThrowOnError> =>
+  (options.client ?? client).get<
+    GetEntryPropertiesResponses,
+    GetEntryPropertiesErrors,
+    ThrowOnError
+  >({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: zGetEntryPropertiesQuery,
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zGetEntryPropertiesResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/fs/properties',
     ...options,
   });
 

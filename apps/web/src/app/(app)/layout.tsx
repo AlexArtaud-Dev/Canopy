@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 
 import { JobsDockContainer } from '@/features/jobs';
 import { initialsOf, permissionsOf, requireSession, signOut } from '@/features/auth';
 import { AccountContainer, AppSidebar } from '@/features/shell';
+import { FavoritesNav } from '@/features/files';
 import { PermissionsProvider } from '@/shared/permissions/can';
 import { QueryProvider } from '@/shared/query/query-provider';
 import { SidebarInset, SidebarProvider } from '@/shared/ui/sidebar';
@@ -17,6 +18,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <SidebarProvider>
           <AppSidebar
             grantedPermissions={permissionsOf(user)}
+            afterWorkspace={
+              <Suspense>
+                <FavoritesNav />
+              </Suspense>
+            }
             footer={
               <AccountContainer
                 account={{

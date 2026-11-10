@@ -1,7 +1,7 @@
 'use client';
 
 import type { CommandEntry } from '@canopy/contracts';
-import { CheckCheck, FolderPlus, RefreshCw } from 'lucide-react';
+import { CheckCheck, FolderPlus, RefreshCw, Star, StarOff } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 
@@ -26,6 +26,9 @@ interface FolderMenuProps {
   onNewFolder: () => void;
   onSelectAll: () => void;
   onRefresh: () => void;
+  /** Pinned state of the open folder; null at the root, which cannot be pinned. */
+  favorite: boolean | null;
+  onToggleFavorite: () => void;
 }
 
 /**
@@ -40,6 +43,8 @@ export function FolderMenu({
   onNewFolder,
   onSelectAll,
   onRefresh,
+  favorite,
+  onToggleFavorite,
 }: FolderMenuProps) {
   const t = useTranslations('files.browser');
   return (
@@ -52,8 +57,14 @@ export function FolderMenu({
             {t('ops.newFolder')}
           </ContextMenuItem>
         )}
+        {favorite !== null && (
+          <ContextMenuItem onSelect={onToggleFavorite}>
+            {favorite ? <StarOff aria-hidden /> : <Star aria-hidden />}
+            {favorite ? t('menu.removeFavorite') : t('menu.addFavorite')}
+          </ContextMenuItem>
+        )}
         <PluginsSubmenu plugins={plugins} onSelect={onPluginCommand} />
-        {(canCreate || plugins.length > 0) && <ContextMenuSeparator />}
+        {(canCreate || plugins.length > 0 || favorite !== null) && <ContextMenuSeparator />}
         <ContextMenuItem onSelect={onSelectAll}>
           <CheckCheck aria-hidden />
           {t('menu.selectAll')}

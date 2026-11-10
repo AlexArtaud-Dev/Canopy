@@ -110,7 +110,10 @@
         "sha512": "SHA-512"
       },
       "share": "Partager…",
-      "plugins": "Plugins"
+      "plugins": "Plugins",
+      "properties": "Propriétés",
+      "addFavorite": "Ajouter aux favoris",
+      "removeFavorite": "Retirer des favoris"
     },
     "shortcuts": {
       "title": "Raccourcis clavier",
@@ -132,7 +135,8 @@
         "paste": "Coller dans ce dossier",
         "dragCopy": "Copier au lieu de déplacer en déposant",
         "delete": "Mettre à la corbeille",
-        "deletePermanently": "Supprimer définitivement"
+        "deletePermanently": "Supprimer définitivement",
+        "properties": "Afficher les propriétés"
       }
     },
     "ops": {
@@ -215,5 +219,47 @@
     "fullscreen": "Plein écran",
     "position": "Position dans la vidéo",
     "converted": "Convertie pour votre navigateur"
+  },
+  "properties": {
+    "title": "Propriétés",
+    "description": "Détails de cet élément sur le serveur.",
+    "location": "Emplacement",
+    "copyPath": "Copier le chemin",
+    "copied": "Copié",
+    "copyFailed": "Copie impossible",
+    "type": "Type",
+    "folder": "Dossier",
+    "file": "Fichier",
+    "linkTo": "Lien symbolique vers {target}",
+    "linkOutside": "Lien symbolique vers un emplacement hors de Canopy",
+    "size": "Taille",
+    "bytes": "{count, plural, one {# octet} other {# octets}}",
+    "calculate": "Calculer",
+    "measuring": "Mesure en cours…",
+    "contents": "{files, plural, one {# fichier} other {# fichiers}}, {folders, plural, one {# dossier} other {# dossiers}}",
+    "skipped": "{count, plural, one {# élément illisible} other {# éléments illisibles}}",
+    "modified": "Modifié",
+    "changed": "Détails modifiés",
+    "owner": "Propriétaire sur le serveur",
+    "ownerIds": "utilisateur {uid}, groupe {gid}",
+    "permissions": "Permissions",
+    "access": "Vos droits",
+    "noAccess": "Lecture seule",
+    "duration": "Durée",
+    "dimensions": "Dimensions",
+    "pixels": "{width} × {height} px",
+    "codecs": "Codecs",
+    "checksum": "Somme de contrôle",
+    "algorithm": "Algorithme",
+    "compute": "Calculer",
+    "copyChecksum": "Copier la somme de contrôle"
+  },
+  "favorites": {
+    "title": "Favoris",
+    "empty": "Clic droit sur un dossier › Ajouter aux favoris.",
+    "unavailable": "{name} (plus disponible)",
+    "remove": "Retirer {name} des favoris",
+    "added": "Ajouté aux favoris",
+    "removed": "Retiré des favoris"
   }
 }

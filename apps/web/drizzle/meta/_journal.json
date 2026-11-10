@@ -92,6 +92,13 @@
       "when": 1794232576905,
       "tag": "0012_upload_links",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794332147604,
+      "tag": "0013_favorite_folders",
+      "breakpoints": true
     }
   ]
 }

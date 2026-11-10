@@ -58,6 +58,42 @@ export type DirectoryEntry = {
   thumbnail: boolean;
 };
 
+export type EntryProperties = {
+  entry: DirectoryEntry;
+  /**
+   * Media type guessed from the extension (files only, when known).
+   */
+  mimeType?: string;
+  /**
+   * The entry is a symbolic link (`entry` describes its target; mode, owner and change time the link itself).
+   */
+  link: boolean;
+  /**
+   * Target of a symbolic link when relative; absolute host paths are never sent.
+   */
+  linkTarget?: string;
+  /**
+   * Type and permission bits as `ls -l` prints them, e.g. `drwxr-x---`.
+   */
+  mode: string;
+  /**
+   * Permission bits as a number (shown in octal, e.g. 750).
+   */
+  permissions: number;
+  /**
+   * Numeric owner on the host.
+   */
+  uid?: number;
+  /**
+   * Numeric group on the host.
+   */
+  gid?: number;
+  /**
+   * Last change of the entry's metadata (permissions, owner, name).
+   */
+  changed?: string;
+};
+
 /**
  * How the file can be shown in the browser, decided by the engine from its extension (`none` for folders and unknown files: download only).
  */
@@ -572,6 +608,42 @@ export type StatEntryResponses = {
 };
 
 export type StatEntryResponse = StatEntryResponses[keyof StatEntryResponses];
+
+export type GetEntryPropertiesData = {
+  body?: never;
+  path?: never;
+  query: {
+    path: string;
+  };
+  url: '/v1/fs/properties';
+};
+
+export type GetEntryPropertiesErrors = {
+  /**
+   * Invalid path (`files.invalid_path`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * No such entry, or one the caller may not see (`files.not_found`).
+   */
+  404: Error;
+};
+
+export type GetEntryPropertiesError = GetEntryPropertiesErrors[keyof GetEntryPropertiesErrors];
+
+export type GetEntryPropertiesResponses = {
+  /**
+   * The details.
+   */
+  200: EntryProperties;
+};
+
+export type GetEntryPropertiesResponse =
+  GetEntryPropertiesResponses[keyof GetEntryPropertiesResponses];
 
 export type GetMediaInfoData = {
   body?: never;

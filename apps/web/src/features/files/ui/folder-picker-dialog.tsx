@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronRight, Folder } from 'lucide-react';
+import { ChevronRight, Folder, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useTransition } from 'react';
 
@@ -19,6 +19,7 @@ import { Spinner } from '@/shared/ui/spinner';
 
 import { breadcrumbs, type PathAction } from '../files.utils';
 import { canDropInto, type TransferOperation } from '../operations.utils';
+import { useFavorites } from '../model/use-favorites';
 
 export interface PickerFolder {
   name: string;
@@ -52,6 +53,8 @@ export function FolderPickerDialog(props: FolderPickerDialogProps) {
   const [folders, setFolders] = useState<PickerFolder[]>([]);
   const [error, setError] = useState<FormErrorContent | null>(null);
   const [loading, startLoading] = useTransition();
+  const favoritesT = useTranslations('files.favorites');
+  const shortcuts = useFavorites().favorites.filter((favorite) => favorite.available);
 
   const browse = (target: string) => {
     startLoading(async () => {
@@ -108,6 +111,29 @@ export function FolderPickerDialog(props: FolderPickerDialogProps) {
             </span>
           ))}
         </nav>
+        {shortcuts.length > 0 && (
+          <div
+            className="flex flex-wrap items-center gap-1"
+            role="group"
+            aria-label={favoritesT('title')}
+          >
+            {shortcuts.map((favorite) => (
+              <Button
+                key={favorite.path}
+                variant="outline"
+                size="xs"
+                title={favorite.path}
+                disabled={loading || favorite.path === path}
+                onClick={() => {
+                  browse(favorite.path);
+                }}
+              >
+                <Star aria-hidden className="fill-primary/20 text-primary" />
+                {favorite.name}
+              </Button>
+            ))}
+          </div>
+        )}
         <div className="h-64 overflow-y-auto rounded-lg border" aria-busy={loading}>
           {loading ? (
             <p className="text-muted-foreground flex items-center gap-2 p-3 text-sm">

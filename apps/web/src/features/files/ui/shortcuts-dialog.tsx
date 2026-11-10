@@ -20,6 +20,7 @@ const shortcuts = [
   { id: 'extend', keys: ['Shift', '↑ ↓'] },
   { id: 'selectAll', keys: ['Ctrl', 'A'] },
   { id: 'rename', keys: ['F2'] },
+  { id: 'properties', keys: ['Alt', 'Enter'] },
   { id: 'copy', keys: ['Ctrl', 'C'] },
   { id: 'cut', keys: ['Ctrl', 'X'] },
   { id: 'paste', keys: ['Ctrl', 'V'] },

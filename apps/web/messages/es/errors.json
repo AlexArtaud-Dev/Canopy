@@ -73,7 +73,8 @@
     "bad_archive": "Este archivo comprimido está dañado o contiene nombres peligrosos, así que no se extrajo nada.",
     "mixed_folders": "Solo se pueden comprimir juntos elementos de la misma carpeta.",
     "archive_too_large": "Este archivo comprimido no cabe: supera el espacio libre o contiene demasiados archivos.",
-    "host_denied": "La cuenta con la que Canopy se ejecuta en el servidor no puede abrir esta carpeta. Dale acceso en la máquina (por ejemplo, añadiéndola al grupo de la carpeta) e inténtalo de nuevo."
+    "host_denied": "La cuenta con la que Canopy se ejecuta en el servidor no puede abrir esta carpeta. Dale acceso en la máquina (por ejemplo, añadiéndola al grupo de la carpeta) e inténtalo de nuevo.",
+    "favorites_full": "Has llegado a {max} favoritos. Quita uno primero."
   },
   "mail": {
     "not_configured": "El correo no está configurado. Configura el SMTP en Administración › Correo.",
