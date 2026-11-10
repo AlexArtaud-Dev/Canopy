@@ -29,6 +29,21 @@ EXPOSE 8080
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3     CMD ["/usr/local/bin/engine", "healthcheck"]
 ENTRYPOINT ["/usr/local/bin/engine"]
 
+# Variant for hardware video encoding (target `gpu`): Debian's ffmpeg, built with NVENC (NVIDIA)
+# and linked against glibc, which the libraries the NVIDIA container runtime injects need (Alpine's
+# musl build cannot load them). Largest image; the engine falls back to the CPU without a GPU.
+FROM debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2 AS gpu
+RUN apt-get update     && apt-get install -y --no-install-recommends ffmpeg ca-certificates     && rm -rf /var/lib/apt/lists/*
+COPY --from=build /out/engine /usr/local/bin/engine
+COPY --from=sevenzip /out/7zz /usr/local/bin/7zz
+ENV CANOPY_ROOT=/srv/canopy/root
+# What the NVIDIA runtime mounts into the container: the video encoder and decoder libraries.
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+USER 65532:65532
+EXPOSE 8080
+HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3     CMD ["/usr/local/bin/engine", "healthcheck"]
+ENTRYPOINT ["/usr/local/bin/engine"]
+
 # Default target. Distroless: no shell, no package manager. Runs as an unprivileged user by default; compose
 # overrides it with PUID:PGID so created files belong to the host user.
 FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -28,6 +29,32 @@ func TestFind(t *testing.T) {
 	player := Find(both, 0)
 	if player == nil || player.FFprobe != "/usr/bin/ffprobe" || cap(player.slots) != 1 {
 		t.Fatalf("player: %+v", player)
+	}
+}
+
+func TestChooseEncoder(t *testing.T) {
+	both := func(name string) (string, error) { return "/usr/bin/" + name, nil }
+	player := Find(both, 2)
+	var tried []string
+	player.try = func(_ context.Context, args []string) error {
+		tried = append(tried, strings.Join(args, " "))
+		return nil
+	}
+	if got := player.ChooseEncoder(context.Background(), "cpu"); got != CPU || len(tried) != 0 {
+		t.Fatalf("cpu forced: %s %v", got, tried)
+	}
+	if got := player.ChooseEncoder(context.Background(), "auto"); got != NVENC || cap(player.slots) != gpuConversions {
+		t.Fatalf("gpu found: %s %d", got, cap(player.slots))
+	}
+	player = Find(both, 2)
+	player.try = func(context.Context, []string) error { return errors.New("no CUDA device") }
+	if got := player.ChooseEncoder(context.Background(), "nvenc"); got != CPU || cap(player.slots) != 2 {
+		t.Fatalf("no gpu: %s", got)
+	}
+	// The real runner, against a program that is not ffmpeg: it fails, so the CPU stays.
+	player = Find(func(string) (string, error) { return "/nonexistent/ffmpeg", nil }, 1)
+	if got := player.ChooseEncoder(context.Background(), "auto"); got != CPU {
+		t.Fatalf("missing binary: %s", got)
 	}
 }
 
@@ -58,7 +85,7 @@ func TestRealFFmpeg(t *testing.T) {
 	}
 	clip := filepath.Join(t.TempDir(), "clip.mkv")
 	encode := exec.Command(player.FFmpeg, "-hide_banner", "-loglevel", "error",
-		"-f", "lavfi", "-i", "testsrc=size=320x240:rate=25:duration=2",
+		"-f", "lavfi", "-i", "testsrc=size=320x240:rate=25:duration=2,format=yuv420p",
 		"-f", "lavfi", "-i", "sine=frequency=440:duration=2",
 		"-c:v", "libx265", "-c:a", "ac3", clip)
 	if output, err := encode.CombinedOutput(); err != nil {
@@ -84,6 +111,18 @@ func TestRealFFmpeg(t *testing.T) {
 	// Fragmented MP4 starts with an ftyp box.
 	if out.Len() < 1000 || !bytes.Contains(out.Bytes()[:64], []byte("ftyp")) {
 		t.Fatalf("not an MP4 stream: %d bytes", out.Len())
+	}
+
+	// On a machine with a usable NVIDIA GPU, the same conversion runs there.
+	if player.ChooseEncoder(context.Background(), "auto") == NVENC {
+		var gpu bytes.Buffer
+		if err := player.Stream(context.Background(), file, info, 0.5, &gpu); err != nil {
+			t.Fatalf("nvenc: %v", err)
+		}
+		if gpu.Len() < 1000 || !bytes.Contains(gpu.Bytes()[:64], []byte("ftyp")) {
+			t.Fatalf("nvenc: not an MP4 stream: %d bytes", gpu.Len())
+		}
+		t.Log("converted on the GPU")
 	}
 
 	notVideo := filepath.Join(t.TempDir(), "notes.mkv")

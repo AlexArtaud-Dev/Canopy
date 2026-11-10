@@ -27,4 +27,11 @@ default-src 'none' …` — no scripts, an opaque origin, nothing loaded from el
   The file is handed to ffmpeg already open (fd 3, `internal/fileinput`), arguments are a fixed
   list, ffmpeg output is never logged. Needs the `engine-ffmpeg` image (or ffmpeg and ffprobe on
   the engine's `PATH`); without it, unplayable videos offer a download.
+- **GPU** (`engine-gpu` image, Debian ffmpeg with NVENC): at startup the engine encodes a tenth of
+  a second of black with `h264_nvenc`; when that works (`CANOPY_VIDEO_ENCODER` `auto` or
+  `nvenc`), conversions use the GPU and up to 4 run at once. HEVC, MPEG-2 and VC-1 in 4:2:0 stay
+  on the GPU end to end (`-hwaccel cuda -hwaccel_output_format cuda`, `scale_cuda`, NVENC):
+  measured on a 30 s 4K 10-bit HEVC clip, 1.3 s of CPU time instead of 96 s with libx264. Other
+  codecs and 4:2:2 / 4:4:4 pictures are decoded and scaled on the CPU, encoded on the GPU.
+  Constant quality 26, capped at 8 Mb/s.
 - Audit: `fs.preview` (once per opening; media range requests and seeks are not counted again).

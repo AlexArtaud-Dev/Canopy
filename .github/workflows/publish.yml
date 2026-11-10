@@ -72,6 +72,8 @@ jobs:
           - { image: engine, file: engine, target: '' }
           # The engine with ffmpeg: video thumbnails and in-browser playback of any video.
           - { image: engine-ffmpeg, file: engine, target: ffmpeg }
+          # The engine with hardware video encoding (NVIDIA NVENC), on Debian.
+          - { image: engine-gpu, file: engine, target: gpu }
     env:
       # Optional: without the secret, only GHCR receives the images.
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

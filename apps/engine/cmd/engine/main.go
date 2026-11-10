@@ -170,7 +170,7 @@ func run() error {
 			AdvancedMode: advancedMode(pool, logger),
 			HostPaths:    resolver,
 			Plugins:      pluginService,
-			Media:        mediaPlayer(logger),
+			Media:        mediaPlayer(ctx, cfg.VideoEncoder, logger),
 		}),
 		ReadHeaderTimeout: readHeaderTimeout,
 		// No read/write timeouts: multi-GB transfers and SSE streams are legitimately long.

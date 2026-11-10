@@ -32,6 +32,8 @@ type Info struct {
 	Audio    string
 	Width    int
 	Height   int
+	// PixelFormat of the video (yuv420p, yuv420p10le…), empty when unknown.
+	PixelFormat string
 }
 
 // ErrNoVideo means the file has no video stream ffprobe could read.
@@ -46,6 +48,7 @@ type probeOutput struct {
 		CodecName string `json:"codec_name"`
 		Width     int    `json:"width"`
 		Height    int    `json:"height"`
+		PixFmt    string `json:"pix_fmt"`
 	} `json:"streams"`
 }
 
@@ -63,6 +66,7 @@ func ParseProbe(data []byte) (Info, error) {
 		switch {
 		case stream.CodecType == "video" && info.Video == "":
 			info.Video, info.Width, info.Height = strings.ToLower(stream.CodecName), stream.Width, stream.Height
+			info.PixelFormat = stream.PixFmt
 		case stream.CodecType == "audio" && info.Audio == "":
 			info.Audio = strings.ToLower(stream.CodecName)
 		}
@@ -100,24 +104,59 @@ func Choose(info Info, container string) Mode {
 // longestEdge caps transcoded video (1080p): enough for a preview, kind to the server's CPU.
 const longestEdge = 1920
 
-// StreamArgs is the ffmpeg command line streaming input as fragmented MP4 to stdout from start
-// seconds: video copied when browsers decode it, otherwise H.264 (fast preset, capped at 1080p);
-// first audio track copied when it is AAC/MP3, otherwise AAC stereo. Subtitles and other tracks
-// are left out. Every value is a constant or a number: no file name ever reaches the arguments.
-func StreamArgs(input string, info Info, start float64) []string {
+// Encoder is how a video is re-encoded when it must be.
+type Encoder string
+
+// Encoders.
+const (
+	// CPU encodes with libx264.
+	CPU Encoder = "cpu"
+	// NVENC encodes on an NVIDIA GPU (h264_nvenc) and decodes there too when it can.
+	NVENC Encoder = "nvenc"
+)
+
+// gpuDecodable lists codecs NVIDIA GPUs decode (NVDEC) among those Canopy re-encodes: they stay
+// on the GPU from decoding to encoding. Others are decoded and scaled on the CPU, then encoded
+// on the GPU.
+var gpuDecodable = map[string]bool{"hevc": true, "mpeg2video": true, "vc1": true}
+
+// gpuPixelFormats are the 4:2:0 layouts consumer GPUs decode; 4:2:2 and 4:4:4 fall back to the
+// CPU, so their frames would not be in GPU memory for the GPU scaler.
+var gpuPixelFormats = map[string]bool{"yuv420p": true, "yuvj420p": true, "yuv420p10le": true, "nv12": true, "p010le": true}
+
+// nvencRate keeps the stream around the size of a CPU encode: constant quality, capped bitrate.
+var nvencRate = []string{"-preset", "p4", "-rc", "vbr", "-cq", "26", "-b:v", "0", "-maxrate", "8M", "-bufsize", "16M"}
+
+// StreamArgs is the ffmpeg command line writing input as fragmented MP4 to stdout from start
+// seconds: video copied when H.264, otherwise re-encoded with encoder; audio copied when MP4 can
+// hold it, otherwise AAC stereo.
+func StreamArgs(input string, info Info, start float64, encoder Encoder) []string {
 	args := []string{"-hide_banner", "-loglevel", "error", "-nostdin"}
+	transcode := !mp4Video[info.Video]
+	onGPU := transcode && encoder == NVENC && gpuDecodable[info.Video] && gpuPixelFormats[info.PixelFormat]
+	if onGPU {
+		// Decoded frames stay in GPU memory: scaled and encoded there, the CPU stays idle.
+		args = append(args, "-hwaccel", "cuda", "-hwaccel_output_format", "cuda")
+	}
 	if start > 0 {
 		// Before -i: a fast seek to the keyframe before start.
 		args = append(args, "-ss", strconv.FormatFloat(start, 'f', 3, 64))
 	}
 	args = append(args, "-i", input, "-map", "0:v:0", "-map", "0:a:0?", "-sn", "-dn")
-	if mp4Video[info.Video] {
+	bounds := fmt.Sprintf("'min(%d,iw)':'min(%d,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2", longestEdge, longestEdge)
+	switch {
+	case !transcode:
 		args = append(args, "-c:v", "copy")
-	} else {
-		args = append(args,
-			"-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-pix_fmt", "yuv420p",
-			"-vf", fmt.Sprintf("scale='min(%d,iw)':'min(%d,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2", longestEdge, longestEdge),
-		)
+	case onGPU:
+		args = append(args, "-c:v", "h264_nvenc")
+		args = append(args, nvencRate...)
+		args = append(args, "-vf", "scale_cuda=w="+strings.Replace(bounds, ":", ":h=", 1)+":format=yuv420p")
+	case encoder == NVENC:
+		args = append(args, "-c:v", "h264_nvenc")
+		args = append(args, nvencRate...)
+		args = append(args, "-pix_fmt", "yuv420p", "-vf", "scale="+bounds)
+	default:
+		args = append(args, "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-pix_fmt", "yuv420p", "-vf", "scale="+bounds)
 	}
 	if mp4Audio[info.Audio] {
 		args = append(args, "-c:a", "copy")
@@ -130,11 +169,20 @@ func StreamArgs(input string, info Info, start float64) []string {
 	)
 }
 
+// NVENCProbeArgs encodes a tenth of a second of black on the GPU: it fails without a usable
+// NVIDIA GPU, driver or ffmpeg build.
+func NVENCProbeArgs() []string {
+	return []string{
+		"-hide_banner", "-loglevel", "error", "-nostdin",
+		"-f", "lavfi", "-i", "color=black:s=256x144:d=0.1", "-c:v", "h264_nvenc", "-f", "null", "-",
+	}
+}
+
 // ProbeArgs is the ffprobe command line describing input as JSON.
 func ProbeArgs(input string) []string {
 	return []string{
 		"-hide_banner", "-loglevel", "error", "-print_format", "json",
-		"-show_entries", "format=duration:stream=codec_type,codec_name,width,height",
+		"-show_entries", "format=duration:stream=codec_type,codec_name,width,height,pix_fmt",
 		"-i", input,
 	}
 }

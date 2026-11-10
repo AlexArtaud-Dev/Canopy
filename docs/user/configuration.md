@@ -64,6 +64,7 @@ passwords follow their files on every start.
 | `CANOPY_LOCAL_NETWORKS`          | private ranges          | Treated as local: setup wizard and local-only admin actions |
 | `CANOPY_ENCRYPTION_KEY_PREVIOUS` | empty                   | Old key(s) during a rotation, comma-separated               |
 | `CANOPY_LOG_LEVEL`               | `info`                  | `debug`, `info`, `warn` or `error`                          |
+| `CANOPY_VIDEO_ENCODER`           | `auto`                  | `auto` (GPU when one works), `cpu` or `nvenc`; engine only  |
 
 The apps read their secrets from files (`CANOPY_DATABASE_URL_FILE`, `CANOPY_ENCRYPTION_KEY_FILE`,
 `CANOPY_ENGINE_PRIVATE_KEY_FILE`, `CANOPY_ENGINE_PUBLIC_KEY_FILE`, set in `compose.yaml`). Setting

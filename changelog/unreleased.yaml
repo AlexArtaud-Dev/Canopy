@@ -1,1 +1,8 @@
-entries: []
+entries:
+  - type: feat
+    scope: docker
+    issue: 159
+    text:
+      en: New engine-gpu image converts videos on an NVIDIA GPU (NVENC), found automatically at startup, leaving the CPU almost idle
+      fr: Nouvelle image engine-gpu qui convertit les vidéos sur un GPU NVIDIA (NVENC), détecté automatiquement au démarrage, en laissant le processeur quasi inactif
+      es: Nueva imagen engine-gpu que convierte los vídeos en una GPU NVIDIA (NVENC), detectada automáticamente al arrancar, dejando el procesador casi inactivo
