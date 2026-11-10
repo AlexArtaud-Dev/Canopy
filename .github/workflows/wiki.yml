@@ -1,0 +1,43 @@
+# Publishes docs/ to the GitHub wiki on every merge to main. docs/ stays the source of truth
+# (reviewed in pull requests); the wiki is a generated, read-friendly copy.
+name: Wiki
+
+on:
+  push:
+    branches: [main]
+    paths: ['docs/**', 'scripts/docs/**', '.github/workflows/wiki.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: wiki
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish docs to the wiki
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: .wiki
+      - name: Build pages
+        run: node scripts/docs/build-wiki.mjs .wiki
+      - name: Commit and push
+        working-directory: .wiki
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          if git diff --cached --quiet; then
+            echo "The wiki is up to date."
+            exit 0
+          fi
+          git commit -q -m "docs: sync from ${SOURCE_SHA::7}"
+          git push

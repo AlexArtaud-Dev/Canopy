@@ -13,7 +13,12 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License: AGPL-3.0"></a>
 </p>
 
-> **Status: release candidate for v1.** Everything below works; the v1 hardening pass is under way.
+<p align="center">
+  <a href="https://github.com/AlexArtaud-Dev/Canopy/wiki"><strong>Documentation</strong></a> ·
+  <a href="https://github.com/AlexArtaud-Dev/Canopy/wiki/Install">Install</a> ·
+  <a href="https://github.com/AlexArtaud-Dev/Canopy/releases">Releases</a> ·
+  <a href="https://hub.docker.com/r/izoniks/canopy">Docker Hub</a>
+</p>
 
 ## Why Canopy
 
@@ -27,20 +32,24 @@
 
 ## Features
 
-| Area           | What is there                                                                                        |
-| -------------- | ---------------------------------------------------------------------------------------------------- |
-| Files          | Fast list and grid views (10k+ entries), search, previews (images, video, PDF, code), thumbnails     |
-| Operations     | Resumable uploads, downloads and zips, copy/move with live progress and cancel, archives, checksums  |
-| Safety         | Trash with restore, confirmation and undo for destructive actions, audit of every change             |
-| Sharing        | Share links (expiry, password, download limit) and upload links (file types, size limits)            |
-| Commands       | Catalog of tools run with typed options, never a shell; plugins such as mrename from GitHub releases |
-| Accounts       | First-run setup wizard (local network only), TOTP two-factor with recovery codes, sessions           |
-| People         | Users, groups, roles with a permission matrix, folder access rules per user or group, invitations    |
-| Administration | Settings with sensible defaults, email (SMTP), audit log viewer with CSV export, maintenance mode    |
-| Privacy        | Personal data export, retention for audit events and emails ([privacy notes](docs/user/privacy.md))  |
-| Languages      | English, French and Spanish; light and dark themes                                                   |
+| Area           | What is there                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------- |
+| Files          | Fast list and grid views (10k+ entries), search, favorite folders, Properties dialog, thumbnails              |
+| Previews       | Images, PDF, code with highlighting, audio, video; MKV and other formats converted on the fly (ffmpeg image)  |
+| Operations     | Resumable uploads, downloads and zips, copy/move with live progress and cancel, archives, checksums           |
+| Safety         | Trash with restore, confirmation and undo for destructive actions, audit of every change                      |
+| Sharing        | Share links (expiry, password, download limit) and upload links (file types, size limits)                     |
+| Commands       | Catalog of tools run with typed options, never a shell; plugins such as mrename from GitHub releases          |
+| Accounts       | First-run setup wizard (local network only), TOTP two-factor with recovery codes, sessions                    |
+| People         | Users, groups, roles with a permission matrix, folder access rules per user or group, invitations             |
+| Administration | Settings with sensible defaults, email (SMTP), audit log viewer with CSV export, maintenance mode, what's new |
+| Privacy        | Personal data export, retention for audit events and emails                                                   |
 
 ## Install
+
+Canopy runs as Docker containers (amd64 and arm64): **web**, **engine** and **PostgreSQL**. Give it
+one folder for its own data and mount the folders to manage; secrets and the database are set up
+on the first start.
 
 ```bash
 git clone --branch <latest release tag> --depth 1 https://github.com/AlexArtaud-Dev/Canopy.git canopy
@@ -48,8 +57,15 @@ cd canopy && cp docker/.env.example docker/.env   # set CANOPY_HOME, PUID/PGID a
 docker compose -f docker/compose.yaml --env-file docker/.env up -d --wait
 ```
 
-The [user guide](docs/user/README.md) covers install, folders and PUID/PGID, reverse proxy,
-upgrades, backups and troubleshooting.
+| Image                                         | Docker Hub                               | Use                                                    |
+| --------------------------------------------- | ---------------------------------------- | ------------------------------------------------------ |
+| `ghcr.io/alexartaud-dev/canopy-web`           | `izoniks/canopy:<version>-web`           | The interface (the only public service)                |
+| `ghcr.io/alexartaud-dev/canopy-engine`        | `izoniks/canopy:<version>-engine`        | File access, jobs (distroless, ~20 MB)                 |
+| `ghcr.io/alexartaud-dev/canopy-engine-ffmpeg` | `izoniks/canopy:<version>-engine-ffmpeg` | Same engine with ffmpeg: video thumbnails and playback |
+
+`latest` tags follow the newest release (`latest-web`, `latest-engine`, `latest-engine-ffmpeg` on
+Docker Hub). The [wiki](https://github.com/AlexArtaud-Dev/Canopy/wiki) covers install,
+configuration, reverse proxies, upgrades, backups and troubleshooting, plus one page per feature.
 
 ## Architecture
 
@@ -61,7 +77,7 @@ upgrades, backups and troubleshooting.
 | Database             | PostgreSQL, one role per app                                                 |
 
 The web app is the only public entry point; the engine lives on the internal network and accepts
-only short-lived tokens signed by the web app. Details in [`docs/dev/`](docs/dev/).
+only short-lived tokens signed by the web app. Details in the [development pages of the wiki](https://github.com/AlexArtaud-Dev/Canopy/wiki/Dev-Architecture).
 
 ## Development
 
@@ -77,8 +93,10 @@ regenerates it). Lint, type checks and tests: `pnpm lint`, `pnpm typecheck`, `pn
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), the contributor rules in [`docs/dev/`](docs/dev/) and the
-[roadmap](docs/roadmap.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) and the contributor rules in [`docs/dev/`](docs/dev/).
+Documentation lives in [`docs/`](docs/) and is published to the
+[wiki](https://github.com/AlexArtaud-Dev/Canopy/wiki) on every merge (`pnpm wiki:build <dir>`
+builds it locally): edit the files in `docs/`, not the wiki.
 
 ## License
 
