@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/shared/ui/collapsible';
 import {
@@ -41,13 +41,15 @@ import { BrandMark } from './brand-mark';
 
 interface AppSidebarProps {
   footer: ReactNode;
+  /** Shown right after the Workspace group (the person's favorite folders). */
+  afterWorkspace?: ReactNode;
   /** Permissions of the signed-in user; entries needing anything else are hidden (UX only). */
   grantedPermissions: readonly GlobalPermission[];
 }
 
 type SectionNode = Extract<NavNode, { kind: 'section' }>;
 
-export function AppSidebar({ footer, grantedPermissions }: AppSidebarProps) {
+export function AppSidebar({ footer, afterWorkspace, grantedPermissions }: AppSidebarProps) {
   const t = useTranslations('shell');
   const pathname = usePathname();
   const { isMobile, setOpenMobile, state } = useSidebar();
@@ -178,14 +180,17 @@ export function AppSidebar({ footer, grantedPermissions }: AppSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         {navGroups.map((group) => (
-          <SidebarGroup key={group.id}>
-            <SidebarGroupLabel>{t(`groups.${group.id}`)}</SidebarGroupLabel>
-            <SidebarMenu>
-              {group.nodes.map((node) =>
-                node.kind === 'entry' ? entryLink(node.entry) : sectionTree(node),
-              )}
-            </SidebarMenu>
-          </SidebarGroup>
+          <Fragment key={group.id}>
+            <SidebarGroup>
+              <SidebarGroupLabel>{t(`groups.${group.id}`)}</SidebarGroupLabel>
+              <SidebarMenu>
+                {group.nodes.map((node) =>
+                  node.kind === 'entry' ? entryLink(node.entry) : sectionTree(node),
+                )}
+              </SidebarMenu>
+            </SidebarGroup>
+            {group.id === 'workspace' && afterWorkspace}
+          </Fragment>
         ))}
       </SidebarContent>
       <SidebarFooter>{footer}</SidebarFooter>

@@ -616,6 +616,34 @@ type DirectoryListing struct {
 	Total int `json:"total"`
 }
 
+// EntryProperties defines model for EntryProperties.
+type EntryProperties struct {
+	// Changed Last change of the entry's metadata (permissions, owner, name).
+	Changed *time.Time     `json:"changed,omitempty"`
+	Entry   DirectoryEntry `json:"entry"`
+
+	// Gid Numeric group on the host.
+	Gid *int64 `json:"gid,omitempty"`
+
+	// Link The entry is a symbolic link (`entry` describes its target; mode, owner and change time the link itself).
+	Link bool `json:"link"`
+
+	// LinkTarget Target of a symbolic link when relative; absolute host paths are never sent.
+	LinkTarget *string `json:"linkTarget,omitempty"`
+
+	// MimeType Media type guessed from the extension (files only, when known).
+	MimeType *string `json:"mimeType,omitempty"`
+
+	// Mode Type and permission bits as `ls -l` prints them, e.g. `drwxr-x---`.
+	Mode string `json:"mode"`
+
+	// Permissions Permission bits as a number (shown in octal, e.g. 750).
+	Permissions int `json:"permissions"`
+
+	// Uid Numeric owner on the host.
+	Uid *int64 `json:"uid,omitempty"`
+}
+
 // Error Shared error model. `code` is namespaced `<module>.<error>` and translated by the UI (`errors.<code>`); no human message is ever sent.
 type Error struct {
 	// Code Examples: system.database_unavailable
@@ -953,6 +981,11 @@ type GetMediaInfoParams struct {
 	Path string `form:"path" json:"path"`
 }
 
+// GetEntryPropertiesParams defines parameters for GetEntryProperties.
+type GetEntryPropertiesParams struct {
+	Path string `form:"path" json:"path"`
+}
+
 // SearchFilesParams defines parameters for SearchFiles.
 type SearchFilesParams struct {
 	// Path Folder to search in (`/` for every volume).
@@ -1066,6 +1099,9 @@ type ServerInterface interface {
 	// CreateFolder Create a folder
 	// (POST /v1/fs/mkdir)
 	CreateFolder(w http.ResponseWriter, r *http.Request)
+	// GetEntryProperties Details of one file or folder for the Properties dialog
+	// (GET /v1/fs/properties)
+	GetEntryProperties(w http.ResponseWriter, r *http.Request, params GetEntryPropertiesParams)
 	// RenameEntry Rename an entry in place
 	// (POST /v1/fs/rename)
 	RenameEntry(w http.ResponseWriter, r *http.Request)
@@ -1198,6 +1234,12 @@ func (_ Unimplemented) GetMediaInfo(w http.ResponseWriter, r *http.Request, para
 // CreateFolder Create a folder
 // (POST /v1/fs/mkdir)
 func (_ Unimplemented) CreateFolder(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// GetEntryProperties Details of one file or folder for the Properties dialog
+// (GET /v1/fs/properties)
+func (_ Unimplemented) GetEntryProperties(w http.ResponseWriter, r *http.Request, params GetEntryPropertiesParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1601,6 +1643,39 @@ func (siw *ServerInterfaceWrapper) CreateFolder(w http.ResponseWriter, r *http.R
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateFolder(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetEntryProperties operation middleware
+func (siw *ServerInterfaceWrapper) GetEntryProperties(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetEntryPropertiesParams
+
+	// ------------- Required query parameter "path" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "path", r.URL.Query(), &params.Path, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "path"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "path", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetEntryProperties(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2183,6 +2258,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/v1/fs/entry", wrapper.StatEntry)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/fs/properties", wrapper.GetEntryProperties)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/v1/fs/media", wrapper.GetMediaInfo)
@@ -2894,6 +2972,70 @@ func (response CreateFolder409JSONResponse) VisitCreateFolderResponse(w http.Res
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetEntryPropertiesRequestObject struct {
+	Params GetEntryPropertiesParams
+}
+
+type GetEntryPropertiesResponseObject interface {
+	VisitGetEntryPropertiesResponse(w http.ResponseWriter) error
+}
+
+type GetEntryProperties200JSONResponse EntryProperties
+
+func (response GetEntryProperties200JSONResponse) VisitGetEntryPropertiesResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetEntryProperties400JSONResponse Error
+
+func (response GetEntryProperties400JSONResponse) VisitGetEntryPropertiesResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetEntryProperties401JSONResponse Error
+
+func (response GetEntryProperties401JSONResponse) VisitGetEntryPropertiesResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetEntryProperties404JSONResponse Error
+
+func (response GetEntryProperties404JSONResponse) VisitGetEntryPropertiesResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -4564,6 +4706,9 @@ type StrictServerInterface interface {
 	// CreateFolder Create a folder
 	// (POST /v1/fs/mkdir)
 	CreateFolder(ctx context.Context, request CreateFolderRequestObject) (CreateFolderResponseObject, error)
+	// GetEntryProperties Details of one file or folder for the Properties dialog
+	// (GET /v1/fs/properties)
+	GetEntryProperties(ctx context.Context, request GetEntryPropertiesRequestObject) (GetEntryPropertiesResponseObject, error)
 	// RenameEntry Rename an entry in place
 	// (POST /v1/fs/rename)
 	RenameEntry(ctx context.Context, request RenameEntryRequestObject) (RenameEntryResponseObject, error)
@@ -4941,6 +5086,32 @@ func (sh *strictHandler) CreateFolder(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(CreateFolderResponseObject); ok {
 		if err := validResponse.VisitCreateFolderResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetEntryProperties operation middleware
+func (sh *strictHandler) GetEntryProperties(w http.ResponseWriter, r *http.Request, params GetEntryPropertiesParams) {
+	var request GetEntryPropertiesRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetEntryProperties(ctx, request.(GetEntryPropertiesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetEntryProperties")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetEntryPropertiesResponseObject); ok {
+		if err := validResponse.VisitGetEntryPropertiesResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

@@ -80,6 +80,8 @@ import type { DropData } from './ui/dnd';
 import { FolderMenu } from './ui/folder-menu';
 import { FolderPickerDialog } from './ui/folder-picker-dialog';
 import { GridView, tileGap, tileMinWidth } from './ui/grid-view';
+import { useFavorites } from './model/use-favorites';
+import { PropertiesDialog } from './ui/properties/properties-dialog';
 import { PreviewDialog } from './ui/preview/preview-dialog';
 import { ListHeader, ListView } from './ui/list-view';
 import { NameDialog } from './ui/name-dialog';
@@ -131,6 +133,8 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   const [view, setView] = useBrowserView();
   const [helpOpen, setHelpOpen] = useState(false);
   const [previewPath, setPreviewPath] = useState<string | null>(null);
+  const [propertiesPath, setPropertiesPath] = useState<string | null>(null);
+  const favorites = useFavorites();
   const [shareTarget, setShareTarget] = useState<BrowserEntry | null>(null);
   const [command, setCommand] = useState<{ entry: CommandEntry; folder: string } | null>(null);
   const plugins = usePluginMenus();
@@ -278,6 +282,9 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
       event.preventDefault();
       dispatch({ type: 'all' });
+    } else if (event.key === 'Enter' && event.altKey) {
+      event.preventDefault();
+      if (focused) setPropertiesPath(focused.path);
     } else if (event.key === 'Enter') {
       open(focused);
     } else if (event.key === 'Backspace') {
@@ -318,6 +325,13 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   const menu = {
     onOpen: open,
     onShare: setShareTarget,
+    onToggleFavorite: (entry: BrowserEntry) => {
+      void favorites.toggle(entry.path);
+    },
+    isFavorite: favorites.isFavorite,
+    onProperties: (entry: BrowserEntry) => {
+      setPropertiesPath(entry.path);
+    },
     onShowInFolder: searching
       ? (entry: BrowserEntry) => {
           navigate({ ...query, path: parentPath(entry.path) ?? '/', q: '' });
@@ -427,6 +441,10 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           canCreate={folder.actions.includes('create')}
           onNewFolder={ops.openNewFolder}
           path={query.path}
+          favorite={query.path === '/' ? null : favorites.isFavorite(query.path)}
+          onToggleFavorite={() => {
+            void favorites.toggle(query.path);
+          }}
           hrefFor={hrefFor}
           view={view}
           onViewChange={setView}
@@ -462,6 +480,10 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           onNewFolder={ops.openNewFolder}
           onSelectAll={menu.onSelectAll}
           onRefresh={menu.onRefresh}
+          favorite={query.path === '/' || searching ? null : favorites.isFavorite(query.path)}
+          onToggleFavorite={() => {
+            void favorites.toggle(query.path);
+          }}
         >
           <div
             ref={scrollRef}
@@ -609,6 +631,12 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           )}
         </footer>
         <ShortcutsDialog open={helpOpen} onOpenChange={setHelpOpen} />
+        <PropertiesDialog
+          path={propertiesPath}
+          onClose={() => {
+            setPropertiesPath(null);
+          }}
+        />
         <PreviewDialog
           entries={entries}
           path={previewPath}

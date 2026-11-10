@@ -12,8 +12,11 @@ import {
   FolderOpen,
   FolderSearch,
   HardDrive,
+  Info,
   Link2,
   Share2,
+  Star,
+  StarOff,
   PencilLine,
   RefreshCw,
   Trash2,
@@ -75,6 +78,11 @@ export interface EntryMenuHandlers {
   plugins: readonly PluginMenu[];
   /** Opens a plugin command in a dialog, with this folder filled in. */
   onPluginCommand: (folderPath: string, command: CommandEntry) => void;
+  /** Pins or unpins a folder in the person's favorites. */
+  onToggleFavorite: (entry: BrowserEntry) => void;
+  isFavorite: (path: string) => boolean;
+  /** Opens the Properties dialog of the entry. */
+  onProperties: (entry: BrowserEntry) => void;
   /** Search results only: go to the folder that holds the entry. */
   onShowInFolder?: ((entry: BrowserEntry) => void) | undefined;
 }
@@ -114,6 +122,16 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
           >
             <HardDrive aria-hidden />
             {t('folderSize')}
+          </ContextMenuItem>
+        )}
+        {entry.isDirectory && (
+          <ContextMenuItem
+            onSelect={() => {
+              handlers.onToggleFavorite(entry);
+            }}
+          >
+            {handlers.isFavorite(entry.path) ? <StarOff aria-hidden /> : <Star aria-hidden />}
+            {handlers.isFavorite(entry.path) ? t('removeFavorite') : t('addFavorite')}
           </ContextMenuItem>
         )}
         {entry.actions.includes('download') && (
@@ -243,6 +261,15 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
         >
           <Link2 aria-hidden />
           {t('copyPath')}
+        </ContextMenuItem>
+        <ContextMenuItem
+          onSelect={() => {
+            handlers.onProperties(entry);
+          }}
+        >
+          <Info aria-hidden />
+          {t('properties')}
+          <ContextMenuShortcut>Alt ↵</ContextMenuShortcut>
         </ContextMenuItem>
         {entry.actions.includes('delete') && (
           <>

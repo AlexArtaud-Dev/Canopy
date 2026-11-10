@@ -55,6 +55,34 @@ export const zDirectoryEntry = z.object({
   thumbnail: z.boolean(),
 });
 
+export const zEntryProperties = z.object({
+  entry: zDirectoryEntry,
+  mimeType: z.string().optional(),
+  link: z.boolean(),
+  linkTarget: z.string().optional(),
+  mode: z.string(),
+  permissions: z.int(),
+  uid: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  gid: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  changed: z.iso.datetime().optional(),
+});
+
 export const zSearchResults = z.object({
   path: z.string(),
   entries: z.array(zDirectoryEntry),
@@ -473,6 +501,15 @@ export const zStatEntryQuery = z.object({
  * The entry.
  */
 export const zStatEntryResponse = zDirectoryEntry;
+
+export const zGetEntryPropertiesQuery = z.object({
+  path: z.string().max(4096),
+});
+
+/**
+ * The details.
+ */
+export const zGetEntryPropertiesResponse = zEntryProperties;
 
 export const zGetMediaInfoQuery = z.object({
   path: z.string().max(4096),

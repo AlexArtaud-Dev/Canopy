@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"testing"
@@ -52,5 +53,65 @@ func TestStatEntry(t *testing.T) {
 		t.Fatal("no principal")
 	} else if _, ok := response.(api.StatEntry401JSONResponse); !ok {
 		t.Fatalf("%T", response)
+	}
+}
+
+func TestEntryProperties(t *testing.T) {
+	h := newJobsHarness(t)
+	resolver, _ := opsTree(t)
+	deps := Deps{Files: resolver, Ops: resolver, Grants: bobCanWork}
+	call := func(d Deps, target string) (int, string, api.EntryProperties) {
+		recorder, failure := h.call(d, http.MethodGet, target, h.user, "")
+		var body api.EntryProperties
+		_ = json.Unmarshal(recorder.Body.Bytes(), &body)
+		return recorder.Code, failure.Code, body
+	}
+	status, _, file := call(deps, "/v1/fs/properties?path=/docs/a.txt")
+	if status != http.StatusOK || file.Entry.Name != "a.txt" || file.Link || file.Mode[0] != '-' ||
+		file.MimeType == nil || *file.MimeType != "text/plain; charset=utf-8" {
+		t.Fatalf("file: %d %+v", status, file)
+	}
+	status, _, folder := call(deps, "/v1/fs/properties?path=/docs/sub")
+	if status != http.StatusOK || folder.Mode[0] != 'd' || folder.MimeType != nil {
+		t.Fatalf("folder: %d %+v", status, folder)
+	}
+	for target, want := range map[string]int{
+		"/v1/fs/properties?path=docs":          http.StatusBadRequest,
+		"/v1/fs/properties?path=/docs/none":    http.StatusNotFound,
+		"/v1/fs/properties?path=/locked/d.txt": http.StatusNotFound,
+	} {
+		if got, _, _ := call(deps, target); got != want {
+			t.Errorf("%s: %d, want %d", target, got, want)
+		}
+	}
+	broken := Deps{Files: resolver, Ops: resolver, Grants: fakeGrants{err: errors.New("db")}}
+	if got, code, _ := call(broken, "/v1/fs/properties?path=/docs/a.txt"); got != http.StatusInternalServerError || code != codeInternal {
+		t.Fatalf("grants failure: %d %q", got, code)
+	}
+	s := &server{deps: Deps{Logger: slog.New(slog.NewTextHandler(io.Discard, nil))}}
+	if response, _ := s.GetEntryProperties(context.Background(), api.GetEntryPropertiesRequestObject{}); response == nil {
+		t.Fatal("no principal")
+	} else if _, ok := response.(api.GetEntryProperties401JSONResponse); !ok {
+		t.Fatalf("%T", response)
+	}
+}
+
+func TestPropertyHelpers(t *testing.T) {
+	modes := map[fs.FileMode]string{
+		0o640:                    "-rw-r-----",
+		fs.ModeDir | 0o750:       "drwxr-x---",
+		fs.ModeSymlink | 0o777:   "lrwxrwxrwx",
+		fs.ModeNamedPipe | 0o600: "?rw-------",
+	}
+	for mode, want := range modes {
+		if got := lsMode(mode); got != want {
+			t.Errorf("%v: %q, want %q", mode, got, want)
+		}
+	}
+	if got := mimeTypeOf("/a/clip.mkv"); got == nil || *got != "video/x-matroska" {
+		t.Fatalf("previewer table: %v", got)
+	}
+	if got := mimeTypeOf("/a/b.unknownext"); got != nil {
+		t.Fatalf("unknown: %v", *got)
 	}
 }

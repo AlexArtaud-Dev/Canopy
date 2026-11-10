@@ -165,6 +165,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/fs/properties:
+    get:
+      operationId: getEntryProperties
+      summary: Details of one file or folder for the Properties dialog
+      description: >-
+        The entry as a listing shows it, plus what the host knows about it: type, permission bits,
+        numeric owner, last metadata change and, for a symbolic link, its relative target.
+        Visible entries only; reading changes nothing, so it is not audited.
+      tags: [files]
+      security:
+        - engineToken: []
+      parameters:
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+            maxLength: 4096
+      responses:
+        '200':
+          description: The details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryProperties'
+        '400':
+          description: Invalid path (`files.invalid_path`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such entry, or one the caller may not see (`files.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/fs/media:
     get:
       operationId: getMediaInfo
@@ -1509,6 +1552,39 @@ components:
             The engine can render a thumbnail for this file (`/v1/fs/thumbnail`): a supported
             image, or a video when ffmpeg is installed, with thumbnails turned on.
           type: boolean
+    EntryProperties:
+      type: object
+      required: [entry, mode, permissions, link]
+      properties:
+        entry:
+          $ref: '#/components/schemas/DirectoryEntry'
+        mimeType:
+          description: Media type guessed from the extension (files only, when known).
+          type: string
+        link:
+          description: The entry is a symbolic link (`entry` describes its target; mode, owner and change time the link itself).
+          type: boolean
+        linkTarget:
+          description: Target of a symbolic link when relative; absolute host paths are never sent.
+          type: string
+        mode:
+          description: Type and permission bits as `ls -l` prints them, e.g. `drwxr-x---`.
+          type: string
+        permissions:
+          description: Permission bits as a number (shown in octal, e.g. 750).
+          type: integer
+        uid:
+          description: Numeric owner on the host.
+          type: integer
+          format: int64
+        gid:
+          description: Numeric group on the host.
+          type: integer
+          format: int64
+        changed:
+          description: Last change of the entry's metadata (permissions, owner, name).
+          type: string
+          format: date-time
     PreviewKind:
       description: >-
         How the file can be shown in the browser, decided by the engine from its extension

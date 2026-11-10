@@ -22,6 +22,7 @@ import (
 type Ops interface {
 	transfer.Files
 	OpenFile(virtual string) (*os.File, fsx.Entry, error)
+	Describe(virtual string) (fsx.Details, error)
 }
 
 // failure is a refusal with its HTTP status and translated code.

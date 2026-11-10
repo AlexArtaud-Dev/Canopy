@@ -11,6 +11,7 @@ import {
   LayoutGrid,
   List,
   RefreshCw,
+  Star,
   Upload,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -58,6 +59,9 @@ interface BrowserToolbarProps {
   /** Search words (URL `q`); results replace the folder's entries. */
   search: string;
   onSearch: (q: string) => void;
+  /** Pinned state of the open folder; null at the root, which cannot be pinned. */
+  favorite: boolean | null;
+  onToggleFavorite: () => void;
 }
 
 export function BrowserToolbar(props: BrowserToolbarProps) {
@@ -95,6 +99,21 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
             </span>
           );
         })}
+        {props.favorite !== null && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-pressed={props.favorite}
+            aria-label={props.favorite ? t('menu.removeFavorite') : t('menu.addFavorite')}
+            title={props.favorite ? t('menu.removeFavorite') : t('menu.addFavorite')}
+            onClick={props.onToggleFavorite}
+          >
+            <Star
+              aria-hidden
+              className={props.favorite ? 'fill-primary text-primary' : undefined}
+            />
+          </Button>
+        )}
       </nav>
       <SearchBox
         value={props.search}
