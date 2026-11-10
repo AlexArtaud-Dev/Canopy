@@ -159,7 +159,7 @@ export type CompressRequest = {
    * Items to archive, all in the same folder.
    */
   sources: Array<string>;
-  format: 'zip' | 'tar.gz';
+  format: 'zip' | 'tar.gz' | '7z';
 };
 
 export type ExtractRequest = {
@@ -268,6 +268,15 @@ export type CommandParam = {
   min?: number;
   max?: number;
   values?: Array<string>;
+  /**
+   * Enum values with their labels (shown instead of the raw values).
+   */
+  choices?: Array<CommandChoice>;
+};
+
+export type CommandChoice = {
+  value: string;
+  label: LocalizedText;
 };
 
 /**

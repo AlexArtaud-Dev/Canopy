@@ -46,7 +46,7 @@ type member struct {
 
 // CompressHandler writes the archive next to the sources. What the person may not read is left
 // out; links are never followed. A failed or cancelled job leaves no partial archive.
-func CompressHandler(files Files, grants transfer.Grants) jobs.Handler[CompressArgs] {
+func CompressHandler(files Files, grants transfer.Grants, tool *SevenZip) jobs.Handler[CompressArgs] {
 	return func(ctx context.Context, args CompressArgs, report *jobs.Reporter) (map[string]any, error) {
 		access, err := transfer.LoadAccess(ctx, grants, args.Subject)
 		if err != nil {
@@ -63,6 +63,14 @@ func CompressHandler(files Files, grants transfer.Grants) jobs.Handler[CompressA
 		target := path.Join(args.Folder, name)
 		items := int64(len(members))
 		progress := jobs.Progress{BytesTotal: &total, ItemsTotal: &items}
+		if external(args.Format) {
+			written, err := compressExternal(ctx, tool, meter{ctx: ctx, report: report, progress: &progress}, args.Folder, target, members)
+			if err != nil {
+				_ = files.RemoveAll(target)
+				return nil, coded(err)
+			}
+			return map[string]any{"path": target, "items": written, "bytes": total, "skipped": skipped}, nil
+		}
 		write := func(out io.Writer) error {
 			return writeArchive(meter{ctx: ctx, report: report, progress: &progress}, files, out, args.Format, members)
 		}

@@ -26,7 +26,7 @@ const testCatalog = `
   params:
     - { name: source, type: path, access: read, required: true, label: { en: S, fr: S, es: S } }
     - { name: target, type: path, access: create, required: true, label: { en: T, fr: T, es: T } }
-    - { name: level, type: enum, values: [a, b], label: { en: L, fr: L, es: L } }
+    - { name: level, type: enum, choices: [{ value: a, label: { en: A, fr: A, es: A } }, { value: b, label: { en: B, fr: Bé, es: B } }], label: { en: L, fr: L, es: L } }
     - { name: verbose, type: bool, flag: "-v", default: false, secret: false, label: { en: V, fr: V, es: V } }
   args: ["{flags}", "{source}", "{target}"]
   progressParser: none
@@ -74,6 +74,9 @@ func TestCommandEndpoints(t *testing.T) {
 	_ = json.Unmarshal(recorder.Body.Bytes(), &listed)
 	if !listed.Advanced || len(listed.Entries) != 2 || !listed.Entries[0].DryRun || listed.Entries[0].Params[0].Access == nil {
 		t.Fatalf("advanced for administrators in advanced mode: %+v", listed)
+	}
+	if level := listed.Entries[0].Params[2]; level.Choices == nil || (*level.Choices)[1].Label.Fr != "Bé" || len(*level.Values) != 2 {
+		t.Fatalf("labelled choices: %+v", level)
 	}
 	recorder, _ = h.call(deps(true, nil, bobCanWork), http.MethodGet, "/v1/commands", h.user, "")
 	_ = json.Unmarshal(recorder.Body.Bytes(), &listed)

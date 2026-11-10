@@ -101,7 +101,8 @@
       "checksum": "Suma de verificación",
       "formats": {
         "zip": "Archivo ZIP",
-        "tarGz": "Archivo TAR.GZ"
+        "tarGz": "Archivo TAR.GZ",
+        "sevenZ": "Archivo 7Z"
       },
       "algorithms": {
         "md5": "MD5",

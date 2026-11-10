@@ -65,13 +65,21 @@ type Param struct {
 	Min      *int64   `yaml:"min,omitempty"`
 	Max      *int64   `yaml:"max,omitempty"`
 	Values   []string `yaml:"values,omitempty"`
-	Pattern  string   `yaml:"pattern,omitempty"`
+	// Choices name enum values in the three languages; they replace Values when given.
+	Choices []Choice `yaml:"choices,omitempty"`
+	Pattern string   `yaml:"pattern,omitempty"`
 	// Flag is how the value appears in {flags}: "--delete" for a bool, "--bwlimit={value}" else.
 	Flag string `yaml:"flag,omitempty"`
 	// Secret values never appear in previews or logs.
 	Secret bool `yaml:"secret,omitempty"`
 
 	pattern *regexp.Regexp
+}
+
+// Choice is one value of an enum param with its label.
+type Choice struct {
+	Value string `yaml:"value"`
+	Label Text   `yaml:"label"`
 }
 
 // Entry is one catalog command.
@@ -221,6 +229,9 @@ func (e *Entry) validate() error {
 }
 
 func (p *Param) validate() error {
+	if err := p.takeChoices(); err != nil {
+		return err
+	}
 	switch {
 	case !namePattern.MatchString(p.Name) || p.Name == "flags" || p.Name == "value":
 		return errors.New("invalid name")
@@ -245,6 +256,23 @@ func (p *Param) validate() error {
 			return fmt.Errorf("pattern: %w", err)
 		}
 		p.pattern = compiled
+	}
+	return nil
+}
+
+// takeChoices turns labelled choices into the enum's values.
+func (p *Param) takeChoices() error {
+	if len(p.Choices) == 0 {
+		return nil
+	}
+	if p.Type != TypeEnum || len(p.Values) > 0 {
+		return errors.New("choices are for enum params, instead of values")
+	}
+	for _, choice := range p.Choices {
+		if choice.Value == "" || choice.Label.En == "" || choice.Label.Fr == "" || choice.Label.Es == "" {
+			return errors.New("each choice needs a value and en, fr and es labels")
+		}
+		p.Values = append(p.Values, choice.Value)
 	}
 	return nil
 }

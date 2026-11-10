@@ -166,8 +166,10 @@ describe('downloadHref', () => {
 
 describe('archive inputs', () => {
   it('recognizes archives Canopy extracts', () => {
-    expect(['a.zip', 'b.TAR', 'c.tar.gz', 'd.tgz'].every(isArchive)).toBe(true);
-    expect(isArchive('e.rar')).toBe(false);
+    expect(['a.zip', 'b.TAR', 'c.tar.gz', 'd.tgz', 'e.7z', 'f.RAR', 'g.iso'].every(isArchive)).toBe(
+      true,
+    );
+    expect(isArchive('h.cab')).toBe(false);
   });
 
   it('validates job requests', () => {
@@ -175,7 +177,7 @@ describe('archive inputs', () => {
     expect(compressInputSchema.safeParse({ sources: [], format: 'zip' }).success).toBe(false);
     expect(extractInputSchema.safeParse({ path: '/a.zip' }).success).toBe(true);
     expect(checksumInputSchema.safeParse({ path: '/a', algorithm: 'crc' }).success).toBe(false);
-    expect([...archiveFormats, ...checksumAlgorithms]).toHaveLength(6);
+    expect([...archiveFormats, ...checksumAlgorithms]).toHaveLength(7);
   });
 });
 

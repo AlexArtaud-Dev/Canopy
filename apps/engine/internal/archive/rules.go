@@ -1,4 +1,5 @@
-// Package archive compresses selections into zip or tar.gz, extracts archives, and computes
+// Package archive compresses selections into zip, tar.gz or 7z, extracts archives (7z, RAR and
+// ISO through 7-Zip), and computes
 // checksums, each as a job. Archive contents are untrusted: every entry name is checked before
 // anything is written, and every write goes through the root-confined resolver.
 package archive
@@ -56,18 +57,24 @@ func FormatOf(name string) Format {
 		return TarGz
 	case strings.HasSuffix(lower, ".tar"):
 		return Tar
+	case strings.HasSuffix(lower, ".7z"):
+		return SevenZ
+	case strings.HasSuffix(lower, ".rar"):
+		return Rar
+	case strings.HasSuffix(lower, ".iso"):
+		return Iso
 	default:
 		return None
 	}
 }
 
 // ValidOutput guards a format to write that arrives from a request.
-func ValidOutput(format Format) bool { return format == Zip || format == TarGz }
+func ValidOutput(format Format) bool { return format == Zip || format == TarGz || format == SevenZ }
 
 // Stem is an archive's name without its archive extension ("photos.tar.gz" → "photos").
 func Stem(name string) string {
 	lower := strings.ToLower(name)
-	for _, extension := range []string{".tar.gz", ".tgz", ".tar", ".zip"} {
+	for _, extension := range []string{".tar.gz", ".tgz", ".tar", ".zip", ".7z", ".rar", ".iso"} {
 		if strings.HasSuffix(lower, extension) && len(name) > len(extension) {
 			return name[:len(name)-len(extension)]
 		}

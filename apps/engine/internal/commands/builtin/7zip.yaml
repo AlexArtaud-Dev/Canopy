@@ -1,0 +1,229 @@
+# 7-Zip (7zz, shipped in every engine image). Every entry stores links as links (-snl) instead of
+# following them, so nothing outside the root can end up in an archive.
+- id: sevenzip.create
+  name: { en: Create a 7z archive (7-Zip), fr: Créer une archive 7z (7-Zip), es: Crear un archivo 7z (7-Zip) }
+  description:
+    en: Packs a file or folder into a 7z archive, with the compression, encryption and splitting options of 7-Zip. An existing archive with the same name is updated.
+    fr: Compresse un fichier ou un dossier dans une archive 7z, avec les options de compression, de chiffrement et de découpage de 7-Zip. Une archive existante du même nom est mise à jour.
+    es: Comprime un archivo o una carpeta en un archivo 7z, con las opciones de compresión, cifrado y división de 7-Zip. Un archivo existente con el mismo nombre se actualiza.
+  binary: 7zz
+  mode: advanced
+  params:
+    - name: source
+      type: path
+      access: read
+      required: true
+      label: { en: File or folder to pack, fr: Fichier ou dossier à compresser, es: Archivo o carpeta a comprimir }
+    - name: destination
+      type: path
+      access: create
+      required: true
+      label: { en: Folder for the archive, fr: Dossier de l’archive, es: Carpeta del archivo }
+    - name: archiveName
+      type: string
+      required: true
+      pattern: '[^/\\]+'
+      label: { en: Archive name (without .7z), fr: Nom de l’archive (sans .7z), es: Nombre del archivo (sin .7z) }
+    - name: level
+      type: enum
+      default: '5'
+      flag: '-mx={value}'
+      label: { en: Compression level, fr: Niveau de compression, es: Nivel de compresión }
+      choices:
+        - { value: '0', label: { en: Store (no compression), fr: Stocker (sans compression), es: Almacenar (sin compresión) } }
+        - { value: '1', label: { en: Fastest, fr: Le plus rapide, es: Lo más rápido } }
+        - { value: '3', label: { en: Fast, fr: Rapide, es: Rápido } }
+        - { value: '5', label: { en: Normal, fr: Normal, es: Normal } }
+        - { value: '7', label: { en: Maximum, fr: Maximum, es: Máximo } }
+        - { value: '9', label: { en: Ultra, fr: Ultra, es: Ultra } }
+    - name: method
+      type: enum
+      default: LZMA2
+      flag: '-m0={value}'
+      label: { en: Compression method, fr: Méthode de compression, es: Método de compresión }
+      choices:
+        - { value: LZMA2, label: { en: LZMA2 (recommended), fr: LZMA2 (recommandé), es: LZMA2 (recomendado) } }
+        - { value: LZMA, label: { en: LZMA, fr: LZMA, es: LZMA } }
+        - { value: PPMd, label: { en: PPMd (text), fr: PPMd (texte), es: PPMd (texto) } }
+        - { value: BZip2, label: { en: BZip2, fr: BZip2, es: BZip2 } }
+        - { value: Copy, label: { en: Copy (no compression), fr: Copie (sans compression), es: Copia (sin compresión) } }
+    - name: solid
+      type: enum
+      default: 'on'
+      flag: '-ms={value}'
+      label: { en: Solid archive, fr: Archive solide, es: Archivo sólido }
+      choices:
+        - { value: 'on', label: { en: Yes (smaller), fr: Oui (plus petite), es: Sí (más pequeño) } }
+        - { value: 'off', label: { en: No (faster to update and extract one file), fr: Non (plus rapide à modifier et à extraire un fichier), es: No (más rápido de actualizar y extraer un archivo) } }
+    - name: volumeSize
+      type: string
+      pattern: '[1-9][0-9]{0,5}[kmg]'
+      flag: '-v{value}'
+      label: { en: Split into parts of (e.g. 700m or 4g), fr: Découper en parties de (ex. 700m ou 4g), es: Dividir en partes de (p. ej. 700m o 4g) }
+    - name: password
+      type: string
+      secret: true
+      flag: '-p{value}'
+      label: { en: Password (AES-256), fr: Mot de passe (AES-256), es: Contraseña (AES-256) }
+    - name: encryptNames
+      type: bool
+      default: false
+      flag: '-mhe=on'
+      label: { en: Also hide file names (needs a password), fr: Masquer aussi les noms de fichiers (mot de passe requis), es: Ocultar también los nombres (requiere contraseña) }
+  args: ['a', '-t7z', '{flags}', '-snl', '-bsp1', '-bse1', '-bso1', '-y', '{destination}/{archiveName}.7z', '{source}']
+  progressParser: percent-regex
+  progressPattern: '^\s*(?P<percent>\d{1,3})%'
+  timeout: 24h
+
+- id: sevenzip.zip
+  name: { en: Create a zip archive (7-Zip), fr: Créer une archive zip (7-Zip), es: Crear un archivo zip (7-Zip) }
+  description:
+    en: Packs a file or folder into a zip archive with 7-Zip, optionally encrypted (AES-256) or split into parts. An existing archive with the same name is updated.
+    fr: Compresse un fichier ou un dossier dans une archive zip avec 7-Zip, éventuellement chiffrée (AES-256) ou découpée en parties. Une archive existante du même nom est mise à jour.
+    es: Comprime un archivo o una carpeta en un archivo zip con 7-Zip, opcionalmente cifrado (AES-256) o dividido en partes. Un archivo existente con el mismo nombre se actualiza.
+  binary: 7zz
+  mode: advanced
+  params:
+    - name: source
+      type: path
+      access: read
+      required: true
+      label: { en: File or folder to pack, fr: Fichier ou dossier à compresser, es: Archivo o carpeta a comprimir }
+    - name: destination
+      type: path
+      access: create
+      required: true
+      label: { en: Folder for the archive, fr: Dossier de l’archive, es: Carpeta del archivo }
+    - name: archiveName
+      type: string
+      required: true
+      pattern: '[^/\\]+'
+      label: { en: Archive name (without .zip), fr: Nom de l’archive (sans .zip), es: Nombre del archivo (sin .zip) }
+    - name: level
+      type: enum
+      default: '5'
+      flag: '-mx={value}'
+      label: { en: Compression level, fr: Niveau de compression, es: Nivel de compresión }
+      choices:
+        - { value: '0', label: { en: Store (no compression), fr: Stocker (sans compression), es: Almacenar (sin compresión) } }
+        - { value: '1', label: { en: Fastest, fr: Le plus rapide, es: Lo más rápido } }
+        - { value: '5', label: { en: Normal, fr: Normal, es: Normal } }
+        - { value: '9', label: { en: Ultra, fr: Ultra, es: Ultra } }
+    - name: method
+      type: enum
+      default: Deflate
+      flag: '-mm={value}'
+      label: { en: Compression method, fr: Méthode de compression, es: Método de compresión }
+      choices:
+        - { value: Deflate, label: { en: Deflate (opens everywhere), fr: Deflate (s’ouvre partout), es: Deflate (se abre en todas partes) } }
+        - { value: Deflate64, label: { en: Deflate64, fr: Deflate64, es: Deflate64 } }
+        - { value: BZip2, label: { en: BZip2, fr: BZip2, es: BZip2 } }
+        - { value: LZMA, label: { en: LZMA, fr: LZMA, es: LZMA } }
+    - name: volumeSize
+      type: string
+      pattern: '[1-9][0-9]{0,5}[kmg]'
+      flag: '-v{value}'
+      label: { en: Split into parts of (e.g. 700m or 4g), fr: Découper en parties de (ex. 700m ou 4g), es: Dividir en partes de (p. ej. 700m o 4g) }
+    - name: password
+      type: string
+      secret: true
+      flag: '-p{value}'
+      label: { en: Password, fr: Mot de passe, es: Contraseña }
+    - name: encryption
+      type: enum
+      default: AES256
+      flag: '-mem={value}'
+      label: { en: Encryption (with a password), fr: Chiffrement (avec un mot de passe), es: Cifrado (con contraseña) }
+      choices:
+        - { value: AES256, label: { en: AES-256 (secure), fr: AES-256 (sûr), es: AES-256 (seguro) } }
+        - { value: ZipCrypto, label: { en: 'ZipCrypto (weak; for old tools)', fr: 'ZipCrypto (faible ; pour les vieux outils)', es: 'ZipCrypto (débil; para herramientas antiguas)' } }
+  args: ['a', '-tzip', '{flags}', '-snl', '-bsp1', '-bse1', '-bso1', '-y', '{destination}/{archiveName}.zip', '{source}']
+  progressParser: percent-regex
+  progressPattern: '^\s*(?P<percent>\d{1,3})%'
+  timeout: 24h
+
+- id: sevenzip.extract
+  name: { en: Extract an archive (7-Zip), fr: Extraire une archive (7-Zip), es: Extraer un archivo (7-Zip) }
+  description:
+    en: Extracts 7z, zip, RAR, tar, ISO and many other archives into a folder, with a password when needed. For split archives, pick the first part.
+    fr: Extrait les archives 7z, zip, RAR, tar, ISO et bien d’autres dans un dossier, avec un mot de passe si besoin. Pour une archive découpée, choisissez la première partie.
+    es: Extrae archivos 7z, zip, RAR, tar, ISO y muchos más en una carpeta, con contraseña si hace falta. Para un archivo dividido, elige la primera parte.
+  binary: 7zz
+  mode: advanced
+  params:
+    - name: archive
+      type: path
+      access: read
+      required: true
+      label: { en: Archive, fr: Archive, es: Archivo }
+    - name: destination
+      type: path
+      access: create
+      required: true
+      label: { en: Extract into, fr: Extraire dans, es: Extraer en }
+    - name: existing
+      type: enum
+      default: s
+      flag: '-ao{value}'
+      label: { en: Files that already exist, fr: Fichiers déjà présents, es: Archivos que ya existen }
+      choices:
+        - { value: s, label: { en: Keep them (skip), fr: Les garder (ignorer), es: Conservarlos (omitir) } }
+        - { value: a, label: { en: Overwrite them, fr: Les remplacer, es: Sobrescribirlos } }
+        - { value: u, label: { en: Rename the extracted file, fr: Renommer le fichier extrait, es: Renombrar el archivo extraído } }
+        - { value: t, label: { en: Rename the existing file, fr: Renommer le fichier existant, es: Renombrar el archivo existente } }
+    - name: password
+      type: string
+      secret: true
+      flag: '-p{value}'
+      label: { en: Password, fr: Mot de passe, es: Contraseña }
+  args: ['x', '{flags}', '-bsp1', '-bse1', '-bso1', '-y', '-o{destination}', '--', '{archive}']
+  progressParser: percent-regex
+  progressPattern: '^\s*(?P<percent>\d{1,3})%'
+  timeout: 24h
+
+- id: sevenzip.test
+  name: { en: Test an archive (7-Zip), fr: Tester une archive (7-Zip), es: Probar un archivo (7-Zip) }
+  description:
+    en: Checks that every file of an archive can be read back intact, without extracting anything.
+    fr: Vérifie que chaque fichier d’une archive peut être relu intact, sans rien extraire.
+    es: Comprueba que cada archivo de un archivo comprimido se puede leer intacto, sin extraer nada.
+  binary: 7zz
+  mode: advanced
+  params:
+    - name: archive
+      type: path
+      access: read
+      required: true
+      label: { en: Archive, fr: Archive, es: Archivo }
+    - name: password
+      type: string
+      secret: true
+      flag: '-p{value}'
+      label: { en: Password, fr: Mot de passe, es: Contraseña }
+  args: ['t', '{flags}', '-bsp1', '-bse1', '-bso1', '--', '{archive}']
+  progressParser: percent-regex
+  progressPattern: '^\s*(?P<percent>\d{1,3})%'
+  timeout: 24h
+
+- id: sevenzip.list
+  name: { en: List an archive (7-Zip), fr: Lister une archive (7-Zip), es: Listar un archivo (7-Zip) }
+  description:
+    en: Shows the files an archive holds, with their size and date, without extracting anything.
+    fr: Affiche les fichiers que contient une archive, avec leur taille et leur date, sans rien extraire.
+    es: Muestra los archivos que contiene un archivo comprimido, con su tamaño y fecha, sin extraer nada.
+  binary: 7zz
+  mode: advanced
+  params:
+    - name: archive
+      type: path
+      access: read
+      required: true
+      label: { en: Archive, fr: Archive, es: Archivo }
+    - name: password
+      type: string
+      secret: true
+      flag: '-p{value}'
+      label: { en: Password, fr: Mot de passe, es: Contraseña }
+  args: ['l', '{flags}', '--', '{archive}']
+  progressParser: none
+  timeout: 10m

@@ -87,7 +87,7 @@ func TestCompressThenExtract(t *testing.T) {
 				{SubjectType: authz.SubjectUser, SubjectID: "bob", Path: "/v/docs/private", Actions: []string{"read"}, Effect: authz.EffectDeny},
 			}}
 			args := CompressArgs{Sources: []string{"/v/docs", "/v/notes.md"}, Folder: "/v", Format: format, Subject: bob}
-			result, err := CompressHandler(files, grants)(ctx, args, reporter())
+			result, err := CompressHandler(files, grants, nil)(ctx, args, reporter())
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -96,12 +96,12 @@ func TestCompressThenExtract(t *testing.T) {
 				t.Fatalf("compress: %v", result)
 			}
 			// A second archive gets a free name.
-			again, err := CompressHandler(files, grants)(ctx, args, reporter())
+			again, err := CompressHandler(files, grants, nil)(ctx, args, reporter())
 			if err != nil || again["path"] != "/v/v (2)."+string(format) {
 				t.Fatalf("free name: %v %v", again, err)
 			}
 
-			extracted, err := ExtractHandler(files)(ctx, ExtractArgs{Archive: archive, Subject: admin}, reporter())
+			extracted, err := ExtractHandler(files, nil)(ctx, ExtractArgs{Archive: archive, Subject: admin}, reporter())
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -122,20 +122,20 @@ func TestCompressRefusals(t *testing.T) {
 	files, _ := tree(t, map[string]string{"v/a.txt": "alpha"})
 	ctx := context.Background()
 	args := CompressArgs{Sources: []string{"/v/a.txt"}, Folder: "/v", Format: Zip, Subject: admin}
-	if _, err := CompressHandler(tight{files}, fakeGrants{})(ctx, args, reporter()); err == nil {
+	if _, err := CompressHandler(tight{files}, fakeGrants{}, nil)(ctx, args, reporter()); err == nil {
 		t.Fatal("no space")
 	}
-	if _, err := CompressHandler(files, fakeGrants{err: errors.New("db")})(ctx, CompressArgs{Subject: authz.Subject{UserID: "bob"}}, reporter()); err == nil {
+	if _, err := CompressHandler(files, fakeGrants{err: errors.New("db")}, nil)(ctx, CompressArgs{Subject: authz.Subject{UserID: "bob"}}, reporter()); err == nil {
 		t.Fatal("grants failure")
 	}
 	missing := args
 	missing.Sources = []string{"/v/none.txt"}
-	if _, err := CompressHandler(files, fakeGrants{})(ctx, missing, reporter()); !errors.Is(err, fsx.ErrNotFound) {
+	if _, err := CompressHandler(files, fakeGrants{}, nil)(ctx, missing, reporter()); !errors.Is(err, fsx.ErrNotFound) {
 		t.Fatalf("missing source: %v", err)
 	}
 	cancelled, cancel := context.WithCancel(ctx)
 	cancel()
-	if _, err := CompressHandler(files, fakeGrants{})(cancelled, CompressArgs{Sources: []string{"/v"}, Folder: "/", Format: Zip, Subject: admin}, reporter()); err == nil {
+	if _, err := CompressHandler(files, fakeGrants{}, nil)(cancelled, CompressArgs{Sources: []string{"/v"}, Folder: "/", Format: Zip, Subject: admin}, reporter()); err == nil {
 		t.Fatal("cancelled")
 	}
 }
@@ -184,7 +184,7 @@ func tarOf(t *testing.T, headers []*tar.Header, gzipped bool) []byte {
 
 func extract(t *testing.T, name string, files Files) (map[string]any, error) {
 	t.Helper()
-	return ExtractHandler(files)(context.Background(), ExtractArgs{Archive: "/v/" + name, Subject: admin}, reporter())
+	return ExtractHandler(files, nil)(context.Background(), ExtractArgs{Archive: "/v/" + name, Subject: admin}, reporter())
 }
 
 func TestExtractGuards(t *testing.T) {
@@ -314,7 +314,7 @@ func TestCompressSkipsWhatCannotBeRead(t *testing.T) {
 		{SubjectType: authz.SubjectUser, SubjectID: "bob", Path: "/v/a.txt", Actions: []string{"read"}, Effect: authz.EffectAllow},
 	}}
 	args := CompressArgs{Sources: []string{"/v/a.txt", "/v/b.txt"}, Folder: "/v", Format: TarGz, Subject: bob}
-	result, err := CompressHandler(files, grants)(context.Background(), args, reporter())
+	result, err := CompressHandler(files, grants, nil)(context.Background(), args, reporter())
 	if err != nil || result["items"] != int64(1) || result["skipped"] != int64(1) {
 		t.Fatalf("skipped: %v %v", result, err)
 	}

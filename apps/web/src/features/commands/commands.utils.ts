@@ -87,3 +87,13 @@ export function localized(text: { en: string; fr: string; es: string }, locale: 
   if (locale === 'es') return text.es;
   return text.en;
 }
+
+/** An enum value as people read it: its label when the catalog names it, else the value. */
+export function choiceLabel(
+  param: Pick<CommandParam, 'choices'>,
+  value: string,
+  locale: string,
+): string {
+  const choice = param.choices?.find((candidate) => candidate.value === value);
+  return choice ? localized(choice.label, locale) : value;
+}

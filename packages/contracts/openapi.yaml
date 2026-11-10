@@ -362,7 +362,7 @@ paths:
       operationId: startCompress
       summary: Compress items into an archive
       description: >-
-        Starts a job writing a zip or tar.gz of the sources into the folder that holds them (never replacing anything: a free name is picked). What the caller may not read is left out; links are skipped. The result carries the archive path.
+        Starts a job writing a zip, tar.gz or 7z (through 7-Zip) of the sources into the folder that holds them (never replacing anything: a free name is picked). What the caller may not read is left out; links are skipped. The result carries the archive path.
       tags: [jobs]
       security:
         - engineToken: []
@@ -414,7 +414,7 @@ paths:
       operationId: startExtract
       summary: Extract an archive next to it
       description: >-
-        Starts a job unpacking a zip, tar or tar.gz into a new folder next to it. Unsafe entry names fail the job (`files.bad_archive`); links and devices are skipped; extraction stops past the free space or 200 000 entries (`files.archive_too_large`). The result carries the folder path.
+        Starts a job unpacking a zip, tar, tar.gz, 7z, RAR or ISO (the last three through 7-Zip) into a new folder next to it. Unsafe entry names fail the job (`files.bad_archive`), an encrypted archive fails with `files.archive_encrypted`; links and devices are skipped; extraction stops past the free space or 200 000 entries (`files.archive_too_large`). The result carries the folder path.
       tags: [jobs]
       security:
         - engineToken: []
@@ -1694,7 +1694,7 @@ components:
             maxLength: 4096
         format:
           type: string
-          enum: [zip, tar.gz]
+          enum: [zip, tar.gz, 7z]
     ExtractRequest:
       type: object
       required: [path]
@@ -1828,6 +1828,18 @@ components:
         values:
           type: array
           items: { type: string }
+        choices:
+          description: Enum values with their labels (shown instead of the raw values).
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandChoice'
+    CommandChoice:
+      type: object
+      required: [value, label]
+      properties:
+        value: { type: string }
+        label:
+          $ref: '#/components/schemas/LocalizedText'
     CommandPlugin:
       description: The plugin a command comes from (absent for built-in commands).
       type: object

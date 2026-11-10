@@ -110,6 +110,7 @@ func (e CommandParamType) Valid() bool {
 
 // Defines values for CompressRequestFormat.
 const (
+	N7z   CompressRequestFormat = "7z"
 	TarGz CompressRequestFormat = "tar.gz"
 	Zip   CompressRequestFormat = "zip"
 )
@@ -117,6 +118,8 @@ const (
 // Valid indicates whether the value is a known member of the CompressRequestFormat enum.
 func (e CompressRequestFormat) Valid() bool {
 	switch e {
+	case N7z:
+		return true
 	case TarGz:
 		return true
 	case Zip:
@@ -477,6 +480,12 @@ type CommandCatalog struct {
 	Entries  []CommandEntry `json:"entries"`
 }
 
+// CommandChoice defines model for CommandChoice.
+type CommandChoice struct {
+	Label LocalizedText `json:"label"`
+	Value string        `json:"value"`
+}
+
 // CommandEntry defines model for CommandEntry.
 type CommandEntry struct {
 	Description LocalizedText `json:"description"`
@@ -498,16 +507,19 @@ type CommandEntryMode string
 // CommandParam defines model for CommandParam.
 type CommandParam struct {
 	// Access Path parameters only.
-	Access   *CommandParamAccess `json:"access,omitempty"`
-	Default  interface{}         `json:"default,omitempty"`
-	Label    LocalizedText       `json:"label"`
-	Max      *int64              `json:"max,omitempty"`
-	Min      *int64              `json:"min,omitempty"`
-	Name     string              `json:"name"`
-	Required bool                `json:"required"`
-	Secret   bool                `json:"secret"`
-	Type     CommandParamType    `json:"type"`
-	Values   *[]string           `json:"values,omitempty"`
+	Access *CommandParamAccess `json:"access,omitempty"`
+
+	// Choices Enum values with their labels (shown instead of the raw values).
+	Choices  *[]CommandChoice `json:"choices,omitempty"`
+	Default  interface{}      `json:"default,omitempty"`
+	Label    LocalizedText    `json:"label"`
+	Max      *int64           `json:"max,omitempty"`
+	Min      *int64           `json:"min,omitempty"`
+	Name     string           `json:"name"`
+	Required bool             `json:"required"`
+	Secret   bool             `json:"secret"`
+	Type     CommandParamType `json:"type"`
+	Values   *[]string        `json:"values,omitempty"`
 }
 
 // CommandParamAccess Path parameters only.

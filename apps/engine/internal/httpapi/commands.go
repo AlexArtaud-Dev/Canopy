@@ -69,6 +69,13 @@ func toCommandEntry(entry commands.Entry) api.CommandEntry {
 			values := slices.Clone(param.Values)
 			converted.Values = &values
 		}
+		if len(param.Choices) > 0 {
+			choices := make([]api.CommandChoice, 0, len(param.Choices))
+			for _, choice := range param.Choices {
+				choices = append(choices, api.CommandChoice{Value: choice.Value, Label: localized(choice.Label)})
+			}
+			converted.Choices = &choices
+		}
 		params = append(params, converted)
 	}
 	converted := api.CommandEntry{

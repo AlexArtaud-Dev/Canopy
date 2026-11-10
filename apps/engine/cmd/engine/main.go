@@ -137,7 +137,7 @@ func run() error {
 		logger.Warn("plugins not loaded", slog.Any("error", err))
 	}
 
-	jobService, err := startJobs(startupCtx, pool, resolver, grants, trashService, commandRunner{catalog, launcher}, logger)
+	jobService, err := startJobs(startupCtx, pool, resolver, grants, trashService, commandRunner{catalog, launcher, sevenZip(cfg.CacheDir, resolver, logger)}, logger)
 	if err != nil {
 		return err
 	}
@@ -204,10 +204,11 @@ func run() error {
 }
 
 // startJobs registers every job kind and starts the runner with the configured concurrency.
-// commandRunner carries what the command job needs.
+// commandRunner carries what the jobs running external programs need.
 type commandRunner struct {
 	catalog  *commands.Available
 	launcher commands.Launcher
+	sevenZip *archive.SevenZip
 }
 
 func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, grants *grantstore.Store, trashService *trash.Service, command commandRunner, logger *slog.Logger) (*jobService, error) {
@@ -220,8 +221,8 @@ func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, gra
 	jobs.Register(registry, transfer.Handler(files, grants))
 	jobs.Register(registry, trashService.DeleteHandler())
 	jobs.Register(registry, trashService.EmptyHandler())
-	jobs.Register(registry, archive.CompressHandler(files, grants))
-	jobs.Register(registry, archive.ExtractHandler(files))
+	jobs.Register(registry, archive.CompressHandler(files, grants, command.sevenZip))
+	jobs.Register(registry, archive.ExtractHandler(files, command.sevenZip))
 	jobs.Register(registry, archive.ChecksumHandler(files))
 	jobs.Register(registry, commands.RunHandler(command.catalog, command.launcher))
 	runner, err := jobs.Start(ctx, registry, pool, limits)

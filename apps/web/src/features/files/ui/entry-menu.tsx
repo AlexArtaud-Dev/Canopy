@@ -50,6 +50,12 @@ import type { PluginMenu } from '@/features/commands';
 import type { BrowserEntry } from '../server/browse';
 import { PluginsSubmenu } from './plugins-submenu';
 
+/** Translation keys of the archive formats (a dot cannot be part of a key). */
+const formatKeys = { zip: 'zip', 'tar.gz': 'tarGz', '7z': 'sevenZ' } as const satisfies Record<
+  ArchiveFormat,
+  string
+>;
+
 export interface EntryMenuHandlers {
   onOpen: (entry: BrowserEntry) => void;
   onCopyPath: (entry: BrowserEntry) => void;
@@ -158,7 +164,8 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
                     handlers.onCompress(entry, format);
                   }}
                 >
-                  {format === 'zip' ? t('formats.zip') : t('formats.tarGz')}
+                  {/* i18n-dynamic: files.browser.menu.formats */}
+                  {t(`formats.${formatKeys[format]}`)}
                 </ContextMenuItem>
               ))}
             </ContextMenuSubContent>

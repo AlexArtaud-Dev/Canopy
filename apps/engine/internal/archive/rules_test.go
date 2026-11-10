@@ -8,16 +8,16 @@ import (
 )
 
 func TestFormats(t *testing.T) {
-	cases := map[string]Format{"a.ZIP": Zip, "a.tar.gz": TarGz, "a.tgz": TarGz, "a.tar": Tar, "a.rar": None}
+	cases := map[string]Format{"a.ZIP": Zip, "a.tar.gz": TarGz, "a.tgz": TarGz, "a.tar": Tar, "a.7z": SevenZ, "a.RAR": Rar, "disc.iso": Iso, "a.cab": None}
 	for name, want := range cases {
 		if got := FormatOf(name); got != want {
 			t.Errorf("FormatOf(%q) = %q", name, got)
 		}
 	}
-	if !ValidOutput(Zip) || !ValidOutput(TarGz) || ValidOutput(Tar) || ValidOutput(None) {
+	if !ValidOutput(Zip) || !ValidOutput(TarGz) || !ValidOutput(SevenZ) || ValidOutput(Tar) || ValidOutput(Rar) || ValidOutput(None) {
 		t.Fatal("outputs")
 	}
-	stems := map[string]string{"photos.tar.gz": "photos", "x.TGZ": "x", "a.zip": "a", "b.tar": "b", ".zip": ".zip", "notes": "notes"}
+	stems := map[string]string{"photos.tar.gz": "photos", "x.TGZ": "x", "a.zip": "a", "b.tar": "b", "c.7z": "c", "d.rar": "d", ".zip": ".zip", "notes": "notes"}
 	for name, want := range stems {
 		if got := Stem(name); got != want {
 			t.Errorf("Stem(%q) = %q", name, got)

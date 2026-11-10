@@ -51,7 +51,7 @@ type extraction struct {
 // one (no absolute paths, no "..", nothing reserved); links and devices are skipped; the entry
 // count and the bytes written are capped, the bytes by the free space. A failed or cancelled job
 // removes the folder it created.
-func ExtractHandler(files Files) jobs.Handler[ExtractArgs] {
+func ExtractHandler(files Files, tool *SevenZip) jobs.Handler[ExtractArgs] {
 	return func(ctx context.Context, args ExtractArgs, report *jobs.Reporter) (map[string]any, error) {
 		format := FormatOf(args.Archive)
 		if format == None {
@@ -70,9 +70,12 @@ func ExtractHandler(files Files) jobs.Handler[ExtractArgs] {
 		run := &extraction{files: files, dest: dest, budget: budgetOf(files, parent)}
 		progress := jobs.Progress{}
 		run.meter = meter{ctx: ctx, report: report, progress: &progress}
-		if format == Zip {
+		switch format {
+		case Zip:
 			err = run.zip(file, entry.Size)
-		} else {
+		case SevenZ, Rar, Iso:
+			err = run.external(ctx, tool, args.Archive)
+		default:
 			err = run.tar(file, entry.Size, format == TarGz)
 		}
 		if err != nil {
@@ -100,6 +103,12 @@ func coded(err error) error {
 		return &jobs.Failure{Code: CodeBadArchive, Err: err}
 	case errors.Is(err, ErrTooLarge):
 		return &jobs.Failure{Code: CodeTooLarge, Err: err}
+	case errors.Is(err, ErrEncrypted):
+		return &jobs.Failure{Code: CodeEncrypted, Err: err}
+	case errors.Is(err, ErrNoSevenZip):
+		return &jobs.Failure{Code: CodeUnavailable, Err: err}
+	case errors.Is(err, ErrNothingToCompress):
+		return &jobs.Failure{Code: CodeNothingToCompress, Err: err}
 	default:
 		return err
 	}

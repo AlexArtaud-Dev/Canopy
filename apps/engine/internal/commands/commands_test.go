@@ -161,6 +161,13 @@ func TestParseRefusals(t *testing.T) {
 		`params=[{ name: x, type: string, label: { en: X, fr: X, es: X } }, { name: x, type: string, label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: bool, flag: "--x", label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: string, unknown: 1, label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: string, choices: [{ value: a, label: { en: A, fr: A, es: A } }], label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: enum, values: [a], choices: [{ value: a, label: { en: A, fr: A, es: A } }], label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: enum, choices: [{ value: a, label: { en: A } }], label: { en: X, fr: X, es: X } }]`,
+	}
+	labelled := entry(`params=[{ name: x, type: enum, choices: [{ value: s, label: { en: Skip, fr: Ignorer, es: Omitir } }], label: { en: X, fr: X, es: X } }]`)
+	if entries, err := Parse([]byte(labelled)); err != nil || entries[0].Params[0].Values[0] != "s" {
+		t.Fatalf("choices: %v %v", entries, err)
 	}
 	for _, change := range bad {
 		if _, err := Parse([]byte(entry(change))); !errors.Is(err, ErrCatalog) {
