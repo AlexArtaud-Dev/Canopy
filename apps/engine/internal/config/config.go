@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"path"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -34,6 +35,9 @@ type Config struct {
 	LogLevel  slog.Level
 	// Umask applies to every file the engine creates (linuxserver-style UMASK, octal).
 	Umask int
+	// VideoEncoder picks how videos are re-encoded: "auto" (the GPU when one works), "cpu" or
+	// "nvenc" (NVIDIA).
+	VideoEncoder string
 }
 
 // ErrorCode identifies a configuration error independently of its message.
@@ -58,14 +62,18 @@ func (e *Error) Error() string {
 // Load reads the configuration through getenv so tests never touch the process environment.
 func Load(getenv func(string) string) (Config, error) {
 	cfg := Config{
-		Addr:        valueOr(getenv("CANOPY_ENGINE_ADDR"), defaultAddr),
-		DatabaseURL: strings.TrimSpace(getenv("CANOPY_DATABASE_URL")),
-		Root:        valueOr(getenv("CANOPY_ROOT"), defaultRoot),
-		CacheDir:    valueOr(getenv("CANOPY_CACHE_DIR"), defaultCacheDir),
-		PluginsDir:  valueOr(getenv("CANOPY_PLUGINS_DIR"), defaultPlugins),
-		PublicKey:   strings.TrimSpace(getenv("CANOPY_ENGINE_PUBLIC_KEY")),
-		LogLevel:    defaultLogLevel,
-		Umask:       defaultUmask,
+		Addr:         valueOr(getenv("CANOPY_ENGINE_ADDR"), defaultAddr),
+		DatabaseURL:  strings.TrimSpace(getenv("CANOPY_DATABASE_URL")),
+		Root:         valueOr(getenv("CANOPY_ROOT"), defaultRoot),
+		CacheDir:     valueOr(getenv("CANOPY_CACHE_DIR"), defaultCacheDir),
+		PluginsDir:   valueOr(getenv("CANOPY_PLUGINS_DIR"), defaultPlugins),
+		PublicKey:    strings.TrimSpace(getenv("CANOPY_ENGINE_PUBLIC_KEY")),
+		LogLevel:     defaultLogLevel,
+		Umask:        defaultUmask,
+		VideoEncoder: strings.ToLower(valueOr(getenv("CANOPY_VIDEO_ENCODER"), "auto")),
+	}
+	if !slices.Contains([]string{"auto", "cpu", "nvenc"}, cfg.VideoEncoder) {
+		return Config{}, &Error{Code: CodeInvalid, Key: "CANOPY_VIDEO_ENCODER"}
 	}
 
 	if cfg.DatabaseURL == "" {

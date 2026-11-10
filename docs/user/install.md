@@ -33,6 +33,29 @@ image with ffmpeg instead: `ghcr.io/alexartaud-dev/canopy-engine-ffmpeg` or
 `izoniks/canopy:<version>-engine-ffmpeg` (about 160 MB instead of 23 MB). Both include 7-Zip
 (7z, RAR and ISO archives).
 
+**NVIDIA GPU**: the `engine-gpu` image (`ghcr.io/alexartaud-dev/canopy-engine-gpu` or
+`izoniks/canopy:<version>-engine-gpu`, about 550 MB) converts videos on an NVIDIA GPU (NVENC):
+the CPU stays almost idle. It needs the NVIDIA driver and the NVIDIA Container Toolkit on the host
+(already there if Jellyfin or Plex use the GPU), and these lines on the `engine` service:
+
+```yaml
+    image: izoniks/canopy:${CANOPY_VERSION:-latest}-engine-gpu
+    runtime: nvidia
+    environment:
+      NVIDIA_VISIBLE_DEVICES: all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+```
+
+The engine tries a short encode on the GPU when it starts and logs
+`"video conversion" … "encoder":"nvenc"` when it works, `"cpu"` otherwise (it then converts on
+the CPU, as the other images do). `CANOPY_VIDEO_ENCODER=cpu` keeps the GPU out of it.
+
 ## 2. Configure
 
 ```bash

@@ -34,7 +34,11 @@ const maxProbeOutput = 1 << 20
 type Player struct {
 	FFmpeg, FFprobe string
 	ProbeTimeout    time.Duration
-	slots           chan struct{}
+	// Encoder re-encodes videos the browser cannot play (CPU until ChooseEncoder finds a GPU).
+	Encoder Encoder
+	slots   chan struct{}
+	// try runs ffmpeg to completion; replaced in tests.
+	try func(ctx context.Context, args []string) error
 }
 
 // Find returns a player when both ffmpeg and ffprobe are installed, nil otherwise: videos then
@@ -48,10 +52,37 @@ func Find(lookPath func(string) (string, error), conversions int) *Player {
 	if err != nil {
 		return nil
 	}
-	return &Player{
-		FFmpeg: ffmpeg, FFprobe: ffprobe, ProbeTimeout: 15 * time.Second,
+	player := &Player{
+		FFmpeg: ffmpeg, FFprobe: ffprobe, ProbeTimeout: 15 * time.Second, Encoder: CPU,
 		slots: make(chan struct{}, max(conversions, 1)),
 	}
+	player.try = func(ctx context.Context, args []string) error {
+		// The binary comes from PATH at startup; every argument is a constant.
+		command := exec.CommandContext(ctx, player.FFmpeg, args...) //nolint:gosec // fixed argv, no shell
+		command.Stdout, command.Stderr = io.Discard, io.Discard
+		return command.Run() //nolint:wrapcheck // only success matters
+	}
+	return player
+}
+
+// gpuConversions: a GPU encodes several videos at once without slowing the server down.
+const gpuConversions = 4
+
+// ChooseEncoder settles how videos are re-encoded, once at startup: "cpu" keeps libx264;
+// "auto" and "nvenc" try a short encode on the NVIDIA GPU and use it when it works, the CPU
+// otherwise.
+func (p *Player) ChooseEncoder(ctx context.Context, want string) Encoder {
+	p.Encoder = CPU
+	if want == string(CPU) {
+		return CPU
+	}
+	ctx, cancel := context.WithTimeout(ctx, p.ProbeTimeout)
+	defer cancel()
+	if p.try(ctx, NVENCProbeArgs()) == nil {
+		p.Encoder = NVENC
+		p.slots = make(chan struct{}, max(cap(p.slots), gpuConversions))
+	}
+	return p.Encoder
 }
 
 type capped struct {
@@ -111,7 +142,7 @@ func (p *Player) Stream(ctx context.Context, file *os.File, info Info, start flo
 		return err
 	}
 	// The binary comes from PATH at startup; arguments are constants and numbers.
-	command := exec.CommandContext(ctx, p.FFmpeg, StreamArgs(fileinput.Path, info, start)...) //nolint:gosec // fixed argv, no shell
+	command := exec.CommandContext(ctx, p.FFmpeg, StreamArgs(fileinput.Path, info, start, p.Encoder)...) //nolint:gosec // fixed argv, no shell
 	fileinput.Attach(command, file)
 	command.Stdout = out
 	command.Stderr = io.Discard
