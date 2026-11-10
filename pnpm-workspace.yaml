@@ -7,3 +7,6 @@ allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
   - nodemailer@10.4.0
+# Security floors for transitive dev tooling (Dependabot alerts); drop once parents catch up.
+overrides:
+  'js-yaml@>=4 <4.3.2': ^4.3.2
