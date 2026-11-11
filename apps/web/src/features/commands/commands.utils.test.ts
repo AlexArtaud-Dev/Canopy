@@ -6,6 +6,8 @@ import {
   firstToFill,
   initialValues,
   localized,
+  mergeChoices,
+  parseChoices,
   pluginMenus,
   requestValues,
   targetParam,
@@ -144,5 +146,38 @@ describe('choiceLabel', () => {
   it('falls back to the raw value', () => {
     expect(choiceLabel(param, 'a', 'en')).toBe('a');
     expect(choiceLabel({}, 'fast', 'en')).toBe('fast');
+  });
+});
+
+describe('choices from a command', () => {
+  it('reads value and label from each line', () => {
+    expect(
+      parseChoices([
+        'chromecast://192.168.1.42:8009\tLiving room (chromecast, Ultra)',
+        'Searching…',
+        '',
+        '\tno value',
+        '--delete\tnot an option',
+        'http://192.168.1.20/d.xml\t',
+        'chromecast://192.168.1.42:8009\tAgain',
+        ' spaced \t Label ',
+      ]),
+    ).toEqual([
+      { value: 'chromecast://192.168.1.42:8009', label: 'Living room (chromecast, Ultra)' },
+      { value: 'http://192.168.1.20/d.xml', label: 'http://192.168.1.20/d.xml' },
+      { value: 'spaced', label: 'Label' },
+    ]);
+    expect(parseChoices([])).toEqual([]);
+  });
+
+  it('lists saved values first, without repeating them', () => {
+    const saved = [{ value: 'a', label: 'Saved A' }];
+    const found = [
+      { value: 'a', label: 'Found A' },
+      { value: 'b', label: 'Found B' },
+    ];
+    expect(mergeChoices(saved, found)).toEqual([saved[0], found[1]]);
+    expect(mergeChoices([], found)).toEqual(found);
+    expect(mergeChoices(saved, [])).toEqual(saved);
   });
 });

@@ -70,11 +70,15 @@ type Param struct {
 	// the command on the right entries; Extensions narrows files (lower case, without dot).
 	On         string   `yaml:"on,omitempty"`
 	Extensions []string `yaml:"extensions,omitempty"`
-	Required   bool     `yaml:"required,omitempty"`
-	Default    any      `yaml:"default,omitempty"`
-	Min        *int64   `yaml:"min,omitempty"`
-	Max        *int64   `yaml:"max,omitempty"`
-	Values     []string `yaml:"values,omitempty"`
+	// ChoicesFrom names another entry of the same catalog whose output lists values for this
+	// string param (one "value<TAB>label" line each): forms run it to offer a choice, such as
+	// the devices found on the network.
+	ChoicesFrom string   `yaml:"choicesFrom,omitempty"`
+	Required    bool     `yaml:"required,omitempty"`
+	Default     any      `yaml:"default,omitempty"`
+	Min         *int64   `yaml:"min,omitempty"`
+	Max         *int64   `yaml:"max,omitempty"`
+	Values      []string `yaml:"values,omitempty"`
 	// Choices name enum values in the three languages; they replace Values when given.
 	Choices []Choice `yaml:"choices,omitempty"`
 	Pattern string   `yaml:"pattern,omitempty"`
@@ -180,6 +184,13 @@ func Validate(entries []Entry) error {
 		}
 		seen[entries[i].ID] = true
 	}
+	for _, entry := range entries {
+		for _, param := range entry.Params {
+			if param.ChoicesFrom != "" && (!seen[param.ChoicesFrom] || param.ChoicesFrom == entry.ID) {
+				return fmt.Errorf("%w: entry %q: choicesFrom %q is not another entry of this catalog", ErrCatalog, entry.ID, param.ChoicesFrom)
+			}
+		}
+	}
 	return nil
 }
 
@@ -257,6 +268,8 @@ func (p *Param) validate() error {
 		return errors.New("only path params have an access")
 	case p.On != "" && (p.Type != TypePath || !slices.Contains(pathTargets, p.On)):
 		return errors.New("on is file or folder, for path params")
+	case p.ChoicesFrom != "" && p.Type != TypeString:
+		return errors.New("only string params take choices from a command")
 	case len(p.Extensions) > 0 && p.On != OnFile:
 		return errors.New("extensions need on: file")
 	case slices.ContainsFunc(p.Extensions, func(extension string) bool { return !extensionPattern.MatchString(extension) }):

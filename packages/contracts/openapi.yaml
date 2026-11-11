@@ -1829,6 +1829,11 @@ components:
           description: With `on` file, the file extensions the command accepts (lower case, no dot).
           type: array
           items: { type: string }
+        choicesFrom:
+          description: >-
+            String parameters only: the id of a command whose output lists values for this field,
+            one `value<TAB>label` line each. Forms run it to offer a choice.
+          type: string
         required: { type: boolean }
         secret: { type: boolean }
         default: {}

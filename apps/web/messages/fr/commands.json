@@ -21,7 +21,11 @@
       "cancelled": "Annulée"
     },
     "output": "Sortie de la commande",
-    "savedChoose": "Choisir une valeur enregistrée…",
-    "savedFor": "Valeurs enregistrées pour {field}"
+    "choicesPick": "Choisir…",
+    "choicesEmpty": "Rien à choisir pour l’instant",
+    "choicesFor": "Choix pour {field}",
+    "detect": "Détecter",
+    "detecting": "Recherche…",
+    "detectedNone": "Rien n’a été trouvé. Vérifiez que l’appareil est allumé, puis relancez la recherche."
   }
 }

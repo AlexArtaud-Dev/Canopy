@@ -165,10 +165,17 @@ func TestParseRefusals(t *testing.T) {
 		`params=[{ name: x, type: enum, values: [a], choices: [{ value: a, label: { en: A, fr: A, es: A } }], label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: enum, choices: [{ value: a, label: { en: A } }], label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: string, on: file, label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: int, choicesFrom: tool.list, label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: string, choicesFrom: tool.missing, label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: string, choicesFrom: tool.run, label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: path, access: read, on: disk, label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: path, access: read, extensions: [mkv], label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: path, access: read, on: folder, extensions: [mkv], label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: path, access: read, on: file, extensions: [".MKV"], label: { en: X, fr: X, es: X } }]`,
+	}
+	lister := entry(`id=tool.list`) + entry(`params=[{ name: x, type: string, choicesFrom: tool.list, label: { en: X, fr: X, es: X } }]`)
+	if entries, err := Parse([]byte(lister)); err != nil || entries[1].Params[0].ChoicesFrom != "tool.list" {
+		t.Fatalf("choices from a command: %v %v", entries, err)
 	}
 	targeted := entry(`params=[{ name: x, type: path, access: read, on: file, extensions: [mkv, mp4], label: { en: X, fr: X, es: X } }]`)
 	if entries, err := Parse([]byte(targeted)); err != nil || entries[0].Params[0].On != OnFile || len(entries[0].Params[0].Extensions) != 2 {

@@ -21,7 +21,11 @@
       "cancelled": "Cancelled"
     },
     "output": "Command output",
-    "savedChoose": "Pick a saved value…",
-    "savedFor": "Saved values for {field}"
+    "choicesPick": "Pick…",
+    "choicesEmpty": "Nothing to pick yet",
+    "choicesFor": "Choices for {field}",
+    "detect": "Detect",
+    "detecting": "Searching…",
+    "detectedNone": "Nothing was found. Check that the device is on, then search again."
   }
 }

@@ -5,35 +5,30 @@ import { FlaskConical, Play } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useId, useState, useTransition } from 'react';
 
-import type { CommandEntry, CommandParam } from '@canopy/contracts';
+import type { CommandEntry } from '@canopy/contracts';
 import { cn } from 'cn';
 import { useErrorMessage } from '@/shared/errors/use-error-message';
 import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { Field, FieldLabel } from '@/shared/ui/field';
-import { Input } from '@/shared/ui/input';
-import { PasswordInput } from '@/shared/ui/password-input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Spinner } from '@/shared/ui/spinner';
 import {
   isSavable,
   savedDefaults,
   type PluginSavedValues,
-  type SavedValue,
 } from '@/features/plugins/saved-values.utils';
 import { loadSavedValues } from '@/features/plugins/server/saved-values-actions';
 
 import {
-  choiceLabel,
   displayArgv,
   firstToFill,
   initialValues,
-  localized,
   requestValues,
   type FormValue,
 } from '../commands.utils';
 import { previewCommand, startCommand } from '../server/commands-actions';
+import { ParamField } from './param-field';
 import { RunOutput } from './run-output';
 
 /** Typing pauses this long before the argument preview is refreshed. */
@@ -130,6 +125,7 @@ function CommandForm({ entry, preset, saved, focusFirst = false }: CommandFormPr
             param={param}
             value={values[param.name] ?? ''}
             saved={isSavable(param) ? (saved[param.name] ?? []) : []}
+            pluginSaved={saved}
             locale={locale}
             autoFocus={param.name === focusName}
             onChange={(value) => {
@@ -180,97 +176,5 @@ function CommandForm({ entry, preset, saved, focusFirst = false }: CommandFormPr
       </form>
       {jobId && <RunOutput key={jobId} jobId={jobId} />}
     </div>
-  );
-}
-
-interface ParamFieldProps {
-  id: string;
-  param: CommandParam;
-  value: FormValue;
-  /** Values saved for this field, offered by name above the input. */
-  saved: readonly SavedValue[];
-  locale: string;
-  autoFocus: boolean;
-  onChange: (value: FormValue) => void;
-}
-
-function ParamField({ id, param, value, saved, locale, autoFocus, onChange }: ParamFieldProps) {
-  const t = useTranslations('commands.page');
-  const label = `${localized(param.label, locale)}${param.required ? ' *' : ''}`;
-  if (param.type === 'bool') {
-    return (
-      <Field orientation="horizontal">
-        <Checkbox
-          id={id}
-          checked={value === true}
-          autoFocus={autoFocus}
-          onCheckedChange={(checked) => {
-            onChange(checked === true);
-          }}
-        />
-        <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      </Field>
-    );
-  }
-  const text = typeof value === 'string' ? value : '';
-  return (
-    <Field>
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      {saved.length > 0 && (
-        <Select
-          value={saved.some((item) => item.value === text) ? text : ''}
-          onValueChange={onChange}
-        >
-          <SelectTrigger className="w-full" aria-label={t('savedFor', { field: label })}>
-            <SelectValue placeholder={t('savedChoose')} />
-          </SelectTrigger>
-          <SelectContent>
-            {saved.map((item) => (
-              <SelectItem key={item.value} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-      {param.type === 'enum' ? (
-        <Select value={text} onValueChange={onChange}>
-          <SelectTrigger id={id} className="w-full" autoFocus={autoFocus}>
-            <SelectValue placeholder={t('choose')} />
-          </SelectTrigger>
-          <SelectContent>
-            {(param.values ?? []).map((choice) => (
-              <SelectItem key={choice} value={choice}>
-                {choiceLabel(param, choice, locale)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      ) : param.secret ? (
-        <PasswordInput
-          id={id}
-          value={text}
-          autoComplete="off"
-          autoFocus={autoFocus}
-          onChange={(event) => {
-            onChange(event.target.value);
-          }}
-        />
-      ) : (
-        <Input
-          id={id}
-          value={text}
-          type={param.type === 'int' ? 'number' : 'text'}
-          min={param.min}
-          max={param.max}
-          autoFocus={autoFocus}
-          placeholder={param.type === 'path' ? t('pathPlaceholder') : undefined}
-          className={param.type === 'path' ? 'font-mono' : undefined}
-          onChange={(event) => {
-            onChange(event.target.value);
-          }}
-        />
-      )}
-    </Field>
   );
 }

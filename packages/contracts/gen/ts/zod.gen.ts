@@ -202,6 +202,7 @@ export const zCommandParam = z.object({
   access: z.enum(['read', 'create', 'update']).optional(),
   on: z.string().optional(),
   extensions: z.array(z.string()).optional(),
+  choicesFrom: z.string().optional(),
   required: z.boolean(),
   secret: z.boolean(),
   default: z.unknown().optional(),
