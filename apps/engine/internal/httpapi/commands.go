@@ -65,6 +65,14 @@ func toCommandEntry(entry commands.Entry) api.CommandEntry {
 			access := api.CommandParamAccess(param.Access)
 			converted.Access = &access
 		}
+		if param.On != "" {
+			on := param.On
+			converted.On = &on
+		}
+		if len(param.Extensions) > 0 {
+			extensions := slices.Clone(param.Extensions)
+			converted.Extensions = &extensions
+		}
 		if len(param.Values) > 0 {
 			values := slices.Clone(param.Values)
 			converted.Values = &values

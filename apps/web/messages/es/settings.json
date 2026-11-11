@@ -183,6 +183,10 @@
       "allowedRepos": {
         "label": "Repositorios permitidos",
         "description": "Repositorios de GitHub (propietario/nombre, separados por comas) desde los que se pueden instalar plugins. No se puede instalar nada más."
+      },
+      "savedValues": {
+        "label": "Valores guardados",
+        "description": "Valores guardados para los campos de los plugins. Edítelos en la página Plugins."
       }
     }
   },

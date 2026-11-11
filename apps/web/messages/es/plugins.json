@@ -42,5 +42,15 @@
     "install": "Instalar",
     "installing": "Instalando…",
     "notes": "Notas de la versión"
+  },
+  "saved": {
+    "title": "Valores guardados",
+    "description": "Dé un nombre a los valores que nadie debería tener que escribir: una pantalla, la dirección de un servidor, un puerto. Los formularios los ofrecen por su nombre y empiezan con el primero.",
+    "field": "Campo",
+    "label": "Nombre",
+    "labelPlaceholder": "TV del salón",
+    "value": "Valor",
+    "add": "Guardar",
+    "remove": "Olvidar {label}"
   }
 }

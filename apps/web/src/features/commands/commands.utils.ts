@@ -28,22 +28,39 @@ export function firstToFill(
   return params.find((param) => param.required && values[param.name] === '')?.name;
 }
 
-/** The param a folder fills in (its first path param), when the command works on one. */
-export function folderParam(entry: CommandEntry): string | undefined {
+/** The param the right-clicked entry fills in: the command's first path param. */
+export function targetParam(entry: CommandEntry): string | undefined {
   return entry.params.find((param) => param.type === 'path')?.name;
 }
 
-/** A plugin and its commands that work on a folder, as the file browser's menu lists them. */
+/** What was right-clicked in the file browser: a folder, or a file known by its name. */
+export type MenuTarget = { kind: 'folder' } | { kind: 'file'; name: string };
+
+/**
+ * Whether a command is offered on the target: its first path param says what it works on (a
+ * folder unless it declares `on: file`), and files may be narrowed to some extensions.
+ */
+export function worksOn(entry: CommandEntry, target: MenuTarget): boolean {
+  const param = entry.params.find((candidate) => candidate.type === 'path');
+  if (!param) return false;
+  if (target.kind === 'folder') return param.on !== 'file';
+  if (param.on !== 'file') return false;
+  if (!param.extensions || param.extensions.length === 0) return true;
+  const dot = target.name.lastIndexOf('.');
+  return dot > 0 && param.extensions.includes(target.name.slice(dot + 1).toLowerCase());
+}
+
+/** A plugin and its commands that work on an entry, as the file browser's menu lists them. */
 export interface PluginMenu {
   plugin: CommandPlugin;
   entries: CommandEntry[];
 }
 
-/** Plugin commands that take a folder, grouped by plugin (in catalog order). */
-export function pluginMenus(entries: readonly CommandEntry[]): PluginMenu[] {
+/** Plugin commands offered on the target, grouped by plugin (in catalog order). */
+export function pluginMenus(entries: readonly CommandEntry[], target: MenuTarget): PluginMenu[] {
   const menus = new Map<string, PluginMenu>();
   for (const entry of entries) {
-    if (!entry.plugin || folderParam(entry) === undefined) continue;
+    if (!entry.plugin || !worksOn(entry, target)) continue;
     const menu = menus.get(entry.plugin.id);
     if (menu) menu.entries.push(entry);
     else menus.set(entry.plugin.id, { plugin: entry.plugin, entries: [entry] });

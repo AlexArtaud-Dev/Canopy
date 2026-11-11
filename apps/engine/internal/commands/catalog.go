@@ -32,6 +32,12 @@ const (
 	AccessUpdate = "update"
 )
 
+// What a path param works on.
+const (
+	OnFile   = "file"
+	OnFolder = "folder"
+)
+
 // Modes: basic entries are offered to everyone who may run commands, advanced ones only in
 // advanced mode.
 const (
@@ -56,15 +62,19 @@ type Text struct {
 
 // Param is one typed input of an entry.
 type Param struct {
-	Name     string   `yaml:"name"`
-	Type     string   `yaml:"type"`
-	Label    Text     `yaml:"label"`
-	Access   string   `yaml:"access,omitempty"`
-	Required bool     `yaml:"required,omitempty"`
-	Default  any      `yaml:"default,omitempty"`
-	Min      *int64   `yaml:"min,omitempty"`
-	Max      *int64   `yaml:"max,omitempty"`
-	Values   []string `yaml:"values,omitempty"`
+	Name   string `yaml:"name"`
+	Type   string `yaml:"type"`
+	Label  Text   `yaml:"label"`
+	Access string `yaml:"access,omitempty"`
+	// On tells what a path param works on ("file" or "folder"), so that the file browser offers
+	// the command on the right entries; Extensions narrows files (lower case, without dot).
+	On         string   `yaml:"on,omitempty"`
+	Extensions []string `yaml:"extensions,omitempty"`
+	Required   bool     `yaml:"required,omitempty"`
+	Default    any      `yaml:"default,omitempty"`
+	Min        *int64   `yaml:"min,omitempty"`
+	Max        *int64   `yaml:"max,omitempty"`
+	Values     []string `yaml:"values,omitempty"`
 	// Choices name enum values in the three languages; they replace Values when given.
 	Choices []Choice `yaml:"choices,omitempty"`
 	Pattern string   `yaml:"pattern,omitempty"`
@@ -130,14 +140,16 @@ func (d *Duration) UnmarshalYAML(node *yaml.Node) error {
 var ErrCatalog = errors.New("invalid command catalog")
 
 var (
-	idPattern       = regexp.MustCompile(`^[a-z0-9][a-z0-9-]*(\.[a-z0-9][a-z0-9-]*)+$`)
-	namePattern     = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9]{0,39}$`)
-	binaryPattern   = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$`)
-	placeholder     = regexp.MustCompile(`\{([a-zA-Z][a-zA-Z0-9]*)\}`)
-	maxTimeout      = 7 * 24 * time.Hour
-	paramTypes      = []string{TypePath, TypeBool, TypeInt, TypeString, TypeEnum}
-	pathAccesses    = []string{AccessRead, AccessCreate, AccessUpdate}
-	progressParsers = []string{ParserNone, ParserRsyncProgress2, ParserPercentRegex, ParserLineCount}
+	idPattern        = regexp.MustCompile(`^[a-z0-9][a-z0-9-]*(\.[a-z0-9][a-z0-9-]*)+$`)
+	namePattern      = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9]{0,39}$`)
+	binaryPattern    = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$`)
+	placeholder      = regexp.MustCompile(`\{([a-zA-Z][a-zA-Z0-9]*)\}`)
+	maxTimeout       = 7 * 24 * time.Hour
+	paramTypes       = []string{TypePath, TypeBool, TypeInt, TypeString, TypeEnum}
+	pathAccesses     = []string{AccessRead, AccessCreate, AccessUpdate}
+	pathTargets      = []string{OnFile, OnFolder}
+	extensionPattern = regexp.MustCompile(`^[a-z0-9]{1,10}$`)
+	progressParsers  = []string{ParserNone, ParserRsyncProgress2, ParserPercentRegex, ParserLineCount}
 )
 
 // Parse reads a catalog file (a YAML list of entries). Unknown fields are refused, and every
@@ -243,6 +255,12 @@ func (p *Param) validate() error {
 		return errors.New("path params need access read, create or update")
 	case p.Type != TypePath && p.Access != "":
 		return errors.New("only path params have an access")
+	case p.On != "" && (p.Type != TypePath || !slices.Contains(pathTargets, p.On)):
+		return errors.New("on is file or folder, for path params")
+	case len(p.Extensions) > 0 && p.On != OnFile:
+		return errors.New("extensions need on: file")
+	case slices.ContainsFunc(p.Extensions, func(extension string) bool { return !extensionPattern.MatchString(extension) }):
+		return errors.New("extensions are lower-case letters and digits, without dot")
 	case p.Type == TypeEnum && len(p.Values) == 0:
 		return errors.New("enum params need values")
 	case p.Type == TypeBool && p.Flag == "":

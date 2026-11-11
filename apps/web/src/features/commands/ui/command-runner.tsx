@@ -1,5 +1,6 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { FlaskConical, Play } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useId, useState, useTransition } from 'react';
@@ -13,7 +14,15 @@ import { Field, FieldLabel } from '@/shared/ui/field';
 import { Input } from '@/shared/ui/input';
 import { PasswordInput } from '@/shared/ui/password-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { Spinner } from '@/shared/ui/spinner';
+import {
+  isSavable,
+  savedDefaults,
+  type PluginSavedValues,
+  type SavedValue,
+} from '@/features/plugins/saved-values.utils';
+import { loadSavedValues } from '@/features/plugins/server/saved-values-actions';
 
 import {
   choiceLabel,
@@ -38,14 +47,38 @@ interface CommandRunnerProps {
   focusFirst?: boolean;
 }
 
-/** A command's form, the exact arguments it would run with, then its run and output. */
-export function CommandRunner({ entry, preset, focusFirst = false }: CommandRunnerProps) {
+const nothingSaved: PluginSavedValues = {};
+
+/**
+ * A command's form, the exact arguments it would run with, then its run and output. A plugin's
+ * form waits for the values administrators saved for it: its fields start with them.
+ */
+export function CommandRunner(props: CommandRunnerProps) {
+  const plugin = props.entry.plugin?.id;
+  const { data, isPending } = useQuery({
+    queryKey: ['plugins', 'saved-values'],
+    queryFn: async () => {
+      const result = await loadSavedValues();
+      return result.ok ? result.data : {};
+    },
+    enabled: plugin !== undefined,
+    staleTime: 60_000,
+  });
+  if (plugin !== undefined && isPending) return <Skeleton className="h-40 w-full" />;
+  return <CommandForm {...props} saved={(plugin ? data?.[plugin] : undefined) ?? nothingSaved} />;
+}
+
+interface CommandFormProps extends CommandRunnerProps {
+  saved: PluginSavedValues;
+}
+
+function CommandForm({ entry, preset, saved, focusFirst = false }: CommandFormProps) {
   const t = useTranslations('commands.page');
   const locale = useLocale();
   const errorMessage = useErrorMessage();
   const formId = useId();
   const [values, setValues] = useState<Record<string, FormValue>>(() =>
-    initialValues(entry.params, preset),
+    initialValues(entry.params, { ...savedDefaults(saved), ...preset }),
   );
   const [focusName] = useState(() => (focusFirst ? firstToFill(entry.params, values) : undefined));
   const [dryRun, setDryRun] = useState(entry.dryRun);
@@ -96,6 +129,7 @@ export function CommandRunner({ entry, preset, focusFirst = false }: CommandRunn
             id={`${formId}-${param.name}`}
             param={param}
             value={values[param.name] ?? ''}
+            saved={isSavable(param) ? (saved[param.name] ?? []) : []}
             locale={locale}
             autoFocus={param.name === focusName}
             onChange={(value) => {
@@ -153,12 +187,14 @@ interface ParamFieldProps {
   id: string;
   param: CommandParam;
   value: FormValue;
+  /** Values saved for this field, offered by name above the input. */
+  saved: readonly SavedValue[];
   locale: string;
   autoFocus: boolean;
   onChange: (value: FormValue) => void;
 }
 
-function ParamField({ id, param, value, locale, autoFocus, onChange }: ParamFieldProps) {
+function ParamField({ id, param, value, saved, locale, autoFocus, onChange }: ParamFieldProps) {
   const t = useTranslations('commands.page');
   const label = `${localized(param.label, locale)}${param.required ? ' *' : ''}`;
   if (param.type === 'bool') {
@@ -180,6 +216,23 @@ function ParamField({ id, param, value, locale, autoFocus, onChange }: ParamFiel
   return (
     <Field>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      {saved.length > 0 && (
+        <Select
+          value={saved.some((item) => item.value === text) ? text : ''}
+          onValueChange={onChange}
+        >
+          <SelectTrigger className="w-full" aria-label={t('savedFor', { field: label })}>
+            <SelectValue placeholder={t('savedChoose')} />
+          </SelectTrigger>
+          <SelectContent>
+            {saved.map((item) => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       {param.type === 'enum' ? (
         <Select value={text} onValueChange={onChange}>
           <SelectTrigger id={id} className="w-full" autoFocus={autoFocus}>

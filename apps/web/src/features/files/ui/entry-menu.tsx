@@ -80,10 +80,10 @@ export interface EntryMenuHandlers {
   onChecksum: (entry: BrowserEntry, algorithm: ChecksumAlgorithm) => void;
   /** Creates a share link to the entry. */
   onShare: (entry: BrowserEntry) => void;
-  /** Plugin commands that work on a folder (empty when none is installed or allowed). */
-  plugins: readonly PluginMenu[];
-  /** Opens a plugin command in a dialog, with this folder filled in. */
-  onPluginCommand: (folderPath: string, command: CommandEntry) => void;
+  /** Plugin commands that work on the entry (empty when none is installed or allowed). */
+  pluginsFor: (entry: BrowserEntry) => readonly PluginMenu[];
+  /** Opens a plugin command in a dialog, with this entry filled in. */
+  onPluginCommand: (path: string, command: CommandEntry) => void;
   /** Pins or unpins a folder in the person's favorites. */
   onToggleFavorite: (entry: BrowserEntry) => void;
   isFavorite: (path: string) => boolean;
@@ -243,14 +243,12 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
             {t('share')}
           </ContextMenuItem>
         )}
-        {entry.isDirectory && entry.actions.includes('update') && (
-          <PluginsSubmenu
-            plugins={handlers.plugins}
-            onSelect={(command) => {
-              handlers.onPluginCommand(entry.path, command);
-            }}
-          />
-        )}
+        <PluginsSubmenu
+          plugins={handlers.pluginsFor(entry)}
+          onSelect={(command) => {
+            handlers.onPluginCommand(entry.path, command);
+          }}
+        />
         {handlers.onShowInFolder && (
           <ContextMenuItem
             onSelect={() => {

@@ -183,6 +183,10 @@
       "allowedRepos": {
         "label": "Dépôts autorisés",
         "description": "Dépôts GitHub (propriétaire/nom, séparés par des virgules) depuis lesquels les plugins peuvent être installés. Rien d’autre ne peut l’être."
+      },
+      "savedValues": {
+        "label": "Valeurs enregistrées",
+        "description": "Valeurs enregistrées pour les champs des plugins. Modifiez-les sur la page Plugins."
       }
     }
   },

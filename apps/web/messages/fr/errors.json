@@ -131,7 +131,9 @@
     "incomplete_release": "Il manque à cette version un fichier dont Canopy a besoin.",
     "repo_not_allowed": "Ce dépôt ne fait pas partie de la liste autorisée.",
     "invalid_repo": "Saisissez un dépôt GitHub comme propriétaire/nom ou son adresse.",
-    "repo_already_allowed": "Ce dépôt est déjà dans la liste."
+    "repo_already_allowed": "Ce dépôt est déjà dans la liste.",
+    "invalid_saved_value": "Donnez un nom à la valeur, et une valeur qui ne commence pas par un tiret.",
+    "saved_values_full": "Ce champ a déjà 20 valeurs enregistrées. Oubliez-en une d’abord."
   },
   "media": {
     "busy": "Trop de vidéos sont en cours de conversion. Réessayez dans un instant.",

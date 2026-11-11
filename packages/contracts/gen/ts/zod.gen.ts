@@ -200,6 +200,8 @@ export const zCommandParam = z.object({
   type: z.enum(['path', 'bool', 'int', 'string', 'enum']),
   label: zLocalizedText,
   access: z.enum(['read', 'create', 'update']).optional(),
+  on: z.string().optional(),
+  extensions: z.array(z.string()).optional(),
   required: z.boolean(),
   secret: z.boolean(),
   default: z.unknown().optional(),

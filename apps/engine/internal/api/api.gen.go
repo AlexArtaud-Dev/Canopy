@@ -510,12 +510,18 @@ type CommandParam struct {
 	Access *CommandParamAccess `json:"access,omitempty"`
 
 	// Choices Enum values with their labels (shown instead of the raw values).
-	Choices  *[]CommandChoice `json:"choices,omitempty"`
-	Default  interface{}      `json:"default,omitempty"`
-	Label    LocalizedText    `json:"label"`
-	Max      *int64           `json:"max,omitempty"`
-	Min      *int64           `json:"min,omitempty"`
-	Name     string           `json:"name"`
+	Choices *[]CommandChoice `json:"choices,omitempty"`
+	Default interface{}      `json:"default,omitempty"`
+
+	// Extensions With `on` file, the file extensions the command accepts (lower case, no dot).
+	Extensions *[]string     `json:"extensions,omitempty"`
+	Label      LocalizedText `json:"label"`
+	Max        *int64        `json:"max,omitempty"`
+	Min        *int64        `json:"min,omitempty"`
+	Name       string        `json:"name"`
+
+	// On Path parameters only: what the command works on, so that the file browser offers it on the right entries: `file` or `folder`. Absent means a folder.
+	On       *string          `json:"on,omitempty"`
 	Required bool             `json:"required"`
 	Secret   bool             `json:"secret"`
 	Type     CommandParamType `json:"type"`

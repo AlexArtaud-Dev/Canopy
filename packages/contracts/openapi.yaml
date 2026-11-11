@@ -1820,6 +1820,15 @@ components:
           description: Path parameters only.
           type: string
           enum: [read, create, update]
+        'on':
+          description: >-
+            Path parameters only: what the command works on, so that the file browser offers it on
+            the right entries: `file` or `folder`. Absent means a folder.
+          type: string
+        extensions:
+          description: With `on` file, the file extensions the command accepts (lower case, no dot).
+          type: array
+          items: { type: string }
         required: { type: boolean }
         secret: { type: boolean }
         default: {}

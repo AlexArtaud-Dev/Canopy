@@ -3,6 +3,7 @@
 import type { Plugin } from '@canopy/contracts';
 import { ArrowUpCircle, ExternalLink, Trash2 } from 'lucide-react';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
+import type { ReactNode } from 'react';
 
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
@@ -29,6 +30,8 @@ interface InstalledPluginProps {
   onFlags: (flags: { enabled: boolean; pinned: boolean }) => void;
   onUpdate: () => void;
   onUninstall: () => void;
+  /** More settings of the plugin, shown under its description (saved values). */
+  children?: ReactNode;
 }
 
 /** An installed plugin: what it brings, on/off, version pin, update and removal. */
@@ -39,6 +42,7 @@ export function InstalledPlugin({
   onFlags,
   onUpdate,
   onUninstall,
+  children,
 }: InstalledPluginProps) {
   const t = useTranslations('plugins.installed');
   const format = useFormatter();
@@ -91,6 +95,7 @@ export function InstalledPlugin({
           })}
         </span>
       </CardContent>
+      {children && <CardContent className="border-t pt-6">{children}</CardContent>}
       <CardFooter className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t">
         <div className="flex items-center gap-2">
           <Switch

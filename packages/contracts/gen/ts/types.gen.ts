@@ -262,6 +262,14 @@ export type CommandParam = {
    * Path parameters only.
    */
   access?: 'read' | 'create' | 'update';
+  /**
+   * Path parameters only: what the command works on, so that the file browser offers it on the right entries: `file` or `folder`. Absent means a folder.
+   */
+  on?: string;
+  /**
+   * With `on` file, the file extensions the command accepts (lower case, no dot).
+   */
+  extensions?: Array<string>;
   required: boolean;
   secret: boolean;
   default?: unknown;
