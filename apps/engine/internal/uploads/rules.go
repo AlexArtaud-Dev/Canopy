@@ -21,6 +21,8 @@ const (
 	CodeBlockedType  = "files.blocked_type"
 	CodeBadMetadata  = "files.invalid_upload"
 	CodeNotUploading = "files.upload_not_found"
+	// CodeNoStaging means the engine cannot write where the volume stages its uploads.
+	CodeNoStaging = "files.volume_not_writable"
 )
 
 var (

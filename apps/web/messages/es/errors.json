@@ -77,7 +77,8 @@
     "favorites_full": "Has llegado a {max} favoritos. Quita uno primero.",
     "archive_encrypted": "Este archivo está protegido con contraseña. Extráelo desde Comandos › Extraer un archivo (7-Zip), que la pide.",
     "sevenzip_unavailable": "7-Zip no está instalado en este servidor, así que este formato no está disponible.",
-    "nothing_to_compress": "Nada que comprimir: la selección no contiene ningún archivo que puedas leer."
+    "nothing_to_compress": "Nada que comprimir: la selección no contiene ningún archivo que puedas leer.",
+    "volume_not_writable": "Canopy no puede escribir en este volumen. Pida a su administrador que cree en su raíz una carpeta .canopy-uploads con permiso de escritura para Canopy."
   },
   "mail": {
     "not_configured": "El correo no está configurado. Configura el SMTP en Administración › Correo.",

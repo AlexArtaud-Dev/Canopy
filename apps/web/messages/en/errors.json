@@ -77,7 +77,8 @@
     "favorites_full": "You have reached {max} favorites. Remove one first.",
     "archive_encrypted": "This archive is protected by a password. Extract it from Commands › Extract an archive (7-Zip), which asks for it.",
     "sevenzip_unavailable": "7-Zip is not installed on this server, so this archive format is not available.",
-    "nothing_to_compress": "Nothing to compress: the selection holds no file you may read."
+    "nothing_to_compress": "Nothing to compress: the selection holds no file you may read.",
+    "volume_not_writable": "Canopy cannot write to this volume. Ask your administrator to create a .canopy-uploads folder at its top, writable by Canopy."
   },
   "mail": {
     "not_configured": "Email is not configured. Set up SMTP in Administration › Email.",

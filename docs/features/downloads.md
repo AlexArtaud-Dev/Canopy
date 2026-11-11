@@ -9,3 +9,6 @@
 - Files are served as `application/octet-stream` with `Content-Disposition: attachment` and
   `nosniff`: nothing uploaded can run in Canopy's origin.
 - Audit: `fs.download` (once per download; resumed ranges are not counted again).
+- The browser starts the download from a link carrying the `download` attribute, so that it is a
+  download and not a navigation: a navigation cancels the page's requests in flight (server
+  actions, the jobs stream) and, in Firefox while the save dialog is open, broke the page.
