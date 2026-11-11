@@ -48,7 +48,7 @@
     "description": "Dé un nombre a los valores que nadie debería tener que escribir: una pantalla, la dirección de un servidor, un puerto. Los formularios los ofrecen por su nombre y empiezan con el primero.",
     "field": "Campo",
     "label": "Nombre",
-    "labelPlaceholder": "TV del salón",
+    "labelPlaceholder": "Un nombre corto",
     "value": "Valor",
     "add": "Guardar",
     "remove": "Olvidar {label}"

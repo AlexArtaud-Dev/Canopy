@@ -205,6 +205,13 @@ func TestUploadRefusals(t *testing.T) {
 		t.Fatalf("grants failure: %d", created.Code)
 	}
 	h.grants.err = nil
+	working := h.service.stores.stager
+	h.service.stores.stager = failingStager{}
+	if created, _ := h.upload(map[string]string{"destination": "/in", "filename": "a.txt"}, "x"); created.Code != http.StatusForbidden || !strings.HasPrefix(created.Body.String(), CodeNoStaging+":") {
+		t.Fatalf("unwritable volume: %d %q", created.Code, created.Body.String())
+	}
+	h.service.stores.stager = working
+	h.grants.err = nil
 	h.service.cfg.Limits = func(context.Context) (Limits, error) { return Limits{}, errors.New("db") }
 	if created, _ := h.upload(map[string]string{"destination": "/in", "filename": "a.txt"}, "x"); created.Code != http.StatusInternalServerError {
 		t.Fatalf("limits failure: %d", created.Code)

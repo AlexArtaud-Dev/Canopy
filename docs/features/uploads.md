@@ -28,6 +28,10 @@ Resumable uploads with the tus protocol: **tusd** in the engine, **tus-js-client
   reserved: never listed, never reachable by a path. When the last byte arrives the engine checks
   again (permission, name taken meanwhile) and moves the file into place. Abandoned uploads are
   purged after 24 h in every volume.
+- The engine's user must be able to write at the top of each volume people upload to (its
+  `.canopy-uploads` folder). When it cannot, the upload is refused at once with
+  `files.volume_not_writable` and the engine logs why; create the folder once as root
+  (`mkdir <volume>/.canopy-uploads && chown <PUID>:<PGID> <volume>/.canopy-uploads`).
 - Checked before any byte is sent: metadata, `upload` permission, size limit and blocked
   extensions (Settings › Uploads), free space (Linux), and the conflict choice. Every later
   request for an upload must come from the person who started it.

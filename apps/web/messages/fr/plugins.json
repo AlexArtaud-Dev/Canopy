@@ -48,7 +48,7 @@
     "description": "Nommez les valeurs que personne ne devrait avoir à saisir : un écran, l’adresse d’un serveur, un port. Les formulaires les proposent par leur nom et démarrent avec la première.",
     "field": "Champ",
     "label": "Nom",
-    "labelPlaceholder": "TV du salon",
+    "labelPlaceholder": "Un nom court",
     "value": "Valeur",
     "add": "Enregistrer",
     "remove": "Oublier {label}"

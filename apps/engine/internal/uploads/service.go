@@ -145,6 +145,13 @@ func (s *Service) beforeCreate(hook tusd.HookEvent) (tusd.HTTPResponse, tusd.Fil
 	if err := s.checkCreate(hook.Context, principal, request, hook.Upload.Size); err != nil {
 		return tusd.HTTPResponse{}, none, err
 	}
+	// Uploads are staged at the top of their volume, which the engine's user must be able to
+	// write: say so now, rather than fail with an internal error the browser retries.
+	if _, err := s.stores.hostDir(VolumeOf(request.Folder)); err != nil {
+		s.cfg.Logger.Error("upload staging folder unavailable",
+			slog.String("volume", VolumeOf(request.Folder)), slog.Any("error", err))
+		return tusd.HTTPResponse{}, none, refusal(CodeNoStaging, http.StatusForbidden)
+	}
 	if principal.Scope != "" && !s.tickets.claim(principal.TicketID, s.cfg.Now()) {
 		return tusd.HTTPResponse{}, none, refusal(CodeBadMetadata, http.StatusForbidden)
 	}

@@ -1,1 +1,15 @@
-entries: []
+entries:
+  - type: fix
+    scope: files
+    issue: 168
+    text:
+      en: Downloading a file no longer breaks the page in Firefox while the save dialog is open.
+      fr: Télécharger un fichier ne casse plus la page dans Firefox pendant que la fenêtre d’enregistrement est ouverte.
+      es: Descargar un archivo ya no rompe la página en Firefox mientras el diálogo de guardado está abierto.
+  - type: fix
+    scope: files
+    issue: 168
+    text:
+      en: Uploading to a volume Canopy cannot write to now says so at once, instead of failing with an unexpected error after several tries.
+      fr: Importer vers un volume où Canopy ne peut pas écrire le dit désormais tout de suite, au lieu d’échouer avec une erreur inattendue après plusieurs essais.
+      es: Subir a un volumen donde Canopy no puede escribir lo indica ahora de inmediato, en lugar de fallar con un error inesperado tras varios intentos.
