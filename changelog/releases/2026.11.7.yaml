@@ -1,0 +1,9 @@
+date: 2026-11-11
+entries:
+  - type: feat
+    scope: plugins
+    issue: 162
+    text:
+      en: Plugin commands can work on files - right-click a video to find the commands made for it - and administrators can save named values (a screen, an address) that forms offer instead of typing them.
+      fr: Les commandes de plugin peuvent porter sur des fichiers - clic droit sur une vidéo pour trouver celles qui lui sont destinées - et les administrateurs peuvent enregistrer des valeurs nommées (un écran, une adresse) que les formulaires proposent au lieu de les saisir.
+      es: Los comandos de plugin pueden aplicarse a archivos - clic derecho en un vídeo para encontrar los que le corresponden - y los administradores pueden guardar valores con nombre (una pantalla, una dirección) que los formularios ofrecen en lugar de escribirlos.
