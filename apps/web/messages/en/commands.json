@@ -20,6 +20,8 @@
       "failed": "Failed",
       "cancelled": "Cancelled"
     },
-    "output": "Command output"
+    "output": "Command output",
+    "savedChoose": "Pick a saved value…",
+    "savedFor": "Saved values for {field}"
   }
 }

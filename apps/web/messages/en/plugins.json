@@ -42,5 +42,15 @@
     "install": "Install",
     "installing": "Installing…",
     "notes": "Release notes"
+  },
+  "saved": {
+    "title": "Saved values",
+    "description": "Name the values people should not have to type: a screen, a server address, a port. Forms offer them by name and start with the first one.",
+    "field": "Field",
+    "label": "Name",
+    "labelPlaceholder": "Living room TV",
+    "value": "Value",
+    "add": "Save",
+    "remove": "Forget {label}"
   }
 }

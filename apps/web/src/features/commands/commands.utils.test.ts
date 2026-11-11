@@ -4,11 +4,12 @@ import {
   choiceLabel,
   displayArgv,
   firstToFill,
-  folderParam,
   initialValues,
   localized,
   pluginMenus,
   requestValues,
+  targetParam,
+  worksOn,
 } from './commands.utils';
 
 const label = { en: 'L', fr: 'L', es: 'L' };
@@ -74,25 +75,61 @@ describe('commands utils', () => {
     expect(firstToFill(params, initialValues(params, { source: '/a' }))).toBeUndefined();
   });
 
+  const plugin = { id: 'tool', name: label };
+  const entry = (id: string, extra: Partial<CommandEntry>): CommandEntry => ({
+    id,
+    name: label,
+    description: label,
+    mode: 'basic',
+    dryRun: false,
+    params,
+    ...extra,
+  });
+
   it('groups plugin commands that take a folder', () => {
-    const plugin = { id: 'tool', name: label };
-    const entry = (id: string, extra: Partial<CommandEntry>): CommandEntry => ({
-      id,
-      name: label,
-      description: label,
-      mode: 'basic',
-      dryRun: false,
-      params,
-      ...extra,
-    });
     const builtin = entry('rsync.sync', {});
     const run = entry('tool.run', { plugin });
     const check = entry('tool.check', { plugin });
     const noFolder = entry('other.ping', { plugin: { id: 'other', name: label }, params: [] });
-    expect(folderParam(run)).toBe('source');
-    expect(folderParam(noFolder)).toBeUndefined();
-    expect(pluginMenus([builtin, run, noFolder, check])).toEqual([
+    expect(targetParam(run)).toBe('source');
+    expect(targetParam(noFolder)).toBeUndefined();
+    expect(pluginMenus([builtin, run, noFolder, check], { kind: 'folder' })).toEqual([
       { plugin, entries: [run, check] },
+    ]);
+    expect(pluginMenus([builtin, run, noFolder, check], { kind: 'file', name: 'a.mkv' })).toEqual(
+      [],
+    );
+  });
+
+  it('offers a command on what its first path param works on', () => {
+    const path = (extra: Partial<CommandParam>): CommandParam[] => [
+      {
+        name: 'target',
+        type: 'path',
+        access: 'read',
+        label,
+        required: true,
+        secret: false,
+        ...extra,
+      },
+    ];
+    const onFolder = entry('tool.folder', { plugin, params: path({ on: 'folder' }) });
+    const onAnyFile = entry('tool.file', { plugin, params: path({ on: 'file', extensions: [] }) });
+    const onVideo = entry('tool.video', {
+      plugin,
+      params: path({ on: 'file', extensions: ['mkv'] }),
+    });
+    const film = { kind: 'file', name: 'Film.MKV' } as const;
+    expect(worksOn(onFolder, { kind: 'folder' })).toBe(true);
+    expect(worksOn(onFolder, film)).toBe(false);
+    expect(worksOn(onAnyFile, { kind: 'folder' })).toBe(false);
+    expect(worksOn(onAnyFile, { kind: 'file', name: 'README' })).toBe(true);
+    expect(worksOn(onVideo, film)).toBe(true);
+    expect(worksOn(onVideo, { kind: 'file', name: 'notes.txt' })).toBe(false);
+    expect(worksOn(onVideo, { kind: 'file', name: '.mkv' })).toBe(false);
+    expect(worksOn(onVideo, { kind: 'file', name: 'mkv' })).toBe(false);
+    expect(pluginMenus([onFolder, onAnyFile, onVideo], film)).toEqual([
+      { plugin, entries: [onAnyFile, onVideo] },
     ]);
   });
 });

@@ -20,6 +20,8 @@
       "failed": "Échec",
       "cancelled": "Annulée"
     },
-    "output": "Sortie de la commande"
+    "output": "Sortie de la commande",
+    "savedChoose": "Choisir une valeur enregistrée…",
+    "savedFor": "Valeurs enregistrées pour {field}"
   }
 }

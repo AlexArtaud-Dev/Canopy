@@ -131,7 +131,9 @@
     "incomplete_release": "This release is missing a file Canopy needs.",
     "repo_not_allowed": "This repository is not in the allowed list.",
     "invalid_repo": "Enter a GitHub repository like owner/name or its address.",
-    "repo_already_allowed": "This repository is already in the list."
+    "repo_already_allowed": "This repository is already in the list.",
+    "invalid_saved_value": "Give the value a name, and a value that does not start with a dash.",
+    "saved_values_full": "This field already has 20 saved values. Forget one first."
   },
   "media": {
     "busy": "Too many videos are being converted right now. Try again in a moment.",

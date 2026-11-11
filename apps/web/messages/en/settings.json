@@ -183,6 +183,10 @@
       "allowedRepos": {
         "label": "Allowed repositories",
         "description": "GitHub repositories (owner/name, separated by commas) plugins can be installed from. Nothing else can be installed."
+      },
+      "savedValues": {
+        "label": "Saved values",
+        "description": "Values saved for plugin fields. Edit them on the Plugins page."
       }
     }
   },

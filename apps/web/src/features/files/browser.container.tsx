@@ -36,7 +36,7 @@ import type { ActionResult } from '@/shared/lib/action';
 import { Button } from '@/shared/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty';
 import { Spinner } from '@/shared/ui/spinner';
-import { CommandDialog, folderParam, usePluginMenus } from '@/features/commands';
+import { CommandDialog, pluginMenus, targetParam, usePluginCommands } from '@/features/commands';
 import { startFolderSize } from '@/features/jobs';
 import { ShareDialog } from '@/features/shares';
 import { DeleteDialogs, useDeleteFlow } from '@/features/trash';
@@ -136,8 +136,12 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   const [propertiesPath, setPropertiesPath] = useState<string | null>(null);
   const favorites = useFavorites();
   const [shareTarget, setShareTarget] = useState<BrowserEntry | null>(null);
-  const [command, setCommand] = useState<{ entry: CommandEntry; folder: string } | null>(null);
-  const plugins = usePluginMenus();
+  const [command, setCommand] = useState<{ entry: CommandEntry; target: string } | null>(null);
+  const pluginCommands = usePluginCommands();
+  const folderPlugins = useMemo(
+    () => pluginMenus(pluginCommands, { kind: 'folder' }),
+    [pluginCommands],
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
   const width = useElementWidth(scrollRef);
   const ops = useFileOperations(query.path);
@@ -374,9 +378,14 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     onRefresh: () => {
       void listing.refresh();
     },
-    plugins,
-    onPluginCommand: (folder: string, entry: CommandEntry) => {
-      setCommand({ entry, folder });
+    pluginsFor: (entry: BrowserEntry) => {
+      if (!entry.isDirectory)
+        return pluginMenus(pluginCommands, { kind: 'file', name: entry.name });
+      // A folder command changes what is inside: offered only where the person may.
+      return entry.actions.includes('update') ? folderPlugins : [];
+    },
+    onPluginCommand: (target: string, entry: CommandEntry) => {
+      setCommand({ entry, target });
     },
     onMenuOpen: (entry: BrowserEntry) => {
       setFocusIndex(keys.indexOf(entry.path));
@@ -472,10 +481,10 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
           <ListHeader sort={query.sort} order={query.order} onSort={onSort} />
         )}
         <FolderMenu
-          plugins={folder.actions.includes('update') && !searching ? plugins : []}
+          plugins={folder.actions.includes('update') && !searching ? folderPlugins : []}
           canCreate={folder.actions.includes('create') && !searching}
           onPluginCommand={(entry) => {
-            setCommand({ entry, folder: query.path });
+            setCommand({ entry, target: query.path });
           }}
           onNewFolder={ops.openNewFolder}
           onSelectAll={menu.onSelectAll}
@@ -648,7 +657,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
         />
         <CommandDialog
           entry={command?.entry ?? null}
-          preset={command ? { [folderParam(command.entry) ?? '']: command.folder } : {}}
+          preset={command ? { [targetParam(command.entry) ?? '']: command.target } : {}}
           onClose={() => {
             setCommand(null);
           }}

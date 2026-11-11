@@ -4,7 +4,8 @@
   plugins later): there is no free-text command anywhere. An entry is offered only when its
   program is installed on the engine host (looked up once at start).
 - **Entry**: id (`tool.action`), name/description (en/fr/es), bare `binary`, `mode` (basic for
-  everyone, advanced only in advanced mode), typed `params` (path with `access` read/create/update,
+  everyone, advanced only in advanced mode), typed `params` (path with `access` read/create/update
+  and, for the file browser, `on` file/folder with optional `extensions`,
   bool, int with min/max, enum with `values` or labelled `choices` (en/fr/es, shown in the form instead
   of the raw value), string with optional pattern; `flag` templates; `secret`), `args`
   template, `progressParser`, optional `dryRun.flag`, `timeout` (≤ 7 days). Files are decoded
@@ -41,10 +42,22 @@
 - Settings (module `commands`): **Advanced mode** (off). Permission `commands:advanced` (global,
   in roles) unlocks advanced entries once the mode is on; administrators hold it.
 
+## Saved values
+
+- Administrators name values people should not have to type (a screen, a server address, a
+  port): **Administration › Plugins**, on the plugin's card, for its text and number fields
+  (never secrets, paths or choices). Up to 20 per field, never starting with a dash.
+- A plugin's form offers them by name above the field and starts with the first one; the field
+  stays editable. They only prefill: the engine validates and authorizes every run as before.
+- Stored in the `plugins.savedValues` setting (JSON by plugin, then field), so every change is
+  audited as `settings.update`. Any signed-in person reads them (`loadSavedValues`).
+
 ## From the file browser
 
-- Right-click a folder (it needs the change right), or empty space in the open folder:
-  **Plugins › <plugin> › <command>** lists plugin commands that take a folder. The command opens
+- Right-click a folder (it needs the change right), a file, or empty space in the open folder:
+  **Plugins › <plugin> › <command>** lists the plugin commands that work on it. A command's first
+  path parameter decides: a folder by default, a file with `on: file`, only some files with
+  `extensions` (a cast command shows on videos, not on spreadsheets). The command opens
   in a dialog over the files with its first path parameter filled in and the cursor in the first
   required field still empty; Enter runs it. The output shows in the dialog; closing it does not
   stop the run (it stays in Operations). When the job ends the listing refreshes.

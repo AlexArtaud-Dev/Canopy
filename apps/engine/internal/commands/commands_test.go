@@ -164,6 +164,18 @@ func TestParseRefusals(t *testing.T) {
 		`params=[{ name: x, type: string, choices: [{ value: a, label: { en: A, fr: A, es: A } }], label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: enum, values: [a], choices: [{ value: a, label: { en: A, fr: A, es: A } }], label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: enum, choices: [{ value: a, label: { en: A } }], label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: string, on: file, label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: path, access: read, on: disk, label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: path, access: read, extensions: [mkv], label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: path, access: read, on: folder, extensions: [mkv], label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: path, access: read, on: file, extensions: [".MKV"], label: { en: X, fr: X, es: X } }]`,
+	}
+	targeted := entry(`params=[{ name: x, type: path, access: read, on: file, extensions: [mkv, mp4], label: { en: X, fr: X, es: X } }]`)
+	if entries, err := Parse([]byte(targeted)); err != nil || entries[0].Params[0].On != OnFile || len(entries[0].Params[0].Extensions) != 2 {
+		t.Fatalf("file target: %v %v", entries, err)
+	}
+	if _, err := Parse([]byte(entry(`params=[{ name: x, type: path, access: update, on: folder, label: { en: X, fr: X, es: X } }]`))); err != nil {
+		t.Fatalf("folder target: %v", err)
 	}
 	labelled := entry(`params=[{ name: x, type: enum, choices: [{ value: s, label: { en: Skip, fr: Ignorer, es: Omitir } }], label: { en: X, fr: X, es: X } }]`)
 	if entries, err := Parse([]byte(labelled)); err != nil || entries[0].Params[0].Values[0] != "s" {

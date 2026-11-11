@@ -14,8 +14,10 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/
 import { Skeleton } from '@/shared/ui/skeleton';
 
 import { localized } from '@/features/commands/commands.utils';
+import { loadCommands } from '@/features/commands/server/commands-actions';
 
 import { sameRepo, updateAvailable, type RepoView } from './plugins.utils';
+import { savableFields } from './saved-values.utils';
 import {
   addSource,
   installPlugin,
@@ -25,8 +27,10 @@ import {
   uninstallPlugin,
   updatePlugin,
 } from './server/plugins-actions';
+import { loadSavedValues, removeSavedValue, saveValue } from './server/saved-values-actions';
 import { AvailablePlugin } from './ui/available-plugin';
 import { InstalledPlugin } from './ui/installed-plugin';
+import { PluginSavedValuesEditor } from './ui/plugin-saved-values';
 import { PluginSources } from './ui/plugin-sources';
 
 interface PluginsContainerProps {
@@ -59,6 +63,23 @@ export function PluginsContainer({ initial }: PluginsContainerProps) {
       return result.data;
     },
     staleTime: 5 * 60_000,
+  });
+
+  // What the plugins' commands ask for, to know which fields values can be saved for.
+  const { data: catalog } = useQuery({
+    queryKey: ['commands', 'catalog', 'all'],
+    queryFn: async () => {
+      const result = await loadCommands();
+      return result.ok ? result.data.entries : [];
+    },
+    staleTime: 60_000,
+  });
+  const { data: saved } = useQuery({
+    queryKey: ['plugins', 'saved-values'],
+    queryFn: async () => {
+      const result = await loadSavedValues();
+      return result.ok ? result.data : {};
+    },
   });
 
   const sourceOf = (plugin: Plugin): RepoView | undefined =>
@@ -112,6 +133,27 @@ export function PluginsContainer({ initial }: PluginsContainerProps) {
     toast.success(t('sourceRemoved', { repo }));
   };
 
+  const addSaved = async (
+    plugin: string,
+    field: string,
+    label: string,
+    value: string,
+  ): Promise<string | null> => {
+    const result = await saveValue({ plugin, field, label, value });
+    if (!result.ok) return errorMessage(result.error.code);
+    queryClient.setQueryData(['plugins', 'saved-values'], result.data);
+    return null;
+  };
+
+  const removeSaved = async (plugin: string, field: string, value: string) => {
+    const result = await removeSavedValue({ plugin, field, value });
+    if (!result.ok) {
+      toast.error(errorMessage(result.error.code));
+      return;
+    }
+    queryClient.setQueryData(['plugins', 'saved-values'], result.data);
+  };
+
   const uninstall = async () => {
     if (!removing) return;
     const plugin = removing;
@@ -147,6 +189,7 @@ export function PluginsContainer({ initial }: PluginsContainerProps) {
         ) : (
           list.items.map((plugin) => {
             const latest = sourceOf(plugin)?.release?.version;
+            const fields = savableFields(catalog ?? [], plugin.id);
             return (
               <InstalledPlugin
                 key={plugin.id}
@@ -164,7 +207,16 @@ export function PluginsContainer({ initial }: PluginsContainerProps) {
                 onUninstall={() => {
                   setRemoving(plugin);
                 }}
-              />
+              >
+                {fields.length > 0 && (
+                  <PluginSavedValuesEditor
+                    fields={fields}
+                    saved={saved?.[plugin.id] ?? {}}
+                    onAdd={(field, label, value) => addSaved(plugin.id, field, label, value)}
+                    onRemove={(field, value) => removeSaved(plugin.id, field, value)}
+                  />
+                )}
+              </InstalledPlugin>
             );
           })
         )}

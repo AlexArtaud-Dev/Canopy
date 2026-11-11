@@ -42,6 +42,8 @@ commands:
       - name: folder
         type: path # path | bool | int | enum | string
         access: update # read | create | update (checked against the person's rights)
+        on: folder # folder (default) | file: what the file browser offers the command on
+        # extensions: [mkv, mp4] # with on: file, only these files (lower case, no dot)
         required: true
         label: { en: Folder, fr: Dossier, es: Carpeta }
       - name: dryRun
@@ -56,6 +58,14 @@ commands:
 Unknown fields are refused. Every command follows the catalog rules described in
 [commands](../features/commands.md): typed values, no free text starting with `-`, one argument
 per template item.
+
+The first `path` parameter is the one the file browser fills in: right-clicking a folder (or a
+file, with `on: file`) lists your command under **Plugins**, and opens it with that entry
+already chosen. `on` and `extensions` need Canopy 2026.11.7 or later: older versions refuse
+manifests that use them.
+
+Administrators can save named values for your text and number fields (a device, a host): give
+the same field the same `name` in every command, and one saved list serves them all.
 
 ## What your tool can rely on
 
