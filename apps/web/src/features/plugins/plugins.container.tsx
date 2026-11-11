@@ -101,6 +101,8 @@ export function PluginsContainer({ initial }: PluginsContainerProps) {
       return;
     }
     await queryClient.invalidateQueries({ queryKey: ['plugins'], exact: true });
+    // Installing, updating or removing a plugin changes the commands on offer.
+    void queryClient.invalidateQueries({ queryKey: ['commands'] });
     if (success) toast.success(success(result.data));
   };
 

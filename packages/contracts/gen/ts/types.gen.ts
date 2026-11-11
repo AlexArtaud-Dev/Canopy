@@ -270,6 +270,10 @@ export type CommandParam = {
    * With `on` file, the file extensions the command accepts (lower case, no dot).
    */
   extensions?: Array<string>;
+  /**
+   * String parameters only: the id of a command whose output lists values for this field, one `value<TAB>label` line each. Forms run it to offer a choice.
+   */
+  choicesFrom?: string;
   required: boolean;
   secret: boolean;
   default?: unknown;

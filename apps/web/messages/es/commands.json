@@ -21,7 +21,11 @@
       "cancelled": "Cancelado"
     },
     "output": "Salida del comando",
-    "savedChoose": "Elegir un valor guardado…",
-    "savedFor": "Valores guardados para {field}"
+    "choicesPick": "Elegir…",
+    "choicesEmpty": "Nada que elegir por ahora",
+    "choicesFor": "Opciones para {field}",
+    "detect": "Detectar",
+    "detecting": "Buscando…",
+    "detectedNone": "No se encontró nada. Compruebe que el dispositivo está encendido y busque de nuevo."
   }
 }

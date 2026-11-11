@@ -511,7 +511,10 @@ type CommandParam struct {
 
 	// Choices Enum values with their labels (shown instead of the raw values).
 	Choices *[]CommandChoice `json:"choices,omitempty"`
-	Default interface{}      `json:"default,omitempty"`
+
+	// ChoicesFrom String parameters only: the id of a command whose output lists values for this field, one `value<TAB>label` line each. Forms run it to offer a choice.
+	ChoicesFrom *string     `json:"choicesFrom,omitempty"`
+	Default     interface{} `json:"default,omitempty"`
 
 	// Extensions With `on` file, the file extensions the command accepts (lower case, no dot).
 	Extensions *[]string     `json:"extensions,omitempty"`

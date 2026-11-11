@@ -1,1 +1,15 @@
-entries: []
+entries:
+  - type: feat
+    scope: plugins
+    issue: 165
+    text:
+      en: A plugin field can be filled by detection - a Detect button runs the plugin's own search (the screens on the network, for casting) and offers what it finds.
+      fr: Un champ de plugin peut être rempli par détection - un bouton Détecter lance la recherche du plugin (les écrans du réseau, pour la diffusion) et propose ce qu’il trouve.
+      es: Un campo de plugin puede rellenarse por detección - un botón Detectar lanza la búsqueda del plugin (las pantallas de la red, para enviar vídeo) y ofrece lo que encuentra.
+  - type: fix
+    scope: plugins
+    issue: 165
+    text:
+      en: After installing a plugin, its saved values section shows without reloading the page.
+      fr: Après l’installation d’un plugin, sa section de valeurs enregistrées s’affiche sans recharger la page.
+      es: Tras instalar un plugin, su sección de valores guardados aparece sin recargar la página.

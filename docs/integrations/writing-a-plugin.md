@@ -64,6 +64,11 @@ file, with `on: file`) lists your command under **Plugins**, and opens it with t
 already chosen. `on` and `extensions` need Canopy 2026.11.7 or later: older versions refuse
 manifests that use them.
 
+A text field can offer what one of your commands finds (devices, profiles, remotes): add
+`choicesFrom: mytool.list` to the param, and make `mytool.list` print one
+`value<TAB>label` line per choice. The form gets a **Detect** button that runs it. Needs Canopy
+2026.11.8 or later.
+
 Administrators can save named values for your text and number fields (a device, a host): give
 the same field the same `name` in every command, and one saved list serves them all.
 

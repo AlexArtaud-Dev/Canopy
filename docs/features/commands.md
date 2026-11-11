@@ -5,7 +5,8 @@
   program is installed on the engine host (looked up once at start).
 - **Entry**: id (`tool.action`), name/description (en/fr/es), bare `binary`, `mode` (basic for
   everyone, advanced only in advanced mode), typed `params` (path with `access` read/create/update
-  and, for the file browser, `on` file/folder with optional `extensions`,
+  and, for the file browser, `on` file/folder with optional `extensions`; string with
+  `choicesFrom`, another entry of the same catalog whose output lists its values,
   bool, int with min/max, enum with `values` or labelled `choices` (en/fr/es, shown in the form instead
   of the raw value), string with optional pattern; `flag` templates; `secret`), `args`
   template, `progressParser`, optional `dryRun.flag`, `timeout` (≤ 7 days). Files are decoded
@@ -51,6 +52,16 @@
   stays editable. They only prefill: the engine validates and authorizes every run as before.
 - Stored in the `plugins.savedValues` setting (JSON by plugin, then field), so every change is
   audited as `settings.update`. Any signed-in person reads them (`loadSavedValues`).
+
+## Choices detected by a command
+
+- A string field can take its choices from another command of the same catalog
+  (`choicesFrom: tool.list`): the form shows **Detect** next to the field. It runs that command
+  as an ordinary job (authorized, audited, listed in Operations), with the values saved for the
+  plugin, then reads one choice per output line, `value<TAB>label`. Other lines are ignored, as
+  are values starting with a dash.
+- What is found joins the saved values in the field's list; an empty field takes the first
+  one. The field stays free text: the engine validates the value at run time like any other.
 
 ## From the file browser
 

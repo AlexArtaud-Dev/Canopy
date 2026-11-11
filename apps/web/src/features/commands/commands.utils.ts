@@ -114,3 +114,32 @@ export function choiceLabel(
   const choice = param.choices?.find((candidate) => candidate.value === value);
   return choice ? localized(choice.label, locale) : value;
 }
+
+/** A value a field can take, with the name people pick it by. */
+export interface Choice {
+  label: string;
+  value: string;
+}
+
+/**
+ * Reads choices from a command's output: one `value<TAB>label` line each. Other lines (messages,
+ * blanks) are ignored, like values that could pass as an option; a value listed twice counts once.
+ */
+export function parseChoices(lines: readonly string[]): Choice[] {
+  const choices = new Map<string, Choice>();
+  for (const line of lines) {
+    const tab = line.indexOf('\t');
+    if (tab <= 0) continue;
+    const value = line.slice(0, tab).trim();
+    const label = line.slice(tab + 1).trim();
+    if (value === '' || value.startsWith('-') || choices.has(value)) continue;
+    choices.set(value, { value, label: label === '' ? value : label });
+  }
+  return [...choices.values()];
+}
+
+/** Saved values first, then what was found that is not saved already. */
+export function mergeChoices(saved: readonly Choice[], found: readonly Choice[]): Choice[] {
+  const known = new Set(saved.map((choice) => choice.value));
+  return [...saved, ...found.filter((choice) => !known.has(choice.value))];
+}

@@ -18,11 +18,15 @@ func TestCommandEntryNamesItsPlugin(t *testing.T) {
 	targeted := toCommandEntry(commands.Entry{ID: "tool.play", Mode: commands.ModeBasic, Params: []commands.Param{
 		{Name: "video", Type: commands.TypePath, Access: commands.AccessRead, On: commands.OnFile, Extensions: []string{"mkv"}},
 		{Name: "folder", Type: commands.TypePath, Access: commands.AccessRead},
+		{Name: "device", Type: commands.TypeString, ChoicesFrom: "tool.devices"},
 	}})
 	if video := targeted.Params[0]; video.On == nil || *video.On != "file" || video.Extensions == nil || (*video.Extensions)[0] != "mkv" {
 		t.Fatalf("file target: %+v", video)
 	}
-	if folder := targeted.Params[1]; folder.On != nil || folder.Extensions != nil {
+	if device := targeted.Params[2]; device.ChoicesFrom == nil || *device.ChoicesFrom != "tool.devices" {
+		t.Fatalf("choices: %+v", device)
+	}
+	if folder := targeted.Params[1]; folder.On != nil || folder.Extensions != nil || folder.ChoicesFrom != nil {
 		t.Fatalf("no target: %+v", folder)
 	}
 	if fromPlugin.Plugin == nil || fromPlugin.Plugin.Id != "tool" || fromPlugin.Plugin.Name.Fr != "Outil" {
