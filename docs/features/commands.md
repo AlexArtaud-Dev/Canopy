@@ -20,7 +20,9 @@
   refused when it leaves the root.
 - **Running** (job `command`): `exec` without a shell, scrubbed environment (`PATH`, `LANG`,
   `HOME`), lower priority (`ionice -c3`, `nice -n 10` when installed), the engine's own user
-  (PUID:PGID in compose), the entry's timeout (`commands.timeout`). Output lines (also split on
+  (PUID:PGID in compose), the entry's timeout (`commands.timeout`). Plugin commands also get
+  `CANOPY_PLUGIN_DATA`, their plugin's own data folder (`<plugins>/<id>/data`, created on the
+  first run, kept across updates, removed with the plugin). Output lines (also split on
   `\r`) feed the parser (`rsync-progress2`, `percent-regex`, `line-count`, `none`) and the job log
   (5 000 lines, then `output truncated`; progress lines are not logged). Non-zero exit:
   `commands.failed` with the exit code in the result.

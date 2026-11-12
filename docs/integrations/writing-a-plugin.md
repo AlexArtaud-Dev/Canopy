@@ -82,6 +82,10 @@ the same field the same `name` in every command, and one saved list serves them 
   failed. Make progress lines parseable by the parser you chose (`line-count` counts lines;
   `percent-regex` reads `NN%`).
 - Never ask for input on stdin: there is none.
+- `CANOPY_PLUGIN_DATA` names a folder that is yours: keep there what must outlive a run (a
+  pairing, a cache). It survives updates of your plugin and is removed when the plugin is
+  uninstalled. The rest of the filesystem may be read-only, the temporary folder included.
+  Needs Canopy 2026.11.10 or later.
 
 ## Checklist before publishing
 
