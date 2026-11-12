@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
@@ -27,6 +28,9 @@ func TestMain(m *testing.M) {
 		os.Exit(3)
 	case "slow":
 		time.Sleep(5 * time.Second)
+		os.Exit(0)
+	case "data":
+		fmt.Println("data=" + os.Getenv(PluginDataEnv))
 		os.Exit(0)
 	}
 	os.Exit(m.Run())
@@ -109,6 +113,52 @@ func TestRun(t *testing.T) {
 		func(string) (string, error) { return "/no/such/program", nil })
 	if _, _, err = run(context.Background(), t, broken, "progress"); !errors.As(err, &failure) || failure.Code != CodeUnavailable {
 		t.Fatalf("cannot start: %v", err)
+	}
+}
+
+func TestPluginsGetADataFolder(t *testing.T) {
+	if got := PluginDataDir(filepath.Join("plugins", "tool", "1.2.0", "tool")); got != filepath.Join("plugins", "tool", "data") {
+		t.Fatalf("data folder: %s", got)
+	}
+	// The test binary stands for a plugin installed in <root>/tool/1.0.0/.
+	folder := filepath.Join(t.TempDir(), "tool", "1.0.0")
+	if err := os.MkdirAll(folder, 0o750); err != nil {
+		t.Fatal(err)
+	}
+	binary := filepath.Join(folder, filepath.Base(os.Args[0]))
+	content, err := os.ReadFile(os.Args[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(binary, content, 0o700); err != nil { //nolint:gosec // an executable copy of the test binary
+		t.Fatal(err)
+	}
+	entry := Entry{ID: "fake.tool", Binary: "fake", Mode: ModeBasic, ProgressParser: ParserNone, Timeout: Duration{time.Minute}}
+	lookup := func(string) (string, error) { return binary, nil }
+	data := filepath.Join(filepath.Dir(folder), "data")
+
+	if _, sink, err := run(context.Background(), t, NewAvailable([]Entry{entry}, lookup), "data"); err != nil || !slices.Contains(sink.lines, "data=") {
+		t.Fatalf("built-in commands get no data folder: %v %v", sink.lines, err)
+	}
+	entry.Plugin = &PluginRef{ID: "tool"}
+	if _, sink, err := run(context.Background(), t, NewAvailable([]Entry{entry}, lookup), "data"); err != nil || !slices.Contains(sink.lines, "data="+data) {
+		t.Fatalf("plugin data folder: %v %v", sink.lines, err)
+	}
+	if info, err := os.Stat(data); err != nil || !info.IsDir() {
+		t.Fatalf("created: %v", err)
+	}
+	// A file where the folder should be: the run is refused, not started blind.
+	blocked := filepath.Join(t.TempDir(), "other")
+	if err := os.MkdirAll(filepath.Join(blocked, "1.0.0"), 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(blocked, "data"), nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	other := func(string) (string, error) { return filepath.Join(blocked, "1.0.0", "tool"), nil }
+	var failure *jobs.Failure
+	if _, _, err := run(context.Background(), t, NewAvailable([]Entry{entry}, other), "data"); !errors.As(err, &failure) || failure.Code != CodeUnavailable {
+		t.Fatalf("unusable data folder: %v", err)
 	}
 }
 

@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -25,6 +26,16 @@ const (
 	CodeFailed      = "commands.failed"
 	CodeTimeout     = "commands.timeout"
 )
+
+// PluginDataEnv names the variable giving a plugin its data folder.
+const PluginDataEnv = "CANOPY_PLUGIN_DATA"
+
+// PluginDataDir is the folder a plugin keeps its own state in (a pairing, a cache): next to its
+// versions (<plugins>/<id>/<version>/<binary>), so that it survives updates and goes with the
+// plugin when it is uninstalled.
+func PluginDataDir(binary string) string {
+	return filepath.Join(filepath.Dir(filepath.Dir(binary)), "data")
+}
 
 // maxLogLines bounds what one run writes to its job log; parsing goes on after it.
 const maxLogLines = 5000
@@ -88,6 +99,13 @@ func RunHandler(available *Available, launcher Launcher) jobs.Handler[RunArgs] {
 		limited, cancel := context.WithTimeout(ctx, entry.Timeout.Duration)
 		defer cancel()
 		command := launcher.command(limited, binary, args.Argv, args.WorkDir)
+		if entry.Plugin != nil {
+			data := PluginDataDir(binary)
+			if err := os.MkdirAll(data, 0o700); err != nil {
+				return nil, &jobs.Failure{Code: CodeUnavailable, Err: fmt.Errorf("plugin data folder: %w", err)}
+			}
+			command.Env = append(append([]string{}, command.Env...), PluginDataEnv+"="+data)
+		}
 		output, writer := io.Pipe()
 		command.Stdout, command.Stderr = writer, writer
 		if err := command.Start(); err != nil {
