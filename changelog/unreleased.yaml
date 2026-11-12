@@ -1,8 +1,1 @@
-entries:
-  - type: feat
-    scope: plugins
-    issue: 174
-    text:
-      en: Plugins get a data folder of their own, kept across updates - the cast plugin uses it to remember its pairing with an Apple TV.
-      fr: Les plugins disposent d’un dossier de données qui leur est propre, conservé d’une mise à jour à l’autre - le plugin de diffusion s’en sert pour retenir son jumelage avec un Apple TV.
-      es: Los plugins disponen de una carpeta de datos propia, conservada entre actualizaciones - el plugin de envío la usa para recordar su emparejamiento con un Apple TV.
+entries: []
