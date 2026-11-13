@@ -1,1 +1,15 @@
-entries: []
+entries:
+  - type: feat
+    scope: files
+    issue: 189
+    text:
+      en: The video viewer has a Cast to… button that opens the cast form with the file filled in.
+      fr: La visionneuse vidéo a un bouton Diffuser sur… qui ouvre le formulaire de diffusion avec le fichier déjà choisi.
+      es: El visor de vídeo tiene un botón Enviar a… que abre el formulario de envío con el archivo ya elegido.
+  - type: feat
+    scope: devices
+    issue: 190
+    text:
+      en: Mark a screen as yours with the star next to it - every cast form then starts with it.
+      fr: Marquez un écran comme le vôtre avec l’étoile à côté de lui - chaque formulaire de diffusion commence alors avec lui.
+      es: Marque una pantalla como suya con la estrella junto a ella - cada formulario de envío empieza entonces con ella.

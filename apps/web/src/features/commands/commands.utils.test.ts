@@ -2,6 +2,7 @@ import type { CommandEntry, CommandParam } from '@canopy/contracts';
 
 import {
   advancedInUse,
+  castCommands,
   builtInGroup,
   choiceLabel,
   commandGroups,
@@ -303,5 +304,53 @@ describe('path picker', () => {
     expect(pickerStart('/media/films/x.mkv', 'file')).toBe('/media/films');
     expect(pickerStart('/x.mkv', 'file')).toBe('/');
     expect(pickerStart(' /media/films ', 'folder')).toBe('/media/films');
+  });
+});
+
+describe('cast commands', () => {
+  const plugin = { id: 'cast', name: { en: 'Cast', fr: 'Cast', es: 'Cast' } };
+  const video: CommandParam = {
+    name: 'file',
+    type: 'path',
+    access: 'read',
+    on: 'file',
+    extensions: ['mkv'],
+    label,
+    required: true,
+    secret: false,
+  };
+  const screen: CommandParam = {
+    name: 'to',
+    type: 'string',
+    device: 'screen',
+    label,
+    required: true,
+    secret: false,
+  };
+  const entry = (
+    id: string,
+    params: CommandParam[],
+    extra: Partial<CommandEntry> = {},
+  ): CommandEntry => ({
+    id,
+    name: label,
+    description: label,
+    mode: 'basic',
+    dryRun: false,
+    params,
+    plugin,
+    ...extra,
+  });
+
+  it('are plugin commands taking the file and a device', () => {
+    const entries = [
+      entry('cast.play', [video, screen]),
+      entry('cast.info', [video]),
+      entry('cast.pause', [screen]),
+      entry('cast.hidden', [video, screen], { secondary: true }),
+      (({ plugin: _plugin, ...builtIn }) => builtIn)(entry('rsync.play', [video, screen])),
+    ];
+    expect(castCommands(entries, 'Film.MKV').map((item) => item.id)).toEqual(['cast.play']);
+    expect(castCommands(entries, 'notes.txt')).toEqual([]);
   });
 });

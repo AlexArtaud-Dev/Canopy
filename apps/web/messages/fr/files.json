@@ -219,7 +219,8 @@
     "unmute": "Rétablir le son",
     "fullscreen": "Plein écran",
     "position": "Position dans la vidéo",
-    "converted": "Convertie pour votre navigateur"
+    "converted": "Convertie pour votre navigateur",
+    "cast": "Diffuser sur…"
   },
   "properties": {
     "title": "Propriétés",

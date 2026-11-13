@@ -1,10 +1,11 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Download, X } from 'lucide-react';
+import { Cast, ChevronLeft, ChevronRight, Download, X } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
+import type { CommandEntry } from '@canopy/contracts';
 import { Button } from '@/shared/ui/button';
 import {
   Dialog,
@@ -13,7 +14,14 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/shared/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu';
 import { Spinner } from '@/shared/ui/spinner';
+import { localized } from '@/features/commands';
 
 import { formatBytes } from '../../browser.utils';
 import { useStreamTicket } from '../../model/use-stream-ticket';
@@ -32,6 +40,9 @@ interface PreviewDialogProps {
   onNavigate: (path: string) => void;
   onClose: () => void;
   onDownload: (entry: BrowserEntry) => void;
+  /** The commands that play this file on a screen (none: no Cast button). */
+  castWith: (entry: BrowserEntry) => readonly CommandEntry[];
+  onCast: (entry: BrowserEntry, command: CommandEntry) => void;
 }
 
 /** Views a file without leaving the folder; arrows go to the previous or next previewable file. */
@@ -41,6 +52,8 @@ export function PreviewDialog({
   onNavigate,
   onClose,
   onDownload,
+  castWith,
+  onCast,
 }: PreviewDialogProps) {
   const t = useTranslations('files.preview');
   const locale = useLocale();
@@ -67,6 +80,13 @@ export function PreviewDialog({
   }, [path, previous, next, onNavigate]);
 
   if (!entry) return null;
+  const casts = castWith(entry);
+  const castButton = (onClick?: () => void) => (
+    <Button variant="ghost" size="sm" aria-label={t('cast')} onClick={onClick}>
+      <Cast aria-hidden />
+      <span className="max-sm:sr-only">{t('cast')}</span>
+    </Button>
+  );
 
   return (
     <Dialog
@@ -86,6 +106,27 @@ export function PreviewDialog({
               {formatBytes(entry.size, locale)}
             </DialogDescription>
           </div>
+          {casts.length === 1 &&
+            castButton(() => {
+              if (casts[0]) onCast(entry, casts[0]);
+            })}
+          {casts.length > 1 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>{castButton()}</DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {casts.map((command) => (
+                  <DropdownMenuItem
+                    key={command.id}
+                    onSelect={() => {
+                      onCast(entry, command);
+                    }}
+                  >
+                    {localized(command.name, locale)}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <Button
             variant="ghost"
             size="icon-sm"

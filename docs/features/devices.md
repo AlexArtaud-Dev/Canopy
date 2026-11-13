@@ -24,6 +24,10 @@ name instead of typing addresses.
   first one switched on. **Search** runs detection; a form also searches by itself when nothing
   was found in the last 2 minutes (once per tab in that time). Hidden devices are not offered.
   **Type an address…** keeps the old way for a device never found.
+- **My screen**: the star next to a device field makes the picked device the person's own
+  default for that kind (`app.default_devices`, one per person and kind, cleared when the device
+  is forgotten or the person deleted; audited as `devices.default_set`). An empty field starts
+  with it while it is offered, else with the first device switched on.
 - **Pairing** (kinds that declare `pair`): a device marked "to pair" gets a **Pair** button under
   the field, and a **Pair** action on the administration page. The dialog starts the plugin's
   pairing as the person (the device shows a code; one start per attempt, a device pairs with one

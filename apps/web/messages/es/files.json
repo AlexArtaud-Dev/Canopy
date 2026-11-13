@@ -219,7 +219,8 @@
     "unmute": "Activar sonido",
     "fullscreen": "Pantalla completa",
     "position": "Posición en el vídeo",
-    "converted": "Convertido para tu navegador"
+    "converted": "Convertido para tu navegador",
+    "cast": "Enviar a…"
   },
   "properties": {
     "title": "Propiedades",

@@ -5,7 +5,7 @@ import { and, count, eq, sql } from 'drizzle-orm';
 import { getDb } from '@/shared/db/client';
 
 import type { DetectedDevice, Device } from '../devices.utils';
-import { pluginDevicesTable } from './devices.schema';
+import { defaultDevicesTable, pluginDevicesTable } from './devices.schema';
 
 const columns = {
   id: pluginDevicesTable.id,
@@ -138,4 +138,51 @@ export async function updateDevice(
 
 export async function deleteDevice(id: string): Promise<void> {
   await getDb().delete(pluginDevicesTable).where(eq(pluginDevicesTable.id, id));
+}
+
+/** The device a person starts forms with for a plugin's kind, if any. */
+export async function findDefaultDevice(
+  userId: string,
+  pluginId: string,
+  kind: string,
+): Promise<string | null> {
+  const [row] = await getDb()
+    .select({ deviceId: defaultDevicesTable.deviceId })
+    .from(defaultDevicesTable)
+    .where(
+      and(
+        eq(defaultDevicesTable.userId, userId),
+        eq(defaultDevicesTable.pluginId, pluginId),
+        eq(defaultDevicesTable.kind, kind),
+      ),
+    );
+  return row?.deviceId ?? null;
+}
+
+/** Sets (or, with null, clears) a person's device for a plugin's kind. */
+export async function saveDefaultDevice(
+  userId: string,
+  pluginId: string,
+  kind: string,
+  deviceId: string | null,
+): Promise<void> {
+  if (deviceId === null) {
+    await getDb()
+      .delete(defaultDevicesTable)
+      .where(
+        and(
+          eq(defaultDevicesTable.userId, userId),
+          eq(defaultDevicesTable.pluginId, pluginId),
+          eq(defaultDevicesTable.kind, kind),
+        ),
+      );
+    return;
+  }
+  await getDb()
+    .insert(defaultDevicesTable)
+    .values({ userId, pluginId, kind, deviceId })
+    .onConflictDoUpdate({
+      target: [defaultDevicesTable.userId, defaultDevicesTable.pluginId, defaultDevicesTable.kind],
+      set: { deviceId },
+    });
 }

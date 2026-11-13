@@ -62,7 +62,9 @@
       "neverSeen": "añadido a mano",
       "seen": "visto {when}",
       "pairing": "por emparejar",
-      "pair": "Emparejar"
+      "pair": "Emparejar",
+      "setDefault": "Hacerla mi pantalla: los formularios empiezan con ella",
+      "unsetDefault": "Dejar de usarla como pantalla predeterminada"
     }
   }
 }

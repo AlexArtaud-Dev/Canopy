@@ -3,6 +3,8 @@ import type { CommandEntry } from '@canopy/contracts';
 import {
   addDeviceInputSchema,
   confirmPairingInputSchema,
+  defaultDeviceInputSchema,
+  startingDevice,
   pairingCodeInputSchema,
   deviceIdInputSchema,
   deviceKindInputSchema,
@@ -209,5 +211,23 @@ describe('pairing inputs', () => {
     expect(pairingCodeInputSchema.safeParse({ id, code: '123' }).success).toBe(false);
     expect(confirmPairingInputSchema.safeParse({ id, jobId: id }).success).toBe(true);
     expect(confirmPairingInputSchema.safeParse({ id, jobId: 'x' }).success).toBe(false);
+  });
+});
+
+describe('default device', () => {
+  it('starts an empty field, else the first one on', () => {
+    const tv = device({ id: '00000000-0000-4000-8000-000000000001', locator: 'tv' });
+    const on = device({
+      id: '00000000-0000-4000-8000-000000000002',
+      locator: 'on',
+      lastSeen: ago(1000),
+    });
+    expect(startingDevice([on, tv], tv.id, now)?.locator).toBe('tv');
+    expect(startingDevice([on, tv], null, now)?.locator).toBe('on');
+    expect(startingDevice([tv], 'gone', now)).toBeUndefined();
+    const base = { pluginId: 'dapple', kind: 'screen' };
+    expect(defaultDeviceInputSchema.safeParse({ ...base, id: null }).success).toBe(true);
+    expect(defaultDeviceInputSchema.safeParse({ ...base, id: tv.id }).success).toBe(true);
+    expect(defaultDeviceInputSchema.safeParse({ ...base, id: 'x' }).success).toBe(false);
   });
 });

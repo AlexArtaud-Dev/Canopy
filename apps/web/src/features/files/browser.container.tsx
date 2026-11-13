@@ -36,7 +36,13 @@ import type { ActionResult } from '@/shared/lib/action';
 import { Button } from '@/shared/ui/button';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty';
 import { Spinner } from '@/shared/ui/spinner';
-import { CommandDialog, pluginMenus, targetParam, usePluginCommands } from '@/features/commands';
+import {
+  castCommands,
+  CommandDialog,
+  pluginMenus,
+  targetParam,
+  usePluginCommands,
+} from '@/features/commands';
 import { startFolderSize } from '@/features/jobs';
 import { ShareDialog } from '@/features/shares';
 import { DeleteDialogs, useDeleteFlow } from '@/features/trash';
@@ -654,6 +660,12 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
             setPreviewPath(null);
           }}
           onDownload={(entry) => void ops.download([entry])}
+          castWith={(entry) => castCommands(pluginCommands, entry.name)}
+          onCast={(entry, castCommand) => {
+            // The screen plays it now: the viewer closes rather than play it twice.
+            setPreviewPath(null);
+            setCommand({ entry: castCommand, target: entry.path });
+          }}
         />
         <CommandDialog
           entry={command?.entry ?? null}

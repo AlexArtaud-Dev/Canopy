@@ -219,7 +219,8 @@
     "unmute": "Unmute",
     "fullscreen": "Full screen",
     "position": "Position in the video",
-    "converted": "Converted for your browser"
+    "converted": "Converted for your browser",
+    "cast": "Cast to…"
   },
   "properties": {
     "title": "Properties",

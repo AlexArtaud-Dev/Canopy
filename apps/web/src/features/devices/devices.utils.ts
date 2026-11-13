@@ -131,6 +131,24 @@ export const pairingCodeInputSchema = deviceIdInputSchema.extend({
   code: z.string().regex(/^[0-9]{4,8}$/),
 });
 
+/** A person's default device for a kind, or none (`id` null). */
+export const defaultDeviceInputSchema = deviceKindInputSchema.extend({ id: z.uuid().nullable() });
+
+/**
+ * The device an empty field starts with: the person's default when it is still offered, else the
+ * first one switched on. Nothing when neither exists.
+ */
+export function startingDevice(
+  offered: readonly Device[],
+  defaultId: string | null,
+  now: number,
+): Device | undefined {
+  return (
+    offered.find((device) => device.id === defaultId) ??
+    offered.find((device) => isOnline(device, now))
+  );
+}
+
 /** The pairing run to check before a device is marked paired. */
 export const confirmPairingInputSchema = deviceIdInputSchema.extend({ jobId: z.uuid() });
 

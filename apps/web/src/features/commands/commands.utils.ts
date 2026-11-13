@@ -287,3 +287,17 @@ export function pickerStart(value: string, pick: 'file' | 'folder'): string {
   const slash = clean.lastIndexOf('/');
   return slash <= 0 ? '/' : clean.slice(0, slash);
 }
+
+/**
+ * The commands that play a file on a device (a cast): plugin commands offered on that file whose
+ * form takes a device. The file viewer offers them next to the player.
+ */
+export function castCommands(entries: readonly CommandEntry[], fileName: string): CommandEntry[] {
+  return entries.filter(
+    (entry) =>
+      entry.plugin !== undefined &&
+      entry.secondary !== true &&
+      worksOn(entry, { kind: 'file', name: fileName }) &&
+      entry.params.some((param) => param.device !== undefined),
+  );
+}

@@ -1,6 +1,7 @@
-import { boolean, index, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import { boolean, index, primaryKey, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 
 import { appSchema } from '@/shared/db/schemas.schema';
+import { usersTable } from '@/features/auth/server/auth.schema';
 
 /**
  * Devices plugins found on the network (screens…), kept so that people pick them by name. A
@@ -31,4 +32,23 @@ export const pluginDevicesTable = appSchema.table(
     unique('plugin_devices_locator_unique').on(table.pluginId, table.kind, table.locator),
     index('plugin_devices_kind_idx').on(table.pluginId, table.kind),
   ],
+);
+
+/**
+ * The device a person picks first for a plugin's kind (their screen): forms start with it. One
+ * per person and kind; forgetting the device or deleting the person clears it.
+ */
+export const defaultDevicesTable = appSchema.table(
+  'default_devices',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => usersTable.id, { onDelete: 'cascade' }),
+    pluginId: text('plugin_id').notNull(),
+    kind: text('kind').notNull(),
+    deviceId: uuid('device_id')
+      .notNull()
+      .references(() => pluginDevicesTable.id, { onDelete: 'cascade' }),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.pluginId, table.kind] })],
 );
