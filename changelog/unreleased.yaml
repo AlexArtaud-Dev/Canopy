@@ -1,1 +1,8 @@
-entries: []
+entries:
+  - type: fix
+    scope: web
+    issue: 176
+    text:
+      en: Canopy fits a phone screen - no page is wider than the screen any more, each file has a menu button on touch screens, and the operations panel starts folded.
+      fr: Canopy tient dans un écran de téléphone - plus aucune page ne dépasse de l’écran, chaque fichier a un bouton de menu sur écran tactile, et le panneau des opérations démarre replié.
+      es: Canopy cabe en la pantalla de un teléfono - ninguna página es ya más ancha que la pantalla, cada archivo tiene un botón de menú en pantallas táctiles, y el panel de operaciones empieza plegado.
