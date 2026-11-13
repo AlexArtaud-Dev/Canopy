@@ -73,12 +73,15 @@ type Param struct {
 	// ChoicesFrom names another entry of the same catalog whose output lists values for this
 	// string param (one "value<TAB>label" line each): forms run it to offer a choice, such as
 	// the devices found on the network.
-	ChoicesFrom string   `yaml:"choicesFrom,omitempty"`
-	Required    bool     `yaml:"required,omitempty"`
-	Default     any      `yaml:"default,omitempty"`
-	Min         *int64   `yaml:"min,omitempty"`
-	Max         *int64   `yaml:"max,omitempty"`
-	Values      []string `yaml:"values,omitempty"`
+	ChoicesFrom string `yaml:"choicesFrom,omitempty"`
+	// Device names a kind of device the plugin declares (a screen): the field picks one of the
+	// devices Canopy keeps for that kind, and its value is the device's locator.
+	Device   string   `yaml:"device,omitempty"`
+	Required bool     `yaml:"required,omitempty"`
+	Default  any      `yaml:"default,omitempty"`
+	Min      *int64   `yaml:"min,omitempty"`
+	Max      *int64   `yaml:"max,omitempty"`
+	Values   []string `yaml:"values,omitempty"`
 	// Choices name enum values in the three languages; they replace Values when given.
 	Choices []Choice `yaml:"choices,omitempty"`
 	Pattern string   `yaml:"pattern,omitempty"`
@@ -125,8 +128,28 @@ type Entry struct {
 
 // PluginRef names the plugin an entry comes from, so the file browser can group commands.
 type PluginRef struct {
-	ID   string
-	Name Text
+	ID      string
+	Name    Text
+	Devices []DeviceKind
+}
+
+// DeviceKind is a kind of device a plugin finds on the network (screens), that Canopy keeps,
+// lets people name and offers in the fields that take one.
+type DeviceKind struct {
+	Kind string `yaml:"kind"`
+	Name Text   `yaml:"name"`
+	// Detect is the plugin's command listing the devices, one
+	// "locator<TAB>label[<TAB>key=value;key=value]" line each.
+	Detect string `yaml:"detect"`
+	// Pair, when set, names the commands that pair a device that asks for it.
+	Pair *DevicePairing `yaml:"pair,omitempty"`
+}
+
+// DevicePairing names the command starting a pairing (it shows a code on the device and waits)
+// and the one handing that code over.
+type DevicePairing struct {
+	Start string `yaml:"start"`
+	Code  string `yaml:"code"`
 }
 
 // DryRun says how the tool simulates a run.
@@ -277,6 +300,8 @@ func (p *Param) validate() error {
 		return errors.New("on is file or folder, for path params")
 	case p.ChoicesFrom != "" && p.Type != TypeString:
 		return errors.New("only string params take choices from a command")
+	case p.Device != "" && (p.Type != TypeString || p.ChoicesFrom != ""):
+		return errors.New("only string params take a device, and not with choicesFrom")
 	case p.Advanced && p.Required && p.Default == nil:
 		return errors.New("a required param without default cannot be advanced: it would be hidden")
 	case p.Help != nil && (p.Help.En == "" || p.Help.Fr == "" || p.Help.Es == ""):

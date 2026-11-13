@@ -288,3 +288,44 @@ func (zeros) Read(buffer []byte) (int, error) {
 	clear(buffer)
 	return len(buffer), nil
 }
+
+func TestManifestDevices(t *testing.T) {
+	base := strings.Replace(manifestFor("1.0.0"), "commands:\n", `commands:
+  - id: mrename.list
+    name: { en: List, fr: Lister, es: Listar }
+    description: { en: x, fr: x, es: x }
+    binary: mrename
+    mode: basic
+    params:
+      - { name: target, type: string, device: DEVICE, label: { en: T, fr: T, es: T } }
+    args: ["{target}"]
+    progressParser: none
+    timeout: 1m
+`, 1)
+	with := func(device, devices string) string {
+		return strings.Replace(base, "DEVICE", device, 1) + devices
+	}
+	const screens = "devices:\n  - kind: screen\n    name: { en: Screens, fr: Écrans, es: Pantallas }\n    detect: mrename.list\n"
+	manifest, err := ParseManifest([]byte(with("screen", screens+"    pair: { start: mrename.list, code: mrename.rename }\n")))
+	if err != nil {
+		t.Fatalf("valid devices: %v", err)
+	}
+	if len(manifest.Devices) != 1 || manifest.Devices[0].Pair.Code != "mrename.rename" || manifest.Commands[0].Params[0].Device != "screen" {
+		t.Fatalf("devices: %+v", manifest.Devices)
+	}
+	bad := map[string]string{
+		"undeclared kind": with("printer", screens),
+		"no devices":      with("screen", ""),
+		"bad kind":        with("screen", strings.Replace(screens, "kind: screen", "kind: Screen", 1)),
+		"twice":           with("screen", screens+strings.TrimPrefix(screens, "devices:\n")),
+		"name":            with("screen", strings.Replace(screens, "es: Pantallas", "es: ''", 1)),
+		"detect":          with("screen", strings.Replace(screens, "detect: mrename.list", "detect: other.list", 1)),
+		"pair":            with("screen", screens+"    pair: { start: mrename.list, code: mrename.missing }\n"),
+		"not a string":    strings.Replace(with("screen", screens), "type: string, device", "type: int, device", 1),
+	}
+	for name, text := range bad {
+		if _, err := ParseManifest([]byte(text)); !errors.Is(err, ErrManifest) {
+			t.Errorf("%s: accepted (%v)", name, err)
+		}
+	}
+}

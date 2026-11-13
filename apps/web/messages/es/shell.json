@@ -16,7 +16,8 @@
     "trash": "Papelera",
     "shares": "Compartidos",
     "commands": "Comandos",
-    "plugins": "Plugins"
+    "plugins": "Plugins",
+    "devices": "Dispositivos"
   },
   "sections": {
     "people": "Gestión de usuarios",

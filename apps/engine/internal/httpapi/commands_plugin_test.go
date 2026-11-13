@@ -13,8 +13,21 @@ func TestCommandEntryNamesItsPlugin(t *testing.T) {
 	}
 	fromPlugin := toCommandEntry(commands.Entry{
 		ID: "tool.run", Mode: commands.ModeBasic,
-		Plugin: &commands.PluginRef{ID: "tool", Name: commands.Text{En: "Tool", Fr: "Outil", Es: "Herramienta"}},
+		Plugin: &commands.PluginRef{ID: "tool", Name: commands.Text{En: "Tool", Fr: "Outil", Es: "Herramienta"}, Devices: []commands.DeviceKind{
+			{Kind: "screen", Name: commands.Text{En: "Screens", Fr: "Écrans", Es: "Pantallas"}, Detect: "tool.list", Pair: &commands.DevicePairing{Start: "tool.pair", Code: "tool.code"}},
+			{Kind: "speaker", Detect: "tool.speakers"},
+		}},
+		Params: []commands.Param{{Name: "screen", Type: commands.TypeString, Device: "screen"}},
 	})
+	if devices := fromPlugin.Plugin.Devices; devices == nil || len(*devices) != 2 || (*devices)[0].Pair == nil || (*devices)[0].Pair.Code != "tool.code" || (*devices)[1].Pair != nil {
+		t.Fatalf("devices: %+v", fromPlugin.Plugin.Devices)
+	}
+	if device := fromPlugin.Params[0].Device; device == nil || *device != "screen" {
+		t.Fatalf("device param: %+v", fromPlugin.Params[0])
+	}
+	if toCommandEntry(commands.Entry{ID: "x.y", Plugin: &commands.PluginRef{ID: "x"}}).Plugin.Devices != nil {
+		t.Fatal("no devices declared: none listed")
+	}
 	targeted := toCommandEntry(commands.Entry{ID: "tool.play", Mode: commands.ModeBasic, Params: []commands.Param{
 		{Name: "video", Type: commands.TypePath, Access: commands.AccessRead, On: commands.OnFile, Extensions: []string{"mkv"}},
 		{Name: "folder", Type: commands.TypePath, Access: commands.AccessRead},

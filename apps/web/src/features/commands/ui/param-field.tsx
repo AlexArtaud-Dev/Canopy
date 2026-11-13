@@ -22,6 +22,7 @@ import {
   type FormValue,
 } from '../commands.utils';
 import { useDetectedChoices } from '../model/use-detected-choices';
+import { DeviceField } from './device-field';
 import { PathPickerDialog } from './path-picker-dialog';
 
 interface ParamFieldProps {
@@ -34,6 +35,8 @@ interface ParamFieldProps {
   pluginSaved: PluginSavedValues;
   locale: string;
   autoFocus: boolean;
+  /** The plugin the command comes from: where device fields find their devices. */
+  pluginId: string | undefined;
   onChange: (value: FormValue) => void;
 }
 
@@ -46,6 +49,7 @@ export function ParamField({
   pluginSaved,
   locale,
   autoFocus,
+  pluginId,
   onChange,
 }: ParamFieldProps) {
   const t = useTranslations('commands.page');
@@ -60,6 +64,21 @@ export function ParamField({
     const first = found[0];
     if (first && text === '') onChange(first.value);
   });
+
+  if (param.device !== undefined && pluginId !== undefined) {
+    return (
+      <DeviceField
+        id={id}
+        label={label}
+        help={param.help ? localized(param.help, locale) : undefined}
+        pluginId={pluginId}
+        kind={param.device}
+        value={text}
+        autoFocus={autoFocus}
+        onChange={onChange}
+      />
+    );
+  }
 
   if (param.type === 'bool') {
     return (

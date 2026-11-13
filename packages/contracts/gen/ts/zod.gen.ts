@@ -203,6 +203,7 @@ export const zCommandParam = z.object({
   on: z.string().optional(),
   extensions: z.array(z.string()).optional(),
   choicesFrom: z.string().optional(),
+  device: z.string().optional(),
   required: z.boolean(),
   secret: z.boolean(),
   advanced: z.boolean().optional(),
@@ -231,11 +232,27 @@ export const zCommandParam = z.object({
 });
 
 /**
+ * Commands pairing a device that asks for it, the code shown on it handed by the second.
+ */
+export const zDevicePairing = z.object({
+  start: z.string(),
+  code: z.string(),
+});
+
+export const zDeviceKind = z.object({
+  kind: z.string(),
+  name: zLocalizedText,
+  detect: z.string(),
+  pair: zDevicePairing.optional(),
+});
+
+/**
  * The plugin a command comes from (absent for built-in commands).
  */
 export const zCommandPlugin = z.object({
   id: z.string(),
   name: zLocalizedText,
+  devices: z.array(zDeviceKind).optional(),
 });
 
 export const zCommandEntry = z.object({

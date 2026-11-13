@@ -54,6 +54,8 @@ type Manifest struct {
 	MinCanopy   string           `yaml:"minCanopy,omitempty"`
 	Source      Source           `yaml:"source"`
 	Commands    []commands.Entry `yaml:"commands"`
+	// Devices are the kinds of devices the plugin finds (screens), kept by Canopy.
+	Devices []commands.DeviceKind `yaml:"devices,omitempty"`
 }
 
 var (
@@ -62,6 +64,7 @@ var (
 	repoPattern  = regexp.MustCompile(`^[A-Za-z0-9-]{1,39}/[A-Za-z0-9._-]{1,100}$`)
 	assetPattern = regexp.MustCompile(`^[A-Za-z0-9._-]{1,128}$`)
 	platforms    = map[string]bool{"linux-amd64": true, "linux-arm64": true}
+	kindPattern  = regexp.MustCompile(`^[a-z][a-z0-9-]{0,31}$`)
 )
 
 // ParseManifest reads and checks a manifest: strict fields, safe names, a mandatory checksum
@@ -111,6 +114,39 @@ func (m *Manifest) validate() error {
 	}
 	if err := commands.Validate(m.Commands); err != nil {
 		return err //nolint:wrapcheck // already says which entry
+	}
+	return m.validateDevices()
+}
+
+// validateDevices checks the device kinds: named in three languages, each once, found and paired
+// by commands of this plugin, and the only kinds params may ask for.
+func (m *Manifest) validateDevices() error {
+	ids := map[string]bool{}
+	for _, entry := range m.Commands {
+		ids[entry.ID] = true
+	}
+	kinds := map[string]bool{}
+	for _, device := range m.Devices {
+		switch {
+		case !kindPattern.MatchString(device.Kind):
+			return fmt.Errorf("device kind %q must be lowercase letters, digits and dashes", device.Kind)
+		case kinds[device.Kind]:
+			return fmt.Errorf("device kind %q declared twice", device.Kind)
+		case device.Name.En == "" || device.Name.Fr == "" || device.Name.Es == "":
+			return fmt.Errorf("device kind %q: name needs en, fr and es", device.Kind)
+		case !ids[device.Detect]:
+			return fmt.Errorf("device kind %q: detect %q is not a command of this plugin", device.Kind, device.Detect)
+		case device.Pair != nil && (!ids[device.Pair.Start] || !ids[device.Pair.Code]):
+			return fmt.Errorf("device kind %q: pair needs start and code commands of this plugin", device.Kind)
+		}
+		kinds[device.Kind] = true
+	}
+	for _, entry := range m.Commands {
+		for _, param := range entry.Params {
+			if param.Device != "" && !kinds[param.Device] {
+				return fmt.Errorf("command %q: param %q asks for an undeclared device kind %q", entry.ID, param.Name, param.Device)
+			}
+		}
 	}
 	return nil
 }

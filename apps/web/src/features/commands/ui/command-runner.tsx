@@ -139,6 +139,7 @@ function CommandForm({ entry, preset, saved, focusFirst = false }: CommandFormPr
       pluginSaved={saved}
       locale={locale}
       autoFocus={param.name === focusName}
+      pluginId={entry.plugin?.id}
       onChange={(value) => {
         setValues((current) => ({ ...current, [param.name]: value }));
       }}

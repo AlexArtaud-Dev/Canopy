@@ -1834,6 +1834,11 @@ components:
             String parameters only: the id of a command whose output lists values for this field,
             one `value<TAB>label` line each. Forms run it to offer a choice.
           type: string
+        device:
+          description: >-
+            String parameters only: a kind of device its plugin declares (`screen`). The field picks
+            one of the devices Canopy keeps for it; the value is the device's locator.
+          type: string
         required: { type: boolean }
         secret: { type: boolean }
         advanced:
@@ -1867,6 +1872,32 @@ components:
         id: { type: string }
         name:
           $ref: '#/components/schemas/LocalizedText'
+        devices:
+          description: Kinds of devices the plugin finds on the network.
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceKind'
+    DeviceKind:
+      type: object
+      required: [kind, name, detect]
+      properties:
+        kind: { type: string }
+        name:
+          $ref: '#/components/schemas/LocalizedText'
+        detect:
+          description: >-
+            The command listing the devices, one `locator<TAB>label[<TAB>key=value;key=value]` line each
+            (`type`, `model`, `pairing=needed`).
+          type: string
+        pair:
+          $ref: '#/components/schemas/DevicePairing'
+    DevicePairing:
+      description: Commands pairing a device that asks for it, the code shown on it handed by the second.
+      type: object
+      required: [start, code]
+      properties:
+        start: { type: string }
+        code: { type: string }
     CommandEntry:
       type: object
       required: [id, name, description, mode, params, dryRun]

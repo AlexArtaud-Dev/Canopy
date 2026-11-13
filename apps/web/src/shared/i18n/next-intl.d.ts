@@ -3,6 +3,7 @@ import type audit from '../../../messages/en/audit.json';
 import type auth from '../../../messages/en/auth.json';
 import type commands from '../../../messages/en/commands.json';
 import type common from '../../../messages/en/common.json';
+import type devices from '../../../messages/en/devices.json';
 import type errors from '../../../messages/en/errors.json';
 import type files from '../../../messages/en/files.json';
 import type jobs from '../../../messages/en/jobs.json';
@@ -27,6 +28,7 @@ declare module 'next-intl' {
       auth: typeof auth;
       commands: typeof commands;
       common: typeof common;
+      devices: typeof devices;
       errors: typeof errors;
       files: typeof files;
       jobs: typeof jobs;
