@@ -8,7 +8,8 @@
   and, for the file browser, `on` file/folder with optional `extensions`; string with
   `choicesFrom`, another entry of the same catalog whose output lists its values,
   bool, int with min/max, enum with `values` or labelled `choices` (en/fr/es, shown in the form instead
-  of the raw value), string with optional pattern; `flag` templates; `secret`), `args`
+  of the raw value), string with optional pattern; `flag` templates; `secret`; `advanced`, folded
+  in forms, and a `help` sentence), `secondary` (left out of the list), `args`
   template, `progressParser`, optional `dryRun.flag`, `timeout` (≤ 7 days). Files are decoded
   strictly (unknown fields refused) and checked at load.
 - **Building**: values are validated (types, ranges, choices, patterns; unknown and missing params
@@ -37,11 +38,18 @@
 
 ## Commands page (web)
 
-- **Commands** in the sidebar (`/commands`): the entries the engine offers to the person, a form
-  generated from each entry's params (paths as virtual paths, switches, numbers, choices, hidden
-  secrets), the exact command refreshed as you type (`previewCommand`, 300 ms after the last
-  change), **Simulate** when the entry has a dry run, then **Run**. The run's output appears below
-  (read every second while it runs); its progress and result are in Operations.
+- **Commands** in the sidebar (`/commands`): the entries the engine offers to the person,
+  grouped by plugin (built-in commands last, groups fold), with a search over names and
+  descriptions in every language (accents ignored) and the last five commands run in this
+  browser on top. Secondary entries are not listed. `?command=<id>` opens one. On a phone the
+  list and the form take the screen in turn.
+- The form is generated from the entry's params: the essential ones first, `advanced` ones under
+  **More options**; each field shows its `help`. Paths to read or update are picked with
+  **Browse** (folders, then the files the param accepts; hidden files left out) or typed. The
+  exact command (`previewCommand`, 300 ms after the last change) is one click away; what is
+  still missing is said next to **Run**. **Simulate** when the entry has a dry run. The run's
+  output appears below (read every second while it runs); its progress and result are in
+  Operations.
 - Settings (module `commands`): **Advanced mode** (off). Permission `commands:advanced` (global,
   in roles) unlocks advanced entries once the mode is on; administrators hold it.
 

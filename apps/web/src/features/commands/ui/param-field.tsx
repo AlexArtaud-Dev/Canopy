@@ -1,8 +1,9 @@
 'use client';
 
 import type { CommandParam } from '@canopy/contracts';
-import { Radar } from 'lucide-react';
+import { FolderOpen, Radar } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
@@ -13,8 +14,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Spinner } from '@/shared/ui/spinner';
 import type { PluginSavedValues, SavedValue } from '@/features/plugins/saved-values.utils';
 
-import { choiceLabel, localized, mergeChoices, type FormValue } from '../commands.utils';
+import {
+  choiceLabel,
+  localized,
+  mergeChoices,
+  pickerStart,
+  type FormValue,
+} from '../commands.utils';
 import { useDetectedChoices } from '../model/use-detected-choices';
+import { PathPickerDialog } from './path-picker-dialog';
 
 interface ParamFieldProps {
   id: string;
@@ -43,6 +51,10 @@ export function ParamField({
   const t = useTranslations('commands.page');
   const label = `${localized(param.label, locale)}${param.required ? ' *' : ''}`;
   const text = typeof value === 'string' ? value : '';
+  const [picking, setPicking] = useState(false);
+  // Existing files and folders are picked; a path to create is typed (its name is new).
+  const browsable = param.type === 'path' && param.access !== 'create';
+  const pick = param.on === 'file' ? 'file' : 'folder';
   const detection = useDetectedChoices(param.choicesFrom, pluginSaved, (found) => {
     // A field still empty takes the first thing found: one click casts to the only TV.
     const first = found[0];
@@ -60,7 +72,10 @@ export function ParamField({
             onChange(checked === true);
           }}
         />
-        <FieldLabel htmlFor={id}>{label}</FieldLabel>
+        <div className="grid gap-1">
+          <FieldLabel htmlFor={id}>{label}</FieldLabel>
+          {param.help && <FieldDescription>{localized(param.help, locale)}</FieldDescription>}
+        </div>
       </Field>
     );
   }
@@ -131,20 +146,47 @@ export function ParamField({
           }}
         />
       ) : (
-        <Input
-          id={id}
-          value={text}
-          type={param.type === 'int' ? 'number' : 'text'}
-          min={param.min}
-          max={param.max}
-          autoFocus={autoFocus}
-          placeholder={param.type === 'path' ? t('pathPlaceholder') : undefined}
-          className={param.type === 'path' ? 'font-mono' : undefined}
-          onChange={(event) => {
-            onChange(event.target.value);
-          }}
-        />
+        <div className="flex gap-2">
+          <Input
+            id={id}
+            value={text}
+            type={param.type === 'int' ? 'number' : 'text'}
+            min={param.min}
+            max={param.max}
+            autoFocus={autoFocus}
+            placeholder={param.type === 'path' ? t('pathPlaceholder') : undefined}
+            className={param.type === 'path' ? 'min-w-0 flex-1 font-mono' : undefined}
+            onChange={(event) => {
+              onChange(event.target.value);
+            }}
+          />
+          {browsable && (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                className="shrink-0"
+                onClick={() => {
+                  setPicking(true);
+                }}
+              >
+                <FolderOpen aria-hidden />
+                {t('browse')}
+              </Button>
+              <PathPickerDialog
+                open={picking}
+                onOpenChange={setPicking}
+                field={localized(param.label, locale)}
+                pick={pick}
+                extensions={param.extensions}
+                startPath={pickerStart(text, pick)}
+                onPick={onChange}
+              />
+            </>
+          )}
+        </div>
       )}
+      {param.help && <FieldDescription>{localized(param.help, locale)}</FieldDescription>}
       {detection.error !== null && <FieldError>{detection.error}</FieldError>}
       {detection.error === null && detection.choices?.length === 0 && (
         <FieldDescription role="status">{t('detectedNone')}</FieldDescription>

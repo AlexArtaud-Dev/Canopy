@@ -1,1 +1,8 @@
-entries: []
+entries:
+  - type: feat
+    scope: commands
+    issue: 185
+    text:
+      en: The Commands page groups commands by plugin, finds them as you type and keeps the latest ones on top; forms show what a command needs first, the other options folded with a sentence of help each, and files are picked by browsing.
+      fr: La page Commandes regroupe les commandes par plugin, les trouve au fil de la saisie et garde les dernières en haut ; les formulaires montrent d’abord ce dont une commande a besoin, les autres options repliées avec une phrase d’aide chacune, et les fichiers se choisissent en parcourant les dossiers.
+      es: La página Comandos agrupa los comandos por plugin, los encuentra mientras escribe y mantiene los últimos arriba; los formularios muestran primero lo que un comando necesita, las demás opciones plegadas con una frase de ayuda cada una, y los archivos se eligen explorando las carpetas.

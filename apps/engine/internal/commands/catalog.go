@@ -86,6 +86,10 @@ type Param struct {
 	Flag string `yaml:"flag,omitempty"`
 	// Secret values never appear in previews or logs.
 	Secret bool `yaml:"secret,omitempty"`
+	// Advanced params fold under "more options" in forms: what most runs leave alone.
+	Advanced bool `yaml:"advanced,omitempty"`
+	// Help is one sentence shown under the field.
+	Help *Text `yaml:"help,omitempty"`
 
 	pattern *regexp.Regexp
 }
@@ -110,6 +114,9 @@ type Entry struct {
 	ProgressPattern string   `yaml:"progressPattern,omitempty"`
 	DryRun          *DryRun  `yaml:"dryRun,omitempty"`
 	Timeout         Duration `yaml:"timeout"`
+	// Secondary entries leave the commands list: they are reached from where they belong (a
+	// pairing dialog, a remote), and stay runnable.
+	Secondary bool `yaml:"secondary,omitempty"`
 	// Plugin is set by the engine for entries a plugin brings; never read from a file.
 	Plugin *PluginRef `yaml:"-"`
 
@@ -270,6 +277,10 @@ func (p *Param) validate() error {
 		return errors.New("on is file or folder, for path params")
 	case p.ChoicesFrom != "" && p.Type != TypeString:
 		return errors.New("only string params take choices from a command")
+	case p.Advanced && p.Required && p.Default == nil:
+		return errors.New("a required param without default cannot be advanced: it would be hidden")
+	case p.Help != nil && (p.Help.En == "" || p.Help.Fr == "" || p.Help.Es == ""):
+		return errors.New("help needs en, fr and es")
 	case len(p.Extensions) > 0 && p.On != OnFile:
 		return errors.New("extensions need on: file")
 	case slices.ContainsFunc(p.Extensions, func(extension string) bool { return !extensionPattern.MatchString(extension) }):

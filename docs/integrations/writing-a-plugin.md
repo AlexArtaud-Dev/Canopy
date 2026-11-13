@@ -49,6 +49,8 @@ commands:
       - name: dryRun
         type: bool
         flag: --dry-run
+        advanced: true # folded under "More options"
+        help: { en: Shows what would change., fr: Montre ce qui changerait., es: Muestra lo que cambiaría. }
         label: { en: Simulate, fr: Simuler, es: Simular }
     args: ['{flags}', '{folder}']
     progressParser: line-count # rsync-progress2 | percent-regex | line-count | none
@@ -68,6 +70,12 @@ A text field can offer what one of your commands finds (devices, profiles, remot
 `choicesFrom: mytool.list` to the param, and make `mytool.list` print one
 `value<TAB>label` line per choice. The form gets a **Detect** button that runs it. Needs Canopy
 2026.11.8 or later.
+
+Keep forms short: mark what most runs leave alone `advanced: true` (folded under **More
+options**, opened by itself when one of them holds a value), and give each field a `help`
+sentence in the three languages. A required field cannot be advanced unless it has a default.
+A command marked `secondary: true` stays runnable but leaves the commands list: use it for a step
+your other screens lead to (entering a pairing code). Needs Canopy 2026.11.11 or later.
 
 Administrators can save named values for your text and number fields (a device, a host): give
 the same field the same `name` in every command, and one saved list serves them all.

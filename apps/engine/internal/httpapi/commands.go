@@ -61,6 +61,13 @@ func toCommandEntry(entry commands.Entry) api.CommandEntry {
 			Name: param.Name, Type: api.CommandParamType(param.Type), Label: localized(param.Label),
 			Required: param.Required, Secret: param.Secret, Default: param.Default, Min: param.Min, Max: param.Max,
 		}
+		if param.Advanced {
+			converted.Advanced = &param.Advanced
+		}
+		if param.Help != nil {
+			help := localized(*param.Help)
+			converted.Help = &help
+		}
 		if param.Access != "" {
 			access := api.CommandParamAccess(param.Access)
 			converted.Access = &access
@@ -93,6 +100,9 @@ func toCommandEntry(entry commands.Entry) api.CommandEntry {
 	converted := api.CommandEntry{
 		Id: entry.ID, Name: localized(entry.Name), Description: localized(entry.Description),
 		Mode: api.CommandEntryMode(entry.Mode), DryRun: entry.DryRun != nil, Params: params,
+	}
+	if entry.Secondary {
+		converted.Secondary = &entry.Secondary
 	}
 	if entry.Plugin != nil {
 		converted.Plugin = &api.CommandPlugin{Id: entry.Plugin.ID, Name: localized(entry.Plugin.Name)}

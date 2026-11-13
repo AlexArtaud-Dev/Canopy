@@ -1,9 +1,21 @@
 import type { CommandEntry, CommandParam } from '@canopy/contracts';
 
 import {
+  advancedInUse,
+  builtInGroup,
   choiceLabel,
+  commandGroups,
+  matchesQuery,
+  maxRecent,
+  recentEntries,
+  searchable,
+  splitParams,
+  withRecent,
   displayArgv,
   firstToFill,
+  hasExtension,
+  pickerEntries,
+  pickerStart,
   initialValues,
   localized,
   mergeChoices,
@@ -179,5 +191,117 @@ describe('choices from a command', () => {
     expect(mergeChoices(saved, found)).toEqual([saved[0], found[1]]);
     expect(mergeChoices([], found)).toEqual(found);
     expect(mergeChoices(saved, [])).toEqual(saved);
+  });
+});
+
+describe('commands page', () => {
+  const entry = (id: string, extra: Partial<CommandEntry> = {}): CommandEntry => ({
+    id,
+    name: { en: `Name ${id}`, fr: `Nom ${id}`, es: `Nombre ${id}` },
+    description: { en: 'Plays on a screen', fr: 'Lit sur un écran', es: 'Reproduce' },
+    mode: 'basic',
+    dryRun: false,
+    params: [],
+    ...extra,
+  });
+  const cast = { id: 'cast', name: { en: 'Cast', fr: 'Diffuser', es: 'Enviar' } };
+  const zip = { id: 'zip', name: { en: 'Zip', fr: 'Zip', es: 'Zip' } };
+  const rsync = entry('rsync.sync');
+  const play = entry('cast.play', { plugin: cast });
+  const entries = [
+    rsync,
+    play,
+    entry('zip.make', { plugin: zip }),
+    entry('cast.pause', { plugin: cast }),
+    entry('cast.code', { plugin: cast, secondary: true }),
+  ];
+
+  it('groups by plugin in catalog order, built-in commands last, secondary ones out', () => {
+    expect(
+      commandGroups(entries, '').map((group) => [group.id, group.entries.map((e) => e.id)]),
+    ).toEqual([
+      ['cast', ['cast.play', 'cast.pause']],
+      ['zip', ['zip.make']],
+      [builtInGroup, ['rsync.sync']],
+    ]);
+    expect(commandGroups([entry('cast.code', { plugin: cast, secondary: true })], '')).toEqual([]);
+  });
+
+  it('searches every language, without accents, word by word', () => {
+    expect(searchable('Écran Été')).toBe('ecran ete');
+    expect(matchesQuery(play, '  ')).toBe(true);
+    expect(matchesQuery(play, 'ecran diffuser')).toBe(true);
+    expect(matchesQuery(play, 'nombre')).toBe(true);
+    expect(matchesQuery(play, 'cast.play')).toBe(true);
+    expect(matchesQuery(play, 'ecran zip')).toBe(false);
+    expect(matchesQuery(rsync, 'diffuser')).toBe(false);
+    expect(commandGroups(entries, 'zip').map((group) => group.id)).toEqual(['zip']);
+  });
+
+  it('keeps the latest commands first, once each', () => {
+    expect(withRecent([], 'a')).toEqual(['a']);
+    expect(withRecent(['a', 'b', 'c'], 'c')).toEqual(['c', 'a', 'b']);
+    expect(withRecent(['a', 'b', 'c', 'd', 'e'], 'f')).toHaveLength(maxRecent);
+    expect(
+      recentEntries(['gone', 'cast.code', 'zip.make', 'rsync.sync'], entries).map((e) => e.id),
+    ).toEqual(['zip.make', 'rsync.sync']);
+  });
+
+  it('folds advanced options, opened when one holds something', () => {
+    const folded: CommandParam[] = [
+      { name: 'file', type: 'path', access: 'read', label, required: true, secret: false },
+      {
+        name: 'port',
+        type: 'int',
+        label,
+        required: false,
+        secret: false,
+        default: 8690,
+        advanced: true,
+      },
+      { name: 'host', type: 'string', label, required: false, secret: false, advanced: true },
+    ];
+    const { essential, advanced } = splitParams(folded);
+    expect(essential.map((param) => param.name)).toEqual(['file']);
+    expect(advanced.map((param) => param.name)).toEqual(['port', 'host']);
+    expect(advancedInUse(folded, initialValues(folded, { file: '/a' }))).toBe(false);
+    expect(advancedInUse(folded, initialValues(folded, { host: '10.0.0.2' }))).toBe(true);
+    expect(advancedInUse(folded, { file: '/a' })).toBe(false);
+  });
+});
+
+describe('path picker', () => {
+  const at = (name: string, isDirectory = false) => ({ name, path: `/m/${name}`, isDirectory });
+  const entries = [
+    at('b.MKV'),
+    at('Films', true),
+    at('.hidden', true),
+    at('a.txt'),
+    at('10.mp4'),
+    at('2.mp4'),
+    at('Docs', true),
+  ];
+
+  it('lists folders, then the files the param accepts, in natural order', () => {
+    expect(pickerEntries(entries, 'folder').map((e) => e.name)).toEqual(['Docs', 'Films']);
+    expect(pickerEntries(entries, 'file', ['mkv', 'mp4']).map((e) => e.name)).toEqual([
+      'Docs',
+      'Films',
+      '2.mp4',
+      '10.mp4',
+      'b.MKV',
+    ]);
+    expect(pickerEntries(entries, 'file')).toHaveLength(7 - 1);
+  });
+
+  it('knows extensions and where to open', () => {
+    expect(hasExtension('x.Mp4', ['mp4'])).toBe(true);
+    expect(hasExtension('mp4', ['mp4'])).toBe(false);
+    expect(hasExtension('x.avi', [])).toBe(true);
+    expect(pickerStart('', 'file')).toBe('/');
+    expect(pickerStart('relative/x', 'file')).toBe('/');
+    expect(pickerStart('/media/films/x.mkv', 'file')).toBe('/media/films');
+    expect(pickerStart('/x.mkv', 'file')).toBe('/');
+    expect(pickerStart(' /media/films ', 'folder')).toBe('/media/films');
   });
 });

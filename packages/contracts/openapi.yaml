@@ -1836,6 +1836,11 @@ components:
           type: string
         required: { type: boolean }
         secret: { type: boolean }
+        advanced:
+          description: Folded under "more options" in forms, what most runs leave alone.
+          type: boolean
+        help:
+          $ref: '#/components/schemas/LocalizedText'
         default: {}
         min: { type: integer, format: int64 }
         max: { type: integer, format: int64 }
@@ -1878,6 +1883,11 @@ components:
           enum: [basic, advanced]
         dryRun:
           description: The command can simulate a run.
+          type: boolean
+        secondary:
+          description: >-
+            Left out of the commands list: reached from where it belongs (a pairing dialog, a
+            remote), still runnable.
           type: boolean
         params:
           type: array
