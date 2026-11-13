@@ -7,6 +7,7 @@ export {
   pickable,
   startingDevice,
   type Device,
+  type KindView,
 } from './devices.utils';
 export { useDefaultDevice } from './model/use-default-device';
 export { devicesKey, useDevices } from './model/use-devices';

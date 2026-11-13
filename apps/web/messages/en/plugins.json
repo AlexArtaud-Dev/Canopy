@@ -1,7 +1,6 @@
 {
   "page": {
     "description": "Plugins add commands from trusted tools. They are downloaded from allowed GitHub repositories, and every file is checked against the release checksums before anything runs.",
-    "installedTitle": "Installed",
     "platform": "Server: {platform}",
     "emptyTitle": "No plugin installed",
     "emptyDescription": "Install one from the allowed repositories below.",
@@ -9,10 +8,6 @@
     "availableDescription": "Latest releases of the repositories in Sources.",
     "nothingAvailable": "Everything from the allowed repositories is installed.",
     "installed": "{name} {version} installed",
-    "uninstalled": "{name} uninstalled",
-    "uninstallTitle": "Uninstall this plugin?",
-    "uninstallDescription": "{name} and its commands will be removed. Running commands are not stopped.",
-    "uninstallConfirm": "Uninstall",
     "sourcesTitle": "Sources",
     "sourcesDescription": "GitHub repositories plugins may be installed from. A repository is checked before it is added: its latest release must hold a valid Canopy plugin.",
     "addSource": "Add",
@@ -25,17 +20,17 @@
     "noSources": "No repository is allowed yet: plugins cannot be installed.",
     "removeSourceTitle": "Remove {repo}?",
     "removeSourceDescription": "Its releases will no longer be offered. A plugin already installed from it stays installed but can no longer be updated.",
-    "removeSourceConfirm": "Remove"
+    "removeSourceConfirm": "Remove",
+    "installedTab": "Installed",
+    "addTab": "Add plugins",
+    "installedDescription": "Each plugin has its own page: what its forms start with, the devices it finds, its commands, its version."
   },
   "installed": {
     "disabled": "Disabled",
     "updateBadge": "{version} available",
-    "uninstall": "Uninstall {name}",
     "commands": "{count, plural, one {# command} other {# commands}}",
-    "installedAt": "Installed {date}",
-    "enabled": "Enabled",
-    "pinned": "Keep this version",
-    "update": "Update to {version}"
+    "update": "Update to {version}",
+    "configure": "Configure"
   },
   "available": {
     "releasePage": "Release",
@@ -43,14 +38,42 @@
     "installing": "Installing…",
     "notes": "Release notes"
   },
-  "saved": {
-    "title": "Saved values",
-    "description": "Name the values people should not have to type: a screen, a server address, a port. Forms offer them by name and start with the first one.",
-    "field": "Field",
-    "label": "Name",
-    "labelPlaceholder": "A short name",
-    "value": "Value",
-    "add": "Save",
-    "remove": "Forget {label}"
+  "defaults": {
+    "none": "This plugin has no field to fill in advance.",
+    "values": "Values of {field}",
+    "used": "used by default",
+    "remove": "Remove {label}",
+    "value": "Value of {field}",
+    "label": "Name for this value of {field}",
+    "valuePlaceholder": "Value forms start with",
+    "anotherPlaceholder": "Another value",
+    "labelPlaceholder": "Name (optional)",
+    "add": "Add"
+  },
+  "detail": {
+    "back": "All plugins",
+    "disabled": "disabled",
+    "updateTitle": "Version {version} is available",
+    "updateDescription": "Its checksum is verified before anything is replaced; settings and devices stay.",
+    "update": "Update to {version}",
+    "updated": "{name} updated to {version}",
+    "defaultsTitle": "What forms start with",
+    "defaultsDescription": "Fill in a field once and every form of this plugin starts with it. Add more values to offer a choice by name.",
+    "devicesTitle": "Devices",
+    "devicesDescription": "What this plugin finds on the network. Name them as people know them.",
+    "commandsTitle": "{count, plural, one {# command} other {# commands}}",
+    "commandsDescription": "What this plugin adds to Canopy. Hidden ones are reached from where they belong (a pairing window).",
+    "secondary": "hidden from the list",
+    "stateTitle": "State",
+    "installedAt": "Installed on {date}",
+    "enabled": "Enabled",
+    "enabledHelp": "Off, its commands disappear everywhere until you turn it back on.",
+    "pinned": "Keep this version",
+    "pinnedHelp": "No update is offered while this is on.",
+    "uninstall": "Uninstall",
+    "uninstallHelp": "Removes the plugin, its commands and its data (pairings). Kept devices can then be forgotten.",
+    "uninstallTitle": "Uninstall this plugin?",
+    "uninstallDescription": "{name} and its commands leave Canopy. Running operations stop.",
+    "uninstalled": "{name} uninstalled"
   }
 }

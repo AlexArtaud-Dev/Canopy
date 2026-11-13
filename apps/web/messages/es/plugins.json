@@ -1,7 +1,6 @@
 {
   "page": {
     "description": "Los plugins añaden comandos de herramientas de confianza. Se descargan de repositorios de GitHub permitidos y cada archivo se comprueba con las sumas de verificación de la versión antes de ejecutar nada.",
-    "installedTitle": "Instalados",
     "platform": "Servidor: {platform}",
     "emptyTitle": "Ningún plugin instalado",
     "emptyDescription": "Instala uno desde los repositorios permitidos de abajo.",
@@ -9,10 +8,6 @@
     "availableDescription": "Últimas versiones de los repositorios de Fuentes.",
     "nothingAvailable": "Todo lo de los repositorios permitidos está instalado.",
     "installed": "{name} {version} instalado",
-    "uninstalled": "{name} desinstalado",
-    "uninstallTitle": "¿Desinstalar este plugin?",
-    "uninstallDescription": "Se quitarán {name} y sus comandos. Los comandos en curso no se detienen.",
-    "uninstallConfirm": "Desinstalar",
     "sourcesTitle": "Fuentes",
     "sourcesDescription": "Repositorios de GitHub desde los que se pueden instalar plugins. Un repositorio se comprueba antes de añadirlo: su última versión debe contener un plugin de Canopy válido.",
     "addSource": "Añadir",
@@ -25,17 +20,17 @@
     "noSources": "No hay ningún repositorio permitido: no se pueden instalar plugins.",
     "removeSourceTitle": "¿Quitar {repo}?",
     "removeSourceDescription": "Sus versiones dejarán de ofrecerse. Un plugin ya instalado desde él sigue instalado, pero ya no podrá actualizarse.",
-    "removeSourceConfirm": "Quitar"
+    "removeSourceConfirm": "Quitar",
+    "installedTab": "Instalados",
+    "addTab": "Añadir plugins",
+    "installedDescription": "Cada plugin tiene su página: con qué empiezan sus formularios, los dispositivos que encuentra, sus comandos, su versión."
   },
   "installed": {
     "disabled": "Desactivado",
     "updateBadge": "{version} disponible",
-    "uninstall": "Desinstalar {name}",
     "commands": "{count, plural, one {# comando} other {# comandos}}",
-    "installedAt": "Instalado el {date}",
-    "enabled": "Activado",
-    "pinned": "Mantener esta versión",
-    "update": "Actualizar a {version}"
+    "update": "Actualizar a {version}",
+    "configure": "Configurar"
   },
   "available": {
     "releasePage": "Versión",
@@ -43,14 +38,42 @@
     "installing": "Instalando…",
     "notes": "Notas de la versión"
   },
-  "saved": {
-    "title": "Valores guardados",
-    "description": "Dé un nombre a los valores que nadie debería tener que escribir: una pantalla, la dirección de un servidor, un puerto. Los formularios los ofrecen por su nombre y empiezan con el primero.",
-    "field": "Campo",
-    "label": "Nombre",
-    "labelPlaceholder": "Un nombre corto",
-    "value": "Valor",
-    "add": "Guardar",
-    "remove": "Olvidar {label}"
+  "defaults": {
+    "none": "Este plugin no tiene ningún campo que rellenar de antemano.",
+    "values": "Valores de {field}",
+    "used": "usado por defecto",
+    "remove": "Quitar {label}",
+    "value": "Valor de {field}",
+    "label": "Nombre de este valor de {field}",
+    "valuePlaceholder": "Valor con el que empiezan los formularios",
+    "anotherPlaceholder": "Otro valor",
+    "labelPlaceholder": "Nombre (opcional)",
+    "add": "Añadir"
+  },
+  "detail": {
+    "back": "Todos los plugins",
+    "disabled": "desactivado",
+    "updateTitle": "La versión {version} está disponible",
+    "updateDescription": "Su suma de control se verifica antes de reemplazar nada; ajustes y dispositivos se conservan.",
+    "update": "Actualizar a {version}",
+    "updated": "{name} actualizado a {version}",
+    "defaultsTitle": "Con qué empiezan los formularios",
+    "defaultsDescription": "Rellene un campo una vez y cada formulario de este plugin empieza con él. Añada otros valores para ofrecer una elección por nombre.",
+    "devicesTitle": "Dispositivos",
+    "devicesDescription": "Lo que este plugin encuentra en la red. Nómbrelos como los conocen sus usuarios.",
+    "commandsTitle": "{count, plural, one {# comando} other {# comandos}}",
+    "commandsDescription": "Lo que este plugin añade a Canopy. Los ocultos se abren donde sirven (una ventana de emparejamiento).",
+    "secondary": "oculto de la lista",
+    "stateTitle": "Estado",
+    "installedAt": "Instalado el {date}",
+    "enabled": "Activado",
+    "enabledHelp": "Desactivado, sus comandos desaparecen en todas partes hasta que lo vuelva a activar.",
+    "pinned": "Conservar esta versión",
+    "pinnedHelp": "No se ofrece ninguna actualización mientras esté activado.",
+    "uninstall": "Desinstalar",
+    "uninstallHelp": "Quita el plugin, sus comandos y sus datos (emparejamientos). Los dispositivos conservados podrán olvidarse después.",
+    "uninstallTitle": "¿Desinstalar este plugin?",
+    "uninstallDescription": "{name} y sus comandos salen de Canopy. Las operaciones en curso se detienen.",
+    "uninstalled": "{name} desinstalado"
   }
 }
