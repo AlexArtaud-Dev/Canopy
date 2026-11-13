@@ -1,13 +1,6 @@
 'use server';
 
-import {
-  getJob,
-  getJobLogs,
-  listCommands,
-  startCommand,
-  type CommandCatalog,
-  type DeviceKind,
-} from '@canopy/contracts';
+import { getJob, getJobLogs } from '@canopy/contracts';
 
 import { runAction, type ActionResult } from '@/shared/lib/action';
 import { AppBaseError } from '@/shared/lib/errors';
@@ -15,9 +8,6 @@ import { adminPermission } from '@/features/access/access.utils';
 import { audit } from '@/features/audit/server/audit-writer';
 import { authorize, requireSession } from '@/features/auth';
 import { engineClientFor } from '@/features/files/server/engine-client';
-import { initialValues, requestValues } from '@/features/commands/commands.utils';
-import { savedDefaults } from '@/features/plugins/saved-values.utils';
-import { loadSavedValues } from '@/features/plugins/server/saved-values-actions';
 
 import {
   addDeviceInputSchema,
@@ -37,40 +27,18 @@ import {
   recordDetected,
   updateDevice,
 } from './devices-store';
-
-type EngineClient = Awaited<ReturnType<typeof engineClientFor>>;
+import {
+  catalogFor,
+  declaredKind,
+  entryOf,
+  parse,
+  startPluginCommand,
+  type EngineClient,
+} from './plugin-runs';
 
 /** A detection longer than this is given up (the run goes on in Operations). */
 const detectionLimitMs = 90_000;
 const pollEveryMs = 500;
-
-function parse<T>(
-  schema: { safeParse: (input: unknown) => { success: boolean; data?: T } },
-  input: unknown,
-): T {
-  const parsed = schema.safeParse(input);
-  if (!parsed.success || parsed.data === undefined) {
-    throw new AppBaseError('system.bad_request', 'invalid input');
-  }
-  return parsed.data;
-}
-
-async function catalogFor(client: EngineClient): Promise<CommandCatalog> {
-  const { data, response } = await listCommands({ client });
-  if (!response) throw new AppBaseError('system.engine_unavailable', 'engine unreachable');
-  if (!data) throw new AppBaseError('commands.unavailable', 'catalog refused');
-  return data;
-}
-
-/** The kind as the plugin declares it, among the commands the caller may see. */
-function declaredKind(catalog: CommandCatalog, pluginId: string, kind: string): DeviceKind {
-  for (const entry of catalog.entries) {
-    if (entry.plugin?.id !== pluginId) continue;
-    const declared = entry.plugin.devices?.find((candidate) => candidate.kind === kind);
-    if (declared) return declared;
-  }
-  throw new AppBaseError('devices.unknown_kind', 'no such device kind');
-}
 
 /** The devices kept for a plugin's kind. Anyone signed in reads them: they only fill forms. */
 export async function loadDevices(input: unknown): Promise<ActionResult<Device[]>> {
@@ -112,26 +80,13 @@ export async function detectDevices(input: unknown): Promise<ActionResult<Device
     const client = await engineClientFor(session);
     const catalog = await catalogFor(client);
     const declared = declaredKind(catalog, pluginId, kind);
-    const entry = catalog.entries.find((candidate) => candidate.id === declared.detect);
-    if (!entry) throw new AppBaseError('commands.unavailable', 'detection command hidden');
-    const saved = await loadSavedValues();
-    const defaults = savedDefaults(saved.ok ? (saved.data[pluginId] ?? {}) : {});
-    const params = requestValues(entry.params, initialValues(entry.params, defaults));
-    const started = await startCommand({
-      client,
-      body: { entry: entry.id, params, dryRun: false },
-    });
-    if (!started.data) {
-      if (!started.response)
-        throw new AppBaseError('system.engine_unavailable', 'engine unreachable');
-      throw new AppBaseError(started.error.code, 'detection refused');
-    }
-    if (!(await waitForJob(client, started.data.id))) {
+    const started = await startPluginCommand(client, pluginId, entryOf(catalog, declared.detect));
+    if (!(await waitForJob(client, started.id))) {
       throw new AppBaseError('devices.detection_failed', 'detection failed');
     }
     const logs = await getJobLogs({
       client,
-      path: { jobId: started.data.id },
+      path: { jobId: started.id },
       query: { after: 0 },
     });
     const found = parseDetected((logs.data?.items ?? []).map((line) => line.line));

@@ -131,7 +131,7 @@ export async function insertDevice(
 
 export async function updateDevice(
   id: string,
-  change: { customName?: string | null; hidden?: boolean },
+  change: { customName?: string | null; hidden?: boolean; needsPairing?: boolean },
 ): Promise<void> {
   await getDb().update(pluginDevicesTable).set(change).where(eq(pluginDevicesTable.id, id));
 }

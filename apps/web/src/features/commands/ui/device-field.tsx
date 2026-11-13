@@ -1,5 +1,6 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { KeyRound, Radar } from 'lucide-react';
 import { useFormatter, useNow, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -11,7 +12,15 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/shared/ui/fie
 import { Input } from '@/shared/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
 import { Spinner } from '@/shared/ui/spinner';
-import { deviceName, isOnline, pickable, useDevices, type Device } from '@/features/devices';
+import {
+  deviceName,
+  devicesKey,
+  isOnline,
+  PairingDialog,
+  pickable,
+  useDevices,
+  type Device,
+} from '@/features/devices';
 
 /** The select value that switches to typing a locator. */
 const typed = '__typed__';
@@ -23,6 +32,8 @@ interface DeviceFieldProps {
   help: string | undefined;
   pluginId: string;
   kind: string;
+  /** The plugin pairs devices of this kind: a device asking for it gets a Pair button. */
+  pairable: boolean;
   value: string;
   autoFocus: boolean;
   onChange: (value: string) => void;
@@ -36,6 +47,8 @@ interface DeviceFieldProps {
 export function DeviceField(props: DeviceFieldProps) {
   const t = useTranslations('commands.page.device');
   const now = useNow({ updateInterval: nowRefreshMs }).getTime();
+  const queryClient = useQueryClient();
+  const [pairing, setPairing] = useState<Device | null>(null);
   const { devices, searching, error, loadFailed, detect } = useDevices(
     props.pluginId,
     props.kind,
@@ -117,10 +130,34 @@ export function DeviceField(props: DeviceFieldProps) {
         />
       )}
       {selected?.needsPairing === true && (
-        <FieldDescription className="flex items-center gap-1.5">
-          <KeyRound aria-hidden className="size-3.5" />
-          {t('needsPairing')}
-        </FieldDescription>
+        <div className="bg-muted/50 flex flex-wrap items-center gap-2 rounded-md border p-2 text-sm">
+          <KeyRound aria-hidden className="text-muted-foreground size-4 shrink-0" />
+          <span className="min-w-0 flex-1">{t('needsPairing')}</span>
+          {props.pairable && (
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                setPairing(selected);
+              }}
+            >
+              {t('pair')}
+            </Button>
+          )}
+        </div>
+      )}
+      {pairing && (
+        <PairingDialog
+          device={pairing}
+          onClose={() => {
+            setPairing(null);
+          }}
+          onPaired={(paired) => {
+            queryClient.setQueryData<Device[]>(devicesKey(paired.pluginId, paired.kind), (list) =>
+              list?.map((device) => (device.id === paired.id ? paired : device)),
+            );
+          }}
+        />
       )}
       {props.help && <FieldDescription>{props.help}</FieldDescription>}
       {error !== null && <FieldError>{error}</FieldError>}

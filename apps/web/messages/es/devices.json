@@ -30,6 +30,20 @@
     "name": "Nombre",
     "nameHelp": "Vacío, recupera el nombre que anuncia.",
     "cancel": "Cancelar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "pair": "Emparejar"
+  },
+  "pairing": {
+    "title": "Emparejar {name}",
+    "description": "El emparejamiento se pide una sola vez por dispositivo: después Canopy puede reproducir en él.",
+    "starting": "Pidiendo un código al dispositivo…",
+    "codeLabel": "Código mostrado en su televisor",
+    "checking": "Comprobando el código…",
+    "paired": "{name} está emparejado.",
+    "failed": "El emparejamiento no se completó: código erróneo, o el dispositivo se apagó. Inténtelo de nuevo: mostrará un código nuevo.",
+    "done": "Hecho",
+    "cancel": "Cancelar",
+    "retry": "Reintentar",
+    "confirm": "Emparejar"
   }
 }

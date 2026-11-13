@@ -148,6 +148,8 @@
     "detection_failed": "La recherche d’appareils a échoué : consultez sa sortie dans Opérations.",
     "full": "Au plus {max} appareils d’un même type sont conservés : oubliez-en d’abord.",
     "already_kept": "Cet appareil est déjà dans la liste.",
-    "not_found": "Cet appareil n’est plus dans la liste."
+    "not_found": "Cet appareil n’est plus dans la liste.",
+    "no_pairing": "Cet appareil ne peut pas être jumelé depuis Canopy.",
+    "pairing_failed": "Le jumelage n’a pas abouti : vérifiez le code et réessayez."
   }
 }

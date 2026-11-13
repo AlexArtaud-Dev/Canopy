@@ -18,5 +18,5 @@ export const devicesModule = defineModule({
       permission: 'system:admin',
     },
   ],
-  auditActions: ['devices.add', 'devices.update', 'devices.forget'],
+  auditActions: ['devices.add', 'devices.update', 'devices.forget', 'devices.pair'],
 });

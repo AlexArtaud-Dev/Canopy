@@ -2,6 +2,8 @@ import type { CommandEntry } from '@canopy/contracts';
 
 import {
   addDeviceInputSchema,
+  confirmPairingInputSchema,
+  pairingCodeInputSchema,
   deviceIdInputSchema,
   deviceKindInputSchema,
   freshDetectionMs,
@@ -108,7 +110,13 @@ describe('devices', () => {
 
 describe('administration sections', () => {
   it('follow the declared kinds, then kinds no plugin declares any more', () => {
-    const screens = { pluginId: 'dapple', pluginName: 'Cast', kind: 'screen', kindName: 'Screens' };
+    const screens = {
+      pluginId: 'dapple',
+      pluginName: 'Cast',
+      kind: 'screen',
+      kindName: 'Screens',
+      pairable: true,
+    };
     const speakers = { ...screens, kind: 'speaker', kindName: 'Speakers' };
     const sections = deviceSections(
       [screens, speakers],
@@ -162,7 +170,13 @@ describe('kind views', () => {
       (text) => text.fr,
     );
     expect(views).toEqual([
-      { pluginId: 'dapple', pluginName: 'Diffuser', kind: 'screen', kindName: 'Écrans' },
+      {
+        pluginId: 'dapple',
+        pluginName: 'Diffuser',
+        kind: 'screen',
+        kindName: 'Écrans',
+        pairable: false,
+      },
     ]);
   });
 });
@@ -184,5 +198,16 @@ describe('inputs', () => {
     expect(updateDeviceInputSchema.safeParse({ id, name: 'x'.repeat(200) }).success).toBe(false);
     expect(maxDevicesPerKind).toBeGreaterThan(0);
     expect(freshDetectionMs).toBeLessThan(onlineWindowMs);
+  });
+});
+
+describe('pairing inputs', () => {
+  it('take a code of digits and the run to check', () => {
+    const id = '00000000-0000-4000-8000-000000000000';
+    expect(pairingCodeInputSchema.safeParse({ id, code: '8492' }).success).toBe(true);
+    expect(pairingCodeInputSchema.safeParse({ id, code: '84a2' }).success).toBe(false);
+    expect(pairingCodeInputSchema.safeParse({ id, code: '123' }).success).toBe(false);
+    expect(confirmPairingInputSchema.safeParse({ id, jobId: id }).success).toBe(true);
+    expect(confirmPairingInputSchema.safeParse({ id, jobId: 'x' }).success).toBe(false);
   });
 });

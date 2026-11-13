@@ -13,3 +13,10 @@ entries:
       en: Canopy keeps the screens plugins find - forms offer them by name, switched-on ones first, and administrators rename, hide, add or forget them under Administration › Devices.
       fr: Canopy conserve les écrans trouvés par les plugins - les formulaires les proposent par leur nom, ceux allumés en premier, et les administrateurs les renomment, les masquent, les ajoutent ou les oublient dans Administration › Appareils.
       es: Canopy conserva las pantallas que encuentran los plugins - los formularios las ofrecen por su nombre, primero las encendidas, y los administradores las renombran, ocultan, añaden u olvidan en Administración › Dispositivos.
+  - type: feat
+    scope: devices
+    issue: 188
+    text:
+      en: An Apple TV that asks for a pairing gets a Pair button wherever it is picked - the code shown on the TV is typed in the same window.
+      fr: Un Apple TV qui demande un jumelage a un bouton Jumeler partout où on le choisit - le code affiché sur la TV se saisit dans la même fenêtre.
+      es: Un Apple TV que pide un emparejamiento tiene un botón Emparejar allí donde se elige - el código mostrado en el televisor se escribe en la misma ventana.
