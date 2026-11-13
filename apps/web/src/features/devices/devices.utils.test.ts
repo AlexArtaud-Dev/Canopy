@@ -1,8 +1,16 @@
+import type { CommandEntry } from '@canopy/contracts';
+
 import {
   addDeviceInputSchema,
+  deviceIdInputSchema,
+  deviceKindInputSchema,
+  freshDetectionMs,
+  maxDevicesPerKind,
+  updateDeviceInputSchema,
   deviceSections,
   deviceName,
   isOnline,
+  kindViews,
   needsDetection,
   onlineWindowMs,
   parseDetected,
@@ -119,5 +127,62 @@ describe('administration sections', () => {
     ]);
     expect(sections[0]?.devices.map((item) => item.locator)).toEqual(['a', 'b']);
     expect(sections[1]?.devices).toEqual([]);
+  });
+});
+
+describe('kind views', () => {
+  it('name each declared kind once, in catalog order', () => {
+    const plugin = {
+      id: 'dapple',
+      name: { en: 'Cast', fr: 'Diffuser', es: 'Enviar' },
+      devices: [
+        {
+          kind: 'screen',
+          name: { en: 'Screens', fr: 'Écrans', es: 'Pantallas' },
+          detect: 'dapple.devices',
+        },
+      ],
+    };
+    const entry = (id: string, extra: Partial<CommandEntry> = {}): CommandEntry => ({
+      id,
+      name: plugin.name,
+      description: plugin.name,
+      mode: 'basic',
+      dryRun: false,
+      params: [],
+      ...extra,
+    });
+    const views = kindViews(
+      [
+        entry('rsync.sync'),
+        entry('mrename.run', { plugin: { id: 'mrename', name: plugin.name } }),
+        entry('dapple.cast', { plugin }),
+        entry('dapple.pause', { plugin }),
+      ],
+      (text) => text.fr,
+    );
+    expect(views).toEqual([
+      { pluginId: 'dapple', pluginName: 'Diffuser', kind: 'screen', kindName: 'Écrans' },
+    ]);
+  });
+});
+
+describe('inputs', () => {
+  it('accept kinds, ids and changes, and refuse the rest', () => {
+    expect(deviceKindInputSchema.safeParse({ pluginId: 'dapple', kind: 'screen' }).success).toBe(
+      true,
+    );
+    expect(deviceKindInputSchema.safeParse({ pluginId: 'dapple', kind: '../x' }).success).toBe(
+      false,
+    );
+    const id = '00000000-0000-4000-8000-000000000000';
+    expect(deviceIdInputSchema.safeParse({ id }).success).toBe(true);
+    expect(deviceIdInputSchema.safeParse({ id: 'x' }).success).toBe(false);
+    expect(updateDeviceInputSchema.safeParse({ id, name: ' TV ', hidden: true }).data?.name).toBe(
+      'TV',
+    );
+    expect(updateDeviceInputSchema.safeParse({ id, name: 'x'.repeat(200) }).success).toBe(false);
+    expect(maxDevicesPerKind).toBeGreaterThan(0);
+    expect(freshDetectionMs).toBeLessThan(onlineWindowMs);
   });
 });

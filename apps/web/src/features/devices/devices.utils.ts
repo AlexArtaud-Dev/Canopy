@@ -48,9 +48,13 @@ const attribute = /^([a-z][a-z0-9-]{0,31})=(.{1,120})$/;
 export function parseDetected(lines: readonly string[]): DetectedDevice[] {
   const devices = new Map<string, DetectedDevice>();
   for (const line of lines) {
-    const [rawLocator = '', rawLabel = '', rawAttributes = ''] = line.split('\t');
-    const locator = rawLocator.trim();
-    if (!line.includes('\t') || locator === '' || locator.startsWith('-')) continue;
+    const tab = line.indexOf('\t');
+    const locator = line.slice(0, Math.max(tab, 0)).trim();
+    if (tab < 0 || locator === '' || locator.startsWith('-')) continue;
+    const rest = line.slice(tab + 1);
+    const second = rest.indexOf('\t');
+    const rawLabel = second < 0 ? rest : rest.slice(0, second);
+    const rawAttributes = second < 0 ? '' : rest.slice(second + 1);
     if (locator.length > maxLocator || devices.has(locator)) continue;
     const label = rawLabel.trim().slice(0, maxLabel) || locator;
     const attributes: Record<string, string> = {};

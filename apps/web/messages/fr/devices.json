@@ -6,7 +6,7 @@
     "orphan": "Conservés de {plugin}, qui n’est plus installé : ils ne peuvent qu’être oubliés.",
     "search": "Chercher à nouveau",
     "searching": "Recherche…",
-    "found": "{count, plural, =0 {Rien trouvé} one {# appareil trouvé} other {# appareils trouvés}}",
+    "found": "{count, plural, one {# appareil trouvé} other {# appareils trouvés}}",
     "add": "Ajouter",
     "empty": "Aucun pour l’instant : relancez la recherche avec les appareils allumés, ou ajoutez-en un par son adresse.",
     "toPair": "à jumeler",
