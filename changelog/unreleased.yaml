@@ -13,3 +13,9 @@ entries:
       en: Mark a screen as yours with the star next to it - every cast form then starts with it.
       fr: Marquez un écran comme le vôtre avec l’étoile à côté de lui - chaque formulaire de diffusion commence alors avec lui.
       es: Marque una pantalla como suya con la estrella junto a ella - cada formulario de envío empieza entonces con ella.
+  - type: fix
+    scope: jobs
+    text:
+      en: Operations name commands instead of showing their ids, a finished operation no longer pops up a notice while the panel already shows it, and screen searches only appear when they fail.
+      fr: Les opérations portent le nom des commandes au lieu de leur identifiant, une opération terminée n’affiche plus de notification quand le panneau la montre déjà, et les recherches d’écrans n’apparaissent qu’en cas d’échec.
+      es: Las operaciones llevan el nombre de los comandos en lugar de su identificador, una operación terminada ya no muestra un aviso cuando el panel ya la muestra, y las búsquedas de pantallas solo aparecen si fallan.

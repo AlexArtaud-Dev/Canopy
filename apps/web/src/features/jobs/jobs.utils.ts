@@ -28,8 +28,30 @@ export function upsertJob(jobs: readonly Job[], job: Job): Job[] {
 }
 
 /** Jobs the dock shows: every active one, plus recent finished ones not dismissed. */
-export function dockJobs(jobs: readonly Job[], dismissed: ReadonlySet<string>, now: Date): Job[] {
+/**
+ * Whether a run is one of the commands run on the person's behalf (searching for devices): shown
+ * only when it failed, so that a problem is never hidden.
+ */
+export function isQuietRun(
+  job: Pick<Job, 'kind' | 'target' | 'state'>,
+  quiet: ReadonlySet<string>,
+): boolean {
+  return (
+    job.kind === 'command' &&
+    job.target !== undefined &&
+    quiet.has(job.target) &&
+    job.state !== 'failed'
+  );
+}
+
+export function dockJobs(
+  jobs: readonly Job[],
+  dismissed: ReadonlySet<string>,
+  now: Date,
+  quiet: ReadonlySet<string> = new Set(),
+): Job[] {
   return jobs.filter((job) => {
+    if (isQuietRun(job, quiet)) return false;
     if (isActive(job)) return true;
     if (dismissed.has(job.id)) return false;
     const finished = Date.parse(job.finishedAt ?? job.createdAt);

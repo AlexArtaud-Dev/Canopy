@@ -2,7 +2,7 @@
 
 import { ChevronDown, ListChecks } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -22,7 +22,9 @@ import {
   useUploads,
 } from '@/features/uploads';
 
-import { baseName, dockJobs, dockSummary } from './jobs.utils';
+import { useRunLabels } from '@/features/commands/model/use-run-labels';
+
+import { baseName, dockJobs, dockSummary, isQuietRun } from './jobs.utils';
 import { useJobs } from './model/use-jobs';
 import { cancelJob, startFolderSize } from './server/jobs-actions';
 import { JobRow } from './ui/job-row';
@@ -70,17 +72,37 @@ export function JobsDockContainer() {
     };
   }, []);
 
+  const labels = useRunLabels();
+  const runName = useCallback(
+    (job: Pick<Job, 'kind' | 'target'>) =>
+      job.kind === 'command' && job.target !== undefined ? labels.names.get(job.target) : undefined,
+    [labels],
+  );
+  // Read when a run ends, without re-subscribing to the jobs stream.
+  const latest = useRef({ expanded, labels, runName });
+  useEffect(() => {
+    latest.current = { expanded, labels, runName };
+  });
+
+  // A failure always gets a toast; a success only when the panel is folded (it shows it
+  // otherwise), and never for runs done on the person's behalf.
   const onFinished = useCallback(
     (job: Job, state: JobState) => {
       setNow(new Date());
-      const name = job.target ? baseName(job.target) : '';
-      if (state === 'succeeded') toast.success(t('finished', { name }));
-      else if (state === 'failed') toast.error(t('failed', { name }));
+      const { expanded: open, labels: known, runName: named } = latest.current;
+      const name = named(job) ?? (job.target ? baseName(job.target) : '');
+      if (state === 'failed') toast.error(t('failed', { name }));
+      else if (state === 'succeeded' && !open && !isQuietRun({ ...job, state }, known.quiet)) {
+        toast.success(t('finished', { name }));
+      }
     },
     [t],
   );
   const jobs = useJobs(onFinished);
-  const visible = useMemo(() => dockJobs(jobs, dismissed, now), [jobs, dismissed, now]);
+  const visible = useMemo(
+    () => dockJobs(jobs, dismissed, now, labels.quiet),
+    [jobs, dismissed, now, labels.quiet],
+  );
   const summary = dockSummary(visible);
   const uploads = useUploads();
   const queryClient = useQueryClient();
@@ -194,6 +216,7 @@ export function JobsDockContainer() {
             <JobRow
               key={job.id}
               job={job}
+              name={runName(job)}
               onCancel={(target) => {
                 void cancelJob({ jobId: target.id }).then(report);
               }}

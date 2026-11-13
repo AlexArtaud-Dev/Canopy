@@ -4,6 +4,7 @@ import {
   baseName,
   canRetry,
   dockJobs,
+  isQuietRun,
   dockSummary,
   finishedTransition,
   isActive,
@@ -67,6 +68,25 @@ describe('dockJobs and dockSummary', () => {
       'r',
     ]);
     expect(recentJobMs).toBe(3_600_000);
+  });
+
+  it('shows runs done on behalf of the person only when they fail', () => {
+    const quiet = new Set(['cast.find']);
+    const search = job({ id: 's', kind: 'command', target: 'cast.find' });
+    const failed = job({
+      id: 'f',
+      kind: 'command',
+      target: 'cast.find',
+      state: 'failed',
+      finishedAt: '2026-11-08T11:30:00Z',
+    });
+    const other = job({ id: 'p', kind: 'command', target: 'cast.play' });
+    expect(dockJobs([search, failed, other], new Set(), now, quiet).map((item) => item.id)).toEqual(
+      ['f', 'p'],
+    );
+    expect(isQuietRun(search, quiet)).toBe(true);
+    expect(isQuietRun({ ...search, kind: 'folder_size' }, quiet)).toBe(false);
+    expect(isQuietRun({ kind: 'command', state: 'running' }, quiet)).toBe(false);
   });
 
   it('counts by outcome', () => {

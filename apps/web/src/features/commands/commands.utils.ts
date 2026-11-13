@@ -301,3 +301,24 @@ export function castCommands(entries: readonly CommandEntry[], fileName: string)
       entry.params.some((param) => param.device !== undefined),
   );
 }
+
+/** What the operations panel needs to know of the catalog to speak of command runs. */
+export interface RunLabels {
+  /** The command's name in the person's language, by command id. */
+  names: ReadonlyMap<string, string>;
+  /**
+   * Commands run on the person's behalf rather than asked for (searching for devices): their runs
+   * are only shown when they fail.
+   */
+  quiet: ReadonlySet<string>;
+}
+
+/** Names and quiet commands of a catalog, for the operations panel. */
+export function runLabels(entries: readonly CommandEntry[], locale: string): RunLabels {
+  return {
+    names: new Map(entries.map((entry) => [entry.id, localized(entry.name, locale)])),
+    quiet: new Set(
+      entries.flatMap((entry) => (entry.plugin?.devices ?? []).map((kind) => kind.detect)),
+    ),
+  };
+}
