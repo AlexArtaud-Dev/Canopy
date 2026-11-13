@@ -45,6 +45,19 @@ Dependency direction is one-way: `ui ← container ← model ← server/contract
   drag & drop always has a keyboard/menu alternative (Move to…).
 - File views: list and grid, virtualized (TanStack Virtual), keyboard navigation (arrows, Enter,
   Space to select, shortcuts listed in a `?` help dialog).
+- Phones (below `sm`, 640 px) — see [the audit](responsive-audit.md):
+  - **Nothing wider than the screen**: one wide element makes a phone lay the whole page out
+    wider and zoom out. Page grids bound their column (`grid-cols-1`); a wide table scrolls
+    inside its frame and its main column takes `w-full max-w-0` so that it truncates and the
+    actions stay in view; toolbars keep icons only (`max-sm:sr-only` on the label, which stays
+    the accessible name).
+  - **Dialogs are bottom sheets** by themselves (`DialogContent`): full width, scrolling inside,
+    `DialogFooter` stuck at the bottom above the home indicator. A dialog that must fill the
+    screen (the file viewer) says so with `max-sm:` classes.
+  - **Touch**: an item's actions are reachable by a visible button (`pointer-coarse:`), never
+    only by right click or long press; menus hide keyboard shortcuts on touch screens; small
+    icon buttons grow to 40 px (`pointer-coarse:size-10`).
+  - Floating panels start folded (the operations panel).
 
 ## UX patterns
 
