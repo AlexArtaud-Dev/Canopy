@@ -8,7 +8,6 @@ import (
 	"io/fs"
 	"os"
 	"path"
-	"strings"
 	"syscall"
 	"time"
 )
@@ -75,22 +74,23 @@ func (r *Resolver) OpenFile(virtual string) (*os.File, Entry, error) {
 	return file, toEntry(clean, info), nil
 }
 
-// EnsureStagingIn creates a volume's upload staging folder (the root's own for "") and returns
-// it relative to the root. The volume must be an existing folder directly under the root.
-func (r *Resolver) EnsureStagingIn(volume string) (string, error) {
+// EnsureStagingIn creates the upload staging folder of a folder of the root (a volume, or a
+// deeper folder; the root's own for "") and returns it relative to the root. The folder must
+// exist.
+func (r *Resolver) EnsureStagingIn(folder string) (string, error) {
 	staging := StagingDir
-	if volume != "" {
-		if !ValidName(volume) || Reserved(volume) {
+	if folder != "" {
+		if !ValidFolder(folder) {
 			return "", ErrInvalidPath
 		}
-		info, err := r.root.Lstat(volume)
+		info, err := r.root.Lstat(folder)
 		if err != nil {
 			return "", notFound(err)
 		}
 		if !info.IsDir() {
 			return "", ErrNotDir
 		}
-		staging = volume + "/" + StagingDir
+		staging = folder + "/" + StagingDir
 	}
 	if err := r.root.MkdirAll(staging, 0o700); err != nil {
 		return "", fmt.Errorf("staging folder: %w", err)
@@ -102,10 +102,12 @@ func (r *Resolver) EnsureStagingIn(volume string) (string, error) {
 // to its virtual path. Never replaces an existing entry; across filesystems it copies then
 // removes the staged file.
 func (r *Resolver) ImportStaged(staged, to string) error {
-	// Engine-chosen: <volume>/.canopy-uploads/<id>, or .canopy-uploads/<id> at the root.
+	// Engine-chosen: <folder>/.canopy-uploads/<id> (a volume, or the destination folder when
+	// the volume's top cannot be written), or .canopy-uploads/<id> at the root.
 	parent := path.Dir(staged)
-	if path.Base(parent) != StagingDir || strings.Contains(path.Dir(parent), "/") ||
-		path.Base(staged) == StagingDir || strings.Contains(staged, "..") {
+	holder := path.Dir(parent)
+	if path.Clean(staged) != staged || path.Base(parent) != StagingDir || (holder != "." && !ValidFolder(holder)) ||
+		!ValidName(path.Base(staged)) || Reserved(path.Base(staged)) {
 		return ErrInvalidPath
 	}
 	dst, err := Clean(to)

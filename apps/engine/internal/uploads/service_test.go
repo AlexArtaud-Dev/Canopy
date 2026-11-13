@@ -380,3 +380,63 @@ func TestTicketLedger(t *testing.T) {
 		t.Fatal("forgotten once no ticket can still be valid")
 	}
 }
+
+// topless refuses the top of every volume, like a disk OpenMediaVault mounts root-owned.
+type topless struct{ inner Stager }
+
+func (s topless) EnsureStagingIn(folder string) (string, error) {
+	if !strings.Contains(folder, "/") {
+		return "", errors.New("permission denied")
+	}
+	return s.inner.EnsureStagingIn(folder) //nolint:wrapcheck // the resolver's own errors
+}
+
+func TestUploadsWithoutAWritableVolumeTop(t *testing.T) {
+	h := newHarness(t)
+	h.service.stores.stager = topless{inner: h.service.stores.stager}
+	ledger := filepath.Join(t.TempDir(), "staging")
+	h.service.stores.ledger = ledger
+
+	created, finished := h.upload(map[string]string{"destination": "/in/folder", "filename": "new.txt"}, "hello")
+	if created.Code != http.StatusCreated || finished == nil || finished.Code != http.StatusNoContent {
+		t.Fatalf("staged in the destination: %d %v", created.Code, finished)
+	}
+	if h.read("in/folder/new.txt") != "hello" {
+		t.Fatal("imported from the destination's staging folder")
+	}
+	staging := filepath.Join(h.dir, "in", "folder", fsx.StagingDir)
+	if info, err := os.Stat(staging); err != nil || !info.IsDir() {
+		t.Fatalf("staging folder in the destination: %v", err)
+	}
+	if lines := readLedger(ledger); len(lines) != 1 || lines[0] != staging {
+		t.Fatalf("ledger: %v", lines)
+	}
+	h.upload(map[string]string{"destination": "/in/folder", "filename": "again.txt"}, "x")
+	if lines := readLedger(ledger); len(lines) != 1 {
+		t.Fatalf("remembered once: %v", lines)
+	}
+
+	// An upload left there is purged after a restart: a new service reads the ledger.
+	h.do("bob", http.MethodPost, BasePath, map[string]string{
+		"Upload-Length": "5", "Upload-Metadata": metadata(map[string]string{"destination": "/in/folder", "filename": "slow.txt"}),
+	}, "")
+	restarted, err := New(Config{
+		Root: h.dir, Stager: h.service.stores.stager, StagingLedger: ledger, Files: h.service.cfg.Files,
+		Grants: h.service.cfg.Grants, Audit: h.audit, Limits: h.service.cfg.Limits, Logger: h.service.cfg.Logger,
+		Now: func() time.Time { return time.Now().Add(48 * time.Hour) },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if purged := restarted.PurgeStale(24 * time.Hour); purged != 1 {
+		t.Fatalf("purged after a restart: %d", purged)
+	}
+
+	// At the top of a volume nothing deeper can be tried: the refusal stays explicit.
+	if created, _ := h.upload(map[string]string{"destination": "/in", "filename": "top.txt"}, "x"); created.Code != http.StatusForbidden || !strings.HasPrefix(created.Body.String(), CodeNoStaging+":") {
+		t.Fatalf("unwritable destination: %d %q", created.Code, created.Body.String())
+	}
+	if readLedger("") != nil || readLedger(filepath.Join(t.TempDir(), "none")) != nil {
+		t.Fatal("no ledger")
+	}
+}
