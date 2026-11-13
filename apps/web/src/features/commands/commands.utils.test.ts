@@ -23,6 +23,7 @@ import {
   parseChoices,
   pluginMenus,
   requestValues,
+  runLabels,
   targetParam,
   worksOn,
 } from './commands.utils';
@@ -352,5 +353,30 @@ describe('cast commands', () => {
     ];
     expect(castCommands(entries, 'Film.MKV').map((item) => item.id)).toEqual(['cast.play']);
     expect(castCommands(entries, 'notes.txt')).toEqual([]);
+  });
+});
+
+describe('run labels', () => {
+  it('name runs and know the quiet ones', () => {
+    const plugin = {
+      id: 'cast',
+      name: label,
+      devices: [{ kind: 'screen', name: label, detect: 'cast.find' }],
+    };
+    const make = (id: string, name: string): CommandEntry => ({
+      id,
+      name: { en: name, fr: `${name} fr`, es: name },
+      description: label,
+      mode: 'basic',
+      dryRun: false,
+      params: [],
+      plugin,
+    });
+    const labels = runLabels([make('cast.find', 'Find'), make('cast.play', 'Play')], 'fr');
+    expect(labels.names.get('cast.find')).toBe('Find fr');
+    expect([...labels.quiet]).toEqual(['cast.find']);
+    expect(runLabels([], 'en').quiet.size).toBe(0);
+    const { plugin: _plugin, ...builtIn } = make('rsync.sync', 'Sync');
+    expect(runLabels([builtIn], 'en').quiet.size).toBe(0);
   });
 });

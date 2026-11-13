@@ -11,8 +11,12 @@ those finished in the last hour. It stays hidden when there is nothing to show.
   of access), the translated error, or "Cancelled".
 - Actions: cancel a running job, run a failed or cancelled job again (kinds that can simply be
   repeated), dismiss a finished one, clear all finished ones, collapse the panel.
-- A toast when a job finishes or fails while the page is open. Toasts show at the top center, so
-  they never cover the panel (which owns the bottom of the screen, full width on phones).
+- Command runs are named after their command ("Find screens"), never by its id.
+- Toasts while the page is open: a failure always gets one; a success only when the panel is
+  folded (open, it already shows it). Toasts show at the top center, so they never cover the
+  panel (which owns the bottom of the screen, full width on phones).
+- Runs done on the person's behalf (a plugin's device search, started by forms and the devices
+  page) stay out of the panel and get no toast, unless they fail.
 - Dismissed jobs are remembered per browser (local storage).
 
 Command output (the "advanced mode" output view) arrives with the command runner: no job kind

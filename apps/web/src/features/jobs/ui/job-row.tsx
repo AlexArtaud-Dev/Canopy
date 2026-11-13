@@ -28,6 +28,8 @@ interface JobRowProps {
   onCancel: (job: Job) => void;
   onRetry: (job: Job) => void;
   onDismiss: (job: Job) => void;
+  /** What the run is called (a command's name), shown instead of its kind and target. */
+  name?: string | undefined;
 }
 
 function StateIcon({ job }: { job: Job }) {
@@ -42,13 +44,13 @@ function StateIcon({ job }: { job: Job }) {
 }
 
 /** One operation: what it does, live progress while running, its outcome once finished. */
-export function JobRow({ job, onCancel, onRetry, onDismiss }: JobRowProps) {
+export function JobRow({ job, onCancel, onRetry, onDismiss, name }: JobRowProps) {
   const t = useTranslations('jobs.dock');
   const locale = useLocale();
   const errorMessage = useErrorMessage();
   const percent = jobPercent(job);
   const active = isActive(job);
-  const target = job.target ? baseName(job.target) : '';
+  const target = name ?? (job.target ? baseName(job.target) : '');
   // i18n-dynamic: jobs.dock.kinds
   const kind = t.has(`kinds.${job.kind}` as Parameters<typeof t>[0])
     ? t(`kinds.${job.kind}` as Parameters<typeof t>[0])
@@ -77,8 +79,14 @@ export function JobRow({ job, onCancel, onRetry, onDismiss }: JobRowProps) {
       <div className="flex items-center gap-2">
         <StateIcon job={job} />
         <p className="min-w-0 flex-1 truncate text-sm" title={job.target}>
-          <span className="font-medium">{kind}</span>
-          {target && <span className="text-muted-foreground"> · {target}</span>}
+          {name === undefined ? (
+            <>
+              <span className="font-medium">{kind}</span>
+              {target && <span className="text-muted-foreground"> · {target}</span>}
+            </>
+          ) : (
+            <span className="font-medium">{name}</span>
+          )}
         </p>
         {active && (
           <Button

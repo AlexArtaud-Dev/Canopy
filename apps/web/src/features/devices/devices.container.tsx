@@ -30,6 +30,7 @@ import { Spinner } from '@/shared/ui/spinner';
 import {
   deviceName,
   deviceSections,
+  foundSince,
   isOnline,
   type Device,
   type DeviceSection,
@@ -83,15 +84,17 @@ export function DevicesContainer({
   const detection = useMutation({
     mutationFn: async (section: DeviceSection) => ({
       section,
+      // The server's clock may differ a little: what it saw from a minute before counts.
+      since: Date.now() - 60_000,
       result: await detectDevices({ pluginId: section.pluginId, kind: section.kind }),
     }),
-    onSuccess: ({ section, result }) => {
+    onSuccess: ({ section, since, result }) => {
       if (!result.ok) {
         toast.error(errorMessage(result.error.code, result.error.params));
         return;
       }
       replaceKind(section.pluginId, section.kind, result.data);
-      toast.success(t('found', { count: result.data.filter((d) => d.lastSeen !== null).length }));
+      toast.success(t('found', { count: foundSince(result.data, since) }));
     },
   });
 

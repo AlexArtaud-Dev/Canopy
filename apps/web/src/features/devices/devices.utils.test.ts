@@ -12,6 +12,7 @@ import {
   maxDevicesPerKind,
   updateDeviceInputSchema,
   deviceSections,
+  foundSince,
   deviceName,
   isOnline,
   kindViews,
@@ -229,5 +230,16 @@ describe('default device', () => {
     expect(defaultDeviceInputSchema.safeParse({ ...base, id: null }).success).toBe(true);
     expect(defaultDeviceInputSchema.safeParse({ ...base, id: tv.id }).success).toBe(true);
     expect(defaultDeviceInputSchema.safeParse({ ...base, id: 'x' }).success).toBe(false);
+  });
+});
+
+describe('search results', () => {
+  it('count the devices seen by the search only', () => {
+    const list = [
+      device({ lastSeen: ago(1000) }),
+      device({ lastSeen: ago(3_600_000) }),
+      device({}),
+    ];
+    expect(foundSince(list, now - 60_000)).toBe(1);
   });
 });

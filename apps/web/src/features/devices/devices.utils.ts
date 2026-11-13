@@ -77,6 +77,13 @@ export function isOnline(device: Pick<Device, 'lastSeen'>, now: number): boolean
   return device.lastSeen !== null && now - Date.parse(device.lastSeen) <= onlineWindowMs;
 }
 
+/** How many devices a search saw: those last seen from `since` on. */
+export function foundSince(devices: readonly Pick<Device, 'lastSeen'>[], since: number): number {
+  return devices.filter(
+    (device) => device.lastSeen !== null && Date.parse(device.lastSeen) >= since,
+  ).length;
+}
+
 /** Whether a form should search for devices by itself: nothing of the kind was found lately. */
 export function needsDetection(devices: readonly Pick<Device, 'lastSeen'>[], now: number): boolean {
   return !devices.some(
