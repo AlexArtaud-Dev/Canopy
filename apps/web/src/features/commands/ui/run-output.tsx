@@ -29,12 +29,15 @@ export function RunOutput({ jobId }: { jobId: string }) {
     const read = async () => {
       const result = await loadJobLogs({ jobId, after: lastSeq.current });
       if (stopped || !result.ok || result.data.length === 0) return;
-      lastSeq.current = result.data.at(-1)?.seq ?? lastSeq.current;
-      setLines((current) => [...current, ...result.data]);
+      lastSeq.current = Math.max(lastSeq.current, result.data.at(-1)?.seq ?? 0);
+      // Two reads can overlap (the run ending while one is in flight): keep each line once.
+      setLines((current) => {
+        const last = current.at(-1)?.seq ?? 0;
+        return [...current, ...result.data.filter((line) => line.seq > last)];
+      });
     };
     void read();
-    if (!running) return;
-    const timer = window.setInterval(() => void read(), logPollMs);
+    const timer = running ? window.setInterval(() => void read(), logPollMs) : undefined;
     return () => {
       stopped = true;
       window.clearInterval(timer);
