@@ -40,7 +40,16 @@ Trash, account, system status, users, groups, roles, settings, e-mail, plugins (
 plugin's page), devices, commands (the list and the form take the screen in turn): no overflow,
 readable, reachable with a thumb.
 
-## Not covered yet
+## Fixed in the second pass
 
-Sign-in and 2FA, the public share page, and the setup screens need a signed-out browser; they
-are checked with #178.
+- Dialogs are bottom sheets on phones (full width, scrolling inside, actions stuck at the
+  bottom); the file viewer fills the screen and its buttons grow for touch.
+- Shell: the sidebar is a drawer that closes after navigating; the breadcrumb has its own row.
+- Built-in roles are described in the person's language; the users search placeholder fits.
+- Checked again at 768 × 1024 (tablet): no page wider than the screen.
+
+## Checked by reading the code
+
+Sign-in and 2FA, the public share page and the setup screens need a signed-out browser: their
+layouts use no fixed width (centred cards, full-width fields; the recovery codes' two columns
+fit 375 px).

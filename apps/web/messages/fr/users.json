@@ -2,7 +2,7 @@
   "metaTitle": "Utilisateurs",
   "title": "Utilisateurs",
   "description": "Les personnes qui peuvent se connecter à Canopy, et leurs rôles.",
-  "search": "Rechercher par nom, identifiant ou e-mail",
+  "search": "Nom, identifiant ou e-mail",
   "add": "Nouvel utilisateur",
   "columns": {
     "user": "Utilisateur",
