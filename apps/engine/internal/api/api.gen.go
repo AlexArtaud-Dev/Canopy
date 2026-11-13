@@ -499,6 +499,9 @@ type CommandEntry struct {
 
 	// Plugin The plugin a command comes from (absent for built-in commands).
 	Plugin *CommandPlugin `json:"plugin,omitempty"`
+
+	// Secondary Left out of the commands list: reached from where it belongs (a pairing dialog, a remote), still runnable.
+	Secondary *bool `json:"secondary,omitempty"`
 }
 
 // CommandEntryMode defines model for CommandEntry.Mode.
@@ -509,6 +512,9 @@ type CommandParam struct {
 	// Access Path parameters only.
 	Access *CommandParamAccess `json:"access,omitempty"`
 
+	// Advanced Folded under "more options" in forms, what most runs leave alone.
+	Advanced *bool `json:"advanced,omitempty"`
+
 	// Choices Enum values with their labels (shown instead of the raw values).
 	Choices *[]CommandChoice `json:"choices,omitempty"`
 
@@ -517,11 +523,12 @@ type CommandParam struct {
 	Default     interface{} `json:"default,omitempty"`
 
 	// Extensions With `on` file, the file extensions the command accepts (lower case, no dot).
-	Extensions *[]string     `json:"extensions,omitempty"`
-	Label      LocalizedText `json:"label"`
-	Max        *int64        `json:"max,omitempty"`
-	Min        *int64        `json:"min,omitempty"`
-	Name       string        `json:"name"`
+	Extensions *[]string      `json:"extensions,omitempty"`
+	Help       *LocalizedText `json:"help,omitempty"`
+	Label      LocalizedText  `json:"label"`
+	Max        *int64         `json:"max,omitempty"`
+	Min        *int64         `json:"min,omitempty"`
+	Name       string         `json:"name"`
 
 	// On Path parameters only: what the command works on, so that the file browser offers it on the right entries: `file` or `folder`. Absent means a folder.
 	On       *string          `json:"on,omitempty"`

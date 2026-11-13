@@ -1,6 +1,6 @@
 {
   "page": {
-    "description": "Tools installed on the server, run with the options below. You always see the exact command before it runs; its output appears here and its progress in Operations.",
+    "description": "Tools installed on the server, grouped by plugin. Fill in what a command needs and run it: its output appears here and its progress in Operations. The exact command it runs is always one click away.",
     "catalog": "Available commands",
     "advanced": "Advanced",
     "emptyTitle": "No commands available",
@@ -11,7 +11,7 @@
     "run": "Run",
     "runDry": "Simulate",
     "choose": "Choose…",
-    "pathPlaceholder": "/media/photos",
+    "pathPlaceholder": "/folder/file",
     "noOutput": "No output yet.",
     "state": {
       "queued": "Waiting to start",
@@ -26,6 +26,27 @@
     "choicesFor": "Choices for {field}",
     "detect": "Detect",
     "detecting": "Searching…",
-    "detectedNone": "Nothing was found. Check that the device is on, then search again."
+    "detectedNone": "Nothing was found. Check that the device is on, then search again.",
+    "search": "Search a command",
+    "searchNone": "No command matches this search.",
+    "recent": "Recent",
+    "builtIn": "Built-in commands",
+    "allCommands": "All commands",
+    "count": "{count, plural, one {# command} other {# commands}}",
+    "moreOptions": "More options ({count})",
+    "browse": "Browse",
+    "picker": {
+      "fileTitle": "Pick a file",
+      "folderTitle": "Pick a folder",
+      "location": "Location",
+      "root": "All files",
+      "loading": "Loading…",
+      "noFile": "Nothing to pick here: no folder and no file of the accepted kinds.",
+      "noFolder": "No sub-folder here.",
+      "truncated": "Only the first entries of this large folder are shown: open a sub-folder to narrow down.",
+      "cancel": "Cancel",
+      "pickFile": "Pick this file",
+      "pickFolder": "Pick this folder"
+    }
   }
 }

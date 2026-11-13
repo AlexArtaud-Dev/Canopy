@@ -205,6 +205,8 @@ export const zCommandParam = z.object({
   choicesFrom: z.string().optional(),
   required: z.boolean(),
   secret: z.boolean(),
+  advanced: z.boolean().optional(),
+  help: zLocalizedText.optional(),
   default: z.unknown().optional(),
   min: z.coerce
     .bigint()
@@ -243,6 +245,7 @@ export const zCommandEntry = z.object({
   description: zLocalizedText,
   mode: z.enum(['basic', 'advanced']),
   dryRun: z.boolean(),
+  secondary: z.boolean().optional(),
   params: z.array(zCommandParam),
 });
 

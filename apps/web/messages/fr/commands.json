@@ -1,6 +1,6 @@
 {
   "page": {
-    "description": "Des outils installés sur le serveur, lancés avec les options ci-dessous. Vous voyez toujours la commande exacte avant son lancement ; sa sortie s’affiche ici et sa progression dans Opérations.",
+    "description": "Des outils installés sur le serveur, regroupés par plugin. Renseignez ce dont une commande a besoin et lancez-la : sa sortie s’affiche ici et sa progression dans Opérations. La commande exacte lancée reste toujours à un clic.",
     "catalog": "Commandes disponibles",
     "advanced": "Avancée",
     "emptyTitle": "Aucune commande disponible",
@@ -11,7 +11,7 @@
     "run": "Lancer",
     "runDry": "Simuler",
     "choose": "Choisir…",
-    "pathPlaceholder": "/media/photos",
+    "pathPlaceholder": "/dossier/fichier",
     "noOutput": "Pas encore de sortie.",
     "state": {
       "queued": "En attente",
@@ -26,6 +26,27 @@
     "choicesFor": "Choix pour {field}",
     "detect": "Détecter",
     "detecting": "Recherche…",
-    "detectedNone": "Rien n’a été trouvé. Vérifiez que l’appareil est allumé, puis relancez la recherche."
+    "detectedNone": "Rien n’a été trouvé. Vérifiez que l’appareil est allumé, puis relancez la recherche.",
+    "search": "Chercher une commande",
+    "searchNone": "Aucune commande ne correspond à cette recherche.",
+    "recent": "Récentes",
+    "builtIn": "Commandes intégrées",
+    "allCommands": "Toutes les commandes",
+    "count": "{count, plural, one {# commande} other {# commandes}}",
+    "moreOptions": "Plus d’options ({count})",
+    "browse": "Parcourir",
+    "picker": {
+      "fileTitle": "Choisir un fichier",
+      "folderTitle": "Choisir un dossier",
+      "location": "Emplacement",
+      "root": "Tous les fichiers",
+      "loading": "Chargement…",
+      "noFile": "Rien à choisir ici : aucun dossier ni fichier du type accepté.",
+      "noFolder": "Aucun sous-dossier ici.",
+      "truncated": "Seules les premières entrées de ce grand dossier sont affichées : ouvrez un sous-dossier pour affiner.",
+      "cancel": "Annuler",
+      "pickFile": "Choisir ce fichier",
+      "pickFolder": "Choisir ce dossier"
+    }
   }
 }

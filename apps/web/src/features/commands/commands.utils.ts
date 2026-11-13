@@ -45,9 +45,7 @@ export function worksOn(entry: CommandEntry, target: MenuTarget): boolean {
   if (!param) return false;
   if (target.kind === 'folder') return param.on !== 'file';
   if (param.on !== 'file') return false;
-  if (!param.extensions || param.extensions.length === 0) return true;
-  const dot = target.name.lastIndexOf('.');
-  return dot > 0 && param.extensions.includes(target.name.slice(dot + 1).toLowerCase());
+  return hasExtension(target.name, param.extensions);
 }
 
 /** A plugin and its commands that work on an entry, as the file browser's menu lists them. */
@@ -142,4 +140,150 @@ export function parseChoices(lines: readonly string[]): Choice[] {
 export function mergeChoices(saved: readonly Choice[], found: readonly Choice[]): Choice[] {
   const known = new Set(saved.map((choice) => choice.value));
   return [...saved, ...found.filter((choice) => !known.has(choice.value))];
+}
+
+/** Commands from one plugin, or the built-in ones (no plugin), as the commands page lists them. */
+export interface CommandGroup {
+  /** The plugin's id, or `builtIn`. */
+  id: string;
+  plugin?: CommandPlugin;
+  entries: CommandEntry[];
+}
+
+/** The group of the commands that ship with Canopy. */
+export const builtInGroup = 'builtIn';
+
+/** Lower case without accents: "Écran" is found by typing "ecran". */
+export function searchable(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase();
+}
+
+/**
+ * Whether every word of the query appears in the command's name, description or plugin name, in
+ * any of the three languages: someone may remember a command by its English name.
+ */
+export function matchesQuery(entry: CommandEntry, query: string): boolean {
+  const words = searchable(query).split(/\s+/).filter(Boolean);
+  if (words.length === 0) return true;
+  const texts = [entry.name, entry.description, ...(entry.plugin ? [entry.plugin.name] : [])];
+  const haystack = searchable(
+    [entry.id, ...texts.flatMap((text) => [text.en, text.fr, text.es])].join(' '),
+  );
+  return words.every((word) => haystack.includes(word));
+}
+
+/**
+ * The commands list: secondary commands left out (they are reached where they belong), the rest
+ * matching the query, grouped by plugin in catalog order, built-in commands last.
+ */
+export function commandGroups(entries: readonly CommandEntry[], query: string): CommandGroup[] {
+  const groups = new Map<string, CommandGroup>();
+  const builtIn: CommandEntry[] = [];
+  for (const entry of entries) {
+    if (entry.secondary === true || !matchesQuery(entry, query)) continue;
+    if (!entry.plugin) {
+      builtIn.push(entry);
+      continue;
+    }
+    const group = groups.get(entry.plugin.id);
+    if (group) group.entries.push(entry);
+    else
+      groups.set(entry.plugin.id, { id: entry.plugin.id, plugin: entry.plugin, entries: [entry] });
+  }
+  const listed = [...groups.values()];
+  if (builtIn.length > 0) listed.push({ id: builtInGroup, entries: builtIn });
+  return listed;
+}
+
+/** How many recently run commands the page keeps on top. */
+export const maxRecent = 5;
+
+/** The ids run lately, the latest first, with `id` moved or added on top. */
+export function withRecent(recent: readonly string[], id: string): string[] {
+  return [id, ...recent.filter((other) => other !== id)].slice(0, maxRecent);
+}
+
+/** Recently run commands that are still listed (installed, visible, not secondary). */
+export function recentEntries(
+  recent: readonly string[],
+  entries: readonly CommandEntry[],
+): CommandEntry[] {
+  const byId = new Map(entries.map((entry) => [entry.id, entry]));
+  return recent
+    .map((id) => byId.get(id))
+    .filter((entry): entry is CommandEntry => entry !== undefined && entry.secondary !== true);
+}
+
+/** The form's fields: what a run needs first, then the options folded under "more options". */
+export function splitParams(params: readonly CommandParam[]): {
+  essential: CommandParam[];
+  advanced: CommandParam[];
+} {
+  return {
+    essential: params.filter((param) => param.advanced !== true),
+    advanced: params.filter((param) => param.advanced === true),
+  };
+}
+
+/**
+ * Whether "more options" starts open: some folded option already holds something else than its
+ * default (a saved value, a preset), which people must see before running.
+ */
+export function advancedInUse(
+  params: readonly CommandParam[],
+  values: Readonly<Record<string, FormValue>>,
+): boolean {
+  const defaults = initialValues(params);
+  return params.some(
+    (param) =>
+      param.advanced === true &&
+      values[param.name] !== undefined &&
+      values[param.name] !== defaults[param.name],
+  );
+}
+
+/** An entry of a folder as the path picker shows it. */
+export interface PickerEntry {
+  name: string;
+  path: string;
+  isDirectory: boolean;
+}
+
+/** Whether a file name ends with one of the extensions (any file when none is given). */
+export function hasExtension(name: string, extensions: readonly string[] | undefined): boolean {
+  if (!extensions || extensions.length === 0) return true;
+  const dot = name.lastIndexOf('.');
+  return dot > 0 && extensions.includes(name.slice(dot + 1).toLowerCase());
+}
+
+/**
+ * What the path picker lists: folders to open, then (when a file is picked) the files the param
+ * accepts. Hidden files stay hidden: they are seldom what a command works on.
+ */
+export function pickerEntries(
+  entries: readonly PickerEntry[],
+  pick: 'file' | 'folder',
+  extensions?: readonly string[],
+): PickerEntry[] {
+  const visible = entries.filter((entry) => !entry.name.startsWith('.'));
+  const byName = (a: PickerEntry, b: PickerEntry) =>
+    a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+  const folders = visible.filter((entry) => entry.isDirectory).sort(byName);
+  if (pick === 'folder') return folders;
+  const files = visible
+    .filter((entry) => !entry.isDirectory && hasExtension(entry.name, extensions))
+    .sort(byName);
+  return [...folders, ...files];
+}
+
+/** The folder the picker opens on: the one holding the current value, else the root. */
+export function pickerStart(value: string, pick: 'file' | 'folder'): string {
+  const clean = value.trim();
+  if (!clean.startsWith('/')) return '/';
+  if (pick === 'folder') return clean;
+  const slash = clean.lastIndexOf('/');
+  return slash <= 0 ? '/' : clean.slice(0, slash);
 }

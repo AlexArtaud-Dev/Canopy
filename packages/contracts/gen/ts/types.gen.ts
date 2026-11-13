@@ -276,6 +276,11 @@ export type CommandParam = {
   choicesFrom?: string;
   required: boolean;
   secret: boolean;
+  /**
+   * Folded under "more options" in forms, what most runs leave alone.
+   */
+  advanced?: boolean;
+  help?: LocalizedText;
   default?: unknown;
   min?: number;
   max?: number;
@@ -309,6 +314,10 @@ export type CommandEntry = {
    * The command can simulate a run.
    */
   dryRun: boolean;
+  /**
+   * Left out of the commands list: reached from where it belongs (a pairing dialog, a remote), still runnable.
+   */
+  secondary?: boolean;
   params: Array<CommandParam>;
 };
 

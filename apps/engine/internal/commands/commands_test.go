@@ -172,6 +172,12 @@ func TestParseRefusals(t *testing.T) {
 		`params=[{ name: x, type: path, access: read, extensions: [mkv], label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: path, access: read, on: folder, extensions: [mkv], label: { en: X, fr: X, es: X } }]`,
 		`params=[{ name: x, type: path, access: read, on: file, extensions: [".MKV"], label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: string, required: true, advanced: true, label: { en: X, fr: X, es: X } }]`,
+		`params=[{ name: x, type: string, help: { en: Why }, label: { en: X, fr: X, es: X } }]`,
+	}
+	folded := entry(`params=[{ name: x, type: int, required: true, default: 3, advanced: true, help: { en: H, fr: H, es: H }, label: { en: X, fr: X, es: X } }]`) + "  secondary: true\n"
+	if entries, err := Parse([]byte(folded)); err != nil || !entries[0].Secondary || !entries[0].Params[0].Advanced || entries[0].Params[0].Help.Fr != "H" {
+		t.Fatalf("advanced, help and secondary: %v %v", entries, err)
 	}
 	lister := entry(`id=tool.list`) + entry(`params=[{ name: x, type: string, choicesFrom: tool.list, label: { en: X, fr: X, es: X } }]`)
 	if entries, err := Parse([]byte(lister)); err != nil || entries[1].Params[0].ChoicesFrom != "tool.list" {

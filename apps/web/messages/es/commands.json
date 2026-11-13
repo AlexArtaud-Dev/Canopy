@@ -1,6 +1,6 @@
 {
   "page": {
-    "description": "Herramientas instaladas en el servidor, ejecutadas con las opciones de abajo. Siempre ves el comando exacto antes de que se ejecute; su salida aparece aquí y su progreso en Operaciones.",
+    "description": "Herramientas instaladas en el servidor, agrupadas por plugin. Rellene lo que un comando necesita y ejecútelo: su salida aparece aquí y su progreso en Operaciones. El comando exacto que se ejecuta está siempre a un clic.",
     "catalog": "Comandos disponibles",
     "advanced": "Avanzado",
     "emptyTitle": "No hay comandos disponibles",
@@ -11,7 +11,7 @@
     "run": "Ejecutar",
     "runDry": "Simular",
     "choose": "Elegir…",
-    "pathPlaceholder": "/media/photos",
+    "pathPlaceholder": "/carpeta/archivo",
     "noOutput": "Todavía no hay salida.",
     "state": {
       "queued": "En espera",
@@ -26,6 +26,27 @@
     "choicesFor": "Opciones para {field}",
     "detect": "Detectar",
     "detecting": "Buscando…",
-    "detectedNone": "No se encontró nada. Compruebe que el dispositivo está encendido y busque de nuevo."
+    "detectedNone": "No se encontró nada. Compruebe que el dispositivo está encendido y busque de nuevo.",
+    "search": "Buscar un comando",
+    "searchNone": "Ningún comando coincide con esta búsqueda.",
+    "recent": "Recientes",
+    "builtIn": "Comandos integrados",
+    "allCommands": "Todos los comandos",
+    "count": "{count, plural, one {# comando} other {# comandos}}",
+    "moreOptions": "Más opciones ({count})",
+    "browse": "Examinar",
+    "picker": {
+      "fileTitle": "Elegir un archivo",
+      "folderTitle": "Elegir una carpeta",
+      "location": "Ubicación",
+      "root": "Todos los archivos",
+      "loading": "Cargando…",
+      "noFile": "Nada que elegir aquí: ninguna carpeta ni archivo del tipo aceptado.",
+      "noFolder": "No hay subcarpetas aquí.",
+      "truncated": "Solo se muestran las primeras entradas de esta carpeta grande: abra una subcarpeta para afinar.",
+      "cancel": "Cancelar",
+      "pickFile": "Elegir este archivo",
+      "pickFolder": "Elegir esta carpeta"
+    }
   }
 }

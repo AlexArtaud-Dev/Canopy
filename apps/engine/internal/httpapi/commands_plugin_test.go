@@ -19,7 +19,14 @@ func TestCommandEntryNamesItsPlugin(t *testing.T) {
 		{Name: "video", Type: commands.TypePath, Access: commands.AccessRead, On: commands.OnFile, Extensions: []string{"mkv"}},
 		{Name: "folder", Type: commands.TypePath, Access: commands.AccessRead},
 		{Name: "device", Type: commands.TypeString, ChoicesFrom: "tool.devices"},
-	}})
+		{Name: "port", Type: commands.TypeInt, Advanced: true, Help: &commands.Text{En: "Port", Fr: "Port", Es: "Puerto"}},
+	}, Secondary: true})
+	if port := targeted.Params[3]; port.Advanced == nil || !*port.Advanced || port.Help == nil || port.Help.Es != "Puerto" {
+		t.Fatalf("advanced and help: %+v", port)
+	}
+	if targeted.Secondary == nil || !*targeted.Secondary || builtin.Secondary != nil || targeted.Params[0].Advanced != nil || targeted.Params[0].Help != nil {
+		t.Fatalf("secondary: %+v", targeted)
+	}
 	if video := targeted.Params[0]; video.On == nil || *video.On != "file" || video.Extensions == nil || (*video.Extensions)[0] != "mkv" {
 		t.Fatalf("file target: %+v", video)
 	}
