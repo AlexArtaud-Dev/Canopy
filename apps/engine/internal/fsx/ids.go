@@ -36,3 +36,39 @@ func VolumeOfID(id string) (string, bool) {
 	}
 	return string(volume), true
 }
+
+// NewFolderID makes an id that remembers a folder of the root ("photos" or "photos/2024"): an
+// upload staged in that folder's staging folder. Folders up to 255 bytes long fit.
+func NewFolderID(folder string) (string, error) {
+	if !ValidFolder(folder) {
+		return "", ErrInvalidPath
+	}
+	return NewVolumeID(folder)
+}
+
+// FolderOfID reads the folder back from an id made by NewFolderID (or NewVolumeID): every
+// segment a plain name, none reserved, so that a crafted id names no folder outside the root.
+func FolderOfID(id string) (string, bool) {
+	if !volumeID.MatchString(id) {
+		return "", false
+	}
+	folder, err := hex.DecodeString(id[randomIDPart:])
+	if err != nil || !ValidFolder(string(folder)) {
+		return "", false
+	}
+	return string(folder), true
+}
+
+// ValidFolder reports whether a relative folder path ("photos/2024") is one Canopy may stage
+// uploads in: plain names, none reserved, no "." or "..".
+func ValidFolder(folder string) bool {
+	if folder == "" || len(folder) > 255 {
+		return false
+	}
+	for _, segment := range strings.Split(folder, "/") {
+		if !ValidName(segment) || Reserved(segment) {
+			return false
+		}
+	}
+	return true
+}

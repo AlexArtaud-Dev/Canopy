@@ -50,12 +50,16 @@ type Auditor interface {
 
 // Config wires the service.
 type Config struct {
-	// Root is the managed root on disk; each volume stages its uploads in <volume>/.canopy-uploads.
-	Root   string
-	Stager Stager
-	Files  Files
-	Grants transfer.Grants
-	Audit  Auditor
+	// Root is the managed root on disk; each volume stages its uploads in <volume>/.canopy-uploads,
+	// or, when the top of the volume cannot be written, the destination folder in its own.
+	Root string
+	// StagingLedger is a file of the engine's own (in its cache folder) listing the staging
+	// folders below volumes, purged after a restart too. Empty keeps them in memory only.
+	StagingLedger string
+	Stager        Stager
+	Files         Files
+	Grants        transfer.Grants
+	Audit         Auditor
 	// Limits reads the current upload settings (on each new upload, so changes apply at once).
 	Limits func(ctx context.Context) (Limits, error)
 	Logger *slog.Logger
@@ -73,7 +77,7 @@ type Service struct {
 
 // New builds the tus handler over one file store per volume.
 func New(cfg Config) (*Service, error) {
-	stores := &volumeStores{root: cfg.Root, stager: cfg.Stager, dirs: map[string]string{}}
+	stores := &volumeStores{root: cfg.Root, stager: cfg.Stager, ledger: cfg.StagingLedger, dirs: map[string]string{}}
 	composer := tusd.NewStoreComposer()
 	composer.UseCore(stores)
 	composer.UseTerminater(stores)
@@ -118,7 +122,7 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // owns: an upload continues only with its starter: the same person, through the same link (or
 // none), so a link visitor never reaches the owner's own uploads and the other way round.
 func (s *Service) owns(ctx context.Context, id string, principal enginetoken.Principal) bool {
-	if _, ok := VolumeOfID(id); !ok {
+	if _, ok := FolderOfID(id); !ok {
 		return false
 	}
 	upload, err := s.stores.GetUpload(ctx, id)
@@ -145,12 +149,9 @@ func (s *Service) beforeCreate(hook tusd.HookEvent) (tusd.HTTPResponse, tusd.Fil
 	if err := s.checkCreate(hook.Context, principal, request, hook.Upload.Size); err != nil {
 		return tusd.HTTPResponse{}, none, err
 	}
-	// Uploads are staged at the top of their volume, which the engine's user must be able to
-	// write: say so now, rather than fail with an internal error the browser retries.
-	if _, err := s.stores.hostDir(VolumeOf(request.Folder)); err != nil {
-		s.cfg.Logger.Error("upload staging folder unavailable",
-			slog.String("volume", VolumeOf(request.Folder)), slog.Any("error", err))
-		return tusd.HTTPResponse{}, none, refusal(CodeNoStaging, http.StatusForbidden)
+	stage, err := s.stagingFolder(request.Folder)
+	if err != nil {
+		return tusd.HTTPResponse{}, none, err
 	}
 	if principal.Scope != "" && !s.tickets.claim(principal.TicketID, s.cfg.Now()) {
 		return tusd.HTTPResponse{}, none, refusal(CodeBadMetadata, http.StatusForbidden)
@@ -159,11 +160,35 @@ func (s *Service) beforeCreate(hook tusd.HookEvent) (tusd.HTTPResponse, tusd.Fil
 		"owner": principal.UserID, "destination": request.Folder, "relativeDir": request.RelativeDir,
 		"filename": request.Name, "strategy": request.Strategy, "share": principal.Share,
 	}
-	id, err := NewID(VolumeOf(request.Folder))
+	id, err := NewID(stage)
 	if err != nil {
 		return tusd.HTTPResponse{}, none, err
 	}
 	return tusd.HTTPResponse{}, tusd.FileInfoChanges{ID: id, MetaData: meta}, nil
+}
+
+// stagingFolder picks where an upload is staged: the top of its volume, so that finishing it is
+// a rename on the same disk; else (a disk whose top the engine's user cannot write, as
+// OpenMediaVault sets them up) its destination folder, which must be writable anyway. When
+// neither can be written the upload is refused now, rather than fail with an internal error the
+// browser retries.
+func (s *Service) stagingFolder(destination string) (string, error) {
+	volume := VolumeOf(destination)
+	_, err := s.stores.hostDir(volume)
+	if err == nil {
+		return volume, nil
+	}
+	folder := strings.TrimPrefix(destination, "/")
+	if folder != volume {
+		_, deepErr := s.stores.hostDir(folder)
+		if deepErr == nil {
+			return folder, nil
+		}
+		err = deepErr
+	}
+	s.cfg.Logger.Error("upload staging folder unavailable",
+		slog.String("folder", destination), slog.Any("error", err))
+	return "", refusal(CodeNoStaging, http.StatusForbidden)
 }
 
 // checkCreate refuses an upload before any byte is sent: limits, permission, conflict, space.
@@ -318,7 +343,7 @@ func (s *Service) PurgeStale(maxAge time.Duration) int {
 }
 
 func (s *Service) stagingDirs() []string {
-	dirs := []string{filepath.Join(s.cfg.Root, fsx.StagingDir)}
+	dirs := append([]string{filepath.Join(s.cfg.Root, fsx.StagingDir)}, s.stores.knownDirs()...)
 	if volumes, err := os.ReadDir(s.cfg.Root); err == nil {
 		for _, volume := range volumes {
 			if volume.IsDir() && !fsx.Reserved(volume.Name()) {
@@ -338,7 +363,7 @@ func (s *Service) purgeIn(dir string, maxAge time.Duration) int {
 	purged := 0
 	for _, entry := range entries {
 		id, isInfo := strings.CutSuffix(entry.Name(), ".info")
-		if _, valid := VolumeOfID(id); !isInfo || !valid {
+		if _, valid := FolderOfID(id); !isInfo || !valid {
 			continue
 		}
 		info, err := entry.Info()

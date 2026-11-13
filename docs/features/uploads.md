@@ -23,15 +23,19 @@ Resumable uploads with the tus protocol: **tusd** in the engine, **tus-js-client
   (the root's own only for uploads into the root). In Docker the root is read-only and each
   volume is its own mount, so this is the only writable place, and finishing an upload is always
   a rename on the same filesystem (a copy only if a volume spans filesystems). Upload ids carry
-  the volume (32 random hex characters, then the volume name in hex), so later requests find the
-  right folder; ids are always hexadecimal, never paths. Names starting with `.canopy-` are
+  the folder they are staged in (32 random hex characters, then the folder path in hex, each
+  segment a plain, non-reserved name), so later requests find it; ids are always hexadecimal,
+  never paths. Names starting with `.canopy-` are
   reserved: never listed, never reachable by a path. When the last byte arrives the engine checks
   again (permission, name taken meanwhile) and moves the file into place. Abandoned uploads are
   purged after 24 h in every volume.
-- The engine's user must be able to write at the top of each volume people upload to (its
-  `.canopy-uploads` folder). When it cannot, the upload is refused at once with
-  `files.volume_not_writable` and the engine logs why; create the folder once as root
-  (`mkdir <volume>/.canopy-uploads && chown <PUID>:<PGID> <volume>/.canopy-uploads`).
+- Where the engine's user cannot write the top of a volume (OpenMediaVault mounts disks
+  root-owned), the upload is staged in its **destination folder** instead
+  (`<folder>/.canopy-uploads`, hidden like any reserved name), which must be writable anyway: no
+  setup. These deeper staging folders are listed in the engine's cache
+  (`<CANOPY_CACHE_DIR>/upload-staging`) so that abandoned uploads there are purged after a
+  restart too. Only when the destination cannot be written either is the upload refused at once
+  with `files.volume_not_writable`, the engine logging why.
 - Checked before any byte is sent: metadata, `upload` permission, size limit and blocked
   extensions (Settings › Uploads), free space (Linux), and the conflict choice. Every later
   request for an upload must come from the person who started it.
