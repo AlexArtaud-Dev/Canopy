@@ -11,18 +11,18 @@ hard to touch. Removing every overflow is the first fix.
 
 ## By shared component
 
-| Component                              | Problem                                                                                                                                    | Severity | Screens                     | Issue |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------- | --------------------------- | ----- |
-| File browser toolbar                   | Import, new folder, sort, view switch, refresh, shortcuts in one row: 426 px wide, the view switch and refresh fall off the screen          | high     | file browser                | #179  |
-| File browser footer (selection bar)    | Count, selection and four actions (delete, download, copy, move) in one row: 601 px wide, the page zooms out as soon as a file is selected | high     | file browser                | #179  |
-| File rows                              | A tap opens (touch is told from the mouse), but an item's actions exist only on right click / long press, which nothing shows             | high     | file browser                | #179  |
-| Operations panel                       | Full width at the bottom, open by default: covers the bottom of every page, including a form's Run button                                 | high     | all                         | #178  |
-| Filter forms                           | Two-column grids (dates) and filter rows wider than the screen                                                                             | high     | audit log                   | #182  |
-| Tables                                 | Scroll sideways inside their card; the columns that hold the state and the actions are out of sight                                       | medium   | shares, audit log           | #177  |
-| Dialogs                                | Centred boxes: long forms scroll as a whole, the primary action can end below the keyboard                                                 | medium   | share, properties, commands | #181  |
-| Viewers                                | Toolbar buttons small for touch; no pinch to zoom on images                                                                               | medium   | previews                    | #180  |
-| Built-in role descriptions             | Shown in English whatever the language ("Full control of Canopy.")                                                                         | low      | roles                       | #182  |
-| Search placeholders                    | Cut ("Rechercher par nom, identifiant ou e-m")                                                                                             | low      | users                       | #182  |
+| Component                           | Problem                                                                                                                                    | Severity | Screens                     | Issue |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------- | --------------------------- | ----- |
+| File browser toolbar                | Import, new folder, sort, view switch, refresh, shortcuts in one row: 426 px wide, the view switch and refresh fall off the screen         | high     | file browser                | #179  |
+| File browser footer (selection bar) | Count, selection and four actions (delete, download, copy, move) in one row: 601 px wide, the page zooms out as soon as a file is selected | high     | file browser                | #179  |
+| File rows                           | A tap opens (touch is told from the mouse), but an item's actions exist only on right click / long press, which nothing shows              | high     | file browser                | #179  |
+| Operations panel                    | Full width at the bottom, open by default: covers the bottom of every page, including a form's Run button                                  | high     | all                         | #178  |
+| Filter forms                        | Two-column grids (dates) and filter rows wider than the screen                                                                             | high     | audit log                   | #182  |
+| Tables                              | Scroll sideways inside their card; the columns that hold the state and the actions are out of sight                                        | medium   | shares, audit log           | #177  |
+| Dialogs                             | Centred boxes: long forms scroll as a whole, the primary action can end below the keyboard                                                 | medium   | share, properties, commands | #181  |
+| Viewers                             | Toolbar buttons small for touch; no pinch to zoom on images                                                                                | medium   | previews                    | #180  |
+| Built-in role descriptions          | Shown in English whatever the language ("Full control of Canopy.")                                                                         | low      | roles                       | #182  |
+| Search placeholders                 | Cut ("Rechercher par nom, identifiant ou e-m")                                                                                             | low      | users                       | #182  |
 
 ## Fixed in the first pass
 
