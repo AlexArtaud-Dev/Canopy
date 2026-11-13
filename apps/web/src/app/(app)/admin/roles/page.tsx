@@ -18,7 +18,7 @@ export default async function RolesPage() {
   return (
     <>
       <PageHeader title={t('roles.title')} />
-      <main className="mx-auto grid w-full max-w-5xl gap-4 p-4 md:p-6">
+      <main className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-4 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">{t('roles.description')}</p>
         <RolesContainer
           matrix={permissionMatrix(appRegistry.globalPermissions)}

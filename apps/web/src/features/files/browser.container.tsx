@@ -567,7 +567,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
             )}
           </div>
         </FolderMenu>
-        <footer className="text-muted-foreground flex min-h-10 items-center gap-3 border-t px-4 text-xs md:px-6">
+        <footer className="text-muted-foreground flex min-h-10 flex-wrap items-center gap-x-3 border-t px-4 text-xs md:px-6">
           <span aria-live="polite">
             {searching
               ? t('search.count', { count: entries.length })
@@ -603,7 +603,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
                   }}
                 >
                   <Trash2 aria-hidden data-icon="inline-start" />
-                  {t('menu.delete')}
+                  <span className="max-sm:sr-only">{t('menu.delete')}</span>
                 </Button>
               )}
               {allowed('download', selectedPaths) && (
@@ -615,7 +615,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
                   }}
                 >
                   <Download aria-hidden data-icon="inline-start" />
-                  {t('menu.download')}
+                  <span className="max-sm:sr-only">{t('menu.download')}</span>
                 </Button>
               )}
               {allowed('copy', selectedPaths) && (
@@ -627,7 +627,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
                   }}
                 >
                   <CopyPlus aria-hidden data-icon="inline-start" />
-                  {t('menu.copyTo')}
+                  <span className="max-sm:sr-only">{t('menu.copyTo')}</span>
                 </Button>
               )}
               {allowed('move', selectedPaths) && (
@@ -639,7 +639,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
                   }}
                 >
                   <FolderInput aria-hidden data-icon="inline-start" />
-                  {t('menu.moveTo')}
+                  <span className="max-sm:sr-only">{t('menu.moveTo')}</span>
                 </Button>
               )}
             </span>

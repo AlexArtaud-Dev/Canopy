@@ -27,7 +27,7 @@ export default async function TrashPage() {
   return (
     <>
       <PageHeader title={nav('trash')} />
-      <main className="mx-auto grid w-full max-w-6xl gap-4 p-4 md:p-6">
+      <main className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">{t('description')}</p>
         {listing.ok ? (
           <TrashContainer initial={listing.data} showOwner={user.isAdmin} ownerNames={ownerNames} />

@@ -21,7 +21,7 @@ export default async function EmailPage() {
   return (
     <>
       <PageHeader title={t('title')} />
-      <main className="mx-auto grid w-full max-w-3xl gap-4 p-4 md:p-6">
+      <main className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-4 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">{t('description')}</p>
         <MailContainer {...view} outbox={outbox} />
       </main>

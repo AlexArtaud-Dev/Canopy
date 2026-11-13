@@ -47,7 +47,7 @@ export default async function UserAccessPage({ params }: UserAccessPageProps) {
   return (
     <>
       <PageHeader title={user.name} />
-      <main className="mx-auto grid w-full max-w-4xl gap-6 p-4 md:p-6">
+      <main className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-6 p-4 md:p-6">
         <div className="grid gap-2">
           <Button asChild variant="ghost" size="sm" className="w-fit">
             <Link href="/admin/users">

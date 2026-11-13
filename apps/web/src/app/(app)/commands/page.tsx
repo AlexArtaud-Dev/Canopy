@@ -23,7 +23,7 @@ export default async function CommandsPage() {
   return (
     <>
       <PageHeader title={nav('commands')} />
-      <main className="mx-auto grid w-full max-w-6xl gap-4 p-4 md:p-6">
+      <main className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">{t('description')}</p>
         {catalog.ok ? (
           <CommandsContainer catalog={catalog.data} />

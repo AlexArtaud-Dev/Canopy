@@ -45,7 +45,7 @@ export default async function PluginPage({ params }: { params: Promise<{ id: str
   return (
     <>
       <PageHeader title={nav('plugins')} />
-      <main className="mx-auto grid w-full max-w-4xl gap-4 p-4 md:p-6">
+      <main className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-4 p-4 md:p-6">
         <Button asChild variant="ghost" size="sm" className="justify-self-start">
           <Link href="/admin/plugins">
             <ChevronLeft aria-hidden />

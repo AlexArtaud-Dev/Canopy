@@ -73,7 +73,7 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
     <div className="flex flex-wrap items-center gap-2 border-b px-4 py-2 md:px-6">
       <nav
         aria-label={t('breadcrumbs')}
-        className="flex min-w-0 flex-1 items-center gap-0.5 text-sm"
+        className="flex min-w-0 flex-1 items-center gap-0.5 text-sm max-sm:basis-full"
       >
         {crumbs.map((crumb, index) => {
           const current = index === crumbs.length - 1;
@@ -120,13 +120,14 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
         onSearch={props.onSearch}
         className="order-last w-full sm:order-none sm:w-56"
       />
+      {/* On a phone the buttons keep their icons only: the row must fit the screen. */}
       <div className="flex items-center gap-1">
         {props.canUpload && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm">
                 <Upload aria-hidden data-icon="inline-start" />
-                {t('ops.upload')}
+                <span className="max-sm:sr-only">{t('ops.upload')}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
@@ -144,15 +145,17 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
         {props.canCreate && (
           <Button variant="outline" size="sm" onClick={props.onNewFolder}>
             <FolderPlus aria-hidden data-icon="inline-start" />
-            {t('ops.newFolder')}
+            <span className="max-sm:sr-only">{t('ops.newFolder')}</span>
           </Button>
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm">
               <OrderIcon aria-hidden data-icon="inline-start" />
-              {/* i18n-dynamic: files.browser.sort */}
-              {t(`sort.${props.sort}` as Parameters<typeof t>[0])}
+              <span className="max-sm:sr-only">
+                {/* i18n-dynamic: files.browser.sort */}
+                {t(`sort.${props.sort}` as Parameters<typeof t>[0])}
+              </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
