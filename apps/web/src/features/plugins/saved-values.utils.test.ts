@@ -136,6 +136,7 @@ describe('savable fields', () => {
     expect(isSavable(param('a', 'path'))).toBe(false);
     expect(isSavable(param('a', 'enum'))).toBe(false);
     expect(isSavable(param('a', 'bool'))).toBe(false);
+    expect(isSavable({ ...param('a', 'string'), device: 'screen' })).toBe(false);
   });
 
   it('lists the fields of a plugin once each', () => {
@@ -146,10 +147,22 @@ describe('savable fields', () => {
         param('port', 'int'),
       ]),
       entry('dapple.stop', 'dapple', [param('device', 'string'), param('token', 'string', true)]),
+      entry('dapple.seek', 'dapple', [
+        param('device', 'string'),
+        { ...param('at', 'string'), required: true },
+      ]),
+      { ...entry('dapple.code', 'dapple', [param('code', 'string')]), secondary: true },
       entry('other.run', 'other', [param('host', 'string')]),
       entry('rsync.sync', undefined, [param('limit', 'int')]),
     ];
     expect(savableFields(entries, 'dapple').map((field) => field.name)).toEqual(['device', 'port']);
+    const required = [
+      entry('dapple.vol', 'dapple', [
+        { ...param('level', 'int'), required: true },
+        param('port', 'int'),
+      ]),
+    ];
+    expect(savableFields(required, 'dapple').map((field) => field.name)).toEqual(['port']);
     expect(savableFields(entries, 'none')).toEqual([]);
   });
 });

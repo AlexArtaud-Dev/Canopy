@@ -2,12 +2,21 @@
 
 - A plugin is a third-party tool that adds catalog commands (see [commands](commands.md)). It is
   installed from a GitHub release of an **allowlisted** repository; nothing else can be installed.
-- **Admin page** (`/admin/plugins`, `system:admin`): installed plugins (version, repository,
-  commands, install date), **Enabled** and **Keep this version** (pinned: no update offered)
-  switches, **Update to x.y.z** when a newer release exists, **Uninstall** (confirmation). Below,
-  the latest release of each allowlisted repository not installed yet, with its notes and
-  **Install**. The engine's platform (`linux-amd64`) is shown: only its binary is downloaded.
-- **Sources** (same page): the allowed repositories, default `AlexArtaud-Dev/mrename`. **Add**
+- **Admin page** (`/admin/plugins`, `system:admin`), two tabs:
+  - **Installed**: one card per plugin (version, description, number of commands, **Update to
+    x.y.z** when a newer release exists) leading to its own page with **Configure**. The
+    engine's platform (`linux-amd64`) is shown: only its binary is downloaded.
+  - **Add plugins**: the latest release of each allowlisted repository not installed yet, with
+    its notes and **Install**; then the **Sources**.
+- **A plugin's page** (`/admin/plugins/<id>`): the update when one is offered; **What forms start
+  with**, one row per setting the plugin's commands take (optional text and number fields,
+  never secrets, paths, devices, nor fields a command requires, nor those of secondary
+  commands), each with its help sentence, its values (the first one is used, the others offered
+  by name; the name is optional) and an inline **Add**; the plugin's **Devices** (see
+  [devices](devices.md)); its **commands**, each opening on the Commands page; its **State**:
+  **Enabled**, **Keep this version** (pinned: no update offered), **Uninstall** (confirmation,
+  back to the list).
+- **Sources** (Add plugins tab): the allowed repositories, default `AlexArtaud-Dev/mrename`. **Add**
   takes `owner/name` or a GitHub address and checks the latest release first: it must carry
   `canopy-plugin.yaml`, accepted by the engine and naming this very repository
   (`plugins.invalid_repo`, `plugins.repo_already_allowed`, `plugins.no_release`,

@@ -79,19 +79,30 @@ export function savedDefaults(saved: PluginSavedValues | undefined): Record<stri
   return defaults;
 }
 
-/** Whether values can be saved for a field: free text and numbers, never secrets or paths. */
-export function isSavable(param: Pick<CommandParam, 'type' | 'secret'>): boolean {
-  return (param.type === 'string' || param.type === 'int') && !param.secret;
+/**
+ * Whether values can be saved for a field: free text and numbers, never secrets or paths, nor
+ * devices (Canopy keeps those in its device list).
+ */
+export function isSavable(param: Pick<CommandParam, 'type' | 'secret' | 'device'>): boolean {
+  return (
+    (param.type === 'string' || param.type === 'int') && !param.secret && param.device === undefined
+  );
 }
 
-/** The fields of a plugin's commands values can be saved for, once each, in catalog order. */
+/**
+ * The fields of a plugin's commands values can be saved for, once each, in catalog order. Only
+ * settings: a field some command requires (a code, a position) is chosen for each run, and the
+ * commands reached from elsewhere (secondary) are left out.
+ */
 export function savableFields(entries: readonly CommandEntry[], plugin: string): CommandParam[] {
   const fields = new Map<string, CommandParam>();
+  const perRun = new Set<string>();
   for (const entry of entries) {
-    if (entry.plugin?.id !== plugin) continue;
+    if (entry.plugin?.id !== plugin || entry.secondary === true) continue;
     for (const param of entry.params) {
+      if (param.required) perRun.add(param.name);
       if (isSavable(param) && !fields.has(param.name)) fields.set(param.name, param);
     }
   }
-  return [...fields.values()];
+  return [...fields.values()].filter((param) => !perRun.has(param.name));
 }
