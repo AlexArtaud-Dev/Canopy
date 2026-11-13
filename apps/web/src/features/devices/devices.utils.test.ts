@@ -100,7 +100,13 @@ describe('devices', () => {
 
 describe('administration sections', () => {
   it('follow the declared kinds, then kinds no plugin declares any more', () => {
-    const screens = { pluginId: 'dapple', pluginName: 'Cast', kind: 'screen', kindName: 'Screens' };
+    const screens = {
+      pluginId: 'dapple',
+      pluginName: 'Cast',
+      kind: 'screen',
+      kindName: 'Screens',
+      pairable: true,
+    };
     const speakers = { ...screens, kind: 'speaker', kindName: 'Speakers' };
     const sections = deviceSections(
       [screens, speakers],

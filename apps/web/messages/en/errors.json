@@ -148,6 +148,8 @@
     "detection_failed": "The search for devices failed: see its output in Operations.",
     "full": "At most {max} devices of a kind are kept: forget some first.",
     "already_kept": "This device is already in the list.",
-    "not_found": "This device is no longer in the list."
+    "not_found": "This device is no longer in the list.",
+    "no_pairing": "This device cannot be paired from Canopy.",
+    "pairing_failed": "The pairing did not succeed: check the code and try again."
   }
 }

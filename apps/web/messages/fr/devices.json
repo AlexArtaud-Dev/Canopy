@@ -30,6 +30,21 @@
     "name": "Nom",
     "nameHelp": "Vide, il reprend le nom qu’il annonce.",
     "cancel": "Annuler",
-    "save": "Enregistrer"
+    "save": "Enregistrer",
+    "pair": "Jumeler"
+  },
+  "pairing": {
+    "title": "Jumeler {name}",
+    "description": "Le jumelage est demandé une seule fois par appareil : Canopy peut ensuite y diffuser.",
+    "starting": "Demande d’un code à l’appareil…",
+    "codeLabel": "Code affiché sur votre TV",
+    "checking": "Vérification du code…",
+    "paired": "{name} est jumelé.",
+    "failed": "Le jumelage n’a pas abouti : code erroné, ou appareil éteint. Réessayez : un nouveau code s’affichera.",
+    "done": "Terminé",
+    "cancel": "Annuler",
+    "retry": "Réessayer",
+    "confirm": "Jumeler",
+    "pair": "Jumeler"
   }
 }

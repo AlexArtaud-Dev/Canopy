@@ -61,7 +61,8 @@
       "online": "encendido",
       "neverSeen": "añadido a mano",
       "seen": "visto {when}",
-      "pairing": "por emparejar"
+      "pairing": "por emparejar",
+      "pair": "Emparejar"
     }
   }
 }

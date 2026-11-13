@@ -24,6 +24,14 @@ name instead of typing addresses.
   first one switched on. **Search** runs detection; a form also searches by itself when nothing
   was found in the last 2 minutes (once per tab in that time). Hidden devices are not offered.
   **Type an address…** keeps the old way for a device never found.
+- **Pairing** (kinds that declare `pair`): a device marked "to pair" gets a **Pair** button under
+  the field, and a **Pair** action on the administration page. The dialog starts the plugin's
+  pairing as the person (the device shows a code; one start per attempt, a device pairs with one
+  sender at a time), asks for the code in the same window, hands it over with the code command,
+  waits for the pairing run to end and only then marks the device paired (`confirmPairing`
+  checks the run is the person's own and is this kind's pairing command; audited as
+  `devices.pair`). Closing the dialog stops a pairing still waiting; **Try again** starts a new
+  one. The pairing commands themselves are `secondary`: they leave the commands list.
 - **Administration › Configuration › Devices** (`/admin/devices`, administrators): one card per
   declared kind with **Search again** and **Add** (by locator, optional name); per device
   **Rename** (empty gives back the announced name), **Hide from forms** / **Offer in forms**,

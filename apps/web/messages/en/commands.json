@@ -61,7 +61,8 @@
       "online": "on",
       "neverSeen": "added by hand",
       "seen": "seen {when}",
-      "pairing": "to pair"
+      "pairing": "to pair",
+      "pair": "Pair"
     }
   }
 }

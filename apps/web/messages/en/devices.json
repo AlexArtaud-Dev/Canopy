@@ -30,6 +30,21 @@
     "name": "Name",
     "nameHelp": "Empty gives it back the name it announces.",
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "pair": "Pair"
+  },
+  "pairing": {
+    "title": "Pair {name}",
+    "description": "Pairing is asked once per device: Canopy can then play on it.",
+    "starting": "Asking the device for a code…",
+    "codeLabel": "Code shown on your TV",
+    "checking": "Checking the code…",
+    "paired": "{name} is paired.",
+    "failed": "The pairing did not succeed: a wrong code, or the device went off. Try again: it shows a new code.",
+    "done": "Done",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "confirm": "Pair",
+    "pair": "Pair"
   }
 }

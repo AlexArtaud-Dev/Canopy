@@ -122,12 +122,22 @@ export const updateDeviceInputSchema = z.object({
 
 export const deviceIdInputSchema = z.object({ id: z.uuid() });
 
+/** The code a device shows while it pairs: digits only, as AirPlay and most TVs show. */
+export const pairingCodeInputSchema = deviceIdInputSchema.extend({
+  code: z.string().regex(/^[0-9]{4,8}$/),
+});
+
+/** The pairing run to check before a device is marked paired. */
+export const confirmPairingInputSchema = deviceIdInputSchema.extend({ jobId: z.uuid() });
+
 /** A kind of device a plugin declares, named for the administration page. */
 export interface KindView {
   pluginId: string;
   pluginName: string;
   kind: string;
   kindName: string;
+  /** The plugin pairs devices of this kind. */
+  pairable: boolean;
 }
 
 /** The devices of one kind, as the administration page lists them. */
@@ -183,6 +193,7 @@ export function kindViews(entries: readonly CommandEntry[], localize: Localize):
         pluginName: localize(plugin.name),
         kind: declared.kind,
         kindName: localize(declared.name),
+        pairable: declared.pair !== undefined,
       });
     }
   }

@@ -61,7 +61,8 @@
       "online": "allumé",
       "neverSeen": "ajouté à la main",
       "seen": "vu {when}",
-      "pairing": "à jumeler"
+      "pairing": "à jumeler",
+      "pair": "Jumeler"
     }
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Eye, EyeOff, MoreHorizontal, Pencil, Plus, Radar, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, KeyRound, MoreHorizontal, Pencil, Plus, Radar, Trash2 } from 'lucide-react';
 import { useFormatter, useNow, useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
@@ -37,6 +37,7 @@ import {
 } from './devices.utils';
 import { addDevice, changeDevice, detectDevices, forgetDevice } from './server/devices-actions';
 import { DeviceNameDialog } from './ui/device-name-dialog';
+import { PairingDialog } from './ui/pairing-dialog';
 
 const nowRefreshMs = 30_000;
 
@@ -44,7 +45,8 @@ type Editing =
   | { kind: 'none' }
   | { kind: 'rename'; device: Device }
   | { kind: 'add'; section: DeviceSection }
-  | { kind: 'forget'; device: Device };
+  | { kind: 'forget'; device: Device }
+  | { kind: 'pair'; device: Device };
 
 /**
  * The devices Canopy keeps, by plugin and kind: search again, add one by its address, name,
@@ -189,6 +191,10 @@ export function DevicesContainer({
                       key={device.id}
                       device={device}
                       manageable={section.view !== undefined}
+                      pairable={section.view?.pairable === true}
+                      onPair={() => {
+                        setEditing({ kind: 'pair', device });
+                      }}
                       onRename={() => {
                         setEditing({ kind: 'rename', device });
                       }}
@@ -220,6 +226,15 @@ export function DevicesContainer({
           if (editing.kind === 'add') add(editing.section, locator, name);
         }}
       />
+      {editing.kind === 'pair' && (
+        <PairingDialog
+          device={editing.device}
+          onClose={() => {
+            setEditing({ kind: 'none' });
+          }}
+          onPaired={replaceOne}
+        />
+      )}
       <ConfirmDialog
         open={editing.kind === 'forget'}
         title={t('forgetTitle')}
@@ -244,12 +259,16 @@ interface DeviceRowProps {
   device: Device;
   /** False once the plugin no longer declares the kind: the device can only be forgotten. */
   manageable: boolean;
+  /** The plugin pairs this kind: a device asking for it can be paired from here. */
+  pairable: boolean;
+  onPair: () => void;
   onRename: () => void;
   onToggleHidden: () => void;
   onForget: () => void;
 }
 
-function DeviceRow({ device, manageable, onRename, onToggleHidden, onForget }: DeviceRowProps) {
+function DeviceRow(props: DeviceRowProps) {
+  const { device, manageable, pairable, onPair, onRename, onToggleHidden, onForget } = props;
   const t = useTranslations('devices.page');
   const format = useFormatter();
   const now = useNow({ updateInterval: nowRefreshMs }).getTime();
@@ -298,6 +317,12 @@ function DeviceRow({ device, manageable, onRename, onToggleHidden, onForget }: D
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          {manageable && pairable && device.needsPairing && (
+            <DropdownMenuItem onSelect={onPair}>
+              <KeyRound aria-hidden />
+              {t('pair')}
+            </DropdownMenuItem>
+          )}
           {manageable && (
             <>
               <DropdownMenuItem onSelect={onRename}>

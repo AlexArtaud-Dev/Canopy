@@ -1,6 +1,6 @@
 'use client';
 
-import type { CommandParam } from '@canopy/contracts';
+import type { CommandParam, CommandPlugin } from '@canopy/contracts';
 import { FolderOpen, Radar } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -36,7 +36,7 @@ interface ParamFieldProps {
   locale: string;
   autoFocus: boolean;
   /** The plugin the command comes from: where device fields find their devices. */
-  pluginId: string | undefined;
+  plugin: CommandPlugin | undefined;
   onChange: (value: FormValue) => void;
 }
 
@@ -49,7 +49,7 @@ export function ParamField({
   pluginSaved,
   locale,
   autoFocus,
-  pluginId,
+  plugin,
   onChange,
 }: ParamFieldProps) {
   const t = useTranslations('commands.page');
@@ -65,14 +65,15 @@ export function ParamField({
     if (first && text === '') onChange(first.value);
   });
 
-  if (param.device !== undefined && pluginId !== undefined) {
+  if (param.device !== undefined && plugin !== undefined) {
     return (
       <DeviceField
         id={id}
         label={label}
         help={param.help ? localized(param.help, locale) : undefined}
-        pluginId={pluginId}
+        pluginId={plugin.id}
         kind={param.device}
+        pairable={plugin.devices?.some((kind) => kind.kind === param.device && kind.pair) === true}
         value={text}
         autoFocus={autoFocus}
         onChange={onChange}
