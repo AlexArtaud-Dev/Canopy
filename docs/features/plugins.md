@@ -41,3 +41,4 @@
   `plugins.not_found`, `plugins.github_unavailable`, `plugins.no_release`,
   `plugins.incomplete_release`, `plugins.repo_not_allowed`.
 - Writing one: [writing a plugin](../integrations/writing-a-plugin.md).
+- Casting to TVs with dapple, from the compose file to the first film: [casting](casting.md).
