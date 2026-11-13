@@ -22,6 +22,7 @@ entries:
       es: La página Plugins separa los plugins instalados de la incorporación de otros nuevos, y cada plugin tiene su propia página - con qué empiezan sus formularios, campo por campo, sus dispositivos, sus comandos y su estado.
   - type: fix
     scope: jobs
+    issue: 199
     text:
       en: Operations name commands instead of showing their ids, a finished operation no longer pops up a notice while the panel already shows it, and screen searches only appear when they fail.
       fr: Les opérations portent le nom des commandes au lieu de leur identifiant, une opération terminée n’affiche plus de notification quand le panneau la montre déjà, et les recherches d’écrans n’apparaissent qu’en cas d’échec.
