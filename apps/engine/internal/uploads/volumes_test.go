@@ -17,18 +17,18 @@ func TestVolumeIDs(t *testing.T) {
 	if err != nil || len(id) != 32+10 {
 		t.Fatalf("id: %s %v", id, err)
 	}
-	if volume, ok := VolumeOfID(id); !ok || volume != "media" {
+	if volume, ok := FolderOfID(id); !ok || volume != "media" {
 		t.Fatalf("volume back: %s %v", volume, ok)
 	}
 	root, _ := NewID("")
-	if volume, ok := VolumeOfID(root); !ok || volume != "" {
+	if volume, ok := FolderOfID(root); !ok || volume != "" {
 		t.Fatal("root uploads")
 	}
 	if staged, ok := StagedPath(id); !ok || staged != "media/.canopy-uploads/"+id {
 		t.Fatalf("staged: %s", staged)
 	}
 	for _, bad := range []string{"short", strings.Repeat("a", 32) + "2f", strings.Repeat("z", 32), "../" + id} {
-		if _, ok := VolumeOfID(bad); ok {
+		if _, ok := FolderOfID(bad); ok {
 			t.Errorf("%q must be refused", bad)
 		}
 	}

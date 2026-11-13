@@ -26,7 +26,12 @@ func TestReservedNames(t *testing.T) {
 	if volume, err := r.EnsureStagingIn("a"); err != nil || volume != "a/"+StagingDir {
 		t.Fatalf("volume staging: %s %v", volume, err)
 	}
-	for _, bad := range []string{"a/b", "..", StagingDir} {
+	// A deeper folder stages its own uploads (when the top of its volume cannot be written).
+	must(t, os.MkdirAll(filepath.Join(dir, "a", "deep"), 0o750))
+	if deep, err := r.EnsureStagingIn("a/deep"); err != nil || deep != "a/deep/"+StagingDir {
+		t.Fatalf("folder staging: %s %v", deep, err)
+	}
+	for _, bad := range []string{"..", "a/..", "a//b", "/a", StagingDir, "a/" + StagingDir} {
 		if _, err := r.EnsureStagingIn(bad); !errors.Is(err, ErrInvalidPath) {
 			t.Fatalf("volume %q: %v", bad, err)
 		}
@@ -80,7 +85,15 @@ func TestImportStaged(t *testing.T) {
 	if err := r.ImportStaged(write("u2", "x"), "/a/new.txt"); !errors.Is(err, ErrExists) {
 		t.Fatalf("never replaces: %v", err)
 	}
-	for _, staged := range []string{"elsewhere/u2", staging, "../u2", "a/b/" + StagingDir + "/u2", staging + "/../u2"} {
+	must(t, os.MkdirAll(filepath.Join(dir, "a", "deep"), 0o750))
+	deep, err := r.EnsureStagingIn("a/deep")
+	must(t, err)
+	must(t, os.WriteFile(filepath.Join(dir, deep, "u5"), []byte("deep"), 0o600))
+	must(t, r.ImportStaged(deep+"/u5", "/a/deep/new.txt"))
+	if data, _ := os.ReadFile(filepath.Join(dir, "a", "deep", "new.txt")); string(data) != "deep" {
+		t.Fatal("imported from a folder's staging")
+	}
+	for _, staged := range []string{"elsewhere/u2", staging, "../u2", "a/../" + StagingDir + "/u2", staging + "/../u2", staging + "/" + StagingDir} {
 		if err := r.ImportStaged(staged, "/a/z.txt"); !errors.Is(err, ErrInvalidPath) {
 			t.Fatalf("staged %q: %v", staged, err)
 		}

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -145,7 +146,7 @@ func run() error {
 
 	thumbService := startThumbnails(ctx, cfg.CacheDir, resolver, pool, logger)
 
-	uploadService, err := startUploads(ctx, cfg.Root, resolver, grants, pool, logger)
+	uploadService, err := startUploads(ctx, cfg.Root, filepath.Join(cfg.CacheDir, "upload-staging"), resolver, grants, pool, logger)
 	if err != nil {
 		return err
 	}
@@ -234,17 +235,18 @@ func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, gra
 
 // startUploads prepares the tus endpoint, and purges
 // uploads abandoned for a day, every hour.
-func startUploads(ctx context.Context, root string, resolver *fsx.Resolver, grants *grantstore.Store, pool *pgxpool.Pool, logger *slog.Logger) (*uploads.Service, error) {
+func startUploads(ctx context.Context, root, ledger string, resolver *fsx.Resolver, grants *grantstore.Store, pool *pgxpool.Pool, logger *slog.Logger) (*uploads.Service, error) {
 	// Staging folders are created per volume on first use: the root may be read-only (Docker).
 	service, err := uploads.New(uploads.Config{
-		Root:   root,
-		Stager: resolver,
-		Files:  resolver,
-		Grants: grants,
-		Audit:  audit.NewWriter(pool),
-		Limits: func(ctx context.Context) (uploads.Limits, error) { return uploads.LoadLimits(ctx, pool) },
-		Logger: logger,
-		Now:    time.Now,
+		Root:          root,
+		StagingLedger: ledger,
+		Stager:        resolver,
+		Files:         resolver,
+		Grants:        grants,
+		Audit:         audit.NewWriter(pool),
+		Limits:        func(ctx context.Context) (uploads.Limits, error) { return uploads.LoadLimits(ctx, pool) },
+		Logger:        logger,
+		Now:           time.Now,
 	})
 	if err != nil {
 		return nil, err
