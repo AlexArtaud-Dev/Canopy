@@ -62,7 +62,9 @@
       "neverSeen": "ajouté à la main",
       "seen": "vu {when}",
       "pairing": "à jumeler",
-      "pair": "Jumeler"
+      "pair": "Jumeler",
+      "setDefault": "En faire mon écran : les formulaires commencent avec lui",
+      "unsetDefault": "Ne plus en faire mon écran par défaut"
     }
   }
 }

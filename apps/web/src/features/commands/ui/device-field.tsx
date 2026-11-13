@@ -1,7 +1,7 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { KeyRound, Radar } from 'lucide-react';
+import { KeyRound, Radar, Star } from 'lucide-react';
 import { useFormatter, useNow, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
@@ -18,6 +18,8 @@ import {
   isOnline,
   PairingDialog,
   pickable,
+  startingDevice,
+  useDefaultDevice,
   useDevices,
   type Device,
 } from '@/features/devices';
@@ -58,12 +60,14 @@ export function DeviceField(props: DeviceFieldProps) {
   const known = offered.some((device) => device.locator === props.value);
   const [typing, setTyping] = useState(false);
   const { value, onChange } = props;
-  const firstOnline = offered.find((device) => isOnline(device, now))?.locator;
+  const { defaultId, changing, setDefault } = useDefaultDevice(props.pluginId, props.kind);
+  const starting =
+    defaultId === undefined ? undefined : startingDevice(offered, defaultId, now)?.locator;
 
-  // An empty field takes the first screen switched on: one click casts to the only TV.
+  // An empty field takes the person's screen, else the first one switched on.
   useEffect(() => {
-    if (value === '' && !typing && firstOnline !== undefined) onChange(firstOnline);
-  }, [value, typing, firstOnline, onChange]);
+    if (value === '' && !typing && starting !== undefined) onChange(starting);
+  }, [value, typing, starting, onChange]);
 
   const showTyping = typing || (value !== '' && !known && devices !== undefined);
   const selected = offered.find((device) => device.locator === value);
@@ -117,6 +121,26 @@ export function DeviceField(props: DeviceFieldProps) {
           {searching ? <Spinner aria-hidden /> : <Radar aria-hidden />}
           <span className="max-sm:sr-only">{searching ? t('searching') : t('search')}</span>
         </Button>
+        {selected && (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="shrink-0"
+            disabled={changing}
+            aria-pressed={selected.id === defaultId}
+            aria-label={selected.id === defaultId ? t('unsetDefault') : t('setDefault')}
+            title={selected.id === defaultId ? t('unsetDefault') : t('setDefault')}
+            onClick={() => {
+              setDefault(selected.id === defaultId ? null : selected.id);
+            }}
+          >
+            <Star
+              aria-hidden
+              className={cn(selected.id === defaultId && 'fill-primary text-primary')}
+            />
+          </Button>
+        )}
       </div>
       {showTyping && (
         <Input

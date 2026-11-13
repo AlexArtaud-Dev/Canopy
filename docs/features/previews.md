@@ -35,3 +35,6 @@ default-src 'none' …` — no scripts, an opaque origin, nothing loaded from el
   codecs and 4:2:2 / 4:4:4 pictures are decoded and scaled on the CPU, encoded on the GPU.
   Constant quality 26, capped at 8 Mb/s.
 - Audit: `fs.preview` (once per opening; media range requests and seeks are not counted again).
+- **Cast to…** in the viewer's header when a plugin command plays this file on a device (it is
+  offered on the file and takes a `device` param): one command opens its form, several are listed.
+  The viewer closes, and the form opens with the file filled in and the person's screen picked.

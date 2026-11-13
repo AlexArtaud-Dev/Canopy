@@ -62,7 +62,9 @@
       "neverSeen": "added by hand",
       "seen": "seen {when}",
       "pairing": "to pair",
-      "pair": "Pair"
+      "pair": "Pair",
+      "setDefault": "Make it my screen: forms start with it",
+      "unsetDefault": "No longer my default screen"
     }
   }
 }
