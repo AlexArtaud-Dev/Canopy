@@ -31,7 +31,7 @@ export default async function AccountPage() {
   return (
     <>
       <PageHeader title={t('title')} />
-      <main className="mx-auto grid w-full max-w-3xl gap-6 p-4 md:p-6">
+      <main className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-6 p-4 md:p-6">
         <AccountContainer
           username={user.username}
           profile={{ displayName: user.name, contactEmail: user.contactEmail ?? '' }}

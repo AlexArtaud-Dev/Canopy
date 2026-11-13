@@ -113,7 +113,8 @@ export function SharesContainer({ initial, canManage, ownerNames }: SharesContai
                 const Icon = share.isDirectory ? Folder : File;
                 return (
                   <TableRow key={share.id}>
-                    <TableCell>
+                    {/* Takes what the other columns leave and truncates: actions stay in view. */}
+                    <TableCell className="w-full max-w-0">
                       <span className="flex min-w-0 items-center gap-2">
                         <Icon
                           className={
@@ -133,7 +134,7 @@ export function SharesContainer({ initial, canManage, ownerNames }: SharesContai
                               />
                             )}
                           </span>
-                          <span className="text-muted-foreground block max-w-72 truncate text-xs">
+                          <span className="text-muted-foreground block truncate text-xs">
                             {share.kind === 'upload' ? t('kindUpload') : t('kindDownload')} ·{' '}
                             {share.path}
                           </span>

@@ -36,7 +36,7 @@ export default async function GroupAccessPage({ params }: GroupAccessPageProps) 
   return (
     <>
       <PageHeader title={group.name} />
-      <main className="mx-auto grid w-full max-w-3xl gap-6 p-4 md:p-6">
+      <main className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-6 p-4 md:p-6">
         <Button asChild variant="ghost" size="sm" className="w-fit">
           <Link href="/admin/groups">
             <ArrowLeft aria-hidden data-icon="inline-start" />

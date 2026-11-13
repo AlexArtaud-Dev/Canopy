@@ -12,6 +12,7 @@ import { EntryIcon } from './entry-icon';
 import { DndEntry, dropHighlight } from './dnd';
 import { EntryMenu } from './entry-menu';
 import { SelectionMark } from './selection-mark';
+import { MenuButton } from './menu-button';
 import { initialViewport, modifiersOf, type EntryViewProps } from './view-props';
 
 /** Rows are 44 px: the minimum touch target. */
@@ -109,6 +110,7 @@ export function ListView(props: EntryViewProps) {
                         </span>
                       )}
                     </span>
+                    <MenuButton name={entry.name} className="ml-auto" />
                   </span>
                   <span className="text-muted-foreground hidden text-right tabular-nums sm:block">
                     {entry.isDirectory ? '—' : formatBytes(entry.size, locale)}

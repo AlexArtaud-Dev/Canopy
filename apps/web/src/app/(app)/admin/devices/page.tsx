@@ -29,7 +29,7 @@ export default async function DevicesPage() {
   return (
     <>
       <PageHeader title={nav('devices')} />
-      <main className="mx-auto grid w-full max-w-4xl gap-4 p-4 md:p-6">
+      <main className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-4 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">{t('description')}</p>
         {failed === null && catalog.ok && devices.ok ? (
           <DevicesContainer

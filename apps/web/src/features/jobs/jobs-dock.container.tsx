@@ -56,7 +56,11 @@ function saveDismissed(ids: ReadonlySet<string>): void {
 export function JobsDockContainer() {
   const t = useTranslations('jobs.dock');
   const errorMessage = useErrorMessage();
-  const [expanded, setExpanded] = useState(true);
+  // Folded on a phone, where the open panel would cover most of the page; its header still
+  // tells what runs. The dock renders only once jobs load on the client, so `window` exists.
+  const [expanded, setExpanded] = useState(
+    () => typeof window === 'undefined' || !window.matchMedia('(max-width: 639px)').matches,
+  );
   // The dock renders nothing until jobs load on the client, so reading storage here is safe.
   const [dismissed, setDismissed] = useState<ReadonlySet<string>>(() =>
     typeof window === 'undefined' ? new Set() : readDismissed(),

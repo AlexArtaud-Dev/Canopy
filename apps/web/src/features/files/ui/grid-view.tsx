@@ -10,6 +10,7 @@ import { formatBytes } from '../browser.utils';
 import { DndEntry, dropHighlight } from './dnd';
 import { EntryMenu } from './entry-menu';
 import { EntryThumbnail } from './entry-thumbnail';
+import { MenuButton } from './menu-button';
 import { initialViewport, modifiersOf, type EntryViewProps } from './view-props';
 
 export const tileMinWidth = 132;
@@ -78,7 +79,7 @@ export function GridView(
                         aria-selected={isSelected}
                         title={props.showLocation ? entry.path : entry.name}
                         className={cn(
-                          'flex cursor-default flex-col items-center justify-center gap-2 rounded-xl border p-3 text-center text-sm select-none',
+                          'relative flex cursor-default flex-col items-center justify-center gap-2 rounded-xl border p-3 text-center text-sm select-none',
                           isSelected
                             ? 'border-primary bg-accent text-accent-foreground'
                             : 'hover:bg-muted/60',
@@ -92,6 +93,7 @@ export function GridView(
                           props.onOpen(index);
                         }}
                       >
+                        <MenuButton name={entry.name} className="absolute top-1 right-1" />
                         <EntryThumbnail key={entry.path} entry={entry} enabled={props.thumbnails} />
                         <span className="line-clamp-2 w-full font-medium break-all">
                           {entry.name}

@@ -86,7 +86,7 @@ export function AuditContainer({ rows, total, pages, filters, actions }: AuditCo
   };
 
   return (
-    <div className="grid gap-4">
+    <div className="grid grid-cols-1 gap-4">
       <form
         key={filtersQuery(filters, 1)}
         onSubmit={apply}
@@ -137,17 +137,30 @@ export function AuditContainer({ rows, total, pages, filters, actions }: AuditCo
           <FieldLabel htmlFor="audit-target">{t('filters.target')}</FieldLabel>
           <Input id="audit-target" name="target" defaultValue={filters.target} />
         </Field>
-        <div className="grid grid-cols-2 gap-3">
+        {/* Date fields have a wide intrinsic size: let them shrink to half a phone. */}
+        <div className="grid grid-cols-2 gap-3 *:min-w-0">
           <Field>
             <FieldLabel htmlFor="audit-from">{t('filters.from')}</FieldLabel>
-            <Input id="audit-from" name="from" type="date" defaultValue={filters.from} />
+            <Input
+              id="audit-from"
+              name="from"
+              type="date"
+              className="min-w-0"
+              defaultValue={filters.from}
+            />
           </Field>
           <Field>
             <FieldLabel htmlFor="audit-to">{t('filters.to')}</FieldLabel>
-            <Input id="audit-to" name="to" type="date" defaultValue={filters.to} />
+            <Input
+              id="audit-to"
+              name="to"
+              type="date"
+              className="min-w-0"
+              defaultValue={filters.to}
+            />
           </Field>
         </div>
-        <div className="flex items-end gap-2">
+        <div className="flex flex-wrap items-end gap-2">
           <Button type="submit">
             <Filter aria-hidden data-icon="inline-start" />
             {t('filters.apply')}
