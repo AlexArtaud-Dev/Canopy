@@ -6,7 +6,7 @@
     "orphan": "Conservados de {plugin}, que ya no está instalado: solo pueden olvidarse.",
     "search": "Buscar de nuevo",
     "searching": "Buscando…",
-    "found": "{count, plural, =0 {No se encontró nada} one {# dispositivo encontrado} other {# dispositivos encontrados}}",
+    "found": "{count, plural, one {# dispositivo encontrado} other {# dispositivos encontrados}}",
     "add": "Añadir",
     "empty": "Ninguno por ahora: vuelva a buscar con los dispositivos encendidos, o añada uno por su dirección.",
     "toPair": "por emparejar",
@@ -44,7 +44,6 @@
     "done": "Hecho",
     "cancel": "Cancelar",
     "retry": "Reintentar",
-    "confirm": "Emparejar",
-    "pair": "Emparejar"
+    "confirm": "Emparejar"
   }
 }
