@@ -1,0 +1,9 @@
+date: 2026-11-13
+entries:
+  - type: fix
+    scope: uploads
+    issue: 173
+    text:
+      en: Uploads work on disks whose top Canopy cannot write (as OpenMediaVault sets them up) - the file is prepared in its destination folder, with nothing to set up.
+      fr: Les imports fonctionnent sur les disques dont Canopy ne peut pas écrire la racine (comme OpenMediaVault les monte) - le fichier est préparé dans son dossier de destination, sans rien à configurer.
+      es: Las subidas funcionan en discos cuya raíz Canopy no puede escribir (como los monta OpenMediaVault) - el archivo se prepara en su carpeta de destino, sin nada que configurar.
