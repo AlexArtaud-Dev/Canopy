@@ -80,6 +80,10 @@ func toCommandEntry(entry commands.Entry) api.CommandEntry {
 			source := param.ChoicesFrom
 			converted.ChoicesFrom = &source
 		}
+		if param.Device != "" {
+			kind := param.Device
+			converted.Device = &kind
+		}
 		if len(param.Extensions) > 0 {
 			extensions := slices.Clone(param.Extensions)
 			converted.Extensions = &extensions
@@ -106,6 +110,17 @@ func toCommandEntry(entry commands.Entry) api.CommandEntry {
 	}
 	if entry.Plugin != nil {
 		converted.Plugin = &api.CommandPlugin{Id: entry.Plugin.ID, Name: localized(entry.Plugin.Name)}
+		if len(entry.Plugin.Devices) > 0 {
+			devices := make([]api.DeviceKind, 0, len(entry.Plugin.Devices))
+			for _, device := range entry.Plugin.Devices {
+				kind := api.DeviceKind{Kind: device.Kind, Name: localized(device.Name), Detect: device.Detect}
+				if device.Pair != nil {
+					kind.Pair = &api.DevicePairing{Start: device.Pair.Start, Code: device.Pair.Code}
+				}
+				devices = append(devices, kind)
+			}
+			converted.Plugin.Devices = &devices
+		}
 	}
 	return converted
 }

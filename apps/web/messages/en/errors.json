@@ -141,5 +141,13 @@
     "unreadable": "This video could not be read.",
     "unavailable": "This server cannot convert videos.",
     "invalid_start": "This position is outside the video."
+  },
+  "devices": {
+    "unknown_kind": "This plugin does not provide this kind of device.",
+    "detection_slow": "The search is taking long: it goes on in Operations, try again in a moment.",
+    "detection_failed": "The search for devices failed: see its output in Operations.",
+    "full": "At most {max} devices of a kind are kept: forget some first.",
+    "already_kept": "This device is already in the list.",
+    "not_found": "This device is no longer in the list."
   }
 }

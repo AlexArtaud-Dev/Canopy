@@ -16,7 +16,8 @@
     "trash": "Trash",
     "shares": "Shares",
     "commands": "Commands",
-    "plugins": "Plugins"
+    "plugins": "Plugins",
+    "devices": "Devices"
   },
   "sections": {
     "people": "User management",

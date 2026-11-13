@@ -47,6 +47,21 @@
       "cancel": "Cancel",
       "pickFile": "Pick this file",
       "pickFolder": "Pick this folder"
+    },
+    "device": {
+      "pick": "Pick a screen…",
+      "loading": "Searching for screens…",
+      "none": "No screen found yet",
+      "typed": "Type an address…",
+      "search": "Search",
+      "searching": "Searching…",
+      "locator": "Address of the device",
+      "needsPairing": "This device asks for a pairing before its first use.",
+      "loadFailed": "The list of devices could not be read.",
+      "online": "on",
+      "neverSeen": "added by hand",
+      "seen": "seen {when}",
+      "pairing": "to pair"
     }
   }
 }

@@ -47,6 +47,21 @@
       "cancel": "Cancelar",
       "pickFile": "Elegir este archivo",
       "pickFolder": "Elegir esta carpeta"
+    },
+    "device": {
+      "pick": "Elegir una pantalla…",
+      "loading": "Buscando pantallas…",
+      "none": "Aún no se ha encontrado ninguna pantalla",
+      "typed": "Escribir una dirección…",
+      "search": "Buscar",
+      "searching": "Buscando…",
+      "locator": "Dirección del dispositivo",
+      "needsPairing": "Este dispositivo pide un emparejamiento antes de su primer uso.",
+      "loadFailed": "No se pudo leer la lista de dispositivos.",
+      "online": "encendido",
+      "neverSeen": "añadido a mano",
+      "seen": "visto {when}",
+      "pairing": "por emparejar"
     }
   }
 }

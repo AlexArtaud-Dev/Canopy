@@ -141,5 +141,13 @@
     "unreadable": "Cette vidéo n'a pas pu être lue.",
     "unavailable": "Ce serveur ne peut pas convertir les vidéos.",
     "invalid_start": "Cette position est en dehors de la vidéo."
+  },
+  "devices": {
+    "unknown_kind": "Ce plugin ne fournit pas ce type d’appareil.",
+    "detection_slow": "La recherche prend du temps : elle continue dans Opérations, réessayez dans un instant.",
+    "detection_failed": "La recherche d’appareils a échoué : consultez sa sortie dans Opérations.",
+    "full": "Au plus {max} appareils d’un même type sont conservés : oubliez-en d’abord.",
+    "already_kept": "Cet appareil est déjà dans la liste.",
+    "not_found": "Cet appareil n’est plus dans la liste."
   }
 }

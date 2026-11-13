@@ -71,6 +71,22 @@ A text field can offer what one of your commands finds (devices, profiles, remot
 `value<TAB>label` line per choice. The form gets a **Detect** button that runs it. Needs Canopy
 2026.11.8 or later.
 
+If your tool works with devices on the network (screens, speakers), declare them and let Canopy
+keep them: people then pick them by name, and administrators name, hide or add them under
+**Administration › Devices**.
+
+```yaml
+devices:
+  - kind: screen
+    name: { en: Screens, fr: Écrans, es: Pantallas }
+    detect: mytool.list # prints locator<TAB>name<TAB>type=…;model=…;pairing=needed
+    pair: { start: mytool.pair, code: mytool.pair-code } # optional
+```
+
+A string param with `device: screen` (instead of `choicesFrom`) then takes one of them; your
+command receives the locator. See [devices](../features/devices.md). Needs Canopy 2026.11.11 or
+later.
+
 Keep forms short: mark what most runs leave alone `advanced: true` (folded under **More
 options**, opened by itself when one of them holds a value), and give each field a `help`
 sentence in the three languages. A required field cannot be advanced unless it has a default.

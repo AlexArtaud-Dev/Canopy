@@ -16,7 +16,8 @@
     "trash": "Corbeille",
     "shares": "Partages",
     "commands": "Commandes",
-    "plugins": "Plugins"
+    "plugins": "Plugins",
+    "devices": "Appareils"
   },
   "sections": {
     "people": "Gestion des utilisateurs",

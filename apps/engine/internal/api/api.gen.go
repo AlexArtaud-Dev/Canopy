@@ -522,6 +522,9 @@ type CommandParam struct {
 	ChoicesFrom *string     `json:"choicesFrom,omitempty"`
 	Default     interface{} `json:"default,omitempty"`
 
+	// Device String parameters only: a kind of device its plugin declares (`screen`). The field picks one of the devices Canopy keeps for it; the value is the device's locator.
+	Device *string `json:"device,omitempty"`
+
 	// Extensions With `on` file, the file extensions the command accepts (lower case, no dot).
 	Extensions *[]string      `json:"extensions,omitempty"`
 	Help       *LocalizedText `json:"help,omitempty"`
@@ -546,8 +549,10 @@ type CommandParamType string
 
 // CommandPlugin The plugin a command comes from (absent for built-in commands).
 type CommandPlugin struct {
-	Id   string        `json:"id"`
-	Name LocalizedText `json:"name"`
+	// Devices Kinds of devices the plugin finds on the network.
+	Devices *[]DeviceKind `json:"devices,omitempty"`
+	Id      string        `json:"id"`
+	Name    LocalizedText `json:"name"`
 }
 
 // CommandPreview defines model for CommandPreview.
@@ -608,6 +613,23 @@ type DeletePlan struct {
 	Files     int64       `json:"files"`
 	FitsTrash bool        `json:"fitsTrash"`
 	Limits    TrashLimits `json:"limits"`
+}
+
+// DeviceKind defines model for DeviceKind.
+type DeviceKind struct {
+	// Detect The command listing the devices, one `locator<TAB>label[<TAB>key=value;key=value]` line each (`type`, `model`, `pairing=needed`).
+	Detect string        `json:"detect"`
+	Kind   string        `json:"kind"`
+	Name   LocalizedText `json:"name"`
+
+	// Pair Commands pairing a device that asks for it, the code shown on it handed by the second.
+	Pair *DevicePairing `json:"pair,omitempty"`
+}
+
+// DevicePairing Commands pairing a device that asks for it, the code shown on it handed by the second.
+type DevicePairing struct {
+	Code  string `json:"code"`
+	Start string `json:"start"`
 }
 
 // DirectoryEntry defines model for DirectoryEntry.

@@ -99,6 +99,13 @@
       "when": 1794332147604,
       "tag": "0013_favorite_folders",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794576340963,
+      "tag": "0014_plugin_devices",
+      "breakpoints": true
     }
   ]
 }

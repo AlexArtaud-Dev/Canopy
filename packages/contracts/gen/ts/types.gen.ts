@@ -274,6 +274,10 @@ export type CommandParam = {
    * String parameters only: the id of a command whose output lists values for this field, one `value<TAB>label` line each. Forms run it to offer a choice.
    */
   choicesFrom?: string;
+  /**
+   * String parameters only: a kind of device its plugin declares (`screen`). The field picks one of the devices Canopy keeps for it; the value is the device's locator.
+   */
+  device?: string;
   required: boolean;
   secret: boolean;
   /**
@@ -302,6 +306,28 @@ export type CommandChoice = {
 export type CommandPlugin = {
   id: string;
   name: LocalizedText;
+  /**
+   * Kinds of devices the plugin finds on the network.
+   */
+  devices?: Array<DeviceKind>;
+};
+
+export type DeviceKind = {
+  kind: string;
+  name: LocalizedText;
+  /**
+   * The command listing the devices, one `locator<TAB>label[<TAB>key=value;key=value]` line each (`type`, `model`, `pairing=needed`).
+   */
+  detect: string;
+  pair?: DevicePairing;
+};
+
+/**
+ * Commands pairing a device that asks for it, the code shown on it handed by the second.
+ */
+export type DevicePairing = {
+  start: string;
+  code: string;
 };
 
 export type CommandEntry = {

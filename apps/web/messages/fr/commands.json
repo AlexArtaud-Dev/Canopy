@@ -47,6 +47,21 @@
       "cancel": "Annuler",
       "pickFile": "Choisir ce fichier",
       "pickFolder": "Choisir ce dossier"
+    },
+    "device": {
+      "pick": "Choisir un écran…",
+      "loading": "Recherche des écrans…",
+      "none": "Aucun écran trouvé pour l’instant",
+      "typed": "Saisir une adresse…",
+      "search": "Chercher",
+      "searching": "Recherche…",
+      "locator": "Adresse de l’appareil",
+      "needsPairing": "Cet appareil demande un jumelage avant sa première utilisation.",
+      "loadFailed": "La liste des appareils n’a pas pu être lue.",
+      "online": "allumé",
+      "neverSeen": "ajouté à la main",
+      "seen": "vu {when}",
+      "pairing": "à jumeler"
     }
   }
 }
