@@ -32,18 +32,19 @@
 
 ## Features
 
-| Area           | What is there                                                                                                 |
-| -------------- | ------------------------------------------------------------------------------------------------------------- |
-| Files          | Fast list and grid views (10k+ entries), search, favorite folders, Properties dialog, thumbnails              |
-| Previews       | Images, PDF, code with highlighting, audio, video; MKV and other formats converted on the fly (ffmpeg image)  |
-| Operations     | Resumable uploads, downloads and zips, copy/move with live progress and cancel, archives, checksums           |
-| Safety         | Trash with restore, confirmation and undo for destructive actions, audit of every change                      |
-| Sharing        | Share links (expiry, password, download limit) and upload links (file types, size limits)                     |
-| Commands       | Catalog of tools run with typed options, never a shell; plugins such as mrename from GitHub releases          |
-| Accounts       | First-run setup wizard (local network only), TOTP two-factor with recovery codes, sessions                    |
-| People         | Users, groups, roles with a permission matrix, folder access rules per user or group, invitations             |
-| Administration | Settings with sensible defaults, email (SMTP), audit log viewer with CSV export, maintenance mode, what's new |
-| Privacy        | Personal data export, retention for audit events and emails                                                   |
+| Area           | What is there                                                                                                   |
+| -------------- | --------------------------------------------------------------------------------------------------------------- |
+| Files          | Fast list and grid views (10k+ entries), search, favorite folders, Properties dialog, thumbnails                |
+| Previews       | Images, PDF, code with highlighting, audio, video; MKV and other formats converted on the fly (ffmpeg image)    |
+| Operations     | Resumable uploads, downloads and zips, copy/move with live progress and cancel, archives, checksums             |
+| Safety         | Trash with restore, confirmation and undo for destructive actions, audit of every change                        |
+| Sharing        | Share links (expiry, password, download limit) and upload links (file types, size limits)                       |
+| Commands       | Catalog of tools run with typed options, never a shell; plugins such as mrename from GitHub releases            |
+| Casting        | Play videos on Chromecast, Apple TV and DLNA screens with the dapple plugin ([guide](docs/features/casting.md)) |
+| Accounts       | First-run setup wizard (local network only), TOTP two-factor with recovery codes, sessions                      |
+| People         | Users, groups, roles with a permission matrix, folder access rules per user or group, invitations               |
+| Administration | Settings with sensible defaults, email (SMTP), audit log viewer with CSV export, maintenance mode, what's new   |
+| Privacy        | Personal data export, retention for audit events and emails                                                     |
 
 ## Install
 

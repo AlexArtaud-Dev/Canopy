@@ -135,3 +135,29 @@ networks:
   internal:
     internal: true
   edge: {}
+
+# ── Optional: casting to TVs and screens (dapple plugin) ─────────────────────────────────────
+# See docs/features/casting.md. Screens fetch videos from the engine (port 8690) and are found
+# by a relay on the host network; the engine joins a `cast` network to reach them. To enable:
+# 1. in `engine`, add   ports: ['8690:8690']   and   networks: [internal, cast]
+# 2. uncomment the service and the network below (change the subnet if it is already used, and
+#    the relay's --listen address with it: it is the network's gateway).
+#
+# services:
+#   dapple-relay:
+#     image: ghcr.io/alexartaud-dev/dapple:latest
+#     command: [relay, --listen, '10.250.31.1:8691']
+#     network_mode: host # the only service on the host network: finding screens needs multicast
+#     user: '65532:65532'
+#     read_only: true
+#     cap_drop: [ALL]
+#     security_opt: [no-new-privileges:true]
+#     restart: unless-stopped
+#     depends_on: [engine]
+#
+# networks:
+#   cast:
+#     ipam:
+#       config:
+#         - subnet: 10.250.31.0/29
+#           gateway: 10.250.31.1
