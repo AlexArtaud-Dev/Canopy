@@ -110,7 +110,7 @@ export function ListView(props: EntryViewProps) {
                         </span>
                       )}
                     </span>
-                    <MenuButton name={entry.name} className="ml-auto" />
+                    <MenuButton className="ml-auto" />
                   </span>
                   <span className="text-muted-foreground hidden text-right tabular-nums sm:block">
                     {entry.isDirectory ? '—' : formatBytes(entry.size, locale)}

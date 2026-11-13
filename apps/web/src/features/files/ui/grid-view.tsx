@@ -93,7 +93,7 @@ export function GridView(
                           props.onOpen(index);
                         }}
                       >
-                        <MenuButton name={entry.name} className="absolute top-1 right-1" />
+                        <MenuButton className="absolute top-1 right-1" />
                         <EntryThumbnail key={entry.path} entry={entry} enabled={props.thumbnails} />
                         <span className="line-clamp-2 w-full font-medium break-all">
                           {entry.name}

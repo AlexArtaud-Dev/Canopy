@@ -1,20 +1,20 @@
 'use client';
 
 import { MoreVertical } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 
 import { cn } from 'cn';
 
 /**
  * The visible way to an item's actions on a touch screen, where a right click does not exist and
- * a long press is hidden knowledge. It opens the item's own context menu, at the button.
+ * a long press is hidden knowledge. It opens the item's own context menu, at the mark. Like the
+ * selection mark it is not a control of its own: the row is the `option`, and a button inside
+ * it would be nested interactive content; keyboards and screen readers open the same menu with
+ * the context menu key (or Shift+F10).
  */
-export function MenuButton({ name, className }: { name: string; className?: string }) {
-  const t = useTranslations('files.browser');
+export function MenuButton({ className }: { className?: string }) {
   return (
-    <button
-      type="button"
-      aria-label={t('itemMenu', { name })}
+    <span
+      aria-hidden
       className={cn(
         'text-muted-foreground hover:bg-muted hidden size-10 shrink-0 items-center justify-center rounded-md pointer-coarse:flex',
         className,
@@ -36,7 +36,7 @@ export function MenuButton({ name, className }: { name: string; className?: stri
         event.stopPropagation();
       }}
     >
-      <MoreVertical aria-hidden className="size-4" />
-    </button>
+      <MoreVertical className="size-4" />
+    </span>
   );
 }
