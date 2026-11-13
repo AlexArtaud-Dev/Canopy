@@ -13,6 +13,13 @@ entries:
       en: Mark a screen as yours with the star next to it - every cast form then starts with it.
       fr: Marquez un écran comme le vôtre avec l’étoile à côté de lui - chaque formulaire de diffusion commence alors avec lui.
       es: Marque una pantalla como suya con la estrella junto a ella - cada formulario de envío empieza entonces con ella.
+  - type: feat
+    scope: plugins
+    issue: 172
+    text:
+      en: The Plugins page separates installed plugins from adding new ones, and each plugin has its own page - what its forms start with, field by field, its devices, its commands and its state.
+      fr: La page Plugins sépare les plugins installés de l’ajout de nouveaux, et chaque plugin a sa propre page - ce par quoi ses formulaires commencent, champ par champ, ses appareils, ses commandes et son état.
+      es: La página Plugins separa los plugins instalados de la incorporación de otros nuevos, y cada plugin tiene su propia página - con qué empiezan sus formularios, campo por campo, sus dispositivos, sus comandos y su estado.
   - type: fix
     scope: jobs
     text:
