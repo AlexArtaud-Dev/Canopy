@@ -2,7 +2,7 @@
   "metaTitle": "Users",
   "title": "Users",
   "description": "People who can sign in to Canopy, and the roles they hold.",
-  "search": "Search by name, username or email",
+  "search": "Name, username or email",
   "add": "New user",
   "columns": {
     "user": "User",

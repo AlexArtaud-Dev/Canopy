@@ -4,6 +4,11 @@
     "editor": "Éditeur",
     "viewer": "Lecteur"
   },
+  "builtInRoleDescriptions": {
+    "admin": "Contrôle complet de Canopy.",
+    "editor": "Le travail courant sur les fichiers.",
+    "viewer": "Accès en lecture seule."
+  },
   "modules": {
     "users": "Utilisateurs",
     "groups": "Groupes",

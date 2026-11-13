@@ -2,7 +2,7 @@
   "metaTitle": "Usuarios",
   "title": "Usuarios",
   "description": "Las personas que pueden iniciar sesión en Canopy y sus roles.",
-  "search": "Buscar por nombre, usuario o correo",
+  "search": "Nombre, usuario o correo",
   "add": "Nuevo usuario",
   "columns": {
     "user": "Usuario",

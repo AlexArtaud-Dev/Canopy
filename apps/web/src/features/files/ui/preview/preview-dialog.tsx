@@ -97,7 +97,7 @@ export function PreviewDialog({
     >
       <DialogContent
         showCloseButton={false}
-        className="flex h-[min(90svh,60rem)] max-w-[calc(100%-1rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-6xl"
+        className="flex h-[min(90svh,60rem)] max-w-[calc(100%-1rem)] flex-col gap-0 overflow-hidden p-0 max-sm:top-0 max-sm:h-dvh max-sm:max-h-dvh max-sm:rounded-none max-sm:pb-0 sm:max-w-6xl"
       >
         <header className="flex items-center gap-1 border-b py-2 pr-2 pl-4">
           <div className="min-w-0 flex-1">
@@ -130,6 +130,7 @@ export function PreviewDialog({
           <Button
             variant="ghost"
             size="icon-sm"
+            className="pointer-coarse:size-10"
             disabled={!previous}
             aria-label={t('previous')}
             onClick={() => {
@@ -141,6 +142,7 @@ export function PreviewDialog({
           <Button
             variant="ghost"
             size="icon-sm"
+            className="pointer-coarse:size-10"
             disabled={!next}
             aria-label={t('next')}
             onClick={() => {
@@ -152,6 +154,7 @@ export function PreviewDialog({
           <Button
             variant="ghost"
             size="icon-sm"
+            className="pointer-coarse:size-10"
             aria-label={t('download')}
             onClick={() => {
               onDownload(entry);
@@ -160,7 +163,12 @@ export function PreviewDialog({
             <Download aria-hidden />
           </Button>
           <DialogClose asChild>
-            <Button variant="ghost" size="icon-sm" aria-label={t('close')}>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="pointer-coarse:size-10"
+              aria-label={t('close')}
+            >
               <X aria-hidden />
             </Button>
           </DialogClose>

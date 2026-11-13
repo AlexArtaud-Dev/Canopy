@@ -26,6 +26,10 @@ export default async function RolesPage() {
             ...role,
             builtIn: role.key !== null,
             label: isBuiltInRoleKey(role.key) ? t(`builtInRoles.${role.key}`) : role.name,
+            // Built-in roles are described in the person's language, not as seeded.
+            description: isBuiltInRoleKey(role.key)
+              ? t(`builtInRoleDescriptions.${role.key}`)
+              : role.description,
           }))}
         />
       </main>

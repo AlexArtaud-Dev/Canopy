@@ -4,6 +4,11 @@
     "editor": "Editor",
     "viewer": "Viewer"
   },
+  "builtInRoleDescriptions": {
+    "admin": "Full control of Canopy.",
+    "editor": "Day-to-day work on files.",
+    "viewer": "Read-only access."
+  },
   "modules": {
     "users": "Users",
     "groups": "Groups",
