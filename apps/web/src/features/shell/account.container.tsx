@@ -2,6 +2,7 @@
 
 import { useTransition } from 'react';
 
+import { useInstallApp } from '@/features/pwa';
 import { isNewSince, useLastSeenRelease } from '@/features/whats-new';
 
 import { usePreferences } from './model/use-preferences';
@@ -22,6 +23,7 @@ export function AccountContainer({ account, signOutAction, latestRelease }: Acco
   const newsUnseen =
     latestRelease !== null && lastSeen !== undefined && isNewSince(latestRelease, lastSeen);
   const [signingOut, startSignOut] = useTransition();
+  const install = useInstallApp();
 
   return (
     <AccountMenu
@@ -32,6 +34,7 @@ export function AccountContainer({ account, signOutAction, latestRelease }: Acco
       onThemeChange={preferences.changeTheme}
       onLocaleChange={preferences.changeLocale}
       newsUnseen={newsUnseen}
+      onInstall={install}
       onSignOut={() => {
         startSignOut(() => signOutAction());
       }}

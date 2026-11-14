@@ -1,0 +1,7 @@
+{
+  "offline": {
+    "title": "Canopy est injoignable",
+    "description": "Le serveur ne répond pas : vérifiez votre connexion, ou que le serveur est démarré, puis réessayez.",
+    "retry": "Réessayer"
+  }
+}

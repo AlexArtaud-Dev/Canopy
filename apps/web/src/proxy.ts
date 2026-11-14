@@ -7,7 +7,15 @@ import { resolveRequestId } from '@/shared/request/request-id';
 import { buildContentSecurityPolicy } from '@/shared/security/csp';
 
 // `/s/<token>`: share links, opened by people without an account.
-const publicPaths = ['/login', '/setup', '/forgot-password', '/set-password', '/maintenance', '/s'];
+const publicPaths = [
+  '/login',
+  '/setup',
+  '/forgot-password',
+  '/set-password',
+  '/maintenance',
+  '/s',
+  '/offline',
+];
 const sessionCookies = ['canopy.session_token', '__Secure-canopy.session_token'];
 
 function isPublic(pathname: string): boolean {
@@ -66,9 +74,11 @@ export const config = {
       /*
        * Skip streaming and asset routes. `/engine/*` and `/api/engine/*` MUST stay excluded: a
        * matched request has its body cloned and buffered (10 MiB cap), which breaks uploads.
-       * See docs/dev/streaming.md.
+       * See docs/dev/streaming.md. The installed app's files (manifest, icons, service worker)
+       * are public: browsers fetch them without the session.
        */
-      source: '/((?!engine|api/engine|api/health|_next/static|_next/image|favicon.ico|icon.svg).*)',
+      source:
+        '/((?!engine|api/engine|api/health|_next/static|_next/image|favicon.ico|icon.svg|apple-icon|app-icons|manifest.webmanifest|sw.js).*)',
       missing: [{ type: 'header', key: 'next-router-prefetch' }],
     },
   ],

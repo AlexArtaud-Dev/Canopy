@@ -7,6 +7,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 
 import { getAppearance } from '@/features/appearance';
+import { InstallSupport } from '@/features/pwa';
 import { cn } from '@/shared/lib/utils';
 import { ThemeProvider } from '@/shared/theme/theme-provider';
 import { Toaster } from '@/shared/ui/sonner';
@@ -19,6 +20,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: { default: 'Canopy', template: 'Canopy · %s' },
     description: t('meta.description'),
+    applicationName: 'Canopy',
+    // iOS reads these instead of the manifest: full screen from the home screen, status bar kept.
+    appleWebApp: { capable: true, title: 'Canopy', statusBarStyle: 'default' },
   };
 }
 
@@ -52,6 +56,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               {children}
               {/* Top: the operations panel owns the bottom of the screen (full width on phones). */}
               <Toaster position="top-center" />
+              <InstallSupport />
             </TooltipProvider>
           </ThemeProvider>
         </NextIntlClientProvider>

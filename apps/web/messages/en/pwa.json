@@ -1,0 +1,7 @@
+{
+  "offline": {
+    "title": "Canopy cannot be reached",
+    "description": "The server does not answer: check your connection, or that the server is running, then try again.",
+    "retry": "Try again"
+  }
+}
