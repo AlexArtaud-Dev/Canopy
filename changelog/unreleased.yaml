@@ -1,8 +1,1 @@
-entries:
-  - type: feat
-    scope: engine
-    issue: 219
-    text:
-      en: The engine now records system, storage and operations metrics every 30 seconds for the coming dashboards, kept for durations you set in Settings › System.
-      fr: Le moteur relève désormais toutes les 30 secondes des métriques système, stockage et opérations pour les futurs tableaux de bord, conservées selon les durées réglées dans Réglages › Système.
-      es: El motor ahora registra cada 30 segundos métricas de sistema, almacenamiento y operaciones para los próximos paneles, conservadas según las duraciones fijadas en Ajustes › Sistema.
+entries: []
