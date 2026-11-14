@@ -48,6 +48,7 @@ type Sampler struct {
 	netAt   time.Time
 }
 
+// NewSampler starts a sampler with no previous reading.
 func NewSampler(sources Sources, logger *slog.Logger) *Sampler {
 	return &Sampler{sources: sources, logger: logger}
 }

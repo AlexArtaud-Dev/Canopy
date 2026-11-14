@@ -2,13 +2,16 @@
 
 package metrics
 
-import "syscall"
+import (
+	"fmt"
+	"syscall"
+)
 
 // DiskUsage measures the filesystem holding path: bytes used and its size.
 func DiskUsage(path string) (used, total uint64, err error) {
 	var stat syscall.Statfs_t
 	if err := syscall.Statfs(path, &stat); err != nil {
-		return 0, 0, err
+		return 0, 0, fmt.Errorf("statfs %s: %w", path, err)
 	}
 	blockSize := uint64(stat.Bsize) //nolint:gosec // block sizes are small positive numbers.
 	total = stat.Blocks * blockSize

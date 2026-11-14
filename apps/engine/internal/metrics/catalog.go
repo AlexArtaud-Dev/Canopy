@@ -9,6 +9,7 @@ import (
 // Family groups metrics under one permission (`metrics:<family>`), so roles grant whole families.
 type Family string
 
+// The families: what the machine does, what is stored, what Canopy runs.
 const (
 	FamilySystem     Family = "system"
 	FamilyStorage    Family = "storage"
@@ -18,6 +19,7 @@ const (
 // Unit tells dashboards how to show a value.
 type Unit string
 
+// The units dashboards format values with.
 const (
 	UnitPercent        Unit = "percent"
 	UnitBytes          Unit = "bytes"
