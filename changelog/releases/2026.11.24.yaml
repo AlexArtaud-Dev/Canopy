@@ -1,0 +1,9 @@
+date: 2026-11-14
+entries:
+  - type: feat
+    scope: web
+    issue: 220
+    text:
+      en: Dashboard variables and their permissions - system, storage, operations, shares, users and logs, each granted per role under "Dashboard variables".
+      fr: Variables de dashboard et leurs permissions - système, stockage, opérations, partages, utilisateurs et journaux, chacune accordée par rôle sous « Variables de dashboard ».
+      es: Variables de panel y sus permisos - sistema, almacenamiento, operaciones, compartidos, usuarios y registros, cada una concedida por rol en «Variables de panel».
