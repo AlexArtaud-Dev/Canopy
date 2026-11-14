@@ -1,0 +1,9 @@
+date: 2026-11-14
+entries:
+  - type: fix
+    scope: web
+    issue: 209
+    text:
+      en: A file's actions open in a sheet from the bottom on a phone, and a long folder path collapses behind a … button instead of overlapping.
+      fr: Les actions d’un fichier s’ouvrent dans un panneau venant du bas sur un téléphone, et un long chemin de dossiers se replie derrière un bouton … au lieu de se chevaucher.
+      es: Las acciones de un archivo se abren en un panel desde abajo en un teléfono, y una ruta de carpetas larga se pliega tras un botón … en lugar de solaparse.
