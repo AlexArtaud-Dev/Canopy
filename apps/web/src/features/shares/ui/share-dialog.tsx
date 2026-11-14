@@ -18,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/ui/dialog';
-import { Field, FieldDescription, FieldLabel } from '@/shared/ui/field';
+import { Field, FieldContent, FieldDescription, FieldLabel } from '@/shared/ui/field';
 import { Input } from '@/shared/ui/input';
 import { PasswordInput } from '@/shared/ui/password-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
@@ -110,6 +110,8 @@ function ShareForm({ path, canReceive, options, onClose }: ShareFormProps) {
   const [maxTotalMb, setMaxTotalMb] = useState('');
   const [maxFiles, setMaxFiles] = useState('');
   const [identity, setIdentity] = useState<ShareIdentity>('none');
+  const [notifyByEmail, setNotifyByEmail] = useState(false);
+  const canEmail = options.mailReady && options.hasContactEmail;
   const [error, setError] = useState<FormErrorContent | null>(null);
   const [link, setLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -121,6 +123,7 @@ function ShareForm({ path, canReceive, options, onClose }: ShareFormProps) {
     maxTotalMb: limitOf(maxTotalMb),
     maxFiles: limitOf(maxFiles),
     identity,
+    notifyByEmail: notifyByEmail && canEmail,
   };
   const valid =
     (!options.requirePassword || password !== '') &&
@@ -301,6 +304,26 @@ function ShareForm({ path, canReceive, options, onClose }: ShareFormProps) {
             <FieldDescription>
               {options.mailReady ? t('identityHint') : t('identityNeedsMail')}
             </FieldDescription>
+          </Field>
+          <Field orientation="horizontal" data-disabled={!canEmail}>
+            <Checkbox
+              id="share-notify-email"
+              checked={notifyByEmail && canEmail}
+              disabled={!canEmail}
+              onCheckedChange={(checked) => {
+                setNotifyByEmail(checked === true);
+              }}
+            />
+            <FieldContent>
+              <FieldLabel htmlFor="share-notify-email">{t('notifyByEmail')}</FieldLabel>
+              <FieldDescription>
+                {!options.mailReady
+                  ? t('notifyNeedsMail')
+                  : options.hasContactEmail
+                    ? t('notifyHint')
+                    : t('notifyNeedsContact')}
+              </FieldDescription>
+            </FieldContent>
           </Field>
         </>
       )}

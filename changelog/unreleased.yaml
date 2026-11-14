@@ -1,8 +1,8 @@
 entries:
   - type: feat
-    scope: web
-    issue: 215
+    scope: shares
+    issue: 216
     text:
-      en: A bell in the header for your notifications - files received on your upload links show there, one line per drop-off, and open its history.
-      fr: Une cloche dans l’en-tête pour vos notifications - les fichiers reçus sur vos liens de dépôt s’y affichent, une ligne par dépôt, qui ouvre son historique.
-      es: Una campana en la cabecera para sus notificaciones - los archivos recibidos en sus enlaces de depósito aparecen ahí, una línea por depósito, que abre su historial.
+      en: Get an e-mail for each drop-off on your upload links (optional per link) - who sent what, once they are done, in your language.
+      fr: Recevez un e-mail pour chaque dépôt sur vos liens de dépôt (optionnel par lien) - qui a envoyé quoi, une fois la personne partie, dans votre langue.
+      es: Reciba un correo por cada depósito en sus enlaces de depósito (opcional por enlace) - quién envió qué, cuando termina, en su idioma.

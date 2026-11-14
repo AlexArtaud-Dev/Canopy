@@ -37,6 +37,13 @@
   _Keep drop-off history_ (Settings › Share links, 180 days by default). Audit:
   `shares.drop_off_start`, `shares.drop_off_verify`, and `shares.upload` carries the drop-off and
   the depositor's e-mail.
+- **The owner is told**: each drop-off is a [notification](notifications.md) (one line, its count
+  growing). With **E-mail me at each drop-off** (greyed out until e-mail is set up and the owner
+  has a contact e-mail), a sweep every minute e-mails the owner once a drop-off has been quiet for
+  2 minutes: who (and whether verified), how many files, the first 20 names, a link to the
+  drop-offs. Files arriving later make another e-mail (`emailed_file_count`); the e-mail is
+  claimed atomically, so several instances never send it twice. It goes through the outbox
+  (retries), in the owner's language, and never holds up an upload.
 
 ## How it is secured
 

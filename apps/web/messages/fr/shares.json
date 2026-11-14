@@ -31,7 +31,11 @@
     "identityDeclared": "Leur nom et leur e-mail",
     "identityVerified": "Leur nom et un e-mail vérifié par un code",
     "identityHint": "Avec un e-mail vérifié, les déposants saisissent un code reçu avant de pouvoir envoyer.",
-    "identityNeedsMail": "Vérifier les e-mails demande que l’envoi d’e-mails soit configuré par un administrateur."
+    "identityNeedsMail": "Vérifier les e-mails demande que l’envoi d’e-mails soit configuré par un administrateur.",
+    "notifyByEmail": "M’envoyer un e-mail à chaque dépôt",
+    "notifyHint": "Un e-mail par dépôt, une fois la personne partie, à votre e-mail de contact.",
+    "notifyNeedsMail": "Les e-mails demandent que l’envoi d’e-mails soit configuré par un administrateur.",
+    "notifyNeedsContact": "Ajoutez un e-mail de contact à votre compte pour les recevoir."
   },
   "page": {
     "description": "Les liens que vous avez créés vers des fichiers et dossiers. Un lien cesse de fonctionner lorsqu’il expire, atteint sa limite de téléchargements ou est révoqué.",

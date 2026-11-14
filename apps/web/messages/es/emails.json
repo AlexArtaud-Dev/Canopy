@@ -58,5 +58,17 @@
     "body": "Pidió enviar archivos por el enlace «{name}». Escriba este código en la página de depósito para confirmar su dirección de correo.",
     "expiry": "El código es válido durante 15 minutos.",
     "ignore": "Si no lo pidió, ignore este correo: no se envía nada sin el código."
+  },
+  "dropOffReceived": {
+    "subject": "{who} envió {count, plural, one {# archivo} other {# archivos}} a {link}",
+    "preheader": "Llegaron archivos por su enlace de depósito.",
+    "from": "De {name} ({email}).",
+    "fromVerified": "De {name} ({email}, verificado).",
+    "anonymous": "Quien depositó no indicó quién es.",
+    "someone": "Alguien",
+    "files": "Archivos: {names}",
+    "more": "{count, plural, one {+# más} other {+# más}}",
+    "action": "Ver el depósito",
+    "footer": "Recibe este correo porque pidió que le avisaran de los depósitos en este enlace. Para dejar de recibirlo, cree de nuevo el enlace sin esta opción."
   }
 }

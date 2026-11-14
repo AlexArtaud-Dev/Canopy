@@ -133,6 +133,13 @@ export async function createShare(input: unknown): Promise<ActionResult<ShareVie
     ) {
       throw new AppBaseError('shares.identity_needs_mail', 'codes need e-mail');
     }
+    if (
+      request.kind === 'upload' &&
+      request.upload.notifyByEmail &&
+      (session.user.contactEmail === null || !isMailConfigured(await getMailSettings()))
+    ) {
+      throw new AppBaseError('shares.email_unavailable', 'no e-mail to send to');
+    }
     const {
       data: entry,
       error,
@@ -177,6 +184,7 @@ export async function createShare(input: unknown): Promise<ActionResult<ShareVie
             maxTotalBytes: megabytes(request.upload.maxTotalMb),
             maxFiles: request.upload.maxFiles,
             identity: request.upload.identity,
+            notifyByEmail: request.upload.notifyByEmail,
           }
         : {}),
     });
@@ -204,12 +212,14 @@ export interface ShareOptions {
   requirePassword: boolean;
   /** E-mail is set up: upload links may verify depositors with a code. */
   mailReady: boolean;
+  /** The person has a contact e-mail: drop-offs can be e-mailed to them. */
+  hasContactEmail: boolean;
 }
 
 /** The administrator's rules for new links, for the share dialog. */
 export async function loadShareOptions(): Promise<ActionResult<ShareOptions>> {
   return runAction(async () => {
-    await requireSession();
+    const session = await requireSession();
     const [{ values }, mail] = await Promise.all([
       getSettings('shares', sharesSettings),
       getMailSettings(),
@@ -219,6 +229,7 @@ export async function loadShareOptions(): Promise<ActionResult<ShareOptions>> {
       maxExpiryDays: values.maxExpiryDays,
       requirePassword: values.requirePassword,
       mailReady: isMailConfigured(mail),
+      hasContactEmail: session.user.contactEmail !== null,
     };
   });
 }

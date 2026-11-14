@@ -41,6 +41,8 @@ export const sharesTable = appSchema.table(
     identity: text('identity', { enum: ['none', 'declared', 'verified'] })
       .notNull()
       .default('none'),
+    /** Upload links: the owner gets an e-mail for each drop-off (once it is over). */
+    notifyByEmail: boolean('notify_by_email').notNull().default(false),
     /** Counted when an upload starts (reserved), so limits hold even for uploads in flight. */
     uploadedBytes: bigint('uploaded_bytes', { mode: 'number' }).notNull().default(0),
     uploadedFiles: integer('uploaded_files').notNull().default(0),
@@ -81,6 +83,8 @@ export const shareDropOffsTable = appSchema.table(
     codeExpiresAt: timestamp('code_expires_at', { withTimezone: true }),
     codeAttempts: integer('code_attempts').notNull().default(0),
     fileCount: integer('file_count').notNull().default(0),
+    /** Files the owner was already e-mailed about: more arriving later make another e-mail. */
+    emailedFileCount: integer('emailed_file_count').notNull().default(0),
     byteCount: bigint('byte_count', { mode: 'number' }).notNull().default(0),
     lastUploadAt: timestamp('last_upload_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -88,6 +92,7 @@ export const shareDropOffsTable = appSchema.table(
   (table) => [
     index('share_drop_offs_share_idx').on(table.shareId, table.createdAt),
     index('share_drop_offs_created_idx').on(table.createdAt),
+    index('share_drop_offs_last_upload_idx').on(table.lastUploadAt),
   ],
 );
 
