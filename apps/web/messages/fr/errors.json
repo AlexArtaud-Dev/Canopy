@@ -12,7 +12,8 @@
     "rate_limited": "Trop de tentatives. Patientez {retryAfter, plural, one {# seconde} other {# secondes}} puis réessayez.",
     "engine_unavailable": "Le moteur de fichiers est injoignable. Réessayez dans un instant.",
     "engine_key_missing": "Le moteur de fichiers n’est pas configuré. Demandez à votre administrateur de définir les clés du moteur.",
-    "maintenance": "Canopy est en maintenance. Réessayez plus tard."
+    "maintenance": "Canopy est en maintenance. Réessayez plus tard.",
+    "updated": "Canopy vient d’être mis à jour : la page se recharge pour utiliser la nouvelle version."
   },
   "settings": {
     "unknown_key": "Ce paramètre n’existe pas (« {key} »).",

@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from 'cn';
 import { Cast } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -39,7 +40,7 @@ export function RemoteContainer() {
       </SheetTrigger>
       <SheetContent
         side={isMobile ? 'bottom' : 'right'}
-        className="max-h-[90dvh] gap-0 overflow-y-auto sm:max-w-md"
+        className={cn('gap-0 overflow-y-auto sm:max-w-md', isMobile && 'max-h-[90dvh]')}
       >
         <SheetHeader>
           <SheetTitle>{t('title')}</SheetTitle>

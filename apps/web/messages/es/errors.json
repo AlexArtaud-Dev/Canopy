@@ -12,7 +12,8 @@
     "rate_limited": "Demasiados intentos. Espere {retryAfter, plural, one {# segundo} other {# segundos}} e inténtelo de nuevo.",
     "engine_unavailable": "El motor de archivos no responde. Inténtalo de nuevo en un momento.",
     "engine_key_missing": "El motor de archivos no está configurado. Pide a tu administrador que defina las claves del motor.",
-    "maintenance": "Canopy está en mantenimiento. Inténtalo más tarde."
+    "maintenance": "Canopy está en mantenimiento. Inténtalo más tarde.",
+    "updated": "Canopy se acaba de actualizar: la página se recarga para usar la nueva versión."
   },
   "settings": {
     "unknown_key": "Este ajuste no existe («{key}»).",

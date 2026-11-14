@@ -5,7 +5,7 @@ import { useSyncExternalStore } from 'react';
 
 import { ErrorState } from '@/shared/errors/error-state';
 import { localeCookieName, resolveLocale, type Locale } from '@/shared/i18n/locales';
-import { unexpectedErrorCode } from '@/shared/lib/errors';
+import { useStaleVersionRecovery } from '@/shared/errors/stale-version';
 
 import enCommon from '../../messages/en/common.json';
 import enErrors from '../../messages/en/errors.json';
@@ -41,12 +41,13 @@ export default function GlobalError({
   reset: () => void;
 }) {
   const locale = useSyncExternalStore(noopSubscribe, browserLocale, (): Locale => 'en');
+  const code = useStaleVersionRecovery(error);
 
   return (
     <html lang={locale}>
       <body className="bg-background text-foreground flex min-h-svh items-center justify-center p-4 font-sans">
         <NextIntlClientProvider locale={locale} messages={messages[locale]}>
-          <ErrorState code={unexpectedErrorCode} reference={error.digest} onRetry={reset} />
+          <ErrorState code={code} reference={error.digest} onRetry={reset} />
         </NextIntlClientProvider>
       </body>
     </html>

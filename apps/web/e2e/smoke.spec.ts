@@ -22,6 +22,8 @@ test('navigation reaches the system page and marks it active', async ({ page, is
   if (isMobile) {
     await page.getByRole('button', { name: 'Toggle sidebar' }).click();
   }
+  // Sections start folded except the current page's: open Monitoring first.
+  await page.getByRole('button', { name: 'Monitoring' }).click();
   await page.getByRole('link', { name: 'System status' }).click();
   await expect(page).toHaveURL(/\/system$/);
   if (isMobile) {
