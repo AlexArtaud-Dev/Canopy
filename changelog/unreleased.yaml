@@ -1,8 +1,1 @@
-entries:
-  - type: feat
-    scope: shares
-    issue: 216
-    text:
-      en: Get an e-mail for each drop-off on your upload links (optional per link) - who sent what, once they are done, in your language.
-      fr: Recevez un e-mail pour chaque dépôt sur vos liens de dépôt (optionnel par lien) - qui a envoyé quoi, une fois la personne partie, dans votre langue.
-      es: Reciba un correo por cada depósito en sus enlaces de depósito (opcional por enlace) - quién envió qué, cuando termina, en su idioma.
+entries: []
