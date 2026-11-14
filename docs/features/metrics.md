@@ -28,3 +28,25 @@ The values dashboards read. The engine samples them every 30 seconds and keeps t
   within their retention, hourly rollups beyond.
 - **Permissions**: a family needs `metrics:<family>` (administrators read all). Share-link tokens
   never read metrics. The web app's roles grant these permissions (#220).
+
+## Variables (web)
+
+Dashboards read **variables**: the engine's metrics above plus values the web app computes.
+
+| Variable          | Family | Kind                                |
+| ----------------- | ------ | ----------------------------------- |
+| `shares.active`   | shares | count now                           |
+| `shares.dropOffs` | shares | drop-offs per bucket                |
+| `users.accounts`  | users  | active accounts now                 |
+| `users.sessions`  | users  | open sessions now                   |
+| `logs.denied`     | logs   | refused actions per bucket          |
+| `logs.audit`      | logs   | the latest 50 audit entries (a log) |
+
+- **Permissions**: the roles editor has a **Dashboard variables** row with one permission per
+  family (`metrics:system`, `storage`, `operations`, `shares`, `users`, `logs`). Administrators
+  read everything; nobody else reads a family by default.
+- `loadVariables()` lists what the person may read. `readVariable({ id, range })` checks the
+  family **on the server** (refusals audited as `metrics.read_denied`) and returns one shape for
+  every panel: series of `{ at, avg, min, max }` buckets, or log lines. Ranges: 1 h, 6 h, 24 h,
+  7 d, 30 d.
+- Labels: `dashboards.variables.<id>` in the messages.

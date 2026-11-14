@@ -1,0 +1,48 @@
+{
+  "families": {
+    "system": "Sistema",
+    "storage": "Almacenamiento",
+    "operations": "Operaciones",
+    "shares": "Compartidos y depósitos",
+    "users": "Usuarios y sesiones",
+    "logs": "Registros"
+  },
+  "variables": {
+    "system": {
+      "cpu": "Uso del procesador",
+      "memory": {
+        "used": "Memoria usada",
+        "total": "Tamaño de la memoria"
+      },
+      "network": {
+        "received": "Red recibida",
+        "sent": "Red enviada"
+      }
+    },
+    "storage": {
+      "volume": {
+        "used": "Espacio usado por volumen",
+        "total": "Tamaño por volumen"
+      },
+      "trash": "Tamaño de la papelera",
+      "thumbnails": "Caché de miniaturas"
+    },
+    "operations": {
+      "running": "Operaciones en curso",
+      "queued": "Operaciones en espera",
+      "failed": "Operaciones fallidas (última hora)"
+    },
+    "shares": {
+      "active": "Enlaces activos",
+      "dropOffs": "Depósitos recibidos"
+    },
+    "users": {
+      "accounts": "Cuentas activas",
+      "sessions": "Sesiones abiertas"
+    },
+    "logs": {
+      "denied": "Acciones rechazadas",
+      "audit": "Registro de auditoría"
+    }
+  }
+}

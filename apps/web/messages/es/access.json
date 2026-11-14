@@ -15,7 +15,8 @@
     "roles": "Roles",
     "settings": "Ajustes",
     "audit": "Registro de auditoría",
-    "system": "Sistema"
+    "system": "Sistema",
+    "metrics": "Variables de panel"
   },
   "actions": {
     "read": "Ver",
@@ -23,7 +24,13 @@
     "update": "Editar",
     "delete": "Eliminar",
     "export": "Exportar",
-    "admin": "Administrar"
+    "admin": "Administrar",
+    "system": "Sistema",
+    "storage": "Almacenamiento",
+    "operations": "Operaciones",
+    "shares": "Compartidos y depósitos",
+    "users": "Usuarios y sesiones",
+    "logs": "Registros"
   },
   "roles": {
     "metaTitle": "Roles",

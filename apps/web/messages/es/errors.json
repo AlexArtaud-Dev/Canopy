@@ -159,5 +159,10 @@
     "pairing_failed": "El emparejamiento no se completó: compruebe el código e inténtelo de nuevo.",
     "no_control": "Esta pantalla no puede controlarse desde Canopy.",
     "forbidden": "No puede usar este dispositivo: pregunte a un administrador."
+  },
+  "metrics": {
+    "forbidden": "No puede leer este valor: pida el permiso a un administrador.",
+    "unknown": "Este valor no está disponible.",
+    "invalid_range": "Este periodo no se puede mostrar."
   }
 }

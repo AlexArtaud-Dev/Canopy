@@ -9,6 +9,7 @@ export const namespaces = [
   'auth',
   'commands',
   'common',
+  'dashboards',
   'devices',
   'errors',
   'files',

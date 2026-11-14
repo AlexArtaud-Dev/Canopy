@@ -3,6 +3,7 @@ import type audit from '../../../messages/en/audit.json';
 import type auth from '../../../messages/en/auth.json';
 import type commands from '../../../messages/en/commands.json';
 import type common from '../../../messages/en/common.json';
+import type dashboards from '../../../messages/en/dashboards.json';
 import type devices from '../../../messages/en/devices.json';
 import type errors from '../../../messages/en/errors.json';
 import type files from '../../../messages/en/files.json';
@@ -43,6 +44,7 @@ declare module 'next-intl' {
       system: typeof system;
       users: typeof users;
       whatsNew: typeof whatsNew;
+      dashboards: typeof dashboards;
       notifications: typeof notifications;
       pwa: typeof pwa;
     };

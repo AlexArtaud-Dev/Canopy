@@ -15,7 +15,8 @@
     "roles": "Roles",
     "settings": "Settings",
     "audit": "Audit log",
-    "system": "System"
+    "system": "System",
+    "metrics": "Dashboard variables"
   },
   "actions": {
     "read": "View",
@@ -23,7 +24,13 @@
     "update": "Edit",
     "delete": "Delete",
     "export": "Export",
-    "admin": "Administer"
+    "admin": "Administer",
+    "system": "System",
+    "storage": "Storage",
+    "operations": "Operations",
+    "shares": "Shares and drop-offs",
+    "users": "Users and sessions",
+    "logs": "Logs"
   },
   "roles": {
     "metaTitle": "Roles",
