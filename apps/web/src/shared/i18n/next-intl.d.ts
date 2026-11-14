@@ -10,6 +10,7 @@ import type jobs from '../../../messages/en/jobs.json';
 import type trash from '../../../messages/en/trash.json';
 import type mail from '../../../messages/en/mail.json';
 import type settings from '../../../messages/en/settings.json';
+import type notifications from '../../../messages/en/notifications.json';
 import type plugins from '../../../messages/en/plugins.json';
 import type pwa from '../../../messages/en/pwa.json';
 import type shares from '../../../messages/en/shares.json';
@@ -42,6 +43,7 @@ declare module 'next-intl' {
       system: typeof system;
       users: typeof users;
       whatsNew: typeof whatsNew;
+      notifications: typeof notifications;
       pwa: typeof pwa;
     };
   }

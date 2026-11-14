@@ -21,6 +21,8 @@ import { DropOffsDialog } from './ui/drop-offs-dialog';
 
 interface SharesContainerProps {
   initial: ShareView[];
+  /** A link whose drop-offs open at once (from a notification). */
+  openDropOffs: string | null;
   /** The person may see and revoke everyone's links. */
   canManage: boolean;
   /** Usernames by account id (managers only). */
@@ -28,7 +30,12 @@ interface SharesContainerProps {
 }
 
 /** The person's share links (or everyone's for managers): status, use, copy and revoke. */
-export function SharesContainer({ initial, canManage, ownerNames }: SharesContainerProps) {
+export function SharesContainer({
+  initial,
+  canManage,
+  ownerNames,
+  openDropOffs,
+}: SharesContainerProps) {
   const t = useTranslations('shares.page');
   const format = useFormatter();
   const locale = useLocale();
@@ -36,7 +43,9 @@ export function SharesContainer({ initial, canManage, ownerNames }: SharesContai
   const queryClient = useQueryClient();
   const [scope, setScope] = useState<'mine' | 'all'>('mine');
   const [revoking, setRevoking] = useState<ShareView | null>(null);
-  const [history, setHistory] = useState<ShareView | null>(null);
+  const [history, setHistory] = useState<ShareView | null>(
+    () => initial.find((share) => share.id === openDropOffs) ?? null,
+  );
   const [pending, setPending] = useState(false);
   const { data } = useQuery({
     queryKey: ['shares', scope],

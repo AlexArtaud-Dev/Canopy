@@ -116,7 +116,8 @@
     "identity_unavailable": "Ce lien ne peut pas vérifier les e-mails pour le moment : prévenez la personne qui l’a partagé.",
     "identity_needs_mail": "Vérifier l’e-mail des déposants demande que l’envoi d’e-mails soit configuré.",
     "code_invalid": "Ce code n’est pas le bon.",
-    "code_expired": "Ce code ne fonctionne plus : demandez-en un nouveau."
+    "code_expired": "Ce code ne fonctionne plus : demandez-en un nouveau.",
+    "email_unavailable": "Les e-mails de dépôt demandent l’envoi d’e-mails configuré et un e-mail de contact sur votre compte."
   },
   "commands": {
     "unknown_param": "Cette option n’existe pas pour cette commande.",

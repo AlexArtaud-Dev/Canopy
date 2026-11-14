@@ -19,6 +19,7 @@ const columns = {
   maxTotalBytes: sharesTable.maxTotalBytes,
   maxFiles: sharesTable.maxFiles,
   identity: sharesTable.identity,
+  notifyByEmail: sharesTable.notifyByEmail,
   uploadedBytes: sharesTable.uploadedBytes,
   uploadedFiles: sharesTable.uploadedFiles,
   passwordHash: sharesTable.passwordHash,
@@ -43,6 +44,7 @@ export interface ShareRow {
   maxTotalBytes: number | null;
   maxFiles: number | null;
   identity: 'none' | 'declared' | 'verified';
+  notifyByEmail: boolean;
   uploadedBytes: number;
   uploadedFiles: number;
   passwordHash: string | null;

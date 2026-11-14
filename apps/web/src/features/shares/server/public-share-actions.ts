@@ -18,6 +18,7 @@ import { verifyPassword } from '@/features/auth/server/password';
 import { isMailConfigured } from '@/features/mail/mail.utils';
 import { getMailSettings, sendMail } from '@/features/mail/server/mailer';
 import { dropOffCodeEmail } from '@/features/mail/templates/templates';
+import { notify } from '@/features/notifications/server/notifications-store';
 
 import {
   codeRefusal,
@@ -252,7 +253,15 @@ export async function prepareLinkUpload(
     }
     // A link asking nothing still groups a visit's files, so that its owner sees each drop-off.
     const dropOff = known ?? (await startDropOff(share, null));
-    await recordDropOffFile(dropOff.id, file);
+    const totals = await recordDropOffFile(dropOff.id, file);
+    // One notification per drop-off, updated as its files arrive.
+    await notify({
+      userId: share.ownerId,
+      kind: 'dropOffReceived',
+      sourceKey: `drop-off:${dropOff.id}`,
+      params: { name: dropOff.name ?? '', link: share.name, count: totals.fileCount },
+      href: `/shares?dropOffs=${share.id}`,
+    });
     (await cookies()).set(shareTicketCookie, await shareUploadTicket(share, file), {
       httpOnly: true,
       sameSite: 'strict',

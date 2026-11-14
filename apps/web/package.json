@@ -1,6 +1,6 @@
 {
   "name": "@canopy/web",
-  "version": "2026.11.20",
+  "version": "2026.11.22",
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
