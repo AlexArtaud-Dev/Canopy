@@ -134,23 +134,28 @@ export async function markVerified(dropOffId: string): Promise<void> {
     .where(eq(shareDropOffsTable.id, dropOffId));
 }
 
-/** Records one file of a drop-off as its upload starts. */
+/** Records one file of a drop-off as its upload starts; returns the drop-off's totals. */
 export async function recordDropOffFile(
   dropOffId: string,
   file: { name: string; size: number },
-): Promise<void> {
-  await getDb().transaction(async (tx) => {
+): Promise<{ fileCount: number; byteCount: number }> {
+  return getDb().transaction(async (tx) => {
     await tx
       .insert(shareDropOffFilesTable)
       .values({ dropOffId, name: file.name, bytes: file.size });
-    await tx
+    const [totals] = await tx
       .update(shareDropOffsTable)
       .set({
         fileCount: sql`${shareDropOffsTable.fileCount} + 1`,
         byteCount: sql`${shareDropOffsTable.byteCount} + ${file.size}`,
         lastUploadAt: new Date(),
       })
-      .where(eq(shareDropOffsTable.id, dropOffId));
+      .where(eq(shareDropOffsTable.id, dropOffId))
+      .returning({
+        fileCount: shareDropOffsTable.fileCount,
+        byteCount: shareDropOffsTable.byteCount,
+      });
+    return totals ?? { fileCount: 0, byteCount: 0 };
   });
 }
 

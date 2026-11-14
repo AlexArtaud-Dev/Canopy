@@ -13,7 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /** The person's share links; managers can switch to everyone's. */
-export default async function SharesPage() {
+export default async function SharesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ dropOffs?: string | string[] }>;
+}) {
+  const { dropOffs } = await searchParams;
   const [{ user }, nav, t, shares] = await Promise.all([
     requireSession(),
     getTranslations('shell.nav'),
@@ -30,7 +35,12 @@ export default async function SharesPage() {
       <main className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">{t('description')}</p>
         {shares.ok ? (
-          <SharesContainer initial={shares.data} canManage={canManage} ownerNames={ownerNames} />
+          <SharesContainer
+            initial={shares.data}
+            canManage={canManage}
+            ownerNames={ownerNames}
+            openDropOffs={typeof dropOffs === 'string' ? dropOffs : null}
+          />
         ) : (
           <ErrorState
             code={shares.error.code}

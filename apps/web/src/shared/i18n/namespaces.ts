@@ -14,6 +14,7 @@ export const namespaces = [
   'files',
   'jobs',
   'mail',
+  'notifications',
   'plugins',
   'pwa',
   'settings',

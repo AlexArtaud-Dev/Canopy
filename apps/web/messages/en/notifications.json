@@ -1,0 +1,14 @@
+{
+  "open": "Notifications",
+  "openUnread": "{count, plural, one {# unread notification} other {# unread notifications}}",
+  "title": "Notifications",
+  "description": "What happened on your links and folders.",
+  "markAllRead": "Mark all as read",
+  "emptyTitle": "Nothing new",
+  "empty": "Files received on your upload links show here.",
+  "someone": "Someone",
+  "unread": "Unread",
+  "kinds": {
+    "dropOffReceived": "{who} sent {count, plural, one {# file} other {# files}} to {link}"
+  }
+}

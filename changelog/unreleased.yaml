@@ -1,8 +1,8 @@
 entries:
   - type: feat
-    scope: shares
-    issue: 214
+    scope: web
+    issue: 215
     text:
-      en: Upload links can ask who sends files - nothing, a name and e-mail, or an e-mail verified by a code; the Shares page lists each drop-off with its files, and records can be erased.
-      fr: Les liens de dépôt peuvent demander qui envoie - rien, un nom et un e-mail, ou un e-mail vérifié par un code ; la page Partages liste chaque dépôt avec ses fichiers, et les enregistrements peuvent être effacés.
-      es: Los enlaces de depósito pueden pedir quién envía - nada, un nombre y un correo, o un correo verificado con un código; la página Compartidos lista cada depósito con sus archivos, y los registros se pueden borrar.
+      en: A bell in the header for your notifications - files received on your upload links show there, one line per drop-off, and open its history.
+      fr: Une cloche dans l’en-tête pour vos notifications - les fichiers reçus sur vos liens de dépôt s’y affichent, une ligne par dépôt, qui ouvre son historique.
+      es: Una campana en la cabecera para sus notificaciones - los archivos recibidos en sus enlaces de depósito aparecen ahí, una línea por depósito, que abre su historial.
