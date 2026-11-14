@@ -34,7 +34,8 @@ export default async function DevicesPage() {
         {failed === null && catalog.ok && devices.ok ? (
           <DevicesContainer
             kinds={kindViews(catalog.data.entries, (text) => localized(text, locale))}
-            initial={devices.data}
+            initial={devices.data.devices}
+            groups={devices.data.groups}
           />
         ) : (
           failed && (

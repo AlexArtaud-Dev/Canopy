@@ -42,6 +42,15 @@ name instead of typing addresses.
   **Forget** (confirmed; a search finds it again). Devices of a kind no installed plugin
   declares any more can only be forgotten. Audited as `devices.add`, `devices.update`,
   `devices.forget`.
+- **Who may use a device** (per device, administrators): the groups allowed on it
+  (`app.device_groups`). None checked keeps it open to everyone who may run the plugin's
+  commands; administrators use every device. A restricted device shows a **restricted** badge.
+  Forms, "Cast to…" and the default screen only offer the devices the person may use, and
+  **every run is checked on the server** (`assertDevicesAllowed`, before the engine, for forms,
+  the remote and pairing alike): a device field naming a kept device the person may not use is
+  refused with `devices.forbidden` and audited as `devices.access_denied`. Changes are audited as
+  `devices.access_update`. Only devices Canopy keeps can be restricted: a locator typed by hand
+  that names no kept device is left to the plugin.
 - **Remote** (kinds that declare `controls: { pause, resume, seek, volume, stop }`): a cast
   started from Canopy (a plugin command taking a file and a device of such a kind) is
   remembered in `app.device_runs` (a day). While its run is active, **Casting** shows in the page

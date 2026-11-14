@@ -5,7 +5,8 @@ import { AppBaseError } from '@/shared/lib/errors';
 import { audit } from '@/features/audit/server/audit-writer';
 import { requireSession } from '@/features/auth';
 
-import { defaultDeviceInputSchema, deviceKindInputSchema } from '../devices.utils';
+import { defaultDeviceInputSchema, deviceKindInputSchema, mayUseDevice } from '../devices.utils';
+import { deviceUserOf } from './device-access';
 import { findDefaultDevice, findDevice, saveDefaultDevice } from './devices-store';
 import { parse } from './plugin-runs';
 
@@ -27,6 +28,9 @@ export async function setDefaultDevice(input: unknown): Promise<ActionResult<str
       const device = await findDevice(id);
       if (device?.pluginId !== pluginId || device.kind !== kind || device.hidden) {
         throw new AppBaseError('devices.not_found', 'no such device for this kind');
+      }
+      if (!mayUseDevice(device, await deviceUserOf(session))) {
+        throw new AppBaseError('devices.forbidden', 'device not allowed');
       }
     }
     await saveDefaultDevice(session.user.id, pluginId, kind, id);

@@ -18,7 +18,7 @@ import { Label } from '@/shared/ui/label';
 import { Spinner } from '@/shared/ui/spinner';
 import { Switch } from '@/shared/ui/switch';
 import { localized } from '@/features/commands/commands.utils';
-import { DevicesContainer, type Device, type KindView } from '@/features/devices';
+import { DevicesContainer, type Device, type GroupOption, type KindView } from '@/features/devices';
 
 import { sameRepo, updateAvailable } from './plugins.utils';
 import { savableFields, type PluginSavedValues } from './saved-values.utils';
@@ -39,6 +39,8 @@ interface PluginDetailProps {
   /** The kinds of devices it finds, and the devices kept for them. */
   kinds: readonly KindView[];
   devices: readonly Device[];
+  /** The groups that may be allowed on its devices. */
+  groups: readonly GroupOption[];
   saved: PluginSavedValues;
 }
 
@@ -192,7 +194,7 @@ export function PluginDetailContainer(props: PluginDetailProps) {
             </h2>
             <p className="text-muted-foreground text-sm">{t('devicesDescription')}</p>
           </div>
-          <DevicesContainer kinds={props.kinds} initial={props.devices} />
+          <DevicesContainer kinds={props.kinds} initial={props.devices} groups={props.groups} />
         </section>
       )}
 

@@ -151,6 +151,7 @@
     "not_found": "Este dispositivo ya no está en la lista.",
     "no_pairing": "Este dispositivo no puede emparejarse desde Canopy.",
     "pairing_failed": "El emparejamiento no se completó: compruebe el código e inténtelo de nuevo.",
-    "no_control": "Esta pantalla no puede controlarse desde Canopy."
+    "no_control": "Esta pantalla no puede controlarse desde Canopy.",
+    "forbidden": "No puede usar este dispositivo: pregunte a un administrador."
   }
 }

@@ -1,7 +1,18 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Eye, EyeOff, KeyRound, MoreHorizontal, Pencil, Plus, Radar, Trash2 } from 'lucide-react';
+import {
+  Eye,
+  EyeOff,
+  KeyRound,
+  Lock,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Radar,
+  Trash2,
+  UsersRound,
+} from 'lucide-react';
 import { useFormatter, useNow, useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
@@ -36,7 +47,14 @@ import {
   type DeviceSection,
   type KindView,
 } from './devices.utils';
-import { addDevice, changeDevice, detectDevices, forgetDevice } from './server/devices-actions';
+import {
+  addDevice,
+  changeDevice,
+  changeDeviceGroups,
+  detectDevices,
+  forgetDevice,
+} from './server/devices-actions';
+import { DeviceAccessDialog, type GroupOption } from './ui/device-access-dialog';
 import { DeviceNameDialog } from './ui/device-name-dialog';
 import { PairingDialog } from './ui/pairing-dialog';
 
@@ -47,18 +65,22 @@ type Editing =
   | { kind: 'rename'; device: Device }
   | { kind: 'add'; section: DeviceSection }
   | { kind: 'forget'; device: Device }
-  | { kind: 'pair'; device: Device };
+  | { kind: 'pair'; device: Device }
+  | { kind: 'access'; device: Device };
 
 /**
  * The devices Canopy keeps, by plugin and kind: search again, add one by its address, name,
- * hide or forget one. Every change is the administrator's and is audited.
+ * hide or forget one, choose the groups allowed on it. Every change is the administrator's and is
+ * audited.
  */
 export function DevicesContainer({
   kinds,
   initial,
+  groups,
 }: {
   kinds: readonly KindView[];
   initial: readonly Device[];
+  groups: readonly GroupOption[];
 }) {
   const t = useTranslations('devices.page');
   const errorMessage = useErrorMessage();
@@ -123,6 +145,18 @@ export function DevicesContainer({
         return;
       }
       replaceKind(section.pluginId, section.kind, result.data);
+      setEditing({ kind: 'none' });
+    });
+  };
+
+  const restrict = (device: Device, groupIds: string[]) => {
+    startTransition(async () => {
+      const result = await changeDeviceGroups({ id: device.id, groupIds });
+      if (!result.ok) {
+        toast.error(errorMessage(result.error.code, result.error.params));
+        return;
+      }
+      replaceOne(result.data);
       setEditing({ kind: 'none' });
     });
   };
@@ -201,6 +235,9 @@ export function DevicesContainer({
                       onRename={() => {
                         setEditing({ kind: 'rename', device });
                       }}
+                      onAccess={() => {
+                        setEditing({ kind: 'access', device });
+                      }}
                       onToggleHidden={() => {
                         change(device, { hidden: !device.hidden });
                       }}
@@ -238,6 +275,20 @@ export function DevicesContainer({
           onPaired={replaceOne}
         />
       )}
+      {editing.kind === 'access' && (
+        <DeviceAccessDialog
+          key={editing.device.id}
+          device={editing.device}
+          groups={groups}
+          pending={pending}
+          onClose={() => {
+            setEditing({ kind: 'none' });
+          }}
+          onSubmit={(groupIds) => {
+            restrict(editing.device, groupIds);
+          }}
+        />
+      )}
       <ConfirmDialog
         open={editing.kind === 'forget'}
         title={t('forgetTitle')}
@@ -266,12 +317,14 @@ interface DeviceRowProps {
   pairable: boolean;
   onPair: () => void;
   onRename: () => void;
+  onAccess: () => void;
   onToggleHidden: () => void;
   onForget: () => void;
 }
 
 function DeviceRow(props: DeviceRowProps) {
-  const { device, manageable, pairable, onPair, onRename, onToggleHidden, onForget } = props;
+  const { device, manageable, pairable, onPair, onRename, onAccess, onToggleHidden, onForget } =
+    props;
   const t = useTranslations('devices.page');
   const format = useFormatter();
   const now = useNow({ updateInterval: nowRefreshMs }).getTime();
@@ -296,6 +349,12 @@ function DeviceRow(props: DeviceRowProps) {
           )}
           {device.needsPairing && <Badge variant="outline">{t('toPair')}</Badge>}
           {device.hidden && <Badge variant="secondary">{t('hidden')}</Badge>}
+          {device.groupIds.length > 0 && (
+            <Badge variant="outline">
+              <Lock aria-hidden />
+              {t('restricted')}
+            </Badge>
+          )}
         </p>
         {details.length > 0 && (
           <p className="text-muted-foreground truncate text-xs">{details.join(' · ')}</p>
@@ -331,6 +390,10 @@ function DeviceRow(props: DeviceRowProps) {
               <DropdownMenuItem onSelect={onRename}>
                 <Pencil aria-hidden />
                 {t('rename')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={onAccess}>
+                <UsersRound aria-hidden />
+                {t('access')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={onToggleHidden}>
                 {device.hidden ? <Eye aria-hidden /> : <EyeOff aria-hidden />}

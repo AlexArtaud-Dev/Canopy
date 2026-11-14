@@ -1,11 +1,17 @@
 import 'server-only';
 
-import { and, count, desc, eq, gte, lt, sql } from 'drizzle-orm';
+import { and, count, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm';
 
 import { getDb } from '@/shared/db/client';
+import { groupMembersTable } from '@/features/access/server/access.schema';
 
 import type { DetectedDevice, Device } from '../devices.utils';
-import { defaultDevicesTable, deviceRunsTable, pluginDevicesTable } from './devices.schema';
+import {
+  defaultDevicesTable,
+  deviceGroupsTable,
+  deviceRunsTable,
+  pluginDevicesTable,
+} from './devices.schema';
 
 const columns = {
   id: pluginDevicesTable.id,
@@ -22,14 +28,29 @@ const columns = {
   lastSeen: pluginDevicesTable.lastSeen,
 };
 
-type Row = Omit<Device, 'lastSeen'> & { lastSeen: Date | string | null };
+type Row = Omit<Device, 'lastSeen' | 'groupIds'> & { lastSeen: Date | string | null };
 
-function toDevice(row: Row): Device {
-  const { lastSeen } = row;
-  return {
+/** The rows as devices, with their allowed groups read in one query. */
+async function toDevices(rows: readonly Row[]): Promise<Device[]> {
+  if (rows.length === 0) return [];
+  const links = await getDb()
+    .select({ deviceId: deviceGroupsTable.deviceId, groupId: deviceGroupsTable.groupId })
+    .from(deviceGroupsTable)
+    .where(
+      inArray(
+        deviceGroupsTable.deviceId,
+        rows.map((row) => row.id),
+      ),
+    );
+  const groups = new Map<string, string[]>();
+  for (const { deviceId, groupId } of links) {
+    groups.set(deviceId, [...(groups.get(deviceId) ?? []), groupId]);
+  }
+  return rows.map((row) => ({
     ...row,
-    lastSeen: lastSeen === null ? null : new Date(lastSeen).toISOString(),
-  };
+    lastSeen: row.lastSeen === null ? null : new Date(row.lastSeen).toISOString(),
+    groupIds: groups.get(row.id) ?? [],
+  }));
 }
 
 /** The devices kept for a plugin's kind, or for every plugin when none is named. */
@@ -42,7 +63,7 @@ export async function listDevices(pluginId?: string, kind?: string): Promise<Dev
     .select(columns)
     .from(pluginDevicesTable)
     .where(filters.length > 0 ? and(...filters) : undefined);
-  return rows.map(toDevice);
+  return toDevices(rows);
 }
 
 export async function findDevice(id: string): Promise<Device | null> {
@@ -50,7 +71,30 @@ export async function findDevice(id: string): Promise<Device | null> {
     .select(columns)
     .from(pluginDevicesTable)
     .where(eq(pluginDevicesTable.id, id));
-  return row ? toDevice(row) : null;
+  if (!row) return null;
+  const [device] = await toDevices([row]);
+  return device ?? null;
+}
+
+/** Replaces the groups allowed to use a device; none opens it to everyone. */
+export async function saveDeviceGroups(id: string, groupIds: readonly string[]): Promise<void> {
+  await getDb().transaction(async (tx) => {
+    await tx.delete(deviceGroupsTable).where(eq(deviceGroupsTable.deviceId, id));
+    if (groupIds.length === 0) return;
+    await tx
+      .insert(deviceGroupsTable)
+      .values(groupIds.map((groupId) => ({ deviceId: id, groupId })))
+      .onConflictDoNothing();
+  });
+}
+
+/** The groups a person belongs to, which decide the devices they may use. */
+export async function listMemberGroupIds(userId: string): Promise<Set<string>> {
+  const rows = await getDb()
+    .select({ groupId: groupMembersTable.groupId })
+    .from(groupMembersTable)
+    .where(eq(groupMembersTable.userId, userId));
+  return new Set(rows.map((row) => row.groupId));
 }
 
 export async function countDevices(pluginId: string, kind: string): Promise<number> {

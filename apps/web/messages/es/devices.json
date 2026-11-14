@@ -31,7 +31,9 @@
     "nameHelp": "Vacío, recupera el nombre que anuncia.",
     "cancel": "Cancelar",
     "save": "Guardar",
-    "pair": "Emparejar"
+    "pair": "Emparejar",
+    "restricted": "restringido",
+    "access": "Quién puede usarlo"
   },
   "pairing": {
     "title": "Emparejar {name}",
@@ -65,5 +67,16 @@
       "buffering": "cargando",
       "idle": "terminando"
     }
+  },
+  "access": {
+    "title": "Quién puede usar {name}",
+    "description": "Solo los miembros de los grupos marcados lo eligen y transmiten a él; los administradores siempre pueden.",
+    "groups": "Grupos",
+    "open": "Ningún grupo marcado: cualquiera que pueda ejecutar los comandos del plugin lo usa.",
+    "restricted": "{count, plural, one {# grupo permitido.} other {# grupos permitidos.}}",
+    "noGroups": "Todavía no hay ningún grupo.",
+    "createGroups": "Crear grupos",
+    "cancel": "Cancelar",
+    "save": "Guardar"
   }
 }

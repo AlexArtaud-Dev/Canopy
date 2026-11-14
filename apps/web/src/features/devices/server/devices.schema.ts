@@ -1,6 +1,7 @@
 import { boolean, index, primaryKey, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 
 import { appSchema } from '@/shared/db/schemas.schema';
+import { groupsTable } from '@/features/access/server/access.schema';
 import { usersTable } from '@/features/auth/server/auth.schema';
 
 /**
@@ -72,4 +73,24 @@ export const deviceRunsTable = appSchema.table(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index('device_runs_user_idx').on(table.userId, table.createdAt)],
+);
+
+/**
+ * The groups allowed to use a device (cast to a screen). A device without any row is open to
+ * everyone who may run the plugin's commands; administrators use every device.
+ */
+export const deviceGroupsTable = appSchema.table(
+  'device_groups',
+  {
+    deviceId: uuid('device_id')
+      .notNull()
+      .references(() => pluginDevicesTable.id, { onDelete: 'cascade' }),
+    groupId: uuid('group_id')
+      .notNull()
+      .references(() => groupsTable.id, { onDelete: 'cascade' }),
+  },
+  (table) => [
+    primaryKey({ columns: [table.deviceId, table.groupId] }),
+    index('device_groups_group_idx').on(table.groupId),
+  ],
 );
