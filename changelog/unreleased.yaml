@@ -1,8 +1,1 @@
-entries:
-  - type: feat
-    scope: web
-    issue: 217
-    text:
-      en: Install Canopy as an app - from the account menu (or Add to Home Screen on iPhone), with its own icon and full screen, and a clear page when the server cannot be reached.
-      fr: Installez Canopy comme une application - depuis le menu du compte (ou Sur l’écran d’accueil sur iPhone), avec sa propre icône et en plein écran, et une page claire quand le serveur est injoignable.
-      es: Instale Canopy como una aplicación - desde el menú de la cuenta (o Añadir a pantalla de inicio en iPhone), con su propio icono y a pantalla completa, y una página clara cuando el servidor no responde.
+entries: []
