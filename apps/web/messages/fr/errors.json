@@ -150,6 +150,7 @@
     "already_kept": "Cet appareil est déjà dans la liste.",
     "not_found": "Cet appareil n’est plus dans la liste.",
     "no_pairing": "Cet appareil ne peut pas être jumelé depuis Canopy.",
-    "pairing_failed": "Le jumelage n’a pas abouti : vérifiez le code et réessayez."
+    "pairing_failed": "Le jumelage n’a pas abouti : vérifiez le code et réessayez.",
+    "no_control": "Cet écran ne peut pas être piloté depuis Canopy."
   }
 }

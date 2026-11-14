@@ -113,16 +113,29 @@ func toCommandEntry(entry commands.Entry) api.CommandEntry {
 		if len(entry.Plugin.Devices) > 0 {
 			devices := make([]api.DeviceKind, 0, len(entry.Plugin.Devices))
 			for _, device := range entry.Plugin.Devices {
-				kind := api.DeviceKind{Kind: device.Kind, Name: localized(device.Name), Detect: device.Detect}
-				if device.Pair != nil {
-					kind.Pair = &api.DevicePairing{Start: device.Pair.Start, Code: device.Pair.Code}
-				}
-				devices = append(devices, kind)
+				devices = append(devices, toDeviceKind(device))
 			}
 			converted.Plugin.Devices = &devices
 		}
 	}
 	return converted
+}
+
+func toDeviceKind(device commands.DeviceKind) api.DeviceKind {
+	kind := api.DeviceKind{Kind: device.Kind, Name: localized(device.Name), Detect: device.Detect}
+	if device.Pair != nil {
+		kind.Pair = &api.DevicePairing{Start: device.Pair.Start, Code: device.Pair.Code}
+	}
+	if controls := device.Controls; controls != nil {
+		kind.Controls = &api.DeviceControls{Pause: controls.Pause, Resume: controls.Resume, Stop: controls.Stop}
+		if controls.Seek != "" {
+			kind.Controls.Seek = &controls.Seek
+		}
+		if controls.Volume != "" {
+			kind.Controls.Volume = &controls.Volume
+		}
+	}
+	return kind
 }
 
 func localized(text commands.Text) api.LocalizedText {

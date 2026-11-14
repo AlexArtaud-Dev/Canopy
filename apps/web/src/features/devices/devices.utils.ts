@@ -228,3 +228,69 @@ export function kindViews(entries: readonly CommandEntry[], localize: Localize):
   }
   return [...views.values()];
 }
+
+/** Where a cast is, as its plugin reports it beside the percentage. */
+export interface CastState {
+  state: 'playing' | 'paused' | 'buffering' | 'idle';
+  /** Seconds into the film. */
+  position: number;
+  /** Seconds; null when the screen does not say. */
+  duration: number | null;
+  /** 0-100; null when the screen does not say (Apple TV). */
+  volume: number | null;
+}
+
+/** Seconds of a clock (`90`, `4:11`, `1:02:03`); null when it is not one. */
+export function parseClock(text: string): number | null {
+  if (!/^\d{1,3}(:\d{2}){0,2}$/.test(text)) return null;
+  return text.split(':').reduce((total, part) => total * 60 + Number(part), 0);
+}
+
+/** A clock for people: `4:11`, or `1:02:03` past an hour. */
+export function formatClock(seconds: number): string {
+  const whole = Math.max(0, Math.floor(seconds));
+  const hours = Math.floor(whole / 3600);
+  const minutes = Math.floor((whole % 3600) / 60);
+  const rest = String(whole % 60).padStart(2, '0');
+  return hours > 0 ? `${hours}:${String(minutes).padStart(2, '0')}:${rest}` : `${minutes}:${rest}`;
+}
+
+const states = new Set(['playing', 'paused', 'buffering', 'idle']);
+
+/**
+ * Reads a cast's detail (`0:04:11 / 0:09:56 playing vol 18`, or `0:04:11 paused` when the
+ * length is unknown); null when the plugin said nothing readable.
+ */
+export function parseCastDetail(detail: string | undefined): CastState | null {
+  const match = /^(\S+)(?: \/ (\S+))? (\w+)(?: vol (\d{1,3}))?$/.exec(detail?.trim() ?? '');
+  if (!match?.[1] || !match[3] || !states.has(match[3])) return null;
+  const position = parseClock(match[1]);
+  if (position === null) return null;
+  return {
+    state: match[3] as CastState['state'],
+    position,
+    duration: match[2] === undefined ? null : parseClock(match[2]),
+    volume: match[4] === undefined ? null : Math.min(100, Number(match[4])),
+  };
+}
+
+/** A cast started from Canopy, to remember for the remote. */
+export const rememberRunInputSchema = z.object({
+  jobId: z.uuid(),
+  pluginId: z.string().regex(/^[a-z][a-z0-9-]{1,31}$/),
+  kind: z.string().regex(/^[a-z][a-z0-9-]{0,31}$/),
+  locator: z.string().min(1).max(512),
+  file: z.string().min(1).max(4096),
+});
+
+/** What a remote button asks for. */
+export const controlInputSchema = z.discriminatedUnion('action', [
+  z.object({ jobId: z.uuid(), action: z.enum(['pause', 'resume', 'stop']) }),
+  z.object({ jobId: z.uuid(), action: z.literal('seek'), seconds: z.number().min(0).max(359_999) }),
+  z.object({
+    jobId: z.uuid(),
+    action: z.literal('volume'),
+    level: z.number().int().min(0).max(100),
+  }),
+]);
+export type ControlInput = z.infer<typeof controlInputSchema>;

@@ -615,8 +615,20 @@ type DeletePlan struct {
 	Limits    TrashLimits `json:"limits"`
 }
 
+// DeviceControls Commands a remote runs on a device that plays: each takes the device; seek a position (1:02:03), volume a level (0-100).
+type DeviceControls struct {
+	Pause  string  `json:"pause"`
+	Resume string  `json:"resume"`
+	Seek   *string `json:"seek,omitempty"`
+	Stop   string  `json:"stop"`
+	Volume *string `json:"volume,omitempty"`
+}
+
 // DeviceKind defines model for DeviceKind.
 type DeviceKind struct {
+	// Controls Commands a remote runs on a device that plays: each takes the device; seek a position (1:02:03), volume a level (0-100).
+	Controls *DeviceControls `json:"controls,omitempty"`
+
 	// Detect The command listing the devices, one `locator<TAB>label[<TAB>key=value;key=value]` line each (`type`, `model`, `pairing=needed`).
 	Detect string        `json:"detect"`
 	Kind   string        `json:"kind"`

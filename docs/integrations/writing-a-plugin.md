@@ -83,6 +83,12 @@ devices:
     pair: { start: mytool.pair, code: mytool.pair-code } # optional
 ```
 
+Declare `controls: { pause, resume, seek, volume, stop }` (commands of yours taking the device;
+seek a position, volume a level) and print `NN% <detail>` lines with a `(?P<detail>…)` group in
+`progressPattern` (`0:04:11 / 0:09:56 playing vol 18`): Canopy then offers a remote for what your
+long-running command plays. Your control commands must reach the run that plays (dapple hands
+them over through a file in `CANOPY_PLUGIN_DATA`).
+
 A string param with `device: screen` (instead of `choicesFrom`) then takes one of them; your
 command receives the locator. See [devices](../features/devices.md). Needs Canopy 2026.11.11 or
 later.

@@ -45,5 +45,25 @@
     "cancel": "Annuler",
     "retry": "Réessayer",
     "confirm": "Jumeler"
+  },
+  "remote": {
+    "title": "En diffusion",
+    "open": "Ouvrir la télécommande ({count} en cours)",
+    "description": "Ce qui joue sur vos écrans, et ses commandes.",
+    "starting": "démarrage…",
+    "position": "Position dans le film",
+    "back": "Reculer de {seconds} s",
+    "forward": "Avancer de {seconds} s",
+    "pause": "Pause",
+    "resume": "Lecture",
+    "stop": "Arrêter",
+    "volume": "Volume",
+    "volumeOnScreen": "Le volume de cet écran se règle avec sa propre télécommande.",
+    "state": {
+      "playing": "en lecture",
+      "paused": "en pause",
+      "buffering": "chargement",
+      "idle": "fin"
+    }
   }
 }

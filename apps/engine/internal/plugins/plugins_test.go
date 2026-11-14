@@ -306,9 +306,13 @@ func TestManifestDevices(t *testing.T) {
 		return strings.Replace(base, "DEVICE", device, 1) + devices
 	}
 	const screens = "devices:\n  - kind: screen\n    name: { en: Screens, fr: Écrans, es: Pantallas }\n    detect: mrename.list\n"
-	manifest, err := ParseManifest([]byte(with("screen", screens+"    pair: { start: mrename.list, code: mrename.rename }\n")))
+	controls := "    controls: { pause: mrename.list, resume: mrename.list, stop: mrename.rename, volume: mrename.list }\n"
+	manifest, err := ParseManifest([]byte(with("screen", screens+"    pair: { start: mrename.list, code: mrename.rename }\n"+controls)))
 	if err != nil {
 		t.Fatalf("valid devices: %v", err)
+	}
+	if got := manifest.Devices[0].Controls; len(got.Commands()) != 4 || got.Seek != "" {
+		t.Fatalf("controls: %+v", got)
 	}
 	if len(manifest.Devices) != 1 || manifest.Devices[0].Pair.Code != "mrename.rename" || manifest.Commands[0].Params[0].Device != "screen" {
 		t.Fatalf("devices: %+v", manifest.Devices)
@@ -321,6 +325,8 @@ func TestManifestDevices(t *testing.T) {
 		"name":            with("screen", strings.Replace(screens, "es: Pantallas", "es: ''", 1)),
 		"detect":          with("screen", strings.Replace(screens, "detect: mrename.list", "detect: other.list", 1)),
 		"pair":            with("screen", screens+"    pair: { start: mrename.list, code: mrename.missing }\n"),
+		"controls short":  with("screen", screens+"    controls: { pause: mrename.list, resume: mrename.list }\n"),
+		"controls other":  with("screen", screens+"    controls: { pause: mrename.list, resume: mrename.list, stop: mrename.list, seek: other.seek }\n"),
 		"not a string":    strings.Replace(with("screen", screens), "type: string, device", "type: int, device", 1),
 	}
 	for name, text := range bad {

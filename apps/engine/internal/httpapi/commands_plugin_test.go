@@ -14,13 +14,16 @@ func TestCommandEntryNamesItsPlugin(t *testing.T) {
 	fromPlugin := toCommandEntry(commands.Entry{
 		ID: "tool.run", Mode: commands.ModeBasic,
 		Plugin: &commands.PluginRef{ID: "tool", Name: commands.Text{En: "Tool", Fr: "Outil", Es: "Herramienta"}, Devices: []commands.DeviceKind{
-			{Kind: "screen", Name: commands.Text{En: "Screens", Fr: "Écrans", Es: "Pantallas"}, Detect: "tool.list", Pair: &commands.DevicePairing{Start: "tool.pair", Code: "tool.code"}},
+			{Kind: "screen", Name: commands.Text{En: "Screens", Fr: "Écrans", Es: "Pantallas"}, Detect: "tool.list", Pair: &commands.DevicePairing{Start: "tool.pair", Code: "tool.code"}, Controls: &commands.DeviceControls{Pause: "tool.pause", Resume: "tool.resume", Stop: "tool.stop", Seek: "tool.seek"}},
 			{Kind: "speaker", Detect: "tool.speakers"},
 		}},
 		Params: []commands.Param{{Name: "screen", Type: commands.TypeString, Device: "screen"}},
 	})
 	if devices := fromPlugin.Plugin.Devices; devices == nil || len(*devices) != 2 || (*devices)[0].Pair == nil || (*devices)[0].Pair.Code != "tool.code" || (*devices)[1].Pair != nil {
 		t.Fatalf("devices: %+v", fromPlugin.Plugin.Devices)
+	}
+	if controls := (*fromPlugin.Plugin.Devices)[0].Controls; controls == nil || controls.Seek == nil || *controls.Seek != "tool.seek" || controls.Volume != nil || (*fromPlugin.Plugin.Devices)[1].Controls != nil {
+		t.Fatalf("controls: %+v", controls)
 	}
 	if device := fromPlugin.Params[0].Device; device == nil || *device != "screen" {
 		t.Fatalf("device param: %+v", fromPlugin.Params[0])

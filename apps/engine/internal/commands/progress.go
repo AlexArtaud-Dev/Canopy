@@ -11,6 +11,9 @@ type Reading struct {
 	Percent *float64
 	Bytes   *int64
 	Items   *int64
+	// Detail is what the tool says beside the percentage ("0:04:11 / 0:09:56 playing"), from a
+	// (?P<detail>…) group of the entry's pattern.
+	Detail *string
 }
 
 // Parser reads progress from output lines, one at a time.
@@ -54,6 +57,9 @@ func (rsyncParser) Read(line string) Reading {
 	return Reading{Percent: &percent, Bytes: &bytes}
 }
 
+// maxDetail bounds what a tool's detail adds to its job (it is stored with the progress).
+const maxDetail = 200
+
 type regexParser struct{ pattern *regexp.Regexp }
 
 func (p regexParser) Read(line string) Reading {
@@ -65,7 +71,15 @@ func (p regexParser) Read(line string) Reading {
 	if err != nil || percent < 0 || percent > 100 {
 		return Reading{}
 	}
-	return Reading{Percent: &percent}
+	reading := Reading{Percent: &percent}
+	if index := p.pattern.SubexpIndex("detail"); index >= 0 {
+		detail := strings.TrimSpace(match[index])
+		if len(detail) > maxDetail {
+			detail = detail[:maxDetail]
+		}
+		reading.Detail = &detail
+	}
+	return reading
 }
 
 // lineCounter counts output lines as items (tools that print one line per file).

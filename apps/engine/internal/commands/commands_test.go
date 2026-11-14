@@ -2,6 +2,7 @@ package commands
 
 import (
 	"errors"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -237,6 +238,16 @@ func TestParsers(t *testing.T) {
 	}
 	if percent.Read("nothing").Percent != nil || percent.Read("150%").Percent != nil {
 		t.Fatal("regex misses")
+	}
+	if got := percent.Read("done 73% now"); got.Detail != nil {
+		t.Fatalf("no detail group, no detail: %+v", got)
+	}
+	detailed := NewParser(Entry{ProgressParser: ParserPercentRegex, progress: regexp.MustCompile(`^(?P<percent>\d+)% (?P<detail>.*)$`)})
+	if got := detailed.Read("42% 0:04:11 / 0:09:56 playing vol 18 "); got.Detail == nil || *got.Detail != "0:04:11 / 0:09:56 playing vol 18" {
+		t.Fatalf("detail: %+v", got)
+	}
+	if got := detailed.Read("1% " + strings.Repeat("x", 500)); len(*got.Detail) != maxDetail {
+		t.Fatalf("detail bounded: %d", len(*got.Detail))
 	}
 	counter := NewParser(Entry{ProgressParser: ParserLineCount})
 	counter.Read("a")

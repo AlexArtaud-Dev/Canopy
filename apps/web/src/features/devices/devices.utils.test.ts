@@ -2,6 +2,11 @@ import type { CommandEntry } from '@canopy/contracts';
 
 import {
   addDeviceInputSchema,
+  controlInputSchema,
+  formatClock,
+  parseCastDetail,
+  parseClock,
+  rememberRunInputSchema,
   confirmPairingInputSchema,
   defaultDeviceInputSchema,
   startingDevice,
@@ -241,5 +246,55 @@ describe('search results', () => {
       device({}),
     ];
     expect(foundSince(list, now - 60_000)).toBe(1);
+  });
+});
+
+describe('casts', () => {
+  it('read clocks and say them', () => {
+    expect(parseClock('90')).toBe(90);
+    expect(parseClock('4:11')).toBe(251);
+    expect(parseClock('1:02:03')).toBe(3723);
+    expect(parseClock('x')).toBeNull();
+    expect(formatClock(251.9)).toBe('4:11');
+    expect(formatClock(3723)).toBe('1:02:03');
+    expect(formatClock(-5)).toBe('0:00');
+  });
+
+  it('read what a cast reports', () => {
+    expect(parseCastDetail('0:04:11 / 0:09:56 playing vol 18')).toEqual({
+      state: 'playing',
+      position: 251,
+      duration: 596,
+      volume: 18,
+    });
+    expect(parseCastDetail('0:00:05 paused')).toEqual({
+      state: 'paused',
+      position: 5,
+      duration: null,
+      volume: null,
+    });
+    expect(parseCastDetail('0:00:05 / 0:01:00 buffering vol 250')?.volume).toBe(100);
+    expect(parseCastDetail(undefined)).toBeNull();
+    expect(parseCastDetail('0:00:05 dancing')).toBeNull();
+    expect(parseCastDetail('soon playing')).toBeNull();
+  });
+
+  it('take controls and runs to remember only in shape', () => {
+    const jobId = '00000000-0000-4000-8000-000000000000';
+    expect(controlInputSchema.safeParse({ jobId, action: 'pause' }).success).toBe(true);
+    expect(controlInputSchema.safeParse({ jobId, action: 'seek', seconds: 90 }).success).toBe(true);
+    expect(controlInputSchema.safeParse({ jobId, action: 'volume', level: 101 }).success).toBe(
+      false,
+    );
+    expect(controlInputSchema.safeParse({ jobId, action: 'eject' }).success).toBe(false);
+    const run = {
+      jobId,
+      pluginId: 'dapple',
+      kind: 'screen',
+      locator: 'airplay://1',
+      file: '/a.mkv',
+    };
+    expect(rememberRunInputSchema.safeParse(run).success).toBe(true);
+    expect(rememberRunInputSchema.safeParse({ ...run, pluginId: 'X' }).success).toBe(false);
   });
 });

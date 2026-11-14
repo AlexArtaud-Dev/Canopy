@@ -52,3 +52,24 @@ export const defaultDevicesTable = appSchema.table(
   },
   (table) => [primaryKey({ columns: [table.userId, table.pluginId, table.kind] })],
 );
+
+/**
+ * Casts started from Canopy: which run plays on which device, so that the remote can find what
+ * plays and drive it. Kept a day; the run itself (state, progress) lives with the engine's job.
+ */
+export const deviceRunsTable = appSchema.table(
+  'device_runs',
+  {
+    jobId: uuid('job_id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => usersTable.id, { onDelete: 'cascade' }),
+    pluginId: text('plugin_id').notNull(),
+    kind: text('kind').notNull(),
+    locator: text('locator').notNull(),
+    /** The file played (a virtual path), shown on the remote. */
+    file: text('file').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('device_runs_user_idx').on(table.userId, table.createdAt)],
+);

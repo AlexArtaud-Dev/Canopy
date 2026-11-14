@@ -63,6 +63,7 @@ export type {
   CreateFolderResponses,
   DecidingGrant,
   DeletePlan,
+  DeviceControls,
   DeviceKind,
   DevicePairing,
   DirectoryEntry,

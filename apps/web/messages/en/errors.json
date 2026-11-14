@@ -150,6 +150,7 @@
     "already_kept": "This device is already in the list.",
     "not_found": "This device is no longer in the list.",
     "no_pairing": "This device cannot be paired from Canopy.",
-    "pairing_failed": "The pairing did not succeed: check the code and try again."
+    "pairing_failed": "The pairing did not succeed: check the code and try again.",
+    "no_control": "This screen cannot be driven from Canopy."
   }
 }

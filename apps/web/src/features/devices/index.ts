@@ -1,5 +1,7 @@
 export { devicesModule } from './devices.module';
 export { DevicesContainer } from './devices.container';
+export { RemoteContainer } from './remote.container';
+export { castsQueryKey } from './model/use-casts';
 export {
   deviceName,
   isOnline,

@@ -143,6 +143,24 @@ type DeviceKind struct {
 	Detect string `yaml:"detect"`
 	// Pair, when set, names the commands that pair a device that asks for it.
 	Pair *DevicePairing `yaml:"pair,omitempty"`
+	// Controls, when set, names the commands driving what a device plays: Canopy's remote runs
+	// them with the device (and a position or a level).
+	Controls *DeviceControls `yaml:"controls,omitempty"`
+}
+
+// DeviceControls names a plugin's commands for a remote; each takes the device, seek a position
+// (1:02:03) and volume a level (0-100).
+type DeviceControls struct {
+	Pause  string `yaml:"pause"`
+	Resume string `yaml:"resume"`
+	Seek   string `yaml:"seek,omitempty"`
+	Volume string `yaml:"volume,omitempty"`
+	Stop   string `yaml:"stop"`
+}
+
+// Commands lists the control commands that are set.
+func (c DeviceControls) Commands() []string {
+	return slices.DeleteFunc([]string{c.Pause, c.Resume, c.Seek, c.Volume, c.Stop}, func(id string) bool { return id == "" })
 }
 
 // DevicePairing names the command starting a pairing (it shows a code on the device and waits)

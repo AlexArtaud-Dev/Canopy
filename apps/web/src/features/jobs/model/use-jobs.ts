@@ -25,6 +25,12 @@ export function useJob(id: string | null): Job | undefined {
   return id === null ? undefined : query.data?.find((job) => job.id === id);
 }
 
+/** The person's recent jobs, kept live by the operations panel's event stream. */
+export function useJobList(): readonly Job[] {
+  const query = useQuery({ queryKey: jobsQueryKey, queryFn: fetchJobs });
+  return query.data ?? [];
+}
+
 /** Event stream relayed by the web app (the engine token never reaches the browser). */
 const eventsUrl = '/api/engine/v1/jobs/events';
 

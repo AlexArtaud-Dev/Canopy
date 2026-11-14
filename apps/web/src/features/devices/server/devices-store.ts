@@ -1,11 +1,11 @@
 import 'server-only';
 
-import { and, count, eq, sql } from 'drizzle-orm';
+import { and, count, desc, eq, gte, lt, sql } from 'drizzle-orm';
 
 import { getDb } from '@/shared/db/client';
 
 import type { DetectedDevice, Device } from '../devices.utils';
-import { defaultDevicesTable, pluginDevicesTable } from './devices.schema';
+import { defaultDevicesTable, deviceRunsTable, pluginDevicesTable } from './devices.schema';
 
 const columns = {
   id: pluginDevicesTable.id,
@@ -185,4 +185,55 @@ export async function saveDefaultDevice(
       target: [defaultDevicesTable.userId, defaultDevicesTable.pluginId, defaultDevicesTable.kind],
       set: { deviceId },
     });
+}
+
+/** A cast started from Canopy, as the remote reads it. */
+export interface DeviceRun {
+  jobId: string;
+  pluginId: string;
+  kind: string;
+  locator: string;
+  file: string;
+}
+
+export async function insertRun(userId: string, run: DeviceRun): Promise<void> {
+  await getDb()
+    .insert(deviceRunsTable)
+    .values({ userId, ...run })
+    .onConflictDoNothing();
+}
+
+/** A person's casts started since `since`, the latest first. */
+export async function listRuns(userId: string, since: Date): Promise<DeviceRun[]> {
+  return getDb()
+    .select({
+      jobId: deviceRunsTable.jobId,
+      pluginId: deviceRunsTable.pluginId,
+      kind: deviceRunsTable.kind,
+      locator: deviceRunsTable.locator,
+      file: deviceRunsTable.file,
+    })
+    .from(deviceRunsTable)
+    .where(and(eq(deviceRunsTable.userId, userId), gte(deviceRunsTable.createdAt, since)))
+    .orderBy(desc(deviceRunsTable.createdAt))
+    .limit(50);
+}
+
+export async function findRun(userId: string, jobId: string): Promise<DeviceRun | null> {
+  const [run] = await getDb()
+    .select({
+      jobId: deviceRunsTable.jobId,
+      pluginId: deviceRunsTable.pluginId,
+      kind: deviceRunsTable.kind,
+      locator: deviceRunsTable.locator,
+      file: deviceRunsTable.file,
+    })
+    .from(deviceRunsTable)
+    .where(and(eq(deviceRunsTable.userId, userId), eq(deviceRunsTable.jobId, jobId)));
+  return run ?? null;
+}
+
+/** Forgets casts older than `before`: the remote only looks at the last day. */
+export async function purgeRuns(before: Date): Promise<void> {
+  await getDb().delete(deviceRunsTable).where(lt(deviceRunsTable.createdAt, before));
 }

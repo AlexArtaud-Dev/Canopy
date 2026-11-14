@@ -42,3 +42,10 @@ name instead of typing addresses.
   **Forget** (confirmed; a search finds it again). Devices of a kind no installed plugin
   declares any more can only be forgotten. Audited as `devices.add`, `devices.update`,
   `devices.forget`.
+- **Remote** (kinds that declare `controls: { pause, resume, seek, volume, stop }`): a cast
+  started from Canopy (a plugin command taking a file and a device of such a kind) is
+  remembered in `app.device_runs` (a day). While its run is active, **Casting** shows in the page
+  header and opens the remote: the run's progress detail (`0:04:11 / 0:09:56 playing vol 18`,
+  from a `(?P<detail>…)` group of the plugin's progress pattern) gives position, state and
+  volume; buttons run the control commands (`sendControl`, as the person, with the device and a
+  position or a level), kept out of the operations panel unless they fail.

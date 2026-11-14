@@ -1891,6 +1891,20 @@ components:
           type: string
         pair:
           $ref: '#/components/schemas/DevicePairing'
+        controls:
+          $ref: '#/components/schemas/DeviceControls'
+    DeviceControls:
+      description: >-
+        Commands a remote runs on a device that plays: each takes the device; seek a position
+        (1:02:03), volume a level (0-100).
+      type: object
+      required: [pause, resume, stop]
+      properties:
+        pause: { type: string }
+        resume: { type: string }
+        seek: { type: string }
+        volume: { type: string }
+        stop: { type: string }
     DevicePairing:
       description: Commands pairing a device that asks for it, the code shown on it handed by the second.
       type: object
