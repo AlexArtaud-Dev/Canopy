@@ -74,10 +74,12 @@ test('copy and move run as operations and land where asked', async ({ page }) =>
   await mover.getByRole('button', { name: 'Move here' }).click();
   await expect(row(page, 'moved.txt')).toBeHidden();
   await expect(row(page, 'copied.txt')).toBeVisible();
-
-  await openFolder(page, `/${volume}/${folder}/inner`);
+  // The move runs as an operation: look again until it has landed.
+  await expect(async () => {
+    await openFolder(page, `/${volume}/${folder}/inner`);
+    await expect(row(page, 'moved.txt')).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 20_000 });
   await expect(row(page, 'copied.txt')).toBeVisible();
-  await expect(row(page, 'moved.txt')).toBeVisible();
 });
 
 test('delete goes to the trash and restores', async ({ page }) => {
