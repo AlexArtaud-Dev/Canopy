@@ -14,10 +14,13 @@ import {
   resolveShared,
   shareStatus,
   tokenSchema,
+  type DropOffState,
+  type ShareIdentity,
   type ShareStatus,
   type UploadRules,
   type UploadUsage,
 } from '../shares.utils';
+import { currentDropOff, dropOffState } from './drop-offs';
 import { engineClientForShare } from './share-engine';
 import { findShareByTokenHash, touchShare, type ShareRow } from './share-store';
 import { hashShareToken, unlockPurpose } from './share-tokens';
@@ -55,6 +58,9 @@ export type PublicShare =
       item: SharedItem;
       rules: UploadRules;
       usage: UploadUsage;
+      /** What the link asks of depositors, and what this visitor already gave. */
+      identity: ShareIdentity;
+      depositor: DropOffState | null;
     }
   | {
       state: 'open';
@@ -147,6 +153,8 @@ export async function loadPublicShare(token: string, relative: string): Promise<
         maxFiles: share.maxFiles,
       },
       usage: { uploadedBytes: share.uploadedBytes, uploadedFiles: share.uploadedFiles },
+      identity: share.identity,
+      depositor: dropOffState(await currentDropOff(share), new Date()),
     };
   }
   let path = '/';

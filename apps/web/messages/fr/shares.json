@@ -25,7 +25,13 @@
     "maxFileMb": "Max par fichier (Mo)",
     "maxTotalMb": "Max au total (Mo)",
     "maxFiles": "Fichiers max",
-    "noLimit": "Sans limite"
+    "noLimit": "Sans limite",
+    "identity": "Demander aux déposants",
+    "identityNone": "Rien",
+    "identityDeclared": "Leur nom et leur e-mail",
+    "identityVerified": "Leur nom et un e-mail vérifié par un code",
+    "identityHint": "Avec un e-mail vérifié, les déposants saisissent un code reçu avant de pouvoir envoyer.",
+    "identityNeedsMail": "Vérifier les e-mails demande que l’envoi d’e-mails soit configuré par un administrateur."
   },
   "page": {
     "description": "Les liens que vous avez créés vers des fichiers et dossiers. Un lien cesse de fonctionner lorsqu’il expire, atteint sa limite de téléchargements ou est révoqué.",
@@ -57,7 +63,8 @@
     "revoked": "Lien révoqué",
     "kindDownload": "Téléchargement",
     "kindUpload": "Dépôt",
-    "received": "{count, plural, one {# fichier reçu} other {# fichiers reçus}} · {size}"
+    "received": "{count, plural, one {# fichier reçu} other {# fichiers reçus}} · {size}",
+    "dropOffs": "{count, plural, one {# dépôt sur {name}} other {# dépôts sur {name}}}"
   },
   "public": {
     "title": "Partagé avec vous",
@@ -90,6 +97,31 @@
     "spaceLeft": "Encore {size} peuvent être envoyés.",
     "waiting": "En attente…",
     "sent": "Envoyé",
-    "sending": "Envoi de {name}"
+    "sending": "Envoi de {name}",
+    "sendingAs": "Envoi au nom de {name} ({email})",
+    "depositor": {
+      "intro": "Avant d’envoyer des fichiers, indiquez qui vous êtes à la personne qui a partagé ce lien.",
+      "introVerified": "Avant d’envoyer des fichiers, indiquez qui vous êtes à la personne qui a partagé ce lien. Un code est envoyé à votre e-mail pour le confirmer.",
+      "name": "Votre nom",
+      "email": "Votre e-mail",
+      "privacy": "Visible par la personne qui a partagé ce lien, avec ce que vous envoyez.",
+      "continue": "Continuer",
+      "sendCode": "M’envoyer un code",
+      "codeSent": "Un code a été envoyé à {email}. Saisissez-le ci-dessous (vérifiez vos indésirables s’il n’arrive pas).",
+      "code": "Code",
+      "confirm": "Confirmer",
+      "resend": "Envoyer un nouveau code"
+    }
+  },
+  "dropOffs": {
+    "title": "Dépôts sur {name}",
+    "description": "Qui a envoyé des fichiers par ce lien, quand, et lesquels.",
+    "emptyTitle": "Rien reçu pour l’instant",
+    "empty": "Chaque visite qui envoie des fichiers apparaît ici.",
+    "anonymous": "Anonyme",
+    "verified": "E-mail vérifié",
+    "summary": "{count, plural, one {# fichier} other {# fichiers}} · {size} · {date}",
+    "erase": "Effacer l’enregistrement de {name}",
+    "erased": "Enregistrement effacé. Les fichiers restent dans le dossier."
   }
 }

@@ -36,7 +36,16 @@ import { LinkUpload } from './ui/link-upload';
 export function PublicShareContainer({ token, share }: { token: string; share: PublicShare }) {
   if (share.state === 'locked') return <Unlock token={token} item={share.item} />;
   if (share.state === 'upload') {
-    return <LinkUpload token={token} item={share.item} rules={share.rules} usage={share.usage} />;
+    return (
+      <LinkUpload
+        token={token}
+        item={share.item}
+        rules={share.rules}
+        usage={share.usage}
+        identity={share.identity}
+        depositor={share.depositor}
+      />
+    );
   }
   if (share.state !== 'open') return <Unavailable state={share.state} />;
   return <Shared token={token} share={share} />;

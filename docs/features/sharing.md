@@ -25,6 +25,18 @@
   it only for that name and size, into that folder, once (`docs/dev/permissions.md` rule 7).
 - The Shares page shows each link's type and, for upload links, files and bytes received.
   Audit: `shares.upload` per file, plus the engine's `fs.upload` with `meta.share`.
+- **Depositor identity** (per link, _Ask depositors_): nothing, a declared name and e-mail, or a
+  name and an e-mail **verified by a 6-digit code** (15 minutes, 5 tries, at most 5 codes per link
+  and address per 15 minutes). The verified level is greyed out until e-mail is set up. Until the
+  visitor gives what is asked, the page shows the form instead of the drop zone and
+  `prepareLinkUpload` refuses with `shares.identity_required`.
+- **Drop-offs** (`app.share_drop_offs`, `app.share_drop_off_files`): each visit that sends files
+  is one drop-off (cookie `canopy_sd_<id>`, sealed, for the visit), anonymous on links asking
+  nothing. The Shares page's **inbox** button on an upload link lists who sent what and when; a
+  record can be erased (`shares.drop_off_erase`), the files stay. Records are forgotten after
+  _Keep drop-off history_ (Settings › Share links, 180 days by default). Audit:
+  `shares.drop_off_start`, `shares.drop_off_verify`, and `shares.upload` carries the drop-off and
+  the depositor's e-mail.
 
 ## How it is secured
 

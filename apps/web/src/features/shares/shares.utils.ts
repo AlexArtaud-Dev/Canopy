@@ -31,6 +31,66 @@ export function shareStatus(share: ShareLimits, now: Date): ShareStatus {
   return 'active';
 }
 
+/**
+ * What an upload link asks of depositors before they send anything: nothing, a name and an
+ * e-mail they declare, or an e-mail they prove with a code sent to it.
+ */
+export const shareIdentities = ['none', 'declared', 'verified'] as const;
+export type ShareIdentity = (typeof shareIdentities)[number];
+
+/** Digits of the code proving a depositor's e-mail. */
+export const dropOffCodeLength = 6;
+/** How long that code works. */
+export const dropOffCodeTtlMs = 15 * 60_000;
+/** Wrong codes allowed before the depositor must ask for a new one. */
+export const dropOffCodeAttempts = 5;
+
+export const depositorSchema = z.object({
+  token: z.string().max(64),
+  name: z.string().trim().min(1).max(120),
+  email: z.email().max(254),
+});
+
+export const dropOffCodeSchema = z.object({
+  token: z.string().max(64),
+  code: z.string().regex(new RegExp(`^[0-9]{${String(dropOffCodeLength)}}$`)),
+});
+
+/** A depositor as the visit knows them (none yet for a link asking nothing). */
+export interface DropOffState {
+  name: string | null;
+  email: string | null;
+  verified: boolean;
+  /** A code was sent and not typed yet. */
+  codePending: boolean;
+}
+
+/** What stands between a visitor and sending files through the link. */
+export type DropOffStep = 'identity' | 'code' | 'ready';
+
+export function dropOffStep(identity: ShareIdentity, dropOff: DropOffState | null): DropOffStep {
+  if (identity === 'none') return 'ready';
+  if (!dropOff?.email) return 'identity';
+  if (identity === 'declared' || dropOff.verified) return 'ready';
+  return dropOff.codePending ? 'code' : 'identity';
+}
+
+/** Why a typed code is refused, or null when it is the right one in time. */
+export function codeRefusal(
+  pending: { codeExpiresAt: Date | null; codeAttempts: number },
+  matches: boolean,
+  now: Date,
+): 'shares.code_expired' | 'shares.code_invalid' | null {
+  if (
+    pending.codeExpiresAt === null ||
+    pending.codeExpiresAt <= now ||
+    pending.codeAttempts >= dropOffCodeAttempts
+  ) {
+    return 'shares.code_expired';
+  }
+  return matches ? null : 'shares.code_invalid';
+}
+
 /** What an upload link accepts (null: no limit). */
 export interface UploadRules {
   /** Lowercase extensions without the dot; null accepts any type. */
@@ -128,8 +188,15 @@ export const createShareSchema = z.object({
       maxFileMb: z.number().int().min(1).max(10_000_000).nullable().default(null),
       maxTotalMb: z.number().int().min(1).max(10_000_000).nullable().default(null),
       maxFiles: z.number().int().min(1).max(1_000_000).nullable().default(null),
+      identity: z.enum(shareIdentities).default('none'),
     })
-    .default({ extensions: '', maxFileMb: null, maxTotalMb: null, maxFiles: null }),
+    .default({
+      extensions: '',
+      maxFileMb: null,
+      maxTotalMb: null,
+      maxFiles: null,
+      identity: 'none',
+    }),
 });
 export type CreateShareInput = z.infer<typeof createShareSchema>;
 

@@ -111,7 +111,12 @@
     "file_too_large": "This file is larger than this link accepts.",
     "total_exceeded": "This link cannot receive that much more.",
     "files_exceeded": "This link cannot receive more files.",
-    "upload_failed": "The file could not be sent. Try again."
+    "upload_failed": "The file could not be sent. Try again.",
+    "identity_required": "Tell who you are before sending files.",
+    "identity_unavailable": "This link cannot verify e-mails right now: ask the person who shared it.",
+    "identity_needs_mail": "Verifying depositors' e-mails needs e-mail to be set up.",
+    "code_invalid": "This code is not the right one.",
+    "code_expired": "This code no longer works: ask for a new one."
   },
   "commands": {
     "unknown_param": "This option does not exist for this command.",

@@ -111,7 +111,12 @@
     "file_too_large": "Este archivo supera el tamaño que acepta este enlace.",
     "total_exceeded": "Este enlace no puede recibir tantos datos más.",
     "files_exceeded": "Este enlace no puede recibir más archivos.",
-    "upload_failed": "No se pudo enviar el archivo. Inténtalo de nuevo."
+    "upload_failed": "No se pudo enviar el archivo. Inténtalo de nuevo.",
+    "identity_required": "Indique quién es antes de enviar archivos.",
+    "identity_unavailable": "Este enlace no puede verificar correos ahora: avise a quien lo compartió.",
+    "identity_needs_mail": "Verificar el correo de quien deposita requiere configurar el envío de correos.",
+    "code_invalid": "Este código no es el correcto.",
+    "code_expired": "Este código ya no funciona: pida uno nuevo."
   },
   "commands": {
     "unknown_param": "Esta opción no existe para este comando.",

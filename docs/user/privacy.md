@@ -14,6 +14,11 @@ needs to work.
 - **Emails** sent to you (invitations, password resets, security notices), kept for a limited time
   (90 days by default).
 
+**People sending files through an upload link** are not accounts. When the link asks, Canopy
+keeps their name and e-mail with the list of files they sent (and whether the e-mail was verified),
+visible to the link's owner. These records are deleted after 180 days by default (Settings › Share
+links), with the link, or when the owner (or an administrator) erases one: ask them to.
+
 Canopy does not read or store the contents of your files beyond what the folders you browse
 contain, and it does not track you or share anything with third parties. The only optional outside
 call is the breached-password check, which sends 5 characters of a hash, never your password.

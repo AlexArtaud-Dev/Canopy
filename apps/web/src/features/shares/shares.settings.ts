@@ -10,10 +10,13 @@ export const sharesSettings = defineSettings({
     maxExpiryDays: z.number().int().min(1).max(3650).default(90),
     /** Every new link must have a password. */
     requirePassword: z.boolean().default(false),
+    /** Who sent files through upload links (names, e-mails) is forgotten after this long. */
+    dropOffRetentionDays: z.number().int().min(1).max(3650).default(180),
   }),
   fields: {
     defaultExpiryDays: { group: 'links' },
     maxExpiryDays: { group: 'links' },
     requirePassword: { group: 'links' },
+    dropOffRetentionDays: { group: 'privacy' },
   },
 });

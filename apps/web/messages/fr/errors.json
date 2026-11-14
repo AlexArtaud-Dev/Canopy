@@ -111,7 +111,12 @@
     "file_too_large": "Ce fichier dépasse la taille acceptée par ce lien.",
     "total_exceeded": "Ce lien ne peut pas recevoir autant de données en plus.",
     "files_exceeded": "Ce lien ne peut plus recevoir de fichiers.",
-    "upload_failed": "Le fichier n’a pas pu être envoyé. Réessayez."
+    "upload_failed": "Le fichier n’a pas pu être envoyé. Réessayez.",
+    "identity_required": "Indiquez qui vous êtes avant d’envoyer des fichiers.",
+    "identity_unavailable": "Ce lien ne peut pas vérifier les e-mails pour le moment : prévenez la personne qui l’a partagé.",
+    "identity_needs_mail": "Vérifier l’e-mail des déposants demande que l’envoi d’e-mails soit configuré.",
+    "code_invalid": "Ce code n’est pas le bon.",
+    "code_expired": "Ce code ne fonctionne plus : demandez-en un nouveau."
   },
   "commands": {
     "unknown_param": "Cette option n’existe pas pour cette commande.",

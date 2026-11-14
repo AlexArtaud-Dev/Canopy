@@ -171,6 +171,10 @@
       "requirePassword": {
         "label": "Exiger un mot de passe",
         "description": "Chaque nouveau lien doit être protégé par un mot de passe."
+      },
+      "dropOffRetentionDays": {
+        "label": "Conserver l’historique des dépôts (jours)",
+        "description": "Qui a envoyé des fichiers par les liens de dépôt, et quoi (noms, e-mails, noms de fichiers), est oublié après ce délai. Les fichiers restent."
       }
     },
     "commands": {

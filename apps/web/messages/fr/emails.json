@@ -1,7 +1,8 @@
 {
   "footer": {
     "admin": "Vous recevez cet e-mail parce qu’un administrateur de votre instance Canopy l’a envoyé.",
-    "account": "Vous recevez cet e-mail suite à une activité sur votre compte Canopy. Si ce n’était pas vous, contactez votre administrateur."
+    "account": "Vous recevez cet e-mail suite à une activité sur votre compte Canopy. Si ce n’était pas vous, contactez votre administrateur.",
+    "dropOff": "Vous recevez cet e-mail car cette adresse a été saisie sur une page de dépôt Canopy."
   },
   "test": {
     "subject": "E-mail de test Canopy",
@@ -49,5 +50,13 @@
       "title": "Nouvelle connexion, {name}",
       "body": "Votre compte Canopy vient d’être utilisé pour se connecter depuis un appareil ou une adresse inhabituels."
     }
+  },
+  "dropOffCode": {
+    "subject": "Votre code pour envoyer des fichiers : {code}",
+    "title": "Votre code : {code}",
+    "preheader": "Saisissez-le sur la page de dépôt pour envoyer vos fichiers.",
+    "body": "Vous avez demandé à envoyer des fichiers par le lien « {name} ». Saisissez ce code sur la page de dépôt pour confirmer votre adresse e-mail.",
+    "expiry": "Le code est valable 15 minutes.",
+    "ignore": "Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail : rien n’est envoyé sans le code."
   }
 }
