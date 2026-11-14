@@ -1,8 +1,1 @@
-entries:
-  - type: fix
-    scope: web
-    issue: 239
-    text:
-      en: A tab left open across an update reloads itself instead of failing, side panels reach the bottom of the screen, and the sidebar only unfolds the section of the current page.
-      fr: Un onglet resté ouvert pendant une mise à jour se recharge au lieu d’échouer, les panneaux latéraux vont jusqu’en bas de l’écran, et la barre latérale ne déplie que la section de la page ouverte.
-      es: Una pestaña abierta durante una actualización se recarga en lugar de fallar, los paneles laterales llegan al final de la pantalla, y la barra lateral solo despliega la sección de la página abierta.
+entries: []
