@@ -31,7 +31,11 @@
     "identityDeclared": "Their name and e-mail",
     "identityVerified": "Their name and an e-mail verified by a code",
     "identityHint": "With a verified e-mail, depositors type a code sent to them before sending anything.",
-    "identityNeedsMail": "Verifying e-mails needs e-mail to be set up by an administrator."
+    "identityNeedsMail": "Verifying e-mails needs e-mail to be set up by an administrator.",
+    "notifyByEmail": "E-mail me at each drop-off",
+    "notifyHint": "One e-mail per drop-off, once the depositor is done, to your contact e-mail.",
+    "notifyNeedsMail": "E-mails need e-mail to be set up by an administrator.",
+    "notifyNeedsContact": "Add a contact e-mail to your account to receive them."
   },
   "page": {
     "description": "Links you created to files and folders. A link stops working when it expires, reaches its download limit or is revoked.",

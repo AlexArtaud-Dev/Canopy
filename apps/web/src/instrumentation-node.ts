@@ -2,6 +2,7 @@ import { deliverDueMail, purgeOldMail } from '@/features/mail/server/mailer';
 import { getSettings } from '@/features/settings/server/settings-store';
 import { systemSettings } from '@/features/system/system.settings';
 import { purgeExpiredAuditEvents } from '@/features/audit/server/audit-retention';
+import { sendDueDropOffEmails } from '@/features/shares/server/drop-off-emails';
 import { runMigrations } from '@/shared/db/migrate';
 import { logger } from '@/shared/lib/logger';
 
@@ -25,6 +26,7 @@ export async function startNodeServer(): Promise<void> {
   await runMigrations();
   // Instances coordinate through advisory locks, so every instance may run these.
   every(mailSweepIntervalMs, deliverDueMail, 'mail sweep');
+  every(mailSweepIntervalMs, sendDueDropOffEmails, 'drop-off e-mails');
   every(auditPurgeIntervalMs, purgeExpiredAuditEvents, 'audit purge', true);
   every(
     auditPurgeIntervalMs,

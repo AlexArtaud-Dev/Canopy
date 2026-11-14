@@ -25,6 +25,9 @@ import {
   dropOffCodeLength,
   dropOffCodeTtlMs,
   shareIdentities,
+  dropOffEmailDue,
+  dropOffEmailFileLimit,
+  dropOffQuietMs,
 } from './shares.utils';
 
 const now = new Date('2026-01-10T00:00:00Z');
@@ -94,6 +97,7 @@ describe('inputs', () => {
         maxTotalMb: null,
         maxFiles: null,
         identity: 'none',
+        notifyByEmail: false,
       },
     });
     expect(
@@ -222,5 +226,34 @@ describe('depositors', () => {
         upload: { identity: 'verified' },
       }).data?.upload.identity,
     ).toBe('verified');
+  });
+});
+
+describe('drop-off e-mails', () => {
+  const now = new Date('2026-11-14T12:00:00Z');
+  const quietSince = new Date(now.getTime() - dropOffQuietMs);
+  const busy = new Date(now.getTime() - dropOffQuietMs + 1000);
+
+  it('waits until the depositor is done, then tells about new files once', () => {
+    expect(
+      dropOffEmailDue({ fileCount: 3, emailedFileCount: 0, lastUploadAt: quietSince }, now),
+    ).toBe(true);
+    expect(dropOffEmailDue({ fileCount: 3, emailedFileCount: 0, lastUploadAt: busy }, now)).toBe(
+      false,
+    );
+    expect(
+      dropOffEmailDue({ fileCount: 3, emailedFileCount: 3, lastUploadAt: quietSince }, now),
+    ).toBe(false);
+    expect(
+      dropOffEmailDue({ fileCount: 5, emailedFileCount: 3, lastUploadAt: quietSince }, now),
+    ).toBe(true);
+    expect(dropOffEmailDue({ fileCount: 0, emailedFileCount: 0, lastUploadAt: null }, now)).toBe(
+      false,
+    );
+  });
+
+  it('lists a handful of names and waits two minutes', () => {
+    expect(dropOffEmailFileLimit).toBe(20);
+    expect(dropOffQuietMs).toBe(120_000);
   });
 });

@@ -103,3 +103,40 @@ export async function dropOffCodeEmail(
     footer: t('footer.dropOff'),
   });
 }
+
+/** Tells a link's owner that files arrived through their upload link (one per drop-off). */
+export async function dropOffReceivedEmail(
+  locale: string | null | undefined,
+  values: {
+    name: string | null;
+    email: string | null;
+    verified: boolean;
+    link: string;
+    count: number;
+    files: readonly string[];
+    url: string;
+  },
+): Promise<RenderedEmail> {
+  const t = await translatorFor(locale);
+  const who = values.name ?? t('dropOffReceived.someone');
+  const title = t('dropOffReceived.subject', { who, count: values.count, link: values.link });
+  const from =
+    values.name !== null && values.email !== null
+      ? t(values.verified ? 'dropOffReceived.fromVerified' : 'dropOffReceived.from', {
+          name: values.name,
+          email: values.email,
+        })
+      : t('dropOffReceived.anonymous');
+  const more = values.count - values.files.length;
+  const names = [
+    values.files.join(', '),
+    ...(more > 0 ? [t('dropOffReceived.more', { count: more })] : []),
+  ].join(' ');
+  return renderEmail(title, {
+    title,
+    preheader: t('dropOffReceived.preheader'),
+    paragraphs: [from, t('dropOffReceived.files', { names })],
+    action: { label: t('dropOffReceived.action'), url: values.url },
+    footer: t('dropOffReceived.footer'),
+  });
+}

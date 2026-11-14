@@ -116,7 +116,8 @@
     "identity_unavailable": "Este enlace no puede verificar correos ahora: avise a quien lo compartió.",
     "identity_needs_mail": "Verificar el correo de quien deposita requiere configurar el envío de correos.",
     "code_invalid": "Este código no es el correcto.",
-    "code_expired": "Este código ya no funciona: pida uno nuevo."
+    "code_expired": "Este código ya no funciona: pida uno nuevo.",
+    "email_unavailable": "Los correos de depósito requieren el envío de correos configurado y un correo de contacto en su cuenta."
   },
   "commands": {
     "unknown_param": "Esta opción no existe para este comando.",

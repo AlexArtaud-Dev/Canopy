@@ -58,5 +58,17 @@
     "body": "Vous avez demandé à envoyer des fichiers par le lien « {name} ». Saisissez ce code sur la page de dépôt pour confirmer votre adresse e-mail.",
     "expiry": "Le code est valable 15 minutes.",
     "ignore": "Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail : rien n’est envoyé sans le code."
+  },
+  "dropOffReceived": {
+    "subject": "{who} a envoyé {count, plural, one {# fichier} other {# fichiers}} dans {link}",
+    "preheader": "Des fichiers sont arrivés par votre lien de dépôt.",
+    "from": "De {name} ({email}).",
+    "fromVerified": "De {name} ({email}, vérifié).",
+    "anonymous": "La personne n’a pas indiqué qui elle est.",
+    "someone": "Quelqu’un",
+    "files": "Fichiers : {names}",
+    "more": "{count, plural, one {+# autre} other {+# autres}}",
+    "action": "Voir le dépôt",
+    "footer": "Vous recevez cet e-mail car vous avez demandé à être prévenu des dépôts sur ce lien. Pour l’arrêter, recréez le lien sans cette option."
   }
 }

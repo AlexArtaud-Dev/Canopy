@@ -31,7 +31,11 @@
     "identityDeclared": "Su nombre y su correo",
     "identityVerified": "Su nombre y un correo verificado con un código",
     "identityHint": "Con un correo verificado, quien deposita escribe un código recibido antes de enviar nada.",
-    "identityNeedsMail": "Verificar correos requiere que un administrador configure el envío de correos."
+    "identityNeedsMail": "Verificar correos requiere que un administrador configure el envío de correos.",
+    "notifyByEmail": "Enviarme un correo en cada depósito",
+    "notifyHint": "Un correo por depósito, cuando la persona termine, a su correo de contacto.",
+    "notifyNeedsMail": "Los correos requieren que un administrador configure el envío de correos.",
+    "notifyNeedsContact": "Añada un correo de contacto a su cuenta para recibirlos."
   },
   "page": {
     "description": "Los enlaces que creaste a archivos y carpetas. Un enlace deja de funcionar cuando caduca, alcanza su límite de descargas o se revoca.",

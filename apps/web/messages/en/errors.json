@@ -116,7 +116,8 @@
     "identity_unavailable": "This link cannot verify e-mails right now: ask the person who shared it.",
     "identity_needs_mail": "Verifying depositors' e-mails needs e-mail to be set up.",
     "code_invalid": "This code is not the right one.",
-    "code_expired": "This code no longer works: ask for a new one."
+    "code_expired": "This code no longer works: ask for a new one.",
+    "email_unavailable": "Drop-off e-mails need e-mail to be set up and a contact e-mail on your account."
   },
   "commands": {
     "unknown_param": "This option does not exist for this command.",

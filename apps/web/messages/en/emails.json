@@ -58,5 +58,17 @@
     "body": "You asked to send files through the link “{name}”. Type this code on the upload page to confirm your e-mail address.",
     "expiry": "The code works for 15 minutes.",
     "ignore": "If you did not ask for it, ignore this email: nothing is sent without the code."
+  },
+  "dropOffReceived": {
+    "subject": "{who} sent {count, plural, one {# file} other {# files}} to {link}",
+    "preheader": "Files arrived through your upload link.",
+    "from": "From {name} ({email}).",
+    "fromVerified": "From {name} ({email}, verified).",
+    "anonymous": "The depositor did not say who they are.",
+    "someone": "Someone",
+    "files": "Files: {names}",
+    "more": "{count, plural, one {+# more} other {+# more}}",
+    "action": "See the drop-off",
+    "footer": "You receive this email because you asked to be told about drop-offs on this link. Turn it off by creating the link again without it."
   }
 }

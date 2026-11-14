@@ -189,6 +189,7 @@ export const createShareSchema = z.object({
       maxTotalMb: z.number().int().min(1).max(10_000_000).nullable().default(null),
       maxFiles: z.number().int().min(1).max(1_000_000).nullable().default(null),
       identity: z.enum(shareIdentities).default('none'),
+      notifyByEmail: z.boolean().default(false),
     })
     .default({
       extensions: '',
@@ -196,6 +197,7 @@ export const createShareSchema = z.object({
       maxTotalMb: null,
       maxFiles: null,
       identity: 'none',
+      notifyByEmail: false,
     }),
 });
 export type CreateShareInput = z.infer<typeof createShareSchema>;
@@ -232,4 +234,25 @@ export function sharedCrumbs(relative: string): { name: string; path: string }[]
 
 export function shareLink(origin: string, token: string): string {
   return `${origin.replace(/\/+$/, '')}/s/${token}`;
+}
+
+/** A drop-off is over once nothing arrived for this long: its owner gets one e-mail, not one per file. */
+export const dropOffQuietMs = 2 * 60_000;
+
+/** File names an owner's e-mail lists; the count stays exact beyond. */
+export const dropOffEmailFileLimit = 20;
+
+/**
+ * Whether the owner should be e-mailed about a drop-off now: files they were not told about yet,
+ * and the depositor done (nothing new for a while).
+ */
+export function dropOffEmailDue(
+  dropOff: { fileCount: number; emailedFileCount: number; lastUploadAt: Date | null },
+  now: Date,
+): boolean {
+  return (
+    dropOff.fileCount > dropOff.emailedFileCount &&
+    dropOff.lastUploadAt !== null &&
+    now.getTime() - dropOff.lastUploadAt.getTime() >= dropOffQuietMs
+  );
 }
