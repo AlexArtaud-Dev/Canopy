@@ -99,6 +99,14 @@
       "mailRetentionDays": {
         "label": "Conserver les e-mails envoyés (jours)",
         "description": "Destinataire, objet et contenu des e-mails envoyés ou en échec sont supprimés après ce délai."
+      },
+      "metricsRawHours": {
+        "label": "Conserver les métriques détaillées (heures)",
+        "description": "Les tableaux de bord lisent les valeurs relevées toutes les 30 secondes pendant cette durée."
+      },
+      "metricsHourlyDays": {
+        "label": "Conserver les métriques horaires (jours)",
+        "description": "Puis leurs moyennes horaires, pendant cette durée."
       }
     },
     "appearance": {

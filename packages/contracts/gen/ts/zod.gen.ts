@@ -2,6 +2,35 @@
 
 import * as z from 'zod';
 
+export const zMetricDefinition = z.object({
+  name: z.string(),
+  family: z.enum(['system', 'storage', 'operations']),
+  unit: z.enum(['percent', 'bytes', 'bytesPerSecond', 'count']),
+  series: z.boolean(),
+});
+
+export const zMetricCatalog = z.object({
+  metrics: z.array(zMetricDefinition),
+});
+
+export const zMetricPoint = z.object({
+  at: z.iso.datetime(),
+  avg: z.number(),
+  min: z.number(),
+  max: z.number(),
+});
+
+export const zMetricSeriesPoints = z.object({
+  name: z.string(),
+  points: z.array(zMetricPoint),
+});
+
+export const zMetricSeries = z.object({
+  metric: zMetricDefinition,
+  bucketSeconds: z.int(),
+  series: z.array(zMetricSeriesPoints),
+});
+
 export const zLivenessStatus = z.object({
   status: z.enum(['ok']),
 });
@@ -775,3 +804,20 @@ export const zStartEmptyTrashBody = zTrashIdsRequest;
  * The job was queued.
  */
 export const zStartEmptyTrashResponse = zJob;
+
+/**
+ * The readable metrics, in the order dashboards offer them.
+ */
+export const zListMetricsResponse = zMetricCatalog;
+
+export const zQueryMetricQuery = z.object({
+  metric: z.string().max(64),
+  from: z.iso.datetime(),
+  to: z.iso.datetime(),
+  points: z.int().gte(1).lte(1000).optional().default(120),
+});
+
+/**
+ * The metric's series.
+ */
+export const zQueryMetricResponse = zMetricSeries;

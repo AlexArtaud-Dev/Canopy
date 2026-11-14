@@ -54,6 +54,8 @@ type Deps struct {
 	HostPaths    HostPaths
 	// Plugins manages installed plugins (administrators only).
 	Plugins Plugins
+	// Metrics answers dashboard queries (nil: no metric is sampled).
+	Metrics Metrics
 	// StreamsDone closes when the server shuts down, ending event streams that would otherwise
 	// hold the shutdown open.
 	StreamsDone <-chan struct{}

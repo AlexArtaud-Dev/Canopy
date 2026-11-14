@@ -4,6 +4,44 @@ export type ClientOptions = {
   baseUrl: 'http://localhost:8080' | (string & {});
 };
 
+export type MetricDefinition = {
+  name: string;
+  family: 'system' | 'storage' | 'operations';
+  unit: 'percent' | 'bytes' | 'bytesPerSecond' | 'count';
+  /**
+   * One series per thing (a volume) rather than a single one.
+   */
+  series: boolean;
+};
+
+export type MetricCatalog = {
+  metrics: Array<MetricDefinition>;
+};
+
+export type MetricPoint = {
+  /**
+   * Start of the bucket.
+   */
+  at: string;
+  avg: number;
+  min: number;
+  max: number;
+};
+
+export type MetricSeriesPoints = {
+  /**
+   * The series (a volume's name), empty for a single-series metric.
+   */
+  name: string;
+  points: Array<MetricPoint>;
+};
+
+export type MetricSeries = {
+  metric: MetricDefinition;
+  bucketSeconds: number;
+  series: Array<MetricSeriesPoints>;
+};
+
 export type LivenessStatus = {
   status: 'ok';
 };
@@ -1757,3 +1795,70 @@ export type StartEmptyTrashResponses = {
 };
 
 export type StartEmptyTrashResponse = StartEmptyTrashResponses[keyof StartEmptyTrashResponses];
+
+export type ListMetricsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v1/metrics';
+};
+
+export type ListMetricsErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+};
+
+export type ListMetricsError = ListMetricsErrors[keyof ListMetricsErrors];
+
+export type ListMetricsResponses = {
+  /**
+   * The readable metrics, in the order dashboards offer them.
+   */
+  200: MetricCatalog;
+};
+
+export type ListMetricsResponse = ListMetricsResponses[keyof ListMetricsResponses];
+
+export type QueryMetricData = {
+  body?: never;
+  path?: never;
+  query: {
+    metric: string;
+    from: string;
+    to: string;
+    points?: number;
+  };
+  url: '/v1/metrics/series';
+};
+
+export type QueryMetricErrors = {
+  /**
+   * A range that ends before it starts or spans more than two years (`metrics.invalid_range`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * The caller may not read this metric's family (`metrics.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such metric (`metrics.unknown`).
+   */
+  404: Error;
+};
+
+export type QueryMetricError = QueryMetricErrors[keyof QueryMetricErrors];
+
+export type QueryMetricResponses = {
+  /**
+   * The metric's series.
+   */
+  200: MetricSeries;
+};
+
+export type QueryMetricResponse = QueryMetricResponses[keyof QueryMetricResponses];

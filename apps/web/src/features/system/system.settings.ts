@@ -8,10 +8,16 @@ export const systemSettings = defineSettings({
     maintenance: z.boolean().default(false),
     /** Sent and failed emails (recipient, subject, body) are deleted after this many days. */
     mailRetentionDays: z.number().int().min(7).max(3650).default(90),
+    /** Dashboard values every 30 s are kept this long (the engine reads it, same bounds). */
+    metricsRawHours: z.number().int().min(1).max(168).default(24),
+    /** Their hourly averages are kept this long. */
+    metricsHourlyDays: z.number().int().min(1).max(730).default(30),
   }),
   fields: {
     // Local-only: an administrator outside the network could otherwise lock themselves out.
     maintenance: { group: 'maintenance', localOnly: true, env: 'CANOPY_MAINTENANCE' },
     mailRetentionDays: { group: 'privacy' },
+    metricsRawHours: { group: 'retention' },
+    metricsHourlyDays: { group: 'retention' },
   },
 });

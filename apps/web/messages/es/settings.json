@@ -99,6 +99,14 @@
       "mailRetentionDays": {
         "label": "Conservar correos enviados (días)",
         "description": "Destinatario, asunto y contenido de los correos enviados o fallidos se borran pasado este plazo."
+      },
+      "metricsRawHours": {
+        "label": "Conservar las métricas detalladas (horas)",
+        "description": "Los paneles leen los valores tomados cada 30 segundos durante este tiempo."
+      },
+      "metricsHourlyDays": {
+        "label": "Conservar las métricas por hora (días)",
+        "description": "Después sus medias por hora, durante este tiempo."
       }
     },
     "appearance": {
