@@ -3,5 +3,12 @@
     "title": "Canopy cannot be reached",
     "description": "The server does not answer: check your connection, or that the server is running, then try again.",
     "retry": "Try again"
+  },
+  "shared": {
+    "title": "{count, plural, one {# file shared from your phone} other {# files shared from your phone}}",
+    "pick": "Open the folder where they go, then upload them.",
+    "notHere": "You cannot upload into this folder: open another one.",
+    "upload": "Upload here",
+    "discard": "Discard"
   }
 }

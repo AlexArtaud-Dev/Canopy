@@ -19,6 +19,26 @@ export function findAppIcon(file: string): (typeof appIcons)[number] | undefined
   return appIcons.find((icon) => icon.file === file);
 }
 
+/** Where the phone's share sheet posts files; the service worker answers it. */
+export const shareTargetPath = '/share-target';
+
+/** The cache holding files shared from the phone until the person puts them in a folder. */
+export const sharedFilesCacheName = 'canopy-shared-files';
+
+/** The header carrying a shared file's name (encoded: names are not header-safe). */
+export const sharedFileNameHeader = 'x-canopy-file-name';
+
+/** The cache key of the n-th shared file, in the order the phone sent them. */
+export function sharedFileKey(index: number): string {
+  return `/shared-files/${index}`;
+}
+
+/** The order of a shared file from its cache key; -1 for anything else. */
+export function sharedFileIndex(url: string): number {
+  const match = /\/shared-files\/(\d+)$/.exec(url);
+  return match ? Number(match[1]) : -1;
+}
+
 /** What the manifest says in the person's language. */
 export interface ManifestTexts {
   description: string;
@@ -49,6 +69,13 @@ export function buildManifest(texts: ManifestTexts, lang: string): MetadataRoute
       type: 'image/png',
       purpose: icon.maskable ? 'maskable' : 'any',
     })),
+    // Android lists Canopy in the share sheet once installed; the service worker keeps the files.
+    share_target: {
+      action: shareTargetPath,
+      method: 'POST',
+      enctype: 'multipart/form-data',
+      params: { files: [{ name: 'files', accept: ['*/*'] }] },
+    },
     shortcuts: [
       { name: texts.files, url: '/' },
       { name: texts.shares, url: '/shares' },

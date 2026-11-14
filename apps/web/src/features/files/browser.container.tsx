@@ -44,6 +44,7 @@ import {
   usePluginCommands,
 } from '@/features/commands';
 import { startFolderSize } from '@/features/jobs';
+import { SharedFilesBanner } from '@/features/pwa';
 import { ShareDialog } from '@/features/shares';
 import { DeleteDialogs, useDeleteFlow } from '@/features/trash';
 import { filesFromDrop, filesFromInput, useUploadFlow } from '@/features/uploads';
@@ -449,6 +450,12 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
       }}
     >
       <div className="flex min-h-0 flex-1 flex-col">
+        <SharedFilesBanner
+          canUpload={canUpload}
+          onUpload={(files) => {
+            uploads.start(files.map((file) => ({ file, relativeDir: '' })));
+          }}
+        />
         <BrowserToolbar
           canUpload={canUpload}
           onUploadFiles={() => filesInput.current?.click()}

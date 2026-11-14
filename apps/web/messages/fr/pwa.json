@@ -3,5 +3,12 @@
     "title": "Canopy est injoignable",
     "description": "Le serveur ne répond pas : vérifiez votre connexion, ou que le serveur est démarré, puis réessayez.",
     "retry": "Réessayer"
+  },
+  "shared": {
+    "title": "{count, plural, one {# fichier partagé depuis votre téléphone} other {# fichiers partagés depuis votre téléphone}}",
+    "pick": "Ouvrez le dossier où les ranger, puis envoyez-les.",
+    "notHere": "Vous ne pouvez pas envoyer dans ce dossier : ouvrez-en un autre.",
+    "upload": "Envoyer ici",
+    "discard": "Ignorer"
   }
 }
