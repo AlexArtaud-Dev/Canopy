@@ -35,7 +35,7 @@ import { appRegistry } from '@/modules';
 import type { GlobalPermission, NavEntry } from '@/shared/modules/module.types';
 import type { NavNode } from '@/shared/modules/registry';
 
-import { useClosedSections } from '../model/use-closed-sections';
+import { useOpenedSections } from '../model/use-opened-sections';
 import { isNavItemActive } from '../shell.nav';
 import { BrandMark } from './brand-mark';
 
@@ -53,7 +53,7 @@ export function AppSidebar({ footer, afterWorkspace, grantedPermissions }: AppSi
   const t = useTranslations('shell');
   const pathname = usePathname();
   const { isMobile, setOpenMobile, state } = useSidebar();
-  const { closed, setOpen } = useClosedSections();
+  const { opened, setOpen } = useOpenedSections();
   const navGroups = appRegistry.navigation((permission) => grantedPermissions.includes(permission));
   const iconsOnly = state === 'collapsed' && !isMobile;
   // On phones the sidebar is a sheet: close it once a destination is picked.
@@ -110,8 +110,8 @@ export function AppSidebar({ footer, afterWorkspace, grantedPermissions }: AppSi
     const label = t(`sections.${section.id}`);
     const active = section.entries.some(isActive);
     if (iconsOnly) return sectionMenu(section, label, active);
-    // The section holding the current page always shows it.
-    const open = active || !closed.has(section.id);
+    // Folded by default to keep the sidebar short; the section holding the current page shows.
+    const open = active || opened.has(section.id);
     return (
       <Collapsible
         key={section.id}

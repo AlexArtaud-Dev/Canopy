@@ -1,12 +1,24 @@
+import { readFileSync } from 'node:fs';
+
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
+import { z } from 'zod';
 
 import { staticSecurityHeaders } from './src/shared/security/csp';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n.request.ts');
 
+/**
+ * Each release is a deployment: a tab opened on an older one is hard-reloaded on its next
+ * navigation instead of calling server actions the new server no longer knows.
+ */
+const { version } = z
+  .object({ version: z.string().min(1) })
+  .parse(JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')));
+
 const nextConfig: NextConfig = {
   output: 'standalone',
+  deploymentId: version,
   poweredByHeader: false,
   reactStrictMode: true,
   typedRoutes: true,

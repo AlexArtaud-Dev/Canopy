@@ -75,7 +75,7 @@ export function NotificationsContainer() {
       </SheetTrigger>
       <SheetContent
         side={isMobile ? 'bottom' : 'right'}
-        className="max-h-[90dvh] gap-0 overflow-y-auto sm:max-w-md"
+        className={cn('gap-0 overflow-y-auto sm:max-w-md', isMobile && 'max-h-[90dvh]')}
       >
         <SheetHeader className="border-b">
           <SheetTitle>{t('title')}</SheetTitle>

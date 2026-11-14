@@ -12,7 +12,8 @@
     "rate_limited": "Too many attempts. Wait {retryAfter, plural, one {# second} other {# seconds}} and try again.",
     "engine_unavailable": "The file engine is unreachable. Try again in a moment.",
     "engine_key_missing": "The file engine is not configured. Ask your administrator to set the engine keys.",
-    "maintenance": "Canopy is under maintenance. Try again later."
+    "maintenance": "Canopy is under maintenance. Try again later.",
+    "updated": "Canopy was just updated: the page reloads to use the new version."
   },
   "settings": {
     "unknown_key": "This setting does not exist (“{key}”).",
