@@ -3,5 +3,12 @@
     "title": "No se puede acceder a Canopy",
     "description": "El servidor no responde: compruebe su conexión, o que el servidor esté en marcha, y vuelva a intentarlo.",
     "retry": "Reintentar"
+  },
+  "shared": {
+    "title": "{count, plural, one {# archivo compartido desde su teléfono} other {# archivos compartidos desde su teléfono}}",
+    "pick": "Abra la carpeta donde van y súbalos.",
+    "notHere": "No puede subir a esta carpeta: abra otra.",
+    "upload": "Subir aquí",
+    "discard": "Descartar"
   }
 }
