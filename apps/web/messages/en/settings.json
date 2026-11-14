@@ -99,6 +99,14 @@
       "mailRetentionDays": {
         "label": "Keep sent emails for (days)",
         "description": "Recipient, subject and content of sent or failed emails are deleted after this many days."
+      },
+      "metricsRawHours": {
+        "label": "Keep detailed metrics (hours)",
+        "description": "Dashboards read values sampled every 30 seconds for this long."
+      },
+      "metricsHourlyDays": {
+        "label": "Keep hourly metrics (days)",
+        "description": "Then their hourly averages, for this long."
       }
     },
     "appearance": {

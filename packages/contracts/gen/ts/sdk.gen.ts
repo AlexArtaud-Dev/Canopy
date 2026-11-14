@@ -53,6 +53,9 @@ import type {
   ListJobsData,
   ListJobsErrors,
   ListJobsResponses,
+  ListMetricsData,
+  ListMetricsErrors,
+  ListMetricsResponses,
   ListPluginsData,
   ListPluginsErrors,
   ListPluginsResponses,
@@ -71,6 +74,9 @@ import type {
   PreviewCommandData,
   PreviewCommandErrors,
   PreviewCommandResponses,
+  QueryMetricData,
+  QueryMetricErrors,
+  QueryMetricResponses,
   RenameEntryData,
   RenameEntryErrors,
   RenameEntryResponses,
@@ -141,6 +147,7 @@ import {
   zListDirectoryResponse,
   zListJobsQuery,
   zListJobsResponse,
+  zListMetricsResponse,
   zListPluginsResponse,
   zListTrashResponse,
   zMoveToTrashBody,
@@ -151,6 +158,8 @@ import {
   zPlanTransferResponse,
   zPreviewCommandBody,
   zPreviewCommandResponse,
+  zQueryMetricQuery,
+  zQueryMetricResponse,
   zRenameEntryBody,
   zRenameEntryResponse,
   zRestoreFromTrashBody,
@@ -1055,4 +1064,50 @@ export const startEmptyTrash = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Metrics the caller may read
+ *
+ * The values the engine samples every 30 seconds for dashboards, filtered by the caller's `metrics:<family>` permissions (administrators read every family).
+ */
+export const listMetrics = <ThrowOnError extends boolean = false>(
+  options?: Options<ListMetricsData, ThrowOnError>,
+): RequestResult<ListMetricsResponses, ListMetricsErrors, ThrowOnError> =>
+  (options?.client ?? client).get<ListMetricsResponses, ListMetricsErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zListMetricsResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/metrics',
+    ...options,
+  });
+
+/**
+ * One metric over a time range
+ *
+ * Bucketed averages (with extremes) of a metric between `from` and `to`, one list per series. Raw samples answer while the range is within their retention, hourly rollups beyond; at most `points` buckets.
+ */
+export const queryMetric = <ThrowOnError extends boolean = false>(
+  options: Options<QueryMetricData, ThrowOnError>,
+): RequestResult<QueryMetricResponses, QueryMetricErrors, ThrowOnError> =>
+  (options.client ?? client).get<QueryMetricResponses, QueryMetricErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: zQueryMetricQuery,
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zQueryMetricResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/metrics/series',
+    ...options,
   });

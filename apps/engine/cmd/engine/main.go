@@ -151,6 +151,8 @@ func run() error {
 		return err
 	}
 
+	metricsService := startMetrics(ctx, cfg.Root, pool, trashService, logger)
+
 	streamsDone := make(chan struct{})
 	server := &http.Server{
 		Addr: cfg.Addr,
@@ -172,6 +174,7 @@ func run() error {
 			HostPaths:    resolver,
 			Plugins:      pluginService,
 			Media:        mediaPlayer(ctx, cfg.VideoEncoder, logger),
+			Metrics:      metricsService,
 		}),
 		ReadHeaderTimeout: readHeaderTimeout,
 		// No read/write timeouts: multi-GB transfers and SSE streams are legitimately long.

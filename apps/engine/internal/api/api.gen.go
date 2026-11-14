@@ -288,6 +288,51 @@ func (e MediaInfoMode) Valid() bool {
 	}
 }
 
+// Defines values for MetricDefinitionFamily.
+const (
+	Operations MetricDefinitionFamily = "operations"
+	Storage    MetricDefinitionFamily = "storage"
+	System     MetricDefinitionFamily = "system"
+)
+
+// Valid indicates whether the value is a known member of the MetricDefinitionFamily enum.
+func (e MetricDefinitionFamily) Valid() bool {
+	switch e {
+	case Operations:
+		return true
+	case Storage:
+		return true
+	case System:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MetricDefinitionUnit.
+const (
+	Bytes          MetricDefinitionUnit = "bytes"
+	BytesPerSecond MetricDefinitionUnit = "bytesPerSecond"
+	Count          MetricDefinitionUnit = "count"
+	Percent        MetricDefinitionUnit = "percent"
+)
+
+// Valid indicates whether the value is a known member of the MetricDefinitionUnit enum.
+func (e MetricDefinitionUnit) Valid() bool {
+	switch e {
+	case Bytes:
+		return true
+	case BytesPerSecond:
+		return true
+	case Count:
+		return true
+	case Percent:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for PathAction.
 const (
 	PathActionCopy     PathAction = "copy"
@@ -834,6 +879,52 @@ type MediaInfo struct {
 // MediaInfoMode defines model for MediaInfo.Mode.
 type MediaInfoMode string
 
+// MetricCatalog defines model for MetricCatalog.
+type MetricCatalog struct {
+	Metrics []MetricDefinition `json:"metrics"`
+}
+
+// MetricDefinition defines model for MetricDefinition.
+type MetricDefinition struct {
+	Family MetricDefinitionFamily `json:"family"`
+
+	// Name Examples: system.cpu
+	Name string `json:"name"`
+
+	// Series One series per thing (a volume) rather than a single one.
+	Series bool                 `json:"series"`
+	Unit   MetricDefinitionUnit `json:"unit"`
+}
+
+// MetricDefinitionFamily defines model for MetricDefinition.Family.
+type MetricDefinitionFamily string
+
+// MetricDefinitionUnit defines model for MetricDefinition.Unit.
+type MetricDefinitionUnit string
+
+// MetricPoint defines model for MetricPoint.
+type MetricPoint struct {
+	// At Start of the bucket.
+	At  time.Time `json:"at"`
+	Avg float64   `json:"avg"`
+	Max float64   `json:"max"`
+	Min float64   `json:"min"`
+}
+
+// MetricSeries defines model for MetricSeries.
+type MetricSeries struct {
+	BucketSeconds int                  `json:"bucketSeconds"`
+	Metric        MetricDefinition     `json:"metric"`
+	Series        []MetricSeriesPoints `json:"series"`
+}
+
+// MetricSeriesPoints defines model for MetricSeriesPoints.
+type MetricSeriesPoints struct {
+	// Name The series (a volume's name), empty for a single-series metric.
+	Name   string        `json:"name"`
+	Points []MetricPoint `json:"points"`
+}
+
 // PathAction defines model for PathAction.
 type PathAction string
 
@@ -1065,6 +1156,14 @@ type GetJobLogsParams struct {
 	After *int `form:"after,omitempty" json:"after,omitempty"`
 }
 
+// QueryMetricParams defines parameters for QueryMetric.
+type QueryMetricParams struct {
+	Metric string    `form:"metric" json:"metric"`
+	From   time.Time `form:"from" json:"from"`
+	To     time.Time `form:"to" json:"to"`
+	Points *int      `form:"points,omitempty" json:"points,omitempty"`
+}
+
 // InstallPluginMultipartBody defines parameters for InstallPlugin.
 type InstallPluginMultipartBody struct {
 	Binary    openapi_types.File `json:"binary"`
@@ -1212,6 +1311,12 @@ type ServerInterface interface {
 	// GetJobLogs Output lines of a job
 	// (GET /v1/jobs/{jobId}/logs)
 	GetJobLogs(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID, params GetJobLogsParams)
+	// ListMetrics Metrics the caller may read
+	// (GET /v1/metrics)
+	ListMetrics(w http.ResponseWriter, r *http.Request)
+	// QueryMetric One metric over a time range
+	// (GET /v1/metrics/series)
+	QueryMetric(w http.ResponseWriter, r *http.Request, params QueryMetricParams)
 	// ListPlugins Installed plugins
 	// (GET /v1/plugins)
 	ListPlugins(w http.ResponseWriter, r *http.Request)
@@ -1398,6 +1503,18 @@ func (_ Unimplemented) CancelJob(w http.ResponseWriter, r *http.Request, jobId o
 // GetJobLogs Output lines of a job
 // (GET /v1/jobs/{jobId}/logs)
 func (_ Unimplemented) GetJobLogs(w http.ResponseWriter, r *http.Request, jobId openapi_types.UUID, params GetJobLogsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListMetrics Metrics the caller may read
+// (GET /v1/metrics)
+func (_ Unimplemented) ListMetrics(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// QueryMetric One metric over a time range
+// (GET /v1/metrics/series)
+func (_ Unimplemented) QueryMetric(w http.ResponseWriter, r *http.Request, params QueryMetricParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -2074,6 +2191,92 @@ func (siw *ServerInterfaceWrapper) GetJobLogs(w http.ResponseWriter, r *http.Req
 	handler.ServeHTTP(w, r)
 }
 
+// ListMetrics operation middleware
+func (siw *ServerInterfaceWrapper) ListMetrics(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListMetrics(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// QueryMetric operation middleware
+func (siw *ServerInterfaceWrapper) QueryMetric(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params QueryMetricParams
+
+	// ------------- Required query parameter "metric" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "metric", r.URL.Query(), &params.Metric, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "metric"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "metric", Err: err})
+		}
+		return
+	}
+
+	// ------------- Required query parameter "from" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "from", r.URL.Query(), &params.From, runtime.BindQueryParameterOptions{Type: "string", Format: "date-time"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "from"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "from", Err: err})
+		}
+		return
+	}
+
+	// ------------- Required query parameter "to" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "to", r.URL.Query(), &params.To, runtime.BindQueryParameterOptions{Type: "string", Format: "date-time"})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "to"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "to", Err: err})
+		}
+		return
+	}
+
+	// ------------- Optional query parameter "points" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "points", r.URL.Query(), &params.Points, runtime.BindQueryParameterOptions{Type: "integer", Format: ""})
+	if err != nil {
+		var requiredError *runtime.RequiredParameterError
+		if errors.As(err, &requiredError) {
+			siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "points"})
+		} else {
+			siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "points", Err: err})
+		}
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.QueryMetric(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // ListPlugins operation middleware
 func (siw *ServerInterfaceWrapper) ListPlugins(w http.ResponseWriter, r *http.Request) {
 
@@ -2410,6 +2613,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/v1/jobs/empty-trash", wrapper.StartEmptyTrash)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/metrics", wrapper.ListMetrics)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/metrics/series", wrapper.QueryMetric)
 	})
 
 	return r
@@ -4323,6 +4532,119 @@ func (response GetJobLogs404JSONResponse) VisitGetJobLogsResponse(w http.Respons
 	return err
 }
 
+type ListMetricsRequestObject struct {
+}
+
+type ListMetricsResponseObject interface {
+	VisitListMetricsResponse(w http.ResponseWriter) error
+}
+
+type ListMetrics200JSONResponse MetricCatalog
+
+func (response ListMetrics200JSONResponse) VisitListMetricsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListMetrics401JSONResponse Error
+
+func (response ListMetrics401JSONResponse) VisitListMetricsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type QueryMetricRequestObject struct {
+	Params QueryMetricParams
+}
+
+type QueryMetricResponseObject interface {
+	VisitQueryMetricResponse(w http.ResponseWriter) error
+}
+
+type QueryMetric200JSONResponse MetricSeries
+
+func (response QueryMetric200JSONResponse) VisitQueryMetricResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type QueryMetric400JSONResponse Error
+
+func (response QueryMetric400JSONResponse) VisitQueryMetricResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type QueryMetric401JSONResponse Error
+
+func (response QueryMetric401JSONResponse) VisitQueryMetricResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type QueryMetric403JSONResponse Error
+
+func (response QueryMetric403JSONResponse) VisitQueryMetricResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type QueryMetric404JSONResponse Error
+
+func (response QueryMetric404JSONResponse) VisitQueryMetricResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type ListPluginsRequestObject struct {
 }
 
@@ -4819,6 +5141,12 @@ type StrictServerInterface interface {
 	// GetJobLogs Output lines of a job
 	// (GET /v1/jobs/{jobId}/logs)
 	GetJobLogs(ctx context.Context, request GetJobLogsRequestObject) (GetJobLogsResponseObject, error)
+	// ListMetrics Metrics the caller may read
+	// (GET /v1/metrics)
+	ListMetrics(ctx context.Context, request ListMetricsRequestObject) (ListMetricsResponseObject, error)
+	// QueryMetric One metric over a time range
+	// (GET /v1/metrics/series)
+	QueryMetric(ctx context.Context, request QueryMetricRequestObject) (QueryMetricResponseObject, error)
 	// ListPlugins Installed plugins
 	// (GET /v1/plugins)
 	ListPlugins(ctx context.Context, request ListPluginsRequestObject) (ListPluginsResponseObject, error)
@@ -5646,6 +5974,56 @@ func (sh *strictHandler) GetJobLogs(w http.ResponseWriter, r *http.Request, jobI
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetJobLogsResponseObject); ok {
 		if err := validResponse.VisitGetJobLogsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListMetrics operation middleware
+func (sh *strictHandler) ListMetrics(w http.ResponseWriter, r *http.Request) {
+	var request ListMetricsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListMetrics(ctx, request.(ListMetricsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListMetrics")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListMetricsResponseObject); ok {
+		if err := validResponse.VisitListMetricsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// QueryMetric operation middleware
+func (sh *strictHandler) QueryMetric(w http.ResponseWriter, r *http.Request, params QueryMetricParams) {
+	var request QueryMetricRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.QueryMetric(ctx, request.(QueryMetricRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "QueryMetric")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(QueryMetricResponseObject); ok {
+		if err := validResponse.VisitQueryMetricResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

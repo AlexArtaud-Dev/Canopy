@@ -1480,6 +1480,97 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/metrics:
+    get:
+      operationId: listMetrics
+      summary: Metrics the caller may read
+      description: >-
+        The values the engine samples every 30 seconds for dashboards, filtered by the caller's
+        `metrics:<family>` permissions (administrators read every family).
+      tags: [metrics]
+      security:
+        - engineToken: []
+      responses:
+        '200':
+          description: The readable metrics, in the order dashboards offer them.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricCatalog'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/metrics/series:
+    get:
+      operationId: queryMetric
+      summary: One metric over a time range
+      description: >-
+        Bucketed averages (with extremes) of a metric between `from` and `to`, one list per
+        series. Raw samples answer while the range is within their retention, hourly rollups
+        beyond; at most `points` buckets.
+      tags: [metrics]
+      security:
+        - engineToken: []
+      parameters:
+        - name: metric
+          in: query
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: points
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 120
+      responses:
+        '200':
+          description: The metric's series.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricSeries'
+        '400':
+          description: A range that ends before it starts or spans more than two years (`metrics.invalid_range`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The caller may not read this metric's family (`metrics.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such metric (`metrics.unknown`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     engineToken:
@@ -1488,6 +1579,70 @@ components:
       bearerFormat: JWT
       description: Short-lived Ed25519 token signed by the web app (never by browsers).
   schemas:
+    MetricDefinition:
+      type: object
+      required: [name, family, unit, series]
+      properties:
+        name:
+          type: string
+          examples: [system.cpu]
+        family:
+          type: string
+          enum: [system, storage, operations]
+        unit:
+          type: string
+          enum: [percent, bytes, bytesPerSecond, count]
+        series:
+          description: One series per thing (a volume) rather than a single one.
+          type: boolean
+    MetricCatalog:
+      type: object
+      required: [metrics]
+      properties:
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricDefinition'
+    MetricPoint:
+      type: object
+      required: [at, avg, min, max]
+      properties:
+        at:
+          description: Start of the bucket.
+          type: string
+          format: date-time
+        avg:
+          type: number
+          format: double
+        min:
+          type: number
+          format: double
+        max:
+          type: number
+          format: double
+    MetricSeriesPoints:
+      type: object
+      required: [name, points]
+      properties:
+        name:
+          description: The series (a volume's name), empty for a single-series metric.
+          type: string
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricPoint'
+    MetricSeries:
+      type: object
+      required: [metric, bucketSeconds, series]
+      properties:
+        metric:
+          $ref: '#/components/schemas/MetricDefinition'
+        bucketSeconds:
+          type: integer
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricSeriesPoints'
     LivenessStatus:
       type: object
       required: [status]
