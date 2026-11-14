@@ -1,0 +1,9 @@
+date: 2026-11-14
+entries:
+  - type: feat
+    scope: devices
+    issue: 171
+    text:
+      en: A remote for what plays on your screens - Casting shows in the header while a film plays, with pause, a position bar, 30 s jumps, volume and stop, Apple TV included.
+      fr: Une télécommande pour ce qui joue sur vos écrans - En diffusion apparaît dans l’en-tête pendant la lecture, avec pause, barre de progression, sauts de 30 s, volume et arrêt, Apple TV comprise.
+      es: Un mando para lo que suena en sus pantallas - Reproduciendo aparece en la cabecera durante la reproducción, con pausa, barra de posición, saltos de 30 s, volumen y parada, Apple TV incluido.
