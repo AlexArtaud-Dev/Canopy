@@ -59,7 +59,9 @@ export function JobRow({ job, onCancel, onRetry, onDismiss, name }: JobRowProps)
   const details: string[] = [];
   if (active) {
     if (job.state === 'queued') details.push(t('queued'));
-    if (job.itemsDone > 0) details.push(t('items', { count: job.itemsDone }));
+    // A command reporting a percentage counts steps out of 100, not items: the bar says it.
+    const percentOnly = job.kind === 'command' && job.itemsTotal === 100;
+    if (job.itemsDone > 0 && !percentOnly) details.push(t('items', { count: job.itemsDone }));
     if (job.bytesDone > 0) details.push(formatBytes(job.bytesDone, locale));
     if (job.rateBps) details.push(t('rate', { rate: formatBytes(job.rateBps, locale) }));
     if (job.etaSeconds !== undefined) {

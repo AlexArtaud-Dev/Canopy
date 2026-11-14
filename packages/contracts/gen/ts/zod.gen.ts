@@ -232,6 +232,17 @@ export const zCommandParam = z.object({
 });
 
 /**
+ * Commands a remote runs on a device that plays: each takes the device; seek a position (1:02:03), volume a level (0-100).
+ */
+export const zDeviceControls = z.object({
+  pause: z.string(),
+  resume: z.string(),
+  seek: z.string().optional(),
+  volume: z.string().optional(),
+  stop: z.string(),
+});
+
+/**
  * Commands pairing a device that asks for it, the code shown on it handed by the second.
  */
 export const zDevicePairing = z.object({
@@ -244,6 +255,7 @@ export const zDeviceKind = z.object({
   name: zLocalizedText,
   detect: z.string(),
   pair: zDevicePairing.optional(),
+  controls: zDeviceControls.optional(),
 });
 
 /**

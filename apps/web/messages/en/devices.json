@@ -45,5 +45,25 @@
     "cancel": "Cancel",
     "retry": "Try again",
     "confirm": "Pair"
+  },
+  "remote": {
+    "title": "Casting",
+    "open": "Open the remote ({count} playing)",
+    "description": "What plays on your screens, and its controls.",
+    "starting": "starting…",
+    "position": "Position in the film",
+    "back": "Back {seconds} s",
+    "forward": "Forward {seconds} s",
+    "pause": "Pause",
+    "resume": "Play",
+    "stop": "Stop",
+    "volume": "Volume",
+    "volumeOnScreen": "The volume of this screen is set with its own remote.",
+    "state": {
+      "playing": "playing",
+      "paused": "paused",
+      "buffering": "loading",
+      "idle": "finishing"
+    }
   }
 }

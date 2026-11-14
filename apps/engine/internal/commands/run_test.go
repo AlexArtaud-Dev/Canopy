@@ -204,6 +204,10 @@ func TestAvailableAndLauncher(t *testing.T) {
 	}
 	progress := jobs.Progress{}
 	fifty := 50.0
+	detail := "0:04:11 / 0:09:56 playing"
+	if !apply(&progress, Reading{Detail: &detail}) || progress.CurrentPath != detail {
+		t.Fatalf("detail: %+v", progress)
+	}
 	if !apply(&progress, Reading{Percent: &fifty}) || *progress.ItemsTotal != 100 || progress.ItemsDone != 50 {
 		t.Fatalf("percent only: %+v", progress)
 	}

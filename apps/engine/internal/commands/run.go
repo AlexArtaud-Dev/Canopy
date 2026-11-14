@@ -175,6 +175,11 @@ func apply(progress *jobs.Progress, reading Reading) bool {
 		progress.ItemsDone = *reading.Items
 		changed = true
 	}
+	if reading.Detail != nil {
+		// Shown as the job's current step: where a film is, what a tool is doing.
+		progress.CurrentPath = *reading.Detail
+		changed = true
+	}
 	switch {
 	case reading.Percent != nil && reading.Bytes != nil && *reading.Percent > 0:
 		// rsync gives bytes so far and a percentage: the total follows.

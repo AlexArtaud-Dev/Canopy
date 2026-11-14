@@ -10,7 +10,8 @@
   bool, int with min/max, enum with `values` or labelled `choices` (en/fr/es, shown in the form instead
   of the raw value), string with optional pattern; `flag` templates; `secret`; `advanced`, folded
   in forms, and a `help` sentence), `secondary` (left out of the list), `args`
-  template, `progressParser`, optional `dryRun.flag`, `timeout` (≤ 7 days). Files are decoded
+  template, `progressParser` (`percent-regex` may add a `(?P<detail>…)` group: the job's current
+  step), optional `dryRun.flag`, `timeout` (≤ 7 days). Files are decoded
   strictly (unknown fields refused) and checked at load.
 - **Building**: values are validated (types, ranges, choices, patterns; unknown and missing params
   refused; free text may not start with `-`, so it cannot pass as an option). Each template item

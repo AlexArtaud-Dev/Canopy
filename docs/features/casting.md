@@ -79,6 +79,15 @@ the first switched on); **More options** holds subtitles, start, audio track, co
 volume, address and port. **Run**: the film plays, its progress shows in Operations, and
 cancelling the operation stops it.
 
+## The remote
+
+While something plays, **Casting** shows in the header of every page (nowhere else, and only
+then). It opens the casts playing, each with its file, its screen and its state, a position bar
+to drag, back and forward 30 s, play / pause, stop, and the volume when the screen reports it (an
+Apple TV's volume stays on its own remote). The controls go through the cast that plays: an
+Apple TV keeps one session per sender, so a second one would cut the film. They do not fill the
+operations panel, except when one fails.
+
 ## When it does not work
 
 | What you see                                                   | Likely cause                                                                                    | What to do                                                                                                                        |

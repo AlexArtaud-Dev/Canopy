@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 import { Separator } from '@/shared/ui/separator';
 import { SidebarTrigger } from '@/shared/ui/sidebar';
+import { RemoteContainer } from '@/features/devices';
 
 interface PageHeaderProps {
   title: string;
@@ -16,6 +17,8 @@ export function PageHeader({ title, actions }: PageHeaderProps) {
       <Separator orientation="vertical" className="mr-1 h-4!" />
       <h1 className="truncate text-sm font-medium">{title}</h1>
       {actions ? <div className="ml-auto flex items-center gap-2">{actions}</div> : null}
+      {/* There only while something plays on a screen. */}
+      <RemoteContainer />
     </header>
   );
 }

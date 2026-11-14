@@ -317,8 +317,42 @@ export interface RunLabels {
 export function runLabels(entries: readonly CommandEntry[], locale: string): RunLabels {
   return {
     names: new Map(entries.map((entry) => [entry.id, localized(entry.name, locale)])),
+    // Device searches, and the controls a remote sends: done for the person, not asked as runs.
     quiet: new Set(
-      entries.flatMap((entry) => (entry.plugin?.devices ?? []).map((kind) => kind.detect)),
+      entries.flatMap((entry) =>
+        (entry.plugin?.devices ?? []).flatMap((kind) => [
+          kind.detect,
+          ...Object.values(kind.controls ?? {}),
+        ]),
+      ),
     ),
   };
+}
+
+/** What the remote needs to know of a cast just started. */
+export interface CastRun {
+  pluginId: string;
+  kind: string;
+  locator: string;
+  file: string;
+}
+
+/**
+ * Whether a run is a cast the remote can drive: a plugin command taking a file and a device of
+ * a kind whose plugin declares controls, both filled in.
+ */
+export function castRun(
+  entry: CommandEntry,
+  values: Readonly<Record<string, FormValue>>,
+): CastRun | null {
+  const plugin = entry.plugin;
+  const deviceParam = entry.params.find((param) => param.device !== undefined);
+  const fileParam = entry.params.find((param) => param.type === 'path' && param.on === 'file');
+  if (!plugin || !deviceParam?.device || !fileParam) return null;
+  const kind = plugin.devices?.find((candidate) => candidate.kind === deviceParam.device);
+  const locator = values[deviceParam.name];
+  const file = values[fileParam.name];
+  if (!kind?.controls || typeof locator !== 'string' || typeof file !== 'string') return null;
+  if (locator.trim() === '' || file.trim() === '') return null;
+  return { pluginId: plugin.id, kind: kind.kind, locator: locator.trim(), file: file.trim() };
 }

@@ -45,5 +45,25 @@
     "cancel": "Cancelar",
     "retry": "Reintentar",
     "confirm": "Emparejar"
+  },
+  "remote": {
+    "title": "Reproduciendo",
+    "open": "Abrir el mando ({count} en curso)",
+    "description": "Lo que suena en sus pantallas, y sus controles.",
+    "starting": "iniciando…",
+    "position": "Posición en la película",
+    "back": "Retroceder {seconds} s",
+    "forward": "Avanzar {seconds} s",
+    "pause": "Pausa",
+    "resume": "Reproducir",
+    "stop": "Detener",
+    "volume": "Volumen",
+    "volumeOnScreen": "El volumen de esta pantalla se ajusta con su propio mando.",
+    "state": {
+      "playing": "reproduciendo",
+      "paused": "en pausa",
+      "buffering": "cargando",
+      "idle": "terminando"
+    }
   }
 }

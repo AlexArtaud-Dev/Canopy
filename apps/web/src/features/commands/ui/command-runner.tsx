@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronRight, FlaskConical, Play } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useId, useState, useTransition } from 'react';
@@ -20,9 +20,12 @@ import {
   type PluginSavedValues,
 } from '@/features/plugins/saved-values.utils';
 import { loadSavedValues } from '@/features/plugins/server/saved-values-actions';
+import { castsQueryKey } from '@/features/devices';
+import { rememberRun } from '@/features/devices/server/remote-actions';
 
 import {
   advancedInUse,
+  castRun,
   displayArgv,
   firstToFill,
   initialValues,
@@ -87,6 +90,7 @@ function CommandForm({ entry, preset, saved, focusFirst = false }: CommandFormPr
     { text: string } | { error: string; incomplete: boolean } | null
   >(null);
   const [jobId, setJobId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const { remember } = useRecentCommands();
   const { essential, advanced } = splitParams(entry.params);
   const [moreOpen, setMoreOpen] = useState(() => advancedInUse(entry.params, values));
@@ -126,6 +130,13 @@ function CommandForm({ entry, preset, saved, focusFirst = false }: CommandFormPr
       }
       setJobId(result.data.id);
       remember(entry.id);
+      // A cast the remote can drive: remember which screen plays it.
+      const cast = castRun(entry, values);
+      if (cast) {
+        void rememberRun({ jobId: result.data.id, ...cast }).then(() =>
+          queryClient.invalidateQueries({ queryKey: castsQueryKey }),
+        );
+      }
     });
   };
 

@@ -320,6 +320,18 @@ export type DeviceKind = {
    */
   detect: string;
   pair?: DevicePairing;
+  controls?: DeviceControls;
+};
+
+/**
+ * Commands a remote runs on a device that plays: each takes the device; seek a position (1:02:03), volume a level (0-100).
+ */
+export type DeviceControls = {
+  pause: string;
+  resume: string;
+  seek?: string;
+  volume?: string;
+  stop: string;
 };
 
 /**

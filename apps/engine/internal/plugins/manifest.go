@@ -138,6 +138,15 @@ func (m *Manifest) validateDevices() error {
 			return fmt.Errorf("device kind %q: detect %q is not a command of this plugin", device.Kind, device.Detect)
 		case device.Pair != nil && (!ids[device.Pair.Start] || !ids[device.Pair.Code]):
 			return fmt.Errorf("device kind %q: pair needs start and code commands of this plugin", device.Kind)
+		case device.Controls != nil && (device.Controls.Pause == "" || device.Controls.Resume == "" || device.Controls.Stop == ""):
+			return fmt.Errorf("device kind %q: controls need pause, resume and stop", device.Kind)
+		}
+		if device.Controls != nil {
+			for _, id := range device.Controls.Commands() {
+				if !ids[id] {
+					return fmt.Errorf("device kind %q: control %q is not a command of this plugin", device.Kind, id)
+				}
+			}
 		}
 		kinds[device.Kind] = true
 	}
