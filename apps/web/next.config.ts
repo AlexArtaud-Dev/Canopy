@@ -18,7 +18,8 @@ const { version } = z
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  deploymentId: version,
+  // Only letters, digits, hyphens and underscores are accepted: 2026.11.24 becomes 2026-11-24.
+  deploymentId: version.replaceAll(/[^\w-]/g, '-'),
   poweredByHeader: false,
   reactStrictMode: true,
   typedRoutes: true,
