@@ -1,8 +1,1 @@
-entries:
-  - type: feat
-    scope: devices
-    issue: 191
-    text:
-      en: Choose who may cast to each screen - on the Devices page, allow groups per device; others no longer see it, and the server refuses their casts.
-      fr: Choisissez qui peut diffuser sur chaque écran - sur la page Appareils, autorisez des groupes par appareil ; les autres ne le voient plus, et le serveur refuse leurs diffusions.
-      es: Elija quién puede transmitir a cada pantalla - en la página Dispositivos, permita grupos por dispositivo; los demás ya no la ven y el servidor rechaza sus transmisiones.
+entries: []
