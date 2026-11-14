@@ -6,15 +6,15 @@ port.
 
 ## Requirements
 
-| Need                          | Why                                                                                      |
-| ----------------------------- | ---------------------------------------------------------------------------------------- |
-| HTTPS                         | Passwords and session cookies; set `CANOPY_PUBLIC_URL=https://…` so cookies are `Secure` |
-| Request bodies of **≥ 40 MB** | Uploads go in 32 MB pieces (resumable); a smaller limit fails every upload over it       |
-| No request buffering          | Pieces stream to the disk; buffering doubles the disk use and delays progress            |
-| No response buffering         | Live progress uses Server-Sent Events (`/api/engine/…/events`); buffering freezes it     |
-| Read timeout **≥ 15 min**     | Event streams stay open up to 10 minutes; large downloads take long                      |
-| `Range` passed through        | Video seeking and resumed downloads                                                      |
-| `X-Forwarded-For` / `-Proto`  | The real client IP for sign-in protection, the audit log and local-only actions          |
+| Need                          | Why                                                                                                                   |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| HTTPS                         | Passwords and session cookies; set `CANOPY_PUBLIC_URL=https://…` so cookies are `Secure`; installing Canopy as an app |
+| Request bodies of **≥ 40 MB** | Uploads go in 32 MB pieces (resumable); a smaller limit fails every upload over it                                    |
+| No request buffering          | Pieces stream to the disk; buffering doubles the disk use and delays progress                                         |
+| No response buffering         | Live progress uses Server-Sent Events (`/api/engine/…/events`); buffering freezes it                                  |
+| Read timeout **≥ 15 min**     | Event streams stay open up to 10 minutes; large downloads take long                                                   |
+| `Range` passed through        | Video seeking and resumed downloads                                                                                   |
+| `X-Forwarded-For` / `-Proto`  | The real client IP for sign-in protection, the audit log and local-only actions                                       |
 
 Then tell Canopy which proxies to trust, or every visitor looks like the proxy:
 

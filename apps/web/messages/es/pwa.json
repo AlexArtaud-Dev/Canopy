@@ -1,0 +1,7 @@
+{
+  "offline": {
+    "title": "No se puede acceder a Canopy",
+    "description": "El servidor no responde: compruebe su conexión, o que el servidor esté en marcha, y vuelva a intentarlo.",
+    "retry": "Reintentar"
+  }
+}

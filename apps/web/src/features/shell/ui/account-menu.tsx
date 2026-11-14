@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronsUpDown, Languages, LogOut, Sparkles, UserRound } from 'lucide-react';
+import { ChevronsUpDown, Languages, LogOut, MonitorDown, Sparkles, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
@@ -36,6 +36,8 @@ interface AccountMenuProps {
   onSignOut: () => void;
   /** A release came out since the person last opened "What's new". */
   newsUnseen: boolean;
+  /** Opens the browser's install dialog; absent when the browser offers none (or it is installed). */
+  onInstall: (() => void) | null;
 }
 
 export function AccountMenu({
@@ -47,6 +49,7 @@ export function AccountMenu({
   onLocaleChange,
   onSignOut,
   newsUnseen,
+  onInstall,
 }: AccountMenuProps) {
   const t = useTranslations('shell.preferences');
   const accountT = useTranslations('auth.account');
@@ -116,6 +119,12 @@ export function AccountMenu({
                 )}
               </Link>
             </DropdownMenuItem>
+            {onInstall && (
+              <DropdownMenuItem onSelect={onInstall}>
+                <MonitorDown aria-hidden />
+                {t('install')}
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuLabel>{t('appearance')}</DropdownMenuLabel>
             <DropdownMenuRadioGroup

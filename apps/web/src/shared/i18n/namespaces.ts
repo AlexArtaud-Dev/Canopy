@@ -15,6 +15,7 @@ export const namespaces = [
   'jobs',
   'mail',
   'plugins',
+  'pwa',
   'settings',
   'shares',
   'shell',
