@@ -1,0 +1,48 @@
+{
+  "families": {
+    "system": "System",
+    "storage": "Storage",
+    "operations": "Operations",
+    "shares": "Shares and drop-offs",
+    "users": "Users and sessions",
+    "logs": "Logs"
+  },
+  "variables": {
+    "system": {
+      "cpu": "Processor use",
+      "memory": {
+        "used": "Memory used",
+        "total": "Memory size"
+      },
+      "network": {
+        "received": "Network received",
+        "sent": "Network sent"
+      }
+    },
+    "storage": {
+      "volume": {
+        "used": "Space used per volume",
+        "total": "Size per volume"
+      },
+      "trash": "Trash size",
+      "thumbnails": "Thumbnails cache"
+    },
+    "operations": {
+      "running": "Operations running",
+      "queued": "Operations waiting",
+      "failed": "Operations failed (last hour)"
+    },
+    "shares": {
+      "active": "Active links",
+      "dropOffs": "Drop-offs received"
+    },
+    "users": {
+      "accounts": "Active accounts",
+      "sessions": "Open sessions"
+    },
+    "logs": {
+      "denied": "Refused actions",
+      "audit": "Audit log"
+    }
+  }
+}

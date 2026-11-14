@@ -159,5 +159,10 @@
     "pairing_failed": "The pairing did not succeed: check the code and try again.",
     "no_control": "This screen cannot be driven from Canopy.",
     "forbidden": "You may not use this device: ask an administrator."
+  },
+  "metrics": {
+    "forbidden": "You may not read this value: ask an administrator for the permission.",
+    "unknown": "This value is not available.",
+    "invalid_range": "This time range cannot be shown."
   }
 }

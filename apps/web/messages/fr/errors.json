@@ -159,5 +159,10 @@
     "pairing_failed": "Le jumelage n’a pas abouti : vérifiez le code et réessayez.",
     "no_control": "Cet écran ne peut pas être piloté depuis Canopy.",
     "forbidden": "Vous ne pouvez pas utiliser cet appareil : demandez à un administrateur."
+  },
+  "metrics": {
+    "forbidden": "Vous ne pouvez pas lire cette valeur : demandez la permission à un administrateur.",
+    "unknown": "Cette valeur n’est pas disponible.",
+    "invalid_range": "Cette période ne peut pas être affichée."
   }
 }
