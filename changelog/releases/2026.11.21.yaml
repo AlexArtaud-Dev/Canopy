@@ -1,0 +1,9 @@
+date: 2026-11-14
+entries:
+  - type: feat
+    scope: web
+    issue: 215
+    text:
+      en: A bell in the header for your notifications - files received on your upload links show there, one line per drop-off, and open its history.
+      fr: Une cloche dans l’en-tête pour vos notifications - les fichiers reçus sur vos liens de dépôt s’y affichent, une ligne par dépôt, qui ouvre son historique.
+      es: Una campana en la cabecera para sus notificaciones - los archivos recibidos en sus enlaces de depósito aparecen ahí, una línea por depósito, que abre su historial.
