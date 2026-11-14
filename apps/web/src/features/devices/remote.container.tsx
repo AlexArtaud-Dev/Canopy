@@ -31,12 +31,7 @@ export function RemoteContainer() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="ml-auto"
-          aria-label={t('open', { count: casts.length })}
-        >
+        <Button variant="outline" size="sm" aria-label={t('open', { count: casts.length })}>
           <Cast aria-hidden className="text-primary" />
           <span className="max-sm:sr-only">{t('title')}</span>
           {casts.length > 1 && <Badge variant="secondary">{casts.length}</Badge>}

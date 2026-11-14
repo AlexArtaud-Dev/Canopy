@@ -1,0 +1,14 @@
+{
+  "open": "Notifications",
+  "openUnread": "{count, plural, one {# notification non lue} other {# notifications non lues}}",
+  "title": "Notifications",
+  "description": "Ce qui s’est passé sur vos liens et vos dossiers.",
+  "markAllRead": "Tout marquer comme lu",
+  "emptyTitle": "Rien de nouveau",
+  "empty": "Les fichiers reçus sur vos liens de dépôt s’affichent ici.",
+  "someone": "Quelqu’un",
+  "unread": "Non lue",
+  "kinds": {
+    "dropOffReceived": "{who} a envoyé {count, plural, one {# fichier} other {# fichiers}} dans {link}"
+  }
+}

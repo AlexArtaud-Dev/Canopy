@@ -134,6 +134,13 @@
       "when": 1794658372911,
       "tag": "0018_share_drop_offs",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794659660772,
+      "tag": "0019_notifications",
+      "breakpoints": true
     }
   ]
 }
