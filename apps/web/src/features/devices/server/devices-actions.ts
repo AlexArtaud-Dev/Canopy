@@ -5,15 +5,18 @@ import { getJob, getJobLogs } from '@canopy/contracts';
 import { runAction, type ActionResult } from '@/shared/lib/action';
 import { AppBaseError } from '@/shared/lib/errors';
 import { adminPermission } from '@/features/access/access.utils';
+import { listGroups } from '@/features/access/server/access-store';
 import { audit } from '@/features/audit/server/audit-writer';
-import { authorize, requireSession } from '@/features/auth';
+import { authorize, requireSession, type CurrentSession } from '@/features/auth';
 import { engineClientFor } from '@/features/files/server/engine-client';
 
 import {
   addDeviceInputSchema,
+  deviceGroupsInputSchema,
   deviceIdInputSchema,
   deviceKindInputSchema,
   maxDevicesPerKind,
+  mayUseDevice,
   parseDetected,
   updateDeviceInputSchema,
   type Device,
@@ -25,8 +28,11 @@ import {
   insertDevice,
   listDevices,
   recordDetected,
+  saveDeviceGroups,
   updateDevice,
 } from './devices-store';
+import type { GroupOption } from '../ui/device-access-dialog';
+import { deviceUserOf } from './device-access';
 import {
   catalogFor,
   declaredKind,
@@ -40,20 +46,32 @@ import {
 const detectionLimitMs = 90_000;
 const pollEveryMs = 500;
 
-/** The devices kept for a plugin's kind. Anyone signed in reads them: they only fill forms. */
+/** The devices of a plugin's kind the person may use: what forms offer. */
+async function usableDevices(
+  session: CurrentSession,
+  pluginId: string,
+  kind: string,
+): Promise<Device[]> {
+  const user = await deviceUserOf(session);
+  return (await listDevices(pluginId, kind)).filter((device) => mayUseDevice(device, user));
+}
+
+/** The devices kept for a plugin's kind that the person may use: they only fill forms. */
 export async function loadDevices(input: unknown): Promise<ActionResult<Device[]>> {
   return runAction(async () => {
     const { pluginId, kind } = parse(deviceKindInputSchema, input);
-    await requireSession();
-    return listDevices(pluginId, kind);
+    return usableDevices(await requireSession(), pluginId, kind);
   });
 }
 
-/** Every device kept, for the administration page. */
-export async function loadAllDevices(): Promise<ActionResult<Device[]>> {
+/** Every device kept, and the groups that may be allowed on them, for the administration page. */
+export async function loadAllDevices(): Promise<
+  ActionResult<{ devices: Device[]; groups: GroupOption[] }>
+> {
   return runAction(async () => {
     await authorize(adminPermission);
-    return listDevices();
+    const [devices, groups] = await Promise.all([listDevices(), listGroups()]);
+    return { devices, groups: groups.map(({ id, name }) => ({ id, name })) };
   });
 }
 
@@ -92,7 +110,7 @@ export async function detectDevices(input: unknown): Promise<ActionResult<Device
     const found = parseDetected((logs.data?.items ?? []).map((line) => line.line));
     const room = maxDevicesPerKind - (await countDevices(pluginId, kind));
     await recordDetected(pluginId, kind, found, room);
-    return listDevices(pluginId, kind);
+    return usableDevices(session, pluginId, kind);
   });
 }
 
@@ -167,5 +185,26 @@ export async function forgetDevice(input: unknown): Promise<ActionResult<null>> 
       meta: { locator: device.locator },
     });
     return null;
+  });
+}
+
+/** Sets the groups allowed to use a device; none opens it to everyone (administrators). */
+export async function changeDeviceGroups(input: unknown): Promise<ActionResult<Device>> {
+  return runAction(async () => {
+    const { id, groupIds } = parse(deviceGroupsInputSchema, input);
+    const session = await authorize(adminPermission);
+    const device = await findDevice(id);
+    if (!device) throw new AppBaseError('devices.not_found', 'no such device');
+    const known = new Set((await listGroups()).map((group) => group.id));
+    const unique = [...new Set(groupIds)].filter((groupId) => known.has(groupId));
+    await saveDeviceGroups(id, unique);
+    await audit({
+      action: 'devices.access_update',
+      result: 'success',
+      actorId: session.user.id,
+      target: `${device.pluginId}/${device.kind}`,
+      meta: { locator: device.locator, groups: unique },
+    });
+    return { ...device, groupIds: unique };
   });
 }

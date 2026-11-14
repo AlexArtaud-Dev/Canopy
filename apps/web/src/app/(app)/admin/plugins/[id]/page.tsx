@@ -63,7 +63,10 @@ export default async function PluginPage({ params }: { params: Promise<{ id: str
             initial={plugin}
             commands={commands}
             kinds={kinds}
-            devices={devices.ok ? devices.data.filter((device) => device.pluginId === id) : []}
+            devices={
+              devices.ok ? devices.data.devices.filter((device) => device.pluginId === id) : []
+            }
+            groups={devices.ok ? devices.data.groups : []}
             saved={saved.ok ? (saved.data[id] ?? {}) : {}}
           />
         ) : (

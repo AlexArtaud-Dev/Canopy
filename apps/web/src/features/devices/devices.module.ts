@@ -4,7 +4,7 @@ import { defineModule } from '@/shared/modules/module.types';
 
 /**
  * Devices plugins find on the network (screens), kept so that people pick them by name.
- * Administrators name, hide, add and forget them; detection runs are audited by the engine.
+ * Administrators name, hide, add and forget them, and choose the groups allowed on each; detection runs are audited by the engine.
  */
 export const devicesModule = defineModule({
   id: 'devices',
@@ -24,5 +24,7 @@ export const devicesModule = defineModule({
     'devices.forget',
     'devices.pair',
     'devices.default_set',
+    'devices.access_update',
+    'devices.access_denied',
   ],
 });

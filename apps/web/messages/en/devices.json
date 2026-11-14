@@ -31,7 +31,9 @@
     "nameHelp": "Empty gives it back the name it announces.",
     "cancel": "Cancel",
     "save": "Save",
-    "pair": "Pair"
+    "pair": "Pair",
+    "restricted": "restricted",
+    "access": "Who may use it"
   },
   "pairing": {
     "title": "Pair {name}",
@@ -65,5 +67,16 @@
       "buffering": "loading",
       "idle": "finishing"
     }
+  },
+  "access": {
+    "title": "Who may use {name}",
+    "description": "Only members of the checked groups pick it and cast to it; administrators always can.",
+    "groups": "Groups",
+    "open": "No group checked: everyone who may run the plugin’s commands uses it.",
+    "restricted": "{count, plural, one {# group allowed.} other {# groups allowed.}}",
+    "noGroups": "There is no group yet.",
+    "createGroups": "Create groups",
+    "cancel": "Cancel",
+    "save": "Save"
   }
 }

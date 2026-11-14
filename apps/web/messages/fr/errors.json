@@ -151,6 +151,7 @@
     "not_found": "Cet appareil n’est plus dans la liste.",
     "no_pairing": "Cet appareil ne peut pas être jumelé depuis Canopy.",
     "pairing_failed": "Le jumelage n’a pas abouti : vérifiez le code et réessayez.",
-    "no_control": "Cet écran ne peut pas être piloté depuis Canopy."
+    "no_control": "Cet écran ne peut pas être piloté depuis Canopy.",
+    "forbidden": "Vous ne pouvez pas utiliser cet appareil : demandez à un administrateur."
   }
 }

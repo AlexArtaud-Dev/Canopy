@@ -25,6 +25,10 @@ import {
   onlineWindowMs,
   parseDetected,
   pickable,
+  deviceGroupsInputSchema,
+  mayUseDevice,
+  namedDevices,
+  refusedDevice,
   type Device,
 } from './devices.utils';
 
@@ -43,6 +47,7 @@ const device = (extra: Partial<Device>): Device => ({
   hidden: false,
   addedByHand: false,
   lastSeen: null,
+  groupIds: [],
   ...extra,
 });
 
@@ -296,5 +301,53 @@ describe('casts', () => {
     };
     expect(rememberRunInputSchema.safeParse(run).success).toBe(true);
     expect(rememberRunInputSchema.safeParse({ ...run, pluginId: 'X' }).success).toBe(false);
+  });
+});
+
+describe('who may use a device', () => {
+  const family = '11111111-1111-4111-8111-111111111111';
+  const guests = '22222222-2222-4222-8222-222222222222';
+  const member = { isAdmin: false, groupIds: new Set([family]) };
+  const stranger = { isAdmin: false, groupIds: new Set<string>() };
+  const admin = { isAdmin: true, groupIds: new Set<string>() };
+  const restricted = device({ locator: 'chromecast://salon', groupIds: [guests, family] });
+  const open = device({ locator: 'chromecast://kitchen' });
+
+  it('opens unrestricted devices to everyone, restricted ones to their groups and admins', () => {
+    expect(mayUseDevice(open, stranger)).toBe(true);
+    expect(mayUseDevice(restricted, member)).toBe(true);
+    expect(mayUseDevice(restricted, stranger)).toBe(false);
+    expect(mayUseDevice(restricted, admin)).toBe(true);
+  });
+
+  it('reads the devices a run names from its device fields', () => {
+    const entry = {
+      params: [
+        { name: 'file', type: 'path' },
+        { name: 'screen', type: 'string', device: 'screen' },
+        { name: 'other', type: 'string', device: 'speaker' },
+        { name: 'empty', type: 'string', device: 'screen' },
+      ],
+    } as unknown as Pick<CommandEntry, 'params'>;
+    expect(
+      namedDevices(entry, { file: '/a.mp4', screen: ' chromecast://salon ', other: 3, empty: ' ' }),
+    ).toEqual([{ kind: 'screen', locator: 'chromecast://salon' }]);
+  });
+
+  it('refuses the first kept device the person may not use, never unknown ones', () => {
+    const kept = [open, restricted];
+    const salon = { kind: 'screen', locator: 'chromecast://salon' };
+    const unknown = { kind: 'screen', locator: 'chromecast://elsewhere' };
+    const otherKind = { kind: 'speaker', locator: 'chromecast://salon' };
+    expect(refusedDevice([unknown, salon], kept, stranger)).toBe(restricted);
+    expect(refusedDevice([salon], kept, member)).toBeUndefined();
+    expect(refusedDevice([unknown, otherKind], kept, stranger)).toBeUndefined();
+  });
+
+  it('takes a list of groups, empty to open the device', () => {
+    const id = '00000000-0000-4000-8000-000000000000';
+    expect(deviceGroupsInputSchema.safeParse({ id, groupIds: [] }).success).toBe(true);
+    expect(deviceGroupsInputSchema.safeParse({ id, groupIds: [family] }).success).toBe(true);
+    expect(deviceGroupsInputSchema.safeParse({ id, groupIds: ['x'] }).success).toBe(false);
   });
 });

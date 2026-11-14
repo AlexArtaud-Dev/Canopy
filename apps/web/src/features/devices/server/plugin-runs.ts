@@ -15,6 +15,8 @@ import { initialValues, requestValues } from '@/features/commands/commands.utils
 import { savedDefaults } from '@/features/plugins/saved-values.utils';
 import { loadSavedValues } from '@/features/plugins/server/saved-values-actions';
 
+import { assertDevicesAllowed } from './device-access';
+
 export type EngineClient = Awaited<ReturnType<typeof engineClientFor>>;
 
 /** Parses an action's input; anything else is a bad request. */
@@ -56,7 +58,8 @@ export function entryOf(catalog: CommandCatalog, id: string): CommandEntry {
 
 /**
  * Starts a plugin command as the caller (authorized and audited by the engine like any run), its
- * fields starting with the values saved for the plugin, then with `values`.
+ * fields starting with the values saved for the plugin, then with `values`. A device the person
+ * may not use is refused here.
  */
 export async function startPluginCommand(
   client: EngineClient,
@@ -70,6 +73,7 @@ export async function startPluginCommand(
     entry.params,
     initialValues(entry.params, { ...defaults, ...values }),
   );
+  await assertDevicesAllowed(entry, params);
   const started = await startCommand({
     client,
     body: { entry: entry.id, params, dryRun: false },

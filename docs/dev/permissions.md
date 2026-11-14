@@ -50,6 +50,14 @@ Implementation: `apps/engine/internal/authz` (pure, 100 % covered) and `internal
 | + group Family: deny read `/media/private` | read          | —                |
 | + user Alice: allow read `/media/private`  | read          | read (Alice)     |
 
+## Devices (screens)
+
+Plugins' devices can be restricted to groups (`app.device_groups`, empty = open to everyone who
+may run the command; `system:admin` uses every device). The rule is pure
+(`mayUseDevice` / `refusedDevice` in `features/devices/devices.utils.ts`, fully tested) and every
+command run goes through `assertDevicesAllowed` in the web app before reaching the engine; the
+engine itself knows nothing of devices. See [devices](../features/devices.md).
+
 ## Generic module interface
 
 ```ts

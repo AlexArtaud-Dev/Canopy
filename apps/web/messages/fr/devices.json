@@ -31,7 +31,9 @@
     "nameHelp": "Vide, il reprend le nom qu’il annonce.",
     "cancel": "Annuler",
     "save": "Enregistrer",
-    "pair": "Jumeler"
+    "pair": "Jumeler",
+    "restricted": "restreint",
+    "access": "Qui peut l’utiliser"
   },
   "pairing": {
     "title": "Jumeler {name}",
@@ -65,5 +67,16 @@
       "buffering": "chargement",
       "idle": "fin"
     }
+  },
+  "access": {
+    "title": "Qui peut utiliser {name}",
+    "description": "Seuls les membres des groupes cochés le choisissent et y diffusent ; les administrateurs le peuvent toujours.",
+    "groups": "Groupes",
+    "open": "Aucun groupe coché : toute personne pouvant lancer les commandes du plugin l’utilise.",
+    "restricted": "{count, plural, one {# groupe autorisé.} other {# groupes autorisés.}}",
+    "noGroups": "Il n’y a encore aucun groupe.",
+    "createGroups": "Créer des groupes",
+    "cancel": "Annuler",
+    "save": "Enregistrer"
   }
 }

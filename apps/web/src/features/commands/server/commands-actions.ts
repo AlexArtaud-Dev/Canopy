@@ -17,6 +17,7 @@ import { runAction, type ActionResult } from '@/shared/lib/action';
 import { AppBaseError } from '@/shared/lib/errors';
 import { requireSession } from '@/features/auth';
 import { engineClientFor } from '@/features/files/server/engine-client';
+import { assertDevicesAllowed } from '@/features/devices/server/device-access';
 
 /** The engine decides what is visible, validates the values and checks path rights. */
 async function client() {
@@ -61,7 +62,12 @@ export async function previewCommand(input: unknown): Promise<ActionResult<Comma
 export async function startCommand(input: unknown): Promise<ActionResult<Job>> {
   return runAction(async () => {
     const body = parse(input);
-    const { data, error, response } = await startEngineCommand({ client: await client(), body });
+    const engine = await client();
+    // The engine knows nothing of who may use which device: checked here, before it runs.
+    const { data: catalog } = await listCommands({ client: engine });
+    const entry = catalog?.entries.find((candidate) => candidate.id === body.entry);
+    if (entry) await assertDevicesAllowed(entry, body.params);
+    const { data, error, response } = await startEngineCommand({ client: engine, body });
     if (!data) refused(response, error);
     return data;
   });

@@ -27,6 +27,8 @@ export interface Device {
   addedByHand: boolean;
   /** ISO 8601; null for a device added by hand and never found since. */
   lastSeen: string | null;
+  /** The groups allowed to use it; empty: everyone who may run the plugin's commands. */
+  groupIds: string[];
 }
 
 /** How many devices of one kind a plugin may keep: detection never grows a list without end. */
@@ -155,6 +157,61 @@ export function startingDevice(
     offered.find((device) => isOnline(device, now))
   );
 }
+
+/** Who wants to use a device: administrators use every one, others through their groups. */
+export interface DeviceUser {
+  isAdmin: boolean;
+  groupIds: ReadonlySet<string>;
+}
+
+/** A device restricted to groups is used by their members only (and administrators). */
+export function mayUseDevice(device: Pick<Device, 'groupIds'>, user: DeviceUser): boolean {
+  return (
+    user.isAdmin ||
+    device.groupIds.length === 0 ||
+    device.groupIds.some((groupId) => user.groupIds.has(groupId))
+  );
+}
+
+/** A device a run names: the kind of a device field and the value it was given. */
+export interface NamedDevice {
+  kind: string;
+  locator: string;
+}
+
+/** The devices a run's values name, one per device field given a value. */
+export function namedDevices(
+  entry: Pick<CommandEntry, 'params'>,
+  values: Readonly<Record<string, string | number | boolean>>,
+): NamedDevice[] {
+  return entry.params.flatMap((param) => {
+    const value = values[param.name];
+    if (!param.device || typeof value !== 'string' || value.trim() === '') return [];
+    return [{ kind: param.device, locator: value.trim() }];
+  });
+}
+
+/**
+ * The first kept device a run names that the person may not use, if any. A value naming no kept
+ * device is left to the plugin: only the devices Canopy knows can be restricted.
+ */
+export function refusedDevice(
+  named: readonly NamedDevice[],
+  kept: readonly Device[],
+  user: DeviceUser,
+): Device | undefined {
+  const byKey = new Map(kept.map((device) => [`${device.kind}	${device.locator}`, device]));
+  for (const { kind, locator } of named) {
+    const device = byKey.get(`${kind}	${locator}`);
+    if (device && !mayUseDevice(device, user)) return device;
+  }
+  return undefined;
+}
+
+/** The groups an administrator allows on a device; none opens it to everyone. */
+export const deviceGroupsInputSchema = deviceIdInputSchema.extend({
+  groupIds: z.array(z.uuid()).max(200),
+});
 
 /** The pairing run to check before a device is marked paired. */
 export const confirmPairingInputSchema = deviceIdInputSchema.extend({ jobId: z.uuid() });
