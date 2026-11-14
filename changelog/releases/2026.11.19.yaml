@@ -1,0 +1,9 @@
+date: 2026-11-14
+entries:
+  - type: feat
+    scope: web
+    issue: 218
+    text:
+      en: Share files from your phone to Canopy - once the app is installed on Android, Share › Canopy, then open the folder where they go and upload them.
+      fr: Partagez des fichiers de votre téléphone vers Canopy - une fois l’application installée sur Android, Partager › Canopy, puis ouvrez le dossier où les ranger et envoyez-les.
+      es: Comparta archivos desde su teléfono a Canopy - con la aplicación instalada en Android, Compartir › Canopy, luego abra la carpeta donde van y súbalos.
