@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Copy, File, Folder, Link2, LockKeyhole, Unlink } from 'lucide-react';
+import { Copy, File, Folder, Inbox, Link2, LockKeyhole, Unlink } from 'lucide-react';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -17,6 +17,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group';
 import { formatBytes } from '@/features/files/browser.utils';
 
 import { loadShares, revokeShare, type ShareView } from './server/share-actions';
+import { DropOffsDialog } from './ui/drop-offs-dialog';
 
 interface SharesContainerProps {
   initial: ShareView[];
@@ -35,6 +36,7 @@ export function SharesContainer({ initial, canManage, ownerNames }: SharesContai
   const queryClient = useQueryClient();
   const [scope, setScope] = useState<'mine' | 'all'>('mine');
   const [revoking, setRevoking] = useState<ShareView | null>(null);
+  const [history, setHistory] = useState<ShareView | null>(null);
   const [pending, setPending] = useState(false);
   const { data } = useQuery({
     queryKey: ['shares', scope],
@@ -170,6 +172,22 @@ export function SharesContainer({ initial, canManage, ownerNames }: SharesContai
                     </TableCell>
                     <TableCell>
                       <span className="flex justify-end gap-1">
+                        {share.kind === 'upload' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            aria-label={t('dropOffs', {
+                              name: share.name,
+                              count: share.dropOffCount,
+                            })}
+                            onClick={() => {
+                              setHistory(share);
+                            }}
+                          >
+                            <Inbox aria-hidden />
+                            <span className="tabular-nums">{share.dropOffCount}</span>
+                          </Button>
+                        )}
                         {share.link && share.status === 'active' && (
                           <Button
                             variant="ghost"
@@ -202,6 +220,15 @@ export function SharesContainer({ initial, canManage, ownerNames }: SharesContai
             </TableBody>
           </Table>
         </div>
+      )}
+      {history && (
+        <DropOffsDialog
+          key={history.id}
+          share={history}
+          onClose={() => {
+            setHistory(null);
+          }}
+        />
       )}
       <ConfirmDialog
         open={revoking !== null}

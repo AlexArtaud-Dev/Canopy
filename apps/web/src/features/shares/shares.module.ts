@@ -20,5 +20,8 @@ export const sharesModule = defineModule({
     'shares.unlock_failed',
     'shares.download',
     'shares.upload',
+    'shares.drop_off_start',
+    'shares.drop_off_verify',
+    'shares.drop_off_erase',
   ],
 });

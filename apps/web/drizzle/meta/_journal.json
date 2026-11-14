@@ -127,6 +127,13 @@
       "when": 1794650259861,
       "tag": "0017_device_groups",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794658372911,
+      "tag": "0018_share_drop_offs",
+      "breakpoints": true
     }
   ]
 }

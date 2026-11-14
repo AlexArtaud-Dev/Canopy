@@ -85,3 +85,21 @@ export async function securityNoticeEmail(
     footer: t('footer.account'),
   });
 }
+
+/** Proves a depositor's e-mail before they send files through an upload link. */
+export async function dropOffCodeEmail(
+  locale: string | null | undefined,
+  values: { code: string; name: string },
+): Promise<RenderedEmail> {
+  const t = await translatorFor(locale);
+  return renderEmail(t('dropOffCode.subject', { code: values.code }), {
+    title: t('dropOffCode.title', { code: values.code }),
+    preheader: t('dropOffCode.preheader'),
+    paragraphs: [
+      t('dropOffCode.body', { name: values.name }),
+      t('dropOffCode.expiry'),
+      t('dropOffCode.ignore'),
+    ],
+    footer: t('footer.dropOff'),
+  });
+}

@@ -171,6 +171,10 @@
       "requirePassword": {
         "label": "Require a password",
         "description": "Every new link must be protected by a password."
+      },
+      "dropOffRetentionDays": {
+        "label": "Keep drop-off history (days)",
+        "description": "Who sent files through upload links, and what (names, e-mails, file names), is forgotten after this long. The files stay."
       }
     },
     "commands": {

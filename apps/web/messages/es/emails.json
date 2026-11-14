@@ -1,7 +1,8 @@
 {
   "footer": {
     "admin": "Recibes este correo porque un administrador de tu instancia de Canopy lo envió.",
-    "account": "Recibes este correo por actividad en tu cuenta de Canopy. Si no fuiste tú, contacta con tu administrador."
+    "account": "Recibes este correo por actividad en tu cuenta de Canopy. Si no fuiste tú, contacta con tu administrador.",
+    "dropOff": "Recibe este correo porque esta dirección se indicó en una página de depósito de Canopy."
   },
   "test": {
     "subject": "Correo de prueba de Canopy",
@@ -49,5 +50,13 @@
       "title": "Nuevo inicio de sesión, {name}",
       "body": "Tu cuenta de Canopy se acaba de usar para iniciar sesión desde un dispositivo o una dirección poco habituales."
     }
+  },
+  "dropOffCode": {
+    "subject": "Su código para enviar archivos: {code}",
+    "title": "Su código: {code}",
+    "preheader": "Escríbalo en la página de depósito para enviar sus archivos.",
+    "body": "Pidió enviar archivos por el enlace «{name}». Escriba este código en la página de depósito para confirmar su dirección de correo.",
+    "expiry": "El código es válido durante 15 minutos.",
+    "ignore": "Si no lo pidió, ignore este correo: no se envía nada sin el código."
   }
 }

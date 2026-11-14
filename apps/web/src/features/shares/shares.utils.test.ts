@@ -17,6 +17,14 @@ import {
   sharePasswordMaxLength,
   shareTokenPattern,
   tokenSchema,
+  codeRefusal,
+  depositorSchema,
+  dropOffCodeAttempts,
+  dropOffCodeSchema,
+  dropOffStep,
+  dropOffCodeLength,
+  dropOffCodeTtlMs,
+  shareIdentities,
 } from './shares.utils';
 
 const now = new Date('2026-01-10T00:00:00Z');
@@ -80,7 +88,13 @@ describe('inputs', () => {
       password: '',
       maxDownloads: null,
       kind: 'download',
-      upload: { extensions: '', maxFileMb: null, maxTotalMb: null, maxFiles: null },
+      upload: {
+        extensions: '',
+        maxFileMb: null,
+        maxTotalMb: null,
+        maxFiles: null,
+        identity: 'none',
+      },
     });
     expect(
       createShareSchema.safeParse({ path: '/a', expiresInDays: 0, maxDownloads: 0 }).success,
@@ -140,5 +154,73 @@ describe('upload rules', () => {
     expect(uploadRefusal(open, usage, { name: 'anything', size: 1e12 })).toBeNull();
     expect(megabytes(2)).toBe(2097152);
     expect(megabytes(null)).toBeNull();
+  });
+});
+
+describe('depositors', () => {
+  const declared = { name: 'Ada', email: 'ada@example.com', verified: false, codePending: false };
+
+  it('offers three levels and short-lived six-digit codes', () => {
+    expect(shareIdentities).toEqual(['none', 'declared', 'verified']);
+    expect(dropOffCodeLength).toBe(6);
+    expect(dropOffCodeTtlMs).toBe(15 * 60_000);
+  });
+
+  it('asks nothing of links that ask nothing', () => {
+    expect(dropOffStep('none', null)).toBe('ready');
+  });
+
+  it('asks a name and e-mail first, then is ready for a declared identity', () => {
+    expect(dropOffStep('declared', null)).toBe('identity');
+    expect(dropOffStep('declared', { ...declared, email: null })).toBe('identity');
+    expect(dropOffStep('declared', declared)).toBe('ready');
+  });
+
+  it('asks for the code once sent, and again for an e-mail when the code is gone', () => {
+    expect(dropOffStep('verified', null)).toBe('identity');
+    expect(dropOffStep('verified', { ...declared, codePending: true })).toBe('code');
+    expect(dropOffStep('verified', declared)).toBe('identity');
+    expect(dropOffStep('verified', { ...declared, verified: true })).toBe('ready');
+  });
+
+  it('accepts the right code in time only, and a few tries at most', () => {
+    const now = new Date('2026-11-14T12:00:00Z');
+    const later = new Date('2026-11-14T12:10:00Z');
+    const pending = { codeExpiresAt: later, codeAttempts: 0 };
+    expect(codeRefusal(pending, true, now)).toBeNull();
+    expect(codeRefusal(pending, false, now)).toBe('shares.code_invalid');
+    expect(codeRefusal({ ...pending, codeExpiresAt: now }, true, now)).toBe('shares.code_expired');
+    expect(codeRefusal({ ...pending, codeExpiresAt: null }, true, now)).toBe('shares.code_expired');
+    expect(codeRefusal({ ...pending, codeAttempts: dropOffCodeAttempts }, true, now)).toBe(
+      'shares.code_expired',
+    );
+  });
+
+  it('validates what depositors type', () => {
+    const token = 'x'.repeat(43);
+    expect(
+      depositorSchema.safeParse({ token, name: ' Ada ', email: 'ada@example.com' }).data,
+    ).toMatchObject({ name: 'Ada' });
+    expect(depositorSchema.safeParse({ token, name: '', email: 'ada@example.com' }).success).toBe(
+      false,
+    );
+    expect(depositorSchema.safeParse({ token, name: 'Ada', email: 'not-an-email' }).success).toBe(
+      false,
+    );
+    expect(dropOffCodeSchema.safeParse({ token, code: '012345' }).success).toBe(true);
+    expect(dropOffCodeSchema.safeParse({ token, code: '12345' }).success).toBe(false);
+  });
+
+  it('keeps upload links open to anyone unless asked', () => {
+    const upload = createShareSchema.parse({ path: '/a', expiresInDays: 1, kind: 'upload' });
+    expect(upload.upload.identity).toBe('none');
+    expect(
+      createShareSchema.safeParse({
+        path: '/a',
+        expiresInDays: 1,
+        kind: 'upload',
+        upload: { identity: 'verified' },
+      }).data?.upload.identity,
+    ).toBe('verified');
   });
 });

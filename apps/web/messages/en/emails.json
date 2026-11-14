@@ -1,7 +1,8 @@
 {
   "footer": {
     "admin": "You received this email because an administrator of your Canopy instance sent it.",
-    "account": "You received this email because of activity on your Canopy account. If this was not you, contact your administrator."
+    "account": "You received this email because of activity on your Canopy account. If this was not you, contact your administrator.",
+    "dropOff": "You received this email because this address was given on a Canopy upload page."
   },
   "test": {
     "subject": "Canopy test email",
@@ -49,5 +50,13 @@
       "title": "New sign-in, {name}",
       "body": "Your Canopy account was just used to sign in from a device or address it had not used recently."
     }
+  },
+  "dropOffCode": {
+    "subject": "Your code to send files: {code}",
+    "title": "Your code: {code}",
+    "preheader": "Type it on the upload page to send your files.",
+    "body": "You asked to send files through the link “{name}”. Type this code on the upload page to confirm your e-mail address.",
+    "expiry": "The code works for 15 minutes.",
+    "ignore": "If you did not ask for it, ignore this email: nothing is sent without the code."
   }
 }

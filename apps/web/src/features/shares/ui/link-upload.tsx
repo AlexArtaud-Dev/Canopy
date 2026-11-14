@@ -1,6 +1,12 @@
 'use client';
 
-import { CircleAlert, CircleCheck, FolderInput, Upload as UploadIcon } from 'lucide-react';
+import {
+  BadgeCheck,
+  CircleAlert,
+  CircleCheck,
+  FolderInput,
+  Upload as UploadIcon,
+} from 'lucide-react';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { useRef, useState, type DragEvent } from 'react';
 import { Upload } from 'tus-js-client';
@@ -15,7 +21,15 @@ import { uploadChunkSize } from '@/features/uploads/uploads.utils';
 
 import { prepareLinkUpload } from '../server/public-share-actions';
 import type { SharedItem } from '../server/public-share';
-import { uploadRefusal, type UploadRules, type UploadUsage } from '../shares.utils';
+import {
+  dropOffStep,
+  uploadRefusal,
+  type DropOffState,
+  type ShareIdentity,
+  type UploadRules,
+  type UploadUsage,
+} from '../shares.utils';
+import { DepositorForm } from './depositor-form';
 
 type SentFile =
   | { id: string; name: string; size: number; state: 'waiting' | 'done' }
@@ -27,6 +41,8 @@ interface LinkUploadProps {
   item: SharedItem;
   rules: UploadRules;
   usage: UploadUsage;
+  identity: ShareIdentity;
+  depositor: DropOffState | null;
 }
 
 /** Sends one file through the link; resolves to null when stored, or an error code. */
@@ -59,7 +75,14 @@ function send(file: File, endpoint: string, folder: string, onProgress: (sent: n
  * An upload link's page: visitors drop or pick files, each is checked against the link's rules,
  * then sent one after the other. They never see what the folder already holds.
  */
-export function LinkUpload({ token, item, rules, usage: initialUsage }: LinkUploadProps) {
+export function LinkUpload({
+  token,
+  item,
+  rules,
+  usage: initialUsage,
+  identity,
+  depositor: initialDepositor,
+}: LinkUploadProps) {
   const t = useTranslations('shares.public');
   const format = useFormatter();
   const locale = useLocale();
@@ -69,6 +92,8 @@ export function LinkUpload({ token, item, rules, usage: initialUsage }: LinkUplo
   const [dragging, setDragging] = useState(false);
   const usage = useRef<UploadUsage>({ ...initialUsage });
   const queue = useRef(Promise.resolve());
+  const [depositor, setDepositor] = useState(initialDepositor);
+  const step = dropOffStep(identity, depositor);
 
   const update = (id: string, next: SentFile) => {
     setFiles((current) => current.map((file) => (file.id === id ? next : file)));
@@ -156,47 +181,70 @@ export function LinkUpload({ token, item, rules, usage: initialUsage }: LinkUplo
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div
-          onDragOver={(event) => {
-            event.preventDefault();
-            setDragging(true);
-          }}
-          onDragLeave={() => {
-            setDragging(false);
-          }}
-          onDrop={onDrop}
-          className={cn(
-            'grid place-items-center gap-3 rounded-lg border border-dashed p-8 text-center',
-            dragging && 'border-primary bg-primary/5',
-          )}
-        >
-          <UploadIcon className="text-muted-foreground size-8" aria-hidden />
-          <p className="text-sm">{t('dropHere')}</p>
-          <Button
-            type="button"
-            onClick={() => {
-              input.current?.click();
-            }}
-          >
-            {t('chooseFiles')}
-          </Button>
-          <input
-            ref={input}
-            type="file"
-            multiple
-            hidden
-            accept={rules.allowedExtensions?.map((ext) => `.${ext}`).join(',')}
-            onChange={(event) => {
-              add([...(event.target.files ?? [])]);
-              event.target.value = '';
-            }}
+        {identity !== 'none' && step !== 'ready' && (
+          <DepositorForm
+            token={token}
+            identity={identity}
+            step={step}
+            depositor={depositor}
+            onChange={setDepositor}
           />
-        </div>
-        <ul className="text-muted-foreground grid gap-0.5 text-xs">
-          {limits.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
+        )}
+        {step === 'ready' && depositor?.email && (
+          <p className="text-muted-foreground flex min-w-0 items-center gap-2 text-sm">
+            {depositor.verified && (
+              <BadgeCheck className="text-primary size-4 shrink-0" aria-hidden />
+            )}
+            <span className="truncate">
+              {t('sendingAs', { name: depositor.name ?? '', email: depositor.email })}
+            </span>
+          </p>
+        )}
+        {step === 'ready' && (
+          <>
+            <div
+              onDragOver={(event) => {
+                event.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => {
+                setDragging(false);
+              }}
+              onDrop={onDrop}
+              className={cn(
+                'grid place-items-center gap-3 rounded-lg border border-dashed p-8 text-center',
+                dragging && 'border-primary bg-primary/5',
+              )}
+            >
+              <UploadIcon className="text-muted-foreground size-8" aria-hidden />
+              <p className="text-sm">{t('dropHere')}</p>
+              <Button
+                type="button"
+                onClick={() => {
+                  input.current?.click();
+                }}
+              >
+                {t('chooseFiles')}
+              </Button>
+              <input
+                ref={input}
+                type="file"
+                multiple
+                hidden
+                accept={rules.allowedExtensions?.map((ext) => `.${ext}`).join(',')}
+                onChange={(event) => {
+                  add([...(event.target.files ?? [])]);
+                  event.target.value = '';
+                }}
+              />
+            </div>
+            <ul className="text-muted-foreground grid gap-0.5 text-xs">
+              {limits.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </>
+        )}
         {files.length > 0 && (
           <ul className="divide-y rounded-lg border" aria-live="polite">
             {files.map((file) => (

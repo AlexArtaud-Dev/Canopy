@@ -25,7 +25,13 @@
     "maxFileMb": "Max per file (MB)",
     "maxTotalMb": "Max in total (MB)",
     "maxFiles": "Max files",
-    "noLimit": "No limit"
+    "noLimit": "No limit",
+    "identity": "Ask depositors",
+    "identityNone": "Nothing",
+    "identityDeclared": "Their name and e-mail",
+    "identityVerified": "Their name and an e-mail verified by a code",
+    "identityHint": "With a verified e-mail, depositors type a code sent to them before sending anything.",
+    "identityNeedsMail": "Verifying e-mails needs e-mail to be set up by an administrator."
   },
   "page": {
     "description": "Links you created to files and folders. A link stops working when it expires, reaches its download limit or is revoked.",
@@ -57,7 +63,8 @@
     "revoked": "Link revoked",
     "kindDownload": "Download",
     "kindUpload": "Upload",
-    "received": "{count, plural, one {# file received} other {# files received}} · {size}"
+    "received": "{count, plural, one {# file received} other {# files received}} · {size}",
+    "dropOffs": "{count, plural, one {# drop-off on {name}} other {# drop-offs on {name}}}"
   },
   "public": {
     "title": "Shared with you",
@@ -90,6 +97,31 @@
     "spaceLeft": "{size} can still be sent.",
     "waiting": "Waiting…",
     "sent": "Sent",
-    "sending": "Sending {name}"
+    "sending": "Sending {name}",
+    "sendingAs": "Sending as {name} ({email})",
+    "depositor": {
+      "intro": "Before sending files, tell the person who shared this link who you are.",
+      "introVerified": "Before sending files, tell the person who shared this link who you are. A code is sent to your e-mail to confirm it.",
+      "name": "Your name",
+      "email": "Your e-mail",
+      "privacy": "Shown to the person who shared this link, with what you send.",
+      "continue": "Continue",
+      "sendCode": "Send me a code",
+      "codeSent": "A code was sent to {email}. Type it below (check your spam folder if it does not arrive).",
+      "code": "Code",
+      "confirm": "Confirm",
+      "resend": "Send a new code"
+    }
+  },
+  "dropOffs": {
+    "title": "Drop-offs on {name}",
+    "description": "Who sent files through this link, when, and which files.",
+    "emptyTitle": "Nothing received yet",
+    "empty": "Each visit that sends files appears here.",
+    "anonymous": "Anonymous",
+    "verified": "E-mail verified",
+    "summary": "{count, plural, one {# file} other {# files}} · {size} · {date}",
+    "erase": "Erase the record of {name}",
+    "erased": "Record erased. The files stay in the folder."
   }
 }

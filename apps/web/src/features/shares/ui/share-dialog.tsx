@@ -26,7 +26,13 @@ import { Spinner } from '@/shared/ui/spinner';
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group';
 
 import { createShare, loadShareOptions, type ShareOptions } from '../server/share-actions';
-import { defaultExpiry, expiryOptions, sharePasswordMaxLength } from '../shares.utils';
+import {
+  shareIdentities,
+  type ShareIdentity,
+  defaultExpiry,
+  expiryOptions,
+  sharePasswordMaxLength,
+} from '../shares.utils';
 
 interface ShareDialogProps {
   /** The item to share, or null when closed. */
@@ -103,6 +109,7 @@ function ShareForm({ path, canReceive, options, onClose }: ShareFormProps) {
   const [maxFileMb, setMaxFileMb] = useState('');
   const [maxTotalMb, setMaxTotalMb] = useState('');
   const [maxFiles, setMaxFiles] = useState('');
+  const [identity, setIdentity] = useState<ShareIdentity>('none');
   const [error, setError] = useState<FormErrorContent | null>(null);
   const [link, setLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -113,6 +120,7 @@ function ShareForm({ path, canReceive, options, onClose }: ShareFormProps) {
     maxFileMb: limitOf(maxFileMb),
     maxTotalMb: limitOf(maxTotalMb),
     maxFiles: limitOf(maxFiles),
+    identity,
   };
   const valid =
     (!options.requirePassword || password !== '') &&
@@ -270,6 +278,30 @@ function ShareForm({ path, canReceive, options, onClose }: ShareFormProps) {
               />
             </Field>
           </div>
+          <Field>
+            <FieldLabel htmlFor="share-identity">{t('identity')}</FieldLabel>
+            <Select
+              value={identity}
+              onValueChange={(value) => {
+                const next = shareIdentities.find((option) => option === value);
+                if (next) setIdentity(next);
+              }}
+            >
+              <SelectTrigger id="share-identity" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t('identityNone')}</SelectItem>
+                <SelectItem value="declared">{t('identityDeclared')}</SelectItem>
+                <SelectItem value="verified" disabled={!options.mailReady}>
+                  {t('identityVerified')}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <FieldDescription>
+              {options.mailReady ? t('identityHint') : t('identityNeedsMail')}
+            </FieldDescription>
+          </Field>
         </>
       )}
       <Field>

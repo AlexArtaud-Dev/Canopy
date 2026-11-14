@@ -25,7 +25,13 @@
     "maxFileMb": "Máx. por archivo (MB)",
     "maxTotalMb": "Máx. en total (MB)",
     "maxFiles": "Máx. de archivos",
-    "noLimit": "Sin límite"
+    "noLimit": "Sin límite",
+    "identity": "Pedir a quien deposita",
+    "identityNone": "Nada",
+    "identityDeclared": "Su nombre y su correo",
+    "identityVerified": "Su nombre y un correo verificado con un código",
+    "identityHint": "Con un correo verificado, quien deposita escribe un código recibido antes de enviar nada.",
+    "identityNeedsMail": "Verificar correos requiere que un administrador configure el envío de correos."
   },
   "page": {
     "description": "Los enlaces que creaste a archivos y carpetas. Un enlace deja de funcionar cuando caduca, alcanza su límite de descargas o se revoca.",
@@ -57,7 +63,8 @@
     "revoked": "Enlace revocado",
     "kindDownload": "Descarga",
     "kindUpload": "Subida",
-    "received": "{count, plural, one {# archivo recibido} other {# archivos recibidos}} · {size}"
+    "received": "{count, plural, one {# archivo recibido} other {# archivos recibidos}} · {size}",
+    "dropOffs": "{count, plural, one {# depósito en {name}} other {# depósitos en {name}}}"
   },
   "public": {
     "title": "Compartido contigo",
@@ -90,6 +97,31 @@
     "spaceLeft": "Aún se pueden enviar {size}.",
     "waiting": "En espera…",
     "sent": "Enviado",
-    "sending": "Enviando {name}"
+    "sending": "Enviando {name}",
+    "sendingAs": "Enviando como {name} ({email})",
+    "depositor": {
+      "intro": "Antes de enviar archivos, indique quién es a la persona que compartió este enlace.",
+      "introVerified": "Antes de enviar archivos, indique quién es a la persona que compartió este enlace. Se envía un código a su correo para confirmarlo.",
+      "name": "Su nombre",
+      "email": "Su correo",
+      "privacy": "Lo ve la persona que compartió este enlace, junto con lo que envíe.",
+      "continue": "Continuar",
+      "sendCode": "Enviarme un código",
+      "codeSent": "Se envió un código a {email}. Escríbalo abajo (revise el correo no deseado si no llega).",
+      "code": "Código",
+      "confirm": "Confirmar",
+      "resend": "Enviar un código nuevo"
+    }
+  },
+  "dropOffs": {
+    "title": "Depósitos en {name}",
+    "description": "Quién envió archivos por este enlace, cuándo y cuáles.",
+    "emptyTitle": "Nada recibido todavía",
+    "empty": "Cada visita que envía archivos aparece aquí.",
+    "anonymous": "Anónimo",
+    "verified": "Correo verificado",
+    "summary": "{count, plural, one {# archivo} other {# archivos}} · {size} · {date}",
+    "erase": "Borrar el registro de {name}",
+    "erased": "Registro borrado. Los archivos siguen en la carpeta."
   }
 }

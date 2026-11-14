@@ -171,6 +171,10 @@
       "requirePassword": {
         "label": "Exigir contraseña",
         "description": "Cada enlace nuevo debe estar protegido con contraseña."
+      },
+      "dropOffRetentionDays": {
+        "label": "Conservar el historial de depósitos (días)",
+        "description": "Quién envió archivos por los enlaces de depósito, y qué (nombres, correos, nombres de archivo), se olvida tras este plazo. Los archivos se quedan."
       }
     },
     "commands": {
