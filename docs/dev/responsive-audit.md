@@ -48,6 +48,13 @@ readable, reachable with a thumb.
 - Built-in roles are described in the person's language; the users search placeholder fits.
 - Checked again at 768 × 1024 (tablet): no page wider than the screen.
 
+## Fixed in the third pass
+
+- A file's actions open in a sheet from the bottom (long press or ⋮) instead of a right-click
+  menu whose submenus left the screen (#209).
+- A deep folder no longer makes the breadcrumb overlap: the folders in between are listed
+  behind a … button.
+
 ## Checked by reading the code
 
 Sign-in and 2FA, the public share page and the setup screens need a signed-out browser: their

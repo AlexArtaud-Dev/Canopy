@@ -5,11 +5,13 @@ import {
   ArrowUp,
   ChevronRight,
   FilePlus,
+  Folder,
   FolderPlus,
   FolderUp,
   Keyboard,
   LayoutGrid,
   List,
+  MoreHorizontal,
   RefreshCw,
   Star,
   Upload,
@@ -17,6 +19,9 @@ import {
 import Link from 'next/link';
 import type { Route } from 'next';
 import { useTranslations } from 'next-intl';
+import { Fragment } from 'react';
+
+import { cn } from 'cn';
 
 import { Button } from '@/shared/ui/button';
 import {
@@ -78,25 +83,56 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
         {crumbs.map((crumb, index) => {
           const current = index === crumbs.length - 1;
           const label = crumb.path === '/' ? t('root') : crumb.name;
+          // On a phone the folders between the root and the current one fold into "…".
+          const middle = index > 0 && !current;
           return (
-            <span key={crumb.path} className={cnCrumb(current)}>
-              {current ? (
-                <span aria-current="page" className="truncate px-2 font-medium">
-                  {label}
+            <Fragment key={crumb.path}>
+              {index === 1 && crumbs.length > 2 && (
+                <span className="flex shrink-0 items-center sm:hidden">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" aria-label={t('hiddenFolders')}>
+                        <MoreHorizontal aria-hidden />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-72 max-w-[85vw]">
+                      {crumbs.slice(1, -1).map((hidden) => (
+                        <DropdownMenuItem key={hidden.path} asChild>
+                          <Link href={props.hrefFor(hidden.path) as Route}>
+                            <Folder aria-hidden />
+                            <span className="truncate">{hidden.name}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <ChevronRight className="text-muted-foreground size-3.5 shrink-0" aria-hidden />
                 </span>
-              ) : (
-                <DropCrumb path={crumb.path}>
-                  <Button asChild variant="ghost" size="sm" className="max-w-40 min-w-0">
-                    <Link href={props.hrefFor(crumb.path) as Route}>
-                      <span className="truncate">{label}</span>
-                    </Link>
-                  </Button>
-                </DropCrumb>
               )}
-              {!current && (
-                <ChevronRight className="text-muted-foreground size-3.5 shrink-0" aria-hidden />
-              )}
-            </span>
+              <span className={cn(cnCrumb(current), middle && 'max-sm:hidden')}>
+                {current ? (
+                  <span aria-current="page" className="truncate px-2 font-medium">
+                    {label}
+                  </span>
+                ) : (
+                  <DropCrumb path={crumb.path}>
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="sm"
+                      className="max-w-40 min-w-0 shrink max-sm:max-w-32"
+                    >
+                      <Link href={props.hrefFor(crumb.path) as Route}>
+                        <span className="truncate">{label}</span>
+                      </Link>
+                    </Button>
+                  </DropCrumb>
+                )}
+                {!current && (
+                  <ChevronRight className="text-muted-foreground size-3.5 shrink-0" aria-hidden />
+                )}
+              </span>
+            </Fragment>
           );
         })}
         {props.favorite !== null && (

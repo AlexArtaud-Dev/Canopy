@@ -199,7 +199,8 @@
         "title": "Aucun résultat",
         "description": "Aucun nom de fichier ou de dossier ici ne contient tous les mots saisis. Vérifiez l’orthographe, ou cherchez depuis un dossier parent."
       }
-    }
+    },
+    "hiddenFolders": "Dossiers intermédiaires"
   },
   "preview": {
     "previous": "Fichier précédent",
