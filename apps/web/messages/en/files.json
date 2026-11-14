@@ -199,7 +199,8 @@
         "title": "No results",
         "description": "No file or folder name here contains every word you typed. Check the spelling, or search from a parent folder."
       }
-    }
+    },
+    "hiddenFolders": "Folders in between"
   },
   "preview": {
     "previous": "Previous file",

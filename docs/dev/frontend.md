@@ -41,7 +41,7 @@ Dependency direction is one-way: `ui ← container ← model ← server/contract
 ## Layout & devices
 
 - Collapsible shadcn `Sidebar` (desktop), `Sheet` on mobile; breadcrumbs + active nav states.
-- Touch: long-press opens the same context menu as right-click; targets ≥ 44 px;
+- Touch: long-press opens the same actions as right-click; targets ≥ 44 px;
   drag & drop always has a keyboard/menu alternative (Move to…).
 - File views: list and grid, virtualized (TanStack Virtual), keyboard navigation (arrows, Enter,
   Space to select, shortcuts listed in a `?` help dialog).
@@ -57,6 +57,11 @@ Dependency direction is one-way: `ui ← container ← model ← server/contract
   - **Touch**: an item's actions are reachable by a visible button (`pointer-coarse:`), never
     only by right click or long press; menus hide keyboard shortcuts on touch screens; small
     icon buttons grow to 40 px (`pointer-coarse:size-10`).
+  - **Menus are sheets**: an item's actions (long press or ⋮) open in a sheet from the bottom,
+    groups unfolding in place; one list (`useEntryActions`) feeds both the right-click menu and
+    the sheet, so they never differ. Nested menus never open on a phone.
+  - **Breadcrumbs collapse**: the root and the current folder stay, the folders in between go
+    behind a … menu; every crumb truncates.
   - Floating panels start folded (the operations panel).
 
 ## UX patterns

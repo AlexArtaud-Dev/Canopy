@@ -1,29 +1,8 @@
 'use client';
 
-import {
-  CheckCheck,
-  CopyPlus,
-  FileArchive,
-  FileCheck,
-  PackageOpen,
-  Download,
-  FolderInput,
-  Eye,
-  FolderOpen,
-  FolderSearch,
-  HardDrive,
-  Info,
-  Link2,
-  Share2,
-  Star,
-  StarOff,
-  PencilLine,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { Slot } from 'radix-ui';
 import type { CommandEntry } from '@canopy/contracts';
-import type { ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 
 import {
   ContextMenu,
@@ -36,25 +15,18 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from '@/shared/ui/context-menu';
-
-import {
-  archiveFormats,
-  checksumAlgorithms,
-  isArchive,
-  type ArchiveFormat,
-  type ChecksumAlgorithm,
-} from '../operations.utils';
-import { canPreview } from '../preview.utils';
+import { useIsMobile } from '@/shared/ui/use-mobile';
 import type { PluginMenu } from '@/features/commands';
 
+import type { ArchiveFormat, ChecksumAlgorithm } from '../operations.utils';
 import type { BrowserEntry } from '../server/browse';
-import { PluginsSubmenu } from './plugins-submenu';
+import { ActionSheet } from './action-sheet';
+import { useEntryActions, type MenuNode } from './entry-actions';
 
-/** Translation keys of the archive formats (a dot cannot be part of a key). */
-const formatKeys = { zip: 'zip', 'tar.gz': 'tarGz', '7z': 'sevenZ' } as const satisfies Record<
-  ArchiveFormat,
-  string
->;
+/** A press this long on a touch screen opens the actions. */
+const longPressMs = 500;
+/** A finger moving further is scrolling, not pressing. */
+const pressSlop = 10;
 
 export interface EntryMenuHandlers {
   onOpen: (entry: BrowserEntry) => void;
@@ -98,9 +70,26 @@ interface EntryMenuProps extends EntryMenuHandlers {
   children: ReactNode;
 }
 
-/** Right-click menu of an entry; Radix opens it on long-press too, for touch screens. */
+/**
+ * An entry's actions: a right-click menu on a desktop; on a phone a sheet rising from the
+ * bottom, opened by a long press or the item's menu button (both the same list).
+ */
 export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
-  const t = useTranslations('files.browser.menu');
+  const isMobile = useIsMobile();
+  const nodes = useEntryActions(entry, handlers);
+  if (isMobile) {
+    return (
+      <SheetMenu
+        title={entry.name}
+        nodes={nodes}
+        onOpen={() => {
+          handlers.onMenuOpen(entry);
+        }}
+      >
+        {children}
+      </SheetMenu>
+    );
+  }
   return (
     <ContextMenu
       onOpenChange={(open) => {
@@ -108,210 +97,100 @@ export function EntryMenu({ entry, children, ...handlers }: EntryMenuProps) {
       }}
     >
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
-      <ContextMenuContent className="w-56">
-        {(entry.isDirectory || canPreview(entry)) && (
-          <ContextMenuItem
-            onSelect={() => {
-              handlers.onOpen(entry);
-            }}
-          >
-            {entry.isDirectory ? <FolderOpen aria-hidden /> : <Eye aria-hidden />}
-            {t('open')}
-            <ContextMenuShortcut>↵</ContextMenuShortcut>
-          </ContextMenuItem>
-        )}
-        {entry.isDirectory && (
-          <ContextMenuItem
-            onSelect={() => {
-              handlers.onFolderSize(entry);
-            }}
-          >
-            <HardDrive aria-hidden />
-            {t('folderSize')}
-          </ContextMenuItem>
-        )}
-        {entry.isDirectory && (
-          <ContextMenuItem
-            onSelect={() => {
-              handlers.onToggleFavorite(entry);
-            }}
-          >
-            {handlers.isFavorite(entry.path) ? <StarOff aria-hidden /> : <Star aria-hidden />}
-            {handlers.isFavorite(entry.path) ? t('removeFavorite') : t('addFavorite')}
-          </ContextMenuItem>
-        )}
-        {entry.actions.includes('download') && (
-          <ContextMenuItem
-            onSelect={() => {
-              handlers.onDownload(entry);
-            }}
-          >
-            <Download aria-hidden />
-            {entry.isDirectory ? t('downloadZip') : t('download')}
-          </ContextMenuItem>
-        )}
-        {entry.actions.includes('copy') && (
-          <ContextMenuSub>
-            <ContextMenuSubTrigger>
-              <FileArchive aria-hidden />
-              {t('compress')}
-            </ContextMenuSubTrigger>
-            <ContextMenuSubContent>
-              {archiveFormats.map((format) => (
-                <ContextMenuItem
-                  key={format}
-                  onSelect={() => {
-                    handlers.onCompress(entry, format);
-                  }}
-                >
-                  {/* i18n-dynamic: files.browser.menu.formats */}
-                  {t(`formats.${formatKeys[format]}`)}
-                </ContextMenuItem>
-              ))}
-            </ContextMenuSubContent>
-          </ContextMenuSub>
-        )}
-        {!entry.isDirectory && isArchive(entry.name) && entry.actions.includes('copy') && (
-          <ContextMenuItem
-            onSelect={() => {
-              handlers.onExtract(entry);
-            }}
-          >
-            <PackageOpen aria-hidden />
-            {t('extract')}
-          </ContextMenuItem>
-        )}
-        {!entry.isDirectory && entry.actions.includes('download') && (
-          <ContextMenuSub>
-            <ContextMenuSubTrigger>
-              <FileCheck aria-hidden />
-              {t('checksum')}
-            </ContextMenuSubTrigger>
-            <ContextMenuSubContent>
-              {checksumAlgorithms.map((algorithm) => (
-                <ContextMenuItem
-                  key={algorithm}
-                  onSelect={() => {
-                    handlers.onChecksum(entry, algorithm);
-                  }}
-                >
-                  {/* i18n-dynamic: files.browser.menu.algorithms */}
-                  {t(`algorithms.${algorithm}`)}
-                </ContextMenuItem>
-              ))}
-            </ContextMenuSubContent>
-          </ContextMenuSub>
-        )}
-        {entry.actions.includes('update') && (
-          <ContextMenuItem
-            onSelect={() => {
-              handlers.onRename(entry);
-            }}
-          >
-            <PencilLine aria-hidden />
-            {t('rename')}
-            <ContextMenuShortcut>F2</ContextMenuShortcut>
-          </ContextMenuItem>
-        )}
-        {entry.actions.includes('copy') && (
-          <ContextMenuItem
-            onSelect={() => {
-              handlers.onTransfer('copy', entry);
-            }}
-          >
-            <CopyPlus aria-hidden />
-            {t('copyTo')}
-          </ContextMenuItem>
-        )}
-        {entry.actions.includes('move') && (
-          <ContextMenuItem
-            onSelect={() => {
-              handlers.onTransfer('move', entry);
-            }}
-          >
-            <FolderInput aria-hidden />
-            {t('moveTo')}
-          </ContextMenuItem>
-        )}
-        {entry.actions.includes('share') && (
-          <ContextMenuItem
-            onSelect={() => {
-              handlers.onShare(entry);
-            }}
-          >
-            <Share2 aria-hidden />
-            {t('share')}
-          </ContextMenuItem>
-        )}
-        <PluginsSubmenu
-          plugins={handlers.pluginsFor(entry)}
-          onSelect={(command) => {
-            handlers.onPluginCommand(entry.path, command);
-          }}
-        />
-        {handlers.onShowInFolder && (
-          <ContextMenuItem
-            onSelect={() => {
-              handlers.onShowInFolder?.(entry);
-            }}
-          >
-            <FolderSearch aria-hidden />
-            {t('showInFolder')}
-          </ContextMenuItem>
-        )}
-        <ContextMenuItem
-          onSelect={() => {
-            handlers.onCopyPath(entry);
-          }}
-        >
-          <Link2 aria-hidden />
-          {t('copyPath')}
-        </ContextMenuItem>
-        <ContextMenuItem
-          onSelect={() => {
-            handlers.onProperties(entry);
-          }}
-        >
-          <Info aria-hidden />
-          {t('properties')}
-          <ContextMenuShortcut>Alt ↵</ContextMenuShortcut>
-        </ContextMenuItem>
-        {entry.actions.includes('delete') && (
-          <>
-            <ContextMenuSeparator />
-            <ContextMenuItem
-              variant="destructive"
-              onSelect={() => {
-                handlers.onDelete(entry, false);
-              }}
-            >
-              <Trash2 aria-hidden />
-              {t('delete')}
-              <ContextMenuShortcut>Del</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuItem
-              variant="destructive"
-              onSelect={() => {
-                handlers.onDelete(entry, true);
-              }}
-            >
-              <Trash2 aria-hidden />
-              {t('deletePermanently')}
-              <ContextMenuShortcut>Shift Del</ContextMenuShortcut>
-            </ContextMenuItem>
-          </>
-        )}
-        <ContextMenuSeparator />
-        <ContextMenuItem onSelect={handlers.onSelectAll}>
-          <CheckCheck aria-hidden />
-          {t('selectAll')}
-          <ContextMenuShortcut>Ctrl A</ContextMenuShortcut>
-        </ContextMenuItem>
-        <ContextMenuItem onSelect={handlers.onRefresh}>
-          <RefreshCw aria-hidden />
-          {t('refresh')}
-        </ContextMenuItem>
-      </ContextMenuContent>
+      <ContextMenuContent className="w-56">{nodes.map(contextNode)}</ContextMenuContent>
     </ContextMenu>
+  );
+}
+
+function contextNode(node: MenuNode): ReactNode {
+  if (node.kind === 'separator') return <ContextMenuSeparator key={node.key} />;
+  const Icon = node.icon;
+  if (node.kind === 'group') {
+    return (
+      <ContextMenuSub key={node.key}>
+        <ContextMenuSubTrigger>
+          {Icon && <Icon aria-hidden />}
+          {node.label}
+        </ContextMenuSubTrigger>
+        <ContextMenuSubContent className="w-56">
+          {node.items.map(contextNode)}
+        </ContextMenuSubContent>
+      </ContextMenuSub>
+    );
+  }
+  return (
+    <ContextMenuItem
+      key={node.key}
+      variant={node.destructive ? 'destructive' : 'default'}
+      onSelect={node.onSelect}
+    >
+      {Icon && <Icon aria-hidden />}
+      {node.label}
+      {node.shortcut && <ContextMenuShortcut>{node.shortcut}</ContextMenuShortcut>}
+    </ContextMenuItem>
+  );
+}
+
+interface SheetMenuProps {
+  title: string;
+  nodes: readonly MenuNode[];
+  onOpen: () => void;
+  children: ReactNode;
+}
+
+/**
+ * Opens the action sheet on a long press or a `contextmenu` event (the item's menu button sends
+ * one); the tap ending a long press does not also open the item.
+ */
+function SheetMenu({ title, nodes, onOpen, children }: SheetMenuProps) {
+  const [open, setOpen] = useState(false);
+  const press = useRef<{ timer: number; x: number; y: number } | null>(null);
+  const swallowClick = useRef(false);
+  const show = () => {
+    onOpen();
+    setOpen(true);
+  };
+  const cancel = () => {
+    if (press.current) window.clearTimeout(press.current.timer);
+    press.current = null;
+  };
+  return (
+    <>
+      <Slot.Root
+        data-slot="context-menu-trigger"
+        onContextMenu={(event) => {
+          event.preventDefault();
+          cancel();
+          show();
+        }}
+        onPointerDown={(event) => {
+          if (event.pointerType !== 'touch') return;
+          cancel();
+          const timer = window.setTimeout(() => {
+            press.current = null;
+            swallowClick.current = true;
+            show();
+          }, longPressMs);
+          press.current = { timer, x: event.clientX, y: event.clientY };
+        }}
+        onPointerMove={(event) => {
+          const start = press.current;
+          if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > pressSlop) {
+            cancel();
+          }
+        }}
+        onPointerUp={cancel}
+        onPointerCancel={cancel}
+        onClickCapture={(event) => {
+          if (!swallowClick.current) return;
+          swallowClick.current = false;
+          event.preventDefault();
+          event.stopPropagation();
+        }}
+      >
+        {children}
+      </Slot.Root>
+      <ActionSheet open={open} onOpenChange={setOpen} title={title} nodes={nodes} />
+    </>
   );
 }

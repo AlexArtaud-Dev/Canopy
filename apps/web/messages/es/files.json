@@ -199,7 +199,8 @@
         "title": "Sin resultados",
         "description": "Ningún nombre de archivo o carpeta contiene todas las palabras escritas. Revisa la ortografía o busca desde una carpeta superior."
       }
-    }
+    },
+    "hiddenFolders": "Carpetas intermedias"
   },
   "preview": {
     "previous": "Archivo anterior",
