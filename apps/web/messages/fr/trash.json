@@ -13,7 +13,10 @@
     "permanentSize": "{size} dans {files, plural, one {# fichier} other {# fichiers}}.",
     "permanentWarning": "Cette action est irréversible : rien ne pourra être restauré.",
     "permanentConfirm": "Supprimer définitivement",
-    "permanentStarted": "Suppression définitive lancée : {count, plural, one {# élément} other {# éléments}}"
+    "permanentStarted": "Suppression définitive lancée : {count, plural, one {# élément} other {# éléments}}",
+    "blockedTitle": "Suppression impossible : {count, plural, one {# élément} other {# éléments}}",
+    "blockedReason": "Le supprimer définitivement demande le droit « Supprimer définitivement » ; demandez-le à un administrateur, ou supprimez des parties plus petites.",
+    "blockedClose": "Fermer"
   },
   "page": {
     "description": "Les éléments que vous avez supprimés. Restaurez-les, ou supprimez-les définitivement.",
@@ -33,6 +36,7 @@
     "emptyTitleConfirm": "Vider la corbeille ?",
     "deleteTitle": "Supprimer définitivement : {count, plural, one {# élément} other {# éléments}} ?",
     "deleteWarning": "Cette action est irréversible.",
+    "keptWithoutPurge": "{count, plural, one {# élément reste} other {# éléments restent}} jusqu’à leur expiration : les supprimer définitivement demande le droit « Supprimer définitivement ».",
     "deleteConfirm": "Supprimer définitivement",
     "columns": {
       "name": "Nom",

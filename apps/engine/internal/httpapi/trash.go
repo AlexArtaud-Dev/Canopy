@@ -35,7 +35,7 @@ func toAPITrashItems(items []trash.Item) []api.TrashItem {
 		result = append(result, api.TrashItem{
 			Id: item.ID, Name: item.Name, OriginalPath: item.OriginalPath, IsDirectory: item.IsDir,
 			DeletedAt: item.DeletedAt.UTC(), DeletedBy: item.DeletedBy, Bytes: item.Bytes,
-			Files: item.Files, Measured: item.Measured,
+			Files: item.Files, Measured: item.Measured, MayPurge: item.MayPurge,
 		})
 	}
 	return result

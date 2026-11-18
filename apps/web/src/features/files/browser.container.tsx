@@ -245,7 +245,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
   );
   /** Every target allows the operation (the engine checks again; this only hides dead ends). */
   const allowed = (
-    operation: TransferOperation | 'download' | 'delete',
+    operation: TransferOperation | 'download' | 'delete' | 'purge',
     paths: readonly string[],
   ) =>
     paths.length > 0 &&
@@ -308,7 +308,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
       dispatch({ type: 'clear' });
     } else if (event.key === 'Delete' && allowed('delete', selectedPaths)) {
       event.preventDefault();
-      void deletion.start(selectedPaths, event.shiftKey);
+      void deletion.start(selectedPaths, event.shiftKey, allowed('purge', selectedPaths));
     } else if (event.key === 'F2' && focused?.actions.includes('update')) {
       event.preventDefault();
       ops.openRename(focused);
@@ -368,7 +368,9 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
     onRename: ops.openRename,
     onDelete: (entry: BrowserEntry, permanent: boolean) => {
       const targets = operationTargets(selection.selected, entry.path);
-      if (allowed('delete', targets)) void deletion.start(targets, permanent);
+      if (allowed('delete', targets)) {
+        void deletion.start(targets, permanent, allowed('purge', targets));
+      }
     },
     onDownload: (entry: BrowserEntry) => {
       const targets = operationTargets(selection.selected, entry.path);
@@ -606,7 +608,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
                   variant="ghost"
                   size="xs"
                   onClick={() => {
-                    void deletion.start(selectedPaths, false);
+                    void deletion.start(selectedPaths, false, allowed('purge', selectedPaths));
                   }}
                 >
                   <Trash2 aria-hidden data-icon="inline-start" />

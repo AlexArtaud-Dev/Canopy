@@ -8,9 +8,10 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 )
 
-// Actions are the path actions, as declared by the web app's files module.
+// Actions are the path actions, as declared by the web app's files module. `delete` moves to the
+// trash; `purge` deletes for good (bypassing the trash, or emptying it).
 var Actions = []string{
-	"read", "upload", "create", "update", "move", "copy", "delete", "download", "share", "execute",
+	"read", "upload", "create", "update", "move", "copy", "delete", "purge", "download", "share", "execute",
 }
 
 // Subject types and effects stored in app.path_grants.

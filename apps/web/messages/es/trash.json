@@ -13,7 +13,10 @@
     "permanentSize": "{size} en {files, plural, one {# archivo} other {# archivos}}.",
     "permanentWarning": "No se puede deshacer ni restaurar.",
     "permanentConfirm": "Eliminar definitivamente",
-    "permanentStarted": "Eliminación definitiva iniciada: {count, plural, one {# elemento} other {# elementos}}"
+    "permanentStarted": "Eliminación definitiva iniciada: {count, plural, one {# elemento} other {# elementos}}",
+    "blockedTitle": "No se puede eliminar: {count, plural, one {# elemento} other {# elementos}}",
+    "blockedReason": "Eliminarlo definitivamente requiere el derecho «Eliminar definitivamente»; pídalo a un administrador o elimine partes más pequeñas.",
+    "blockedClose": "Cerrar"
   },
   "page": {
     "description": "Los elementos que eliminaste. Restáuralos o elimínalos definitivamente.",
@@ -33,6 +36,7 @@
     "emptyTitleConfirm": "¿Vaciar la papelera?",
     "deleteTitle": "Eliminar definitivamente: ¿{count, plural, one {# elemento} other {# elementos}}?",
     "deleteWarning": "No se puede deshacer.",
+    "keptWithoutPurge": "{count, plural, one {# elemento se queda} other {# elementos se quedan}} hasta que caduquen: eliminarlos definitivamente requiere el derecho «Eliminar definitivamente».",
     "deleteConfirm": "Eliminar definitivamente",
     "columns": {
       "name": "Nombre",

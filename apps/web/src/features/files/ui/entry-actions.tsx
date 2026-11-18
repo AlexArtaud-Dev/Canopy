@@ -222,15 +222,17 @@ export function useEntryActions(entry: BrowserEntry, handlers: EntryMenuHandlers
       },
       { shortcut: 'Del', destructive: true },
     );
-    item(
-      'delete-forever',
-      t('deletePermanently'),
-      Trash2,
-      () => {
-        handlers.onDelete(entry, true);
-      },
-      { shortcut: 'Shift Del', destructive: true },
-    );
+    if (can('purge')) {
+      item(
+        'delete-forever',
+        t('deletePermanently'),
+        Trash2,
+        () => {
+          handlers.onDelete(entry, true);
+        },
+        { shortcut: 'Shift Del', destructive: true },
+      );
+    }
   }
   nodes.push({ kind: 'separator', key: 'before-selection' });
   item('select-all', t('selectAll'), CheckCheck, handlers.onSelectAll, { shortcut: 'Ctrl A' });

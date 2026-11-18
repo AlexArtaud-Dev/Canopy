@@ -2,6 +2,15 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/shared/ui/alert-dialog';
 import { ConfirmDialog } from '@/shared/ui/confirm-dialog';
 import { formatBytes } from '@/features/files/browser.utils';
 
@@ -14,7 +23,10 @@ interface DeleteDialogsProps {
   onClose: () => void;
 }
 
-/** The confirmation for the trash, or the strong warning before a permanent delete. */
+/**
+ * The confirmation for the trash, the strong warning before a permanent delete, or why nothing
+ * can be deleted (too big for the trash, without the right to delete for good).
+ */
 export function DeleteDialogs({ dialog, pending, onConfirm, onClose }: DeleteDialogsProps) {
   const t = useTranslations('trash.delete');
   const locale = useLocale();
@@ -36,6 +48,30 @@ export function DeleteDialogs({ dialog, pending, onConfirm, onClose }: DeleteDia
         onConfirm={onConfirm}
         onOpenChange={onOpenChange}
       />
+    );
+  }
+
+  if (dialog.kind === 'blocked') {
+    return (
+      <AlertDialog open onOpenChange={onOpenChange}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('blockedTitle', { count })}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {dialog.plan.complete
+                ? t('permanentTooBig', {
+                    max: formatBytes(dialog.plan.limits.maxBytes, locale),
+                    files: dialog.plan.limits.maxFiles,
+                  })
+                : t('permanentUnmeasured')}{' '}
+              {t('blockedReason')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('blockedClose')}</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     );
   }
 

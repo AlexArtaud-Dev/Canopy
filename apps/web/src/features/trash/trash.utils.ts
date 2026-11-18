@@ -1,3 +1,4 @@
+import type { DeletePlan } from '@canopy/contracts';
 import { z } from 'zod';
 
 import { cleanVirtualPath } from '@/features/files/files.utils';
@@ -24,4 +25,27 @@ export function daysLeft(deletedAt: string, retentionDays: number, now: Date): n
 export function originalFolder(originalPath: string): string {
   const slash = originalPath.lastIndexOf('/');
   return slash <= 0 ? '/' : originalPath.slice(0, slash);
+}
+
+export type DeleteDialog =
+  | { kind: 'none' }
+  | { kind: 'trash'; paths: string[]; plan: DeletePlan }
+  /** Asked with Shift+Delete, or the selection does not fit the trash limits. */
+  | { kind: 'permanent'; paths: string[]; plan: DeletePlan; asked: boolean }
+  /** Too big for the trash, and the person may not delete for good. */
+  | { kind: 'blocked'; paths: string[]; plan: DeletePlan };
+
+/**
+ * What deleting a measured selection asks: the trash when it fits (and permanent deletion was not
+ * asked for, or may not be done), else a permanent delete for those who may purge, else nothing.
+ */
+export function deleteDialogFor(
+  paths: string[],
+  plan: DeletePlan,
+  asked: boolean,
+  mayPurge: boolean,
+): DeleteDialog {
+  if (mayPurge && (asked || !plan.fitsTrash)) return { kind: 'permanent', paths, plan, asked };
+  if (plan.fitsTrash) return { kind: 'trash', paths, plan };
+  return { kind: 'blocked', paths, plan };
 }

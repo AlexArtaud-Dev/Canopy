@@ -55,6 +55,9 @@ export function TrashContainer({
     () => new Set(items.filter((item) => selected.has(item.id)).map((item) => item.id)),
     [items, selected],
   );
+  /** Items this person may delete for good; the others wait for the retention to expire. */
+  const purgeable = items.filter((item) => item.mayPurge).length;
+  const selectionPurgeable = items.every((item) => !visibleSelection.has(item.id) || item.mayPurge);
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: [filesystemQueryRoot] });
 
@@ -115,20 +118,22 @@ export function TrashContainer({
               <ArchiveRestore aria-hidden data-icon="inline-start" />
               {t('restoreSelected', { count: visibleSelection.size })}
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={pending}
-              onClick={() => {
-                setConfirming('selection');
-              }}
-            >
-              <Trash2 aria-hidden data-icon="inline-start" />
-              {t('deleteSelected', { count: visibleSelection.size })}
-            </Button>
+            {selectionPurgeable && (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={pending}
+                onClick={() => {
+                  setConfirming('selection');
+                }}
+              >
+                <Trash2 aria-hidden data-icon="inline-start" />
+                {t('deleteSelected', { count: visibleSelection.size })}
+              </Button>
+            )}
           </>
         )}
-        {items.length > 0 && (
+        {purgeable > 0 && (
           <Button
             variant="destructive"
             size="sm"
@@ -256,7 +261,11 @@ export function TrashContainer({
             ? t('emptyTitleConfirm')
             : t('deleteTitle', { count: visibleSelection.size })
         }
-        description={t('deleteWarning')}
+        description={
+          confirming === 'all' && purgeable < items.length
+            ? `${t('deleteWarning')} ${t('keptWithoutPurge', { count: items.length - purgeable })}`
+            : t('deleteWarning')
+        }
         confirmLabel={confirming === 'all' ? t('empty') : t('deleteConfirm')}
         pending={pending}
         onConfirm={() => void remove()}

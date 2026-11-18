@@ -341,6 +341,7 @@ const (
 	PathActionDownload PathAction = "download"
 	PathActionExecute  PathAction = "execute"
 	PathActionMove     PathAction = "move"
+	PathActionPurge    PathAction = "purge"
 	PathActionRead     PathAction = "read"
 	PathActionShare    PathAction = "share"
 	PathActionUpdate   PathAction = "update"
@@ -361,6 +362,8 @@ func (e PathAction) Valid() bool {
 	case PathActionExecute:
 		return true
 	case PathActionMove:
+		return true
+	case PathActionPurge:
 		return true
 	case PathActionRead:
 		return true
@@ -1076,15 +1079,18 @@ type TrashIdsRequest struct {
 
 // TrashItem defines model for TrashItem.
 type TrashItem struct {
-	Bytes        int64     `json:"bytes"`
-	DeletedAt    time.Time `json:"deletedAt"`
-	DeletedBy    string    `json:"deletedBy"`
-	Files        int64     `json:"files"`
-	Id           string    `json:"id"`
-	IsDirectory  bool      `json:"isDirectory"`
-	Measured     bool      `json:"measured"`
-	Name         string    `json:"name"`
-	OriginalPath string    `json:"originalPath"`
+	Bytes       int64     `json:"bytes"`
+	DeletedAt   time.Time `json:"deletedAt"`
+	DeletedBy   string    `json:"deletedBy"`
+	Files       int64     `json:"files"`
+	Id          string    `json:"id"`
+	IsDirectory bool      `json:"isDirectory"`
+
+	// MayPurge The caller may delete it for good (the `purge` path action).
+	MayPurge     bool   `json:"mayPurge"`
+	Measured     bool   `json:"measured"`
+	Name         string `json:"name"`
+	OriginalPath string `json:"originalPath"`
 }
 
 // TrashItemList defines model for TrashItemList.

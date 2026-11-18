@@ -1,4 +1,12 @@
-import { daysLeft, idsInputSchema, originalFolder, pathsInputSchema } from './trash.utils';
+import type { DeletePlan } from '@canopy/contracts';
+
+import {
+  daysLeft,
+  deleteDialogFor,
+  idsInputSchema,
+  originalFolder,
+  pathsInputSchema,
+} from './trash.utils';
 
 describe('trash utils', () => {
   it('counts the days left before retention', () => {
@@ -20,5 +28,28 @@ describe('trash utils', () => {
     expect(pathsInputSchema.safeParse({ paths: [] }).success).toBe(false);
     expect(idsInputSchema.safeParse({ ids: ['0'.repeat(32)] }).success).toBe(true);
     expect(idsInputSchema.safeParse({ ids: ['../x'] }).success).toBe(false);
+  });
+
+  it('asks the trash, a permanent delete or nothing, by size and by right', () => {
+    const plan = (fitsTrash: boolean): DeletePlan => ({
+      bytes: 1,
+      files: 1,
+      complete: true,
+      fitsTrash,
+      limits: { retentionDays: 30, maxBytes: 10, maxFiles: 10 },
+    });
+    const paths = ['/v/a'];
+    expect(deleteDialogFor(paths, plan(true), false, true).kind).toBe('trash');
+    expect(deleteDialogFor(paths, plan(true), true, true)).toMatchObject({
+      kind: 'permanent',
+      asked: true,
+    });
+    expect(deleteDialogFor(paths, plan(false), false, true)).toMatchObject({
+      kind: 'permanent',
+      asked: false,
+    });
+    // Without the right, Shift+Delete falls back to the trash; too big for it, nothing is done.
+    expect(deleteDialogFor(paths, plan(true), true, false).kind).toBe('trash');
+    expect(deleteDialogFor(paths, plan(false), false, false).kind).toBe('blocked');
   });
 });

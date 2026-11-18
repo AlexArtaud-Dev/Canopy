@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -20,12 +21,17 @@ import (
 
 type fakeGrants struct{ err error }
 
-// bob may do everything in /vol; eve nothing.
+// bob may do everything in /vol; carol everything but purge; eve nothing.
 func (f fakeGrants) GrantsFor(_ context.Context, subject authz.Subject) ([]authz.Grant, error) {
-	if subject.UserID != "bob" {
+	switch subject.UserID {
+	case "bob":
+		return []authz.Grant{{SubjectType: authz.SubjectUser, SubjectID: "bob", Path: "/vol", Actions: authz.Actions, Effect: authz.EffectAllow}}, f.err
+	case "carol":
+		actions := slices.DeleteFunc(slices.Clone(authz.Actions), func(action string) bool { return action == "purge" })
+		return []authz.Grant{{SubjectType: authz.SubjectUser, SubjectID: "carol", Path: "/vol", Actions: actions, Effect: authz.EffectAllow}}, f.err
+	default:
 		return nil, f.err
 	}
-	return []authz.Grant{{SubjectType: authz.SubjectUser, SubjectID: "bob", Path: "/vol", Actions: authz.Actions, Effect: authz.EffectAllow}}, f.err
 }
 
 type fakeAudit struct {
@@ -48,8 +54,9 @@ func (nopSink) AppendLog(context.Context, string, int, string, string, time.Time
 }
 
 var (
-	bob = authz.Subject{UserID: "bob"}
-	eve = authz.Subject{UserID: "eve"}
+	bob   = authz.Subject{UserID: "bob"}
+	carol = authz.Subject{UserID: "carol"}
+	eve   = authz.Subject{UserID: "eve"}
 )
 
 type harness struct {
@@ -240,6 +247,42 @@ func TestKeeperEnforcesLimits(t *testing.T) {
 	<-done
 }
 
+func TestPurgeNeedsItsOwnPermission(t *testing.T) {
+	h := newHarness(t)
+	ctx := context.Background()
+	reporter := jobs.NewReporter(nopSink{}, "job", h.now, func() time.Time { return h.now })
+
+	if _, err := h.service.CheckPermanent(ctx, carol, []string{"/vol/a.txt"}); !errors.Is(err, ErrForbidden) {
+		t.Fatalf("carol may not delete for good: %v", err)
+	}
+	if _, err := h.service.DeleteHandler()(ctx, DeleteArgs{Paths: []string{"/vol/a.txt"}, Subject: carol}, reporter); err == nil || !h.exists("vol/a.txt") {
+		t.Fatal("checked again in the job")
+	}
+	if _, err := h.service.PlanDelete(ctx, carol, []string{"/vol/a.txt"}); err != nil {
+		t.Fatalf("carol may still plan a delete to the trash: %v", err)
+	}
+	items, err := h.service.Delete(ctx, carol, []string{"/vol/a.txt"}, "")
+	if err != nil || len(items) != 1 {
+		t.Fatalf("carol moves to the trash: %v", err)
+	}
+	listed, _ := h.service.List(ctx, carol)
+	if len(listed) != 1 || listed[0].MayPurge {
+		t.Fatalf("listed without purge: %+v", listed)
+	}
+	result, err := h.service.EmptyHandler()(ctx, EmptyArgs{Subject: carol}, reporter)
+	if err != nil || result["items"] != int64(0) || result["skipped"] != int64(1) {
+		t.Fatalf("empty skips what carol may not purge: %v %v", result, err)
+	}
+	admin := authz.Subject{UserID: "root", Admin: true}
+	if all, _ := h.service.List(ctx, admin); len(all) != 1 || !all[0].MayPurge {
+		t.Fatal("administrators purge everything")
+	}
+	result, err = h.service.EmptyHandler()(ctx, EmptyArgs{Subject: admin, IDs: []string{items[0].ID}}, reporter)
+	if err != nil || result["items"] != int64(1) {
+		t.Fatalf("administrator purges one item: %v %v", result, err)
+	}
+}
+
 func TestJobs(t *testing.T) {
 	h := newHarness(t)
 	ctx := context.Background()
@@ -272,6 +315,15 @@ func TestJobs(t *testing.T) {
 
 	cancelled, cancel := context.WithCancel(ctx)
 	cancel()
+	if err := os.WriteFile(filepath.Join(h.dir, "vol", "g.txt"), []byte("g"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := h.service.Delete(ctx, bob, []string{"/vol/g.txt"}, ""); err != nil {
+		t.Fatal(err)
+	}
+	if result, err := h.service.EmptyHandler()(cancelled, EmptyArgs{Subject: bob}, reporter); err == nil || result["items"] != int64(0) {
+		t.Fatalf("empty stops when cancelled: %v %v", result, err)
+	}
 	if _, err := h.service.DeleteHandler()(cancelled, DeleteArgs{Paths: []string{"/vol"}, Subject: bob}, reporter); err == nil {
 		t.Fatal("refused before cancel check")
 	}
