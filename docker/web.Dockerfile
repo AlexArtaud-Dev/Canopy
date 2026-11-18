@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # Build context: repository root.
 
-FROM node:24-alpine@sha256:a34ab6d7f6f4813f4d0c5469d74685604b962fbdbf5793a7bc7b4998ecb867c8 AS base
+FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH NEXT_TELEMETRY_DISABLED=1
 RUN npm install --global pnpm@12.18.0
 
@@ -23,7 +23,8 @@ RUN pnpm --filter @canopy/web build     && rm -rf apps/web/.next/standalone/node
 # Runtime: plain Alpine (same release as the node image) with only the node binary and the C++
 # runtime it links. npm, corepack and yarn never run in production and are left behind.
 FROM alpine:3.24@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf AS runtime
-RUN apk add --no-cache libstdc++     && addgroup -g 1000 node     && adduser -u 1000 -G node -s /sbin/nologin -D -H node
+# Node 26 links libatomic as well as libstdc++.
+RUN apk add --no-cache libstdc++ libatomic     && addgroup -g 1000 node     && adduser -u 1000 -G node -s /sbin/nologin -D -H node
 COPY --from=base /usr/local/bin/node /usr/local/bin/node
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
 WORKDIR /app
