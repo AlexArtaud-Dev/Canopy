@@ -91,7 +91,8 @@
     "resetDescription": "Los bloques de {name} se sustituyen por los de por defecto.",
     "emptyTitle": "Ningún bloque",
     "empty": "Vuelva a los bloques por defecto para partir de ellos.",
-    "deleted": "Panel eliminado"
+    "deleted": "Panel eliminado",
+    "addPanel": "Añadir un bloque"
   },
   "panel": {
     "noData": "Sin datos en este periodo.",
@@ -106,6 +107,82 @@
       "success": "hecho",
       "denied": "rechazado",
       "error": "fallido"
+    },
+    "noVariable": "Elija un valor para mostrar en este bloque.",
+    "outOf": "de {max}",
+    "gaugeLabel": "{value} de {max}",
+    "name": "Nombre",
+    "value": "Valor",
+    "actions": "Acciones para {title}",
+    "edit": "Editar",
+    "duplicate": "Duplicar",
+    "remove": "Quitar",
+    "removed": "Bloque quitado",
+    "undo": "Deshacer"
+  },
+  "editor": {
+    "addTitle": "Añadir un bloque",
+    "editTitle": "Editar el bloque",
+    "description": "La vista previa muestra los valores reales con cada cambio.",
+    "preview": "Vista previa",
+    "untitled": "Bloque sin título",
+    "title": "Título",
+    "type": "Tipo",
+    "add": "Añadir el bloque",
+    "newTitle": "Nuevo bloque",
+    "types": {
+      "stat": "Valor único",
+      "gauge": "Indicador",
+      "line": "Líneas",
+      "area": "Áreas",
+      "bar": "Barras",
+      "pie": "Anillo",
+      "table": "Tabla",
+      "log": "Registro",
+      "folders": "Mis carpetas"
+    },
+    "variables": "Valores",
+    "variablesHint": "{count, plural, one {# valor como máximo.} other {# valores como máximo.}}",
+    "noVariables": "No tiene acceso a ningún valor de este tipo.",
+    "aggregation": "Mostrado como",
+    "aggregations": {
+      "last": "Último",
+      "avg": "Media",
+      "min": "Mínimo",
+      "max": "Máximo",
+      "sum": "Total"
+    },
+    "decimals": "Decimales",
+    "decimalsAuto": "Automático",
+    "min": "Mínimo",
+    "max": "Máximo",
+    "maxAuto": "Segundo valor, o 100",
+    "legend": "Mostrar la leyenda",
+    "stacked": "Apilar las series",
+    "rules": "Reglas de color",
+    "rulesHint": "Desde cada umbral, el valor toma el color; gana el umbral más alto alcanzado.",
+    "ruleFrom": "Umbral {position}",
+    "ruleColor": "Color {position}",
+    "removeRule": "Quitar la regla {position}",
+    "addRule": "Añadir una regla",
+    "colors": {
+      "chart-1": "Verde",
+      "chart-2": "Turquesa",
+      "chart-3": "Azul",
+      "chart-4": "Ámbar",
+      "chart-5": "Morado",
+      "primary": "Acento",
+      "destructive": "Rojo"
+    },
+    "size": "Tamaño",
+    "sizeCustom": "Tamaño personalizado",
+    "sizeHint": "En un teléfono, los bloques ocupan todo el ancho, uno debajo del otro.",
+    "sizes": {
+      "small": "Pequeño (¼ de ancho)",
+      "medium": "Mediano (⅓ de ancho)",
+      "wide": "Ancho (½ ancho)",
+      "large": "Grande (⅔ de ancho)",
+      "full": "Todo el ancho"
     }
   }
 }

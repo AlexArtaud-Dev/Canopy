@@ -91,7 +91,8 @@
     "resetDescription": "Les panneaux de {name} sont remplacés par ceux par défaut.",
     "emptyTitle": "Aucun panneau",
     "empty": "Remettez les panneaux par défaut pour partir d’eux.",
-    "deleted": "Tableau de bord supprimé"
+    "deleted": "Tableau de bord supprimé",
+    "addPanel": "Ajouter un panneau"
   },
   "panel": {
     "noData": "Aucune donnée sur cette période.",
@@ -106,6 +107,82 @@
       "success": "fait",
       "denied": "refusé",
       "error": "échoué"
+    },
+    "noVariable": "Choisissez une valeur à afficher dans ce panneau.",
+    "outOf": "sur {max}",
+    "gaugeLabel": "{value} sur {max}",
+    "name": "Nom",
+    "value": "Valeur",
+    "actions": "Actions pour {title}",
+    "edit": "Modifier",
+    "duplicate": "Dupliquer",
+    "remove": "Retirer",
+    "removed": "Panneau retiré",
+    "undo": "Annuler"
+  },
+  "editor": {
+    "addTitle": "Ajouter un panneau",
+    "editTitle": "Modifier le panneau",
+    "description": "L’aperçu montre les vraies valeurs à chaque changement.",
+    "preview": "Aperçu",
+    "untitled": "Panneau sans titre",
+    "title": "Titre",
+    "type": "Type",
+    "add": "Ajouter le panneau",
+    "newTitle": "Nouveau panneau",
+    "types": {
+      "stat": "Valeur unique",
+      "gauge": "Jauge",
+      "line": "Courbes",
+      "area": "Aires",
+      "bar": "Barres",
+      "pie": "Anneau",
+      "table": "Tableau",
+      "log": "Journal",
+      "folders": "Mes dossiers"
+    },
+    "variables": "Valeurs",
+    "variablesHint": "{count, plural, one {# valeur au plus.} other {# valeurs au plus.}}",
+    "noVariables": "Aucune valeur de ce genre ne vous est accessible.",
+    "aggregation": "Affichée comme",
+    "aggregations": {
+      "last": "Dernière",
+      "avg": "Moyenne",
+      "min": "Plus basse",
+      "max": "Plus haute",
+      "sum": "Total"
+    },
+    "decimals": "Décimales",
+    "decimalsAuto": "Automatique",
+    "min": "Minimum",
+    "max": "Maximum",
+    "maxAuto": "Deuxième valeur, ou 100",
+    "legend": "Afficher la légende",
+    "stacked": "Empiler les séries",
+    "rules": "Règles de couleur",
+    "rulesHint": "À partir de chaque seuil, la valeur prend la couleur ; le seuil le plus haut atteint l’emporte.",
+    "ruleFrom": "Seuil {position}",
+    "ruleColor": "Couleur {position}",
+    "removeRule": "Retirer la règle {position}",
+    "addRule": "Ajouter une règle",
+    "colors": {
+      "chart-1": "Vert",
+      "chart-2": "Sarcelle",
+      "chart-3": "Bleu",
+      "chart-4": "Ambre",
+      "chart-5": "Violet",
+      "primary": "Accent",
+      "destructive": "Rouge"
+    },
+    "size": "Taille",
+    "sizeCustom": "Taille personnalisée",
+    "sizeHint": "Sur un téléphone, les panneaux prennent toute la largeur, les uns sous les autres.",
+    "sizes": {
+      "small": "Petit (¼ de largeur)",
+      "medium": "Moyen (⅓ de largeur)",
+      "wide": "Large (½ largeur)",
+      "large": "Grand (⅔ de largeur)",
+      "full": "Toute la largeur"
     }
   }
 }

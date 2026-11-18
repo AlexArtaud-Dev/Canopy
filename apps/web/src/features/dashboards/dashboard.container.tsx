@@ -44,6 +44,7 @@ import {
   refreshOptions,
   type Dashboard,
   type DashboardInput,
+  type Panel,
 } from './dashboards.utils';
 import {
   createDashboard,
@@ -54,8 +55,15 @@ import {
   saveDashboard,
 } from './server/dashboards-actions';
 import { DashboardNameDialog } from './ui/dashboard-name-dialog';
+import { PanelEditor } from './ui/panel-editor';
+import { copyPanel, newPanel } from './ui/panel-editor.utils';
 import { PanelView } from './ui/panel-views';
-import { timeRanges } from './variables.utils';
+import { timeRanges, type VariableDefinition } from './variables.utils';
+
+/** Short random ids for new panels. */
+function randomId(): string {
+  return crypto.randomUUID().slice(0, 8);
+}
 
 /** Height of one grid row on a wide screen; panels span whole rows. */
 const rowHeightPx = 88;
@@ -71,19 +79,28 @@ type Dialog = 'none' | 'create' | 'rename' | 'delete' | 'reset';
 interface DashboardContainerProps {
   dashboards: Dashboard[];
   current: Dashboard;
+  /** What the person may put on a panel. */
+  variables: VariableDefinition[];
 }
 
 /**
  * One of the person's dashboards: pick another, change the time range and refresh, manage it,
  * and its panels on a grid (stacked in reading order on a phone).
  */
-export function DashboardContainer({ dashboards, current: initial }: DashboardContainerProps) {
+export function DashboardContainer({
+  dashboards,
+  current: initial,
+  variables,
+}: DashboardContainerProps) {
   const t = useTranslations('dashboards.page');
   const errorMessage = useErrorMessage();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [current, setCurrent] = useState(initial);
   const [dialog, setDialog] = useState<Dialog>('none');
+  const [editing, setEditing] = useState<{ mode: 'add' | 'edit'; panel: Panel } | null>(null);
+  const panelT = useTranslations('dashboards.panel');
+  const editorT = useTranslations('dashboards.editor');
   const [pending, startTransition] = useTransition();
 
   const run = <T,>(action: () => Promise<ActionResult<T>>, done: (data: T) => void) => {
@@ -95,6 +112,19 @@ export function DashboardContainer({ dashboards, current: initial }: DashboardCo
       }
       setDialog('none');
       done(result.data);
+    });
+  };
+  /** Removes a panel at once; the toast offers to put it back (nothing is lost until then). */
+  const removePanel = (panel: Panel) => {
+    const before = current.panels;
+    save({ panels: before.filter((one) => one.id !== panel.id) });
+    toast.success(panelT('removed'), {
+      action: {
+        label: panelT('undo'),
+        onClick: () => {
+          save({ panels: before });
+        },
+      },
     });
   };
   const open = (id: string) => {
@@ -174,6 +204,18 @@ export function DashboardContainer({ dashboards, current: initial }: DashboardCo
           </SelectContent>
         </Select>
         <div className="ml-auto flex items-center gap-1">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setEditing({
+                mode: 'add',
+                panel: newPanel(current.panels, editorT('newTitle'), randomId),
+              });
+            }}
+          >
+            <Plus aria-hidden />
+            <span className="max-sm:sr-only">{t('addPanel')}</span>
+          </Button>
           <Button
             variant="outline"
             size="icon"
@@ -268,8 +310,20 @@ export function DashboardContainer({ dashboards, current: initial }: DashboardCo
             <EmptyTitle>{t('emptyTitle')}</EmptyTitle>
             <EmptyDescription>{t('empty')}</EmptyDescription>
           </EmptyHeader>
-          <EmptyContent>
+          <EmptyContent className="flex-row flex-wrap justify-center">
             <Button
+              onClick={() => {
+                setEditing({
+                  mode: 'add',
+                  panel: newPanel(current.panels, editorT('newTitle'), randomId),
+                });
+              }}
+            >
+              <Plus aria-hidden />
+              {t('addPanel')}
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => {
                 setDialog('reset');
               }}
@@ -293,8 +347,50 @@ export function DashboardContainer({ dashboards, current: initial }: DashboardCo
                 '--row-span': `${String(panel.layout.y + 1)} / span ${String(panel.layout.h)}`,
               })}
             >
-              <CardHeader className="px-4">
-                <CardTitle className="truncate text-sm">{panel.title}</CardTitle>
+              <CardHeader className="flex items-center gap-2 px-4">
+                <CardTitle className="min-w-0 flex-1 truncate text-sm">{panel.title}</CardTitle>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="-my-1 pointer-coarse:size-10"
+                      aria-label={panelT('actions', { title: panel.title })}
+                    >
+                      <MoreHorizontal aria-hidden />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        setEditing({ mode: 'edit', panel });
+                      }}
+                    >
+                      <PencilLine aria-hidden />
+                      {panelT('edit')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        save({
+                          panels: [...current.panels, copyPanel(panel, current.panels, randomId)],
+                        });
+                      }}
+                    >
+                      <Copy aria-hidden />
+                      {panelT('duplicate')}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onSelect={() => {
+                        removePanel(panel);
+                      }}
+                    >
+                      <Trash2 aria-hidden />
+                      {panelT('remove')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </CardHeader>
               <CardContent className="flex min-h-0 flex-1 flex-col px-4">
                 <PanelView
@@ -308,6 +404,27 @@ export function DashboardContainer({ dashboards, current: initial }: DashboardCo
         </div>
       )}
 
+      {editing && (
+        <PanelEditor
+          key={editing.panel.id}
+          mode={editing.mode}
+          initial={editing.panel}
+          variables={variables}
+          range={current.range}
+          pending={pending}
+          onClose={() => {
+            setEditing(null);
+          }}
+          onSave={(panel) => {
+            const panels =
+              editing.mode === 'add'
+                ? [...current.panels, panel]
+                : current.panels.map((one) => (one.id === panel.id ? panel : one));
+            setEditing(null);
+            save({ panels });
+          }}
+        />
+      )}
       {(dialog === 'create' || dialog === 'rename') && (
         <DashboardNameDialog
           mode={dialog}

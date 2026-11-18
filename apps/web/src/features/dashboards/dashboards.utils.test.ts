@@ -6,8 +6,14 @@ import {
   gridColumns,
   panelSchema,
   panelTypes,
+  aggregations,
+  colorRuleSchema,
+  panelOptionsSchema,
+  defaultPanelOptions,
+  ruleColors,
   readingOrder,
   refreshOptions,
+  withDefaults,
   type Panel,
 } from './dashboards.utils';
 
@@ -68,13 +74,14 @@ describe('default dashboard', () => {
 });
 
 describe('panels', () => {
-  const panel = (id: string, x: number, y: number): Panel => ({
-    id,
-    title: id,
-    type: 'stat',
-    variables: ['system.cpu'],
-    layout: { x, y, w: 3, h: 2 },
-  });
+  const panel = (id: string, x: number, y: number): Panel =>
+    withDefaults({
+      id,
+      title: id,
+      type: 'stat',
+      variables: ['system.cpu'],
+      layout: { x, y, w: 3, h: 2 },
+    });
 
   it('read top to bottom, then left to right', () => {
     expect(ids(readingOrder([panel('c', 0, 4), panel('b', 6, 0), panel('a', 0, 0)]))).toEqual([
@@ -96,7 +103,20 @@ describe('panels', () => {
   });
 
   it('come in known types, on dashboards named by id', () => {
-    expect(panelTypes).toEqual(['stat', 'line', 'log', 'folders']);
+    expect(panelTypes).toContain('gauge');
+    expect(aggregations).toEqual(['last', 'avg', 'min', 'max', 'sum']);
+    expect(ruleColors).toContain('destructive');
+    expect(colorRuleSchema.safeParse({ from: 80, color: 'destructive' }).success).toBe(true);
+    expect(colorRuleSchema.safeParse({ from: 80, color: 'pink' }).success).toBe(false);
+    expect(panelOptionsSchema.safeParse({ decimals: 9 }).success).toBe(false);
+    expect(defaultPanelOptions).toEqual({
+      aggregation: 'last',
+      decimals: null,
+      legend: true,
+      stacked: false,
+      min: 0,
+      max: null,
+    });
     expect(
       dashboardIdSchema.safeParse({ id: '00000000-0000-4000-8000-000000000000' }).success,
     ).toBe(true);

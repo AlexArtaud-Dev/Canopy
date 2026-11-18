@@ -91,7 +91,8 @@
     "resetDescription": "The panels of {name} are replaced by the default ones.",
     "emptyTitle": "No panel yet",
     "empty": "Put the default panels back to start from them.",
-    "deleted": "Dashboard deleted"
+    "deleted": "Dashboard deleted",
+    "addPanel": "Add a panel"
   },
   "panel": {
     "noData": "No data for this time range.",
@@ -106,6 +107,82 @@
       "success": "done",
       "denied": "refused",
       "error": "failed"
+    },
+    "noVariable": "Choose a value to show in this panel.",
+    "outOf": "out of {max}",
+    "gaugeLabel": "{value} out of {max}",
+    "name": "Name",
+    "value": "Value",
+    "actions": "Actions for {title}",
+    "edit": "Edit",
+    "duplicate": "Duplicate",
+    "remove": "Remove",
+    "removed": "Panel removed",
+    "undo": "Undo"
+  },
+  "editor": {
+    "addTitle": "Add a panel",
+    "editTitle": "Edit the panel",
+    "description": "The preview shows the real values as you change anything.",
+    "preview": "Preview",
+    "untitled": "Untitled panel",
+    "title": "Title",
+    "type": "Type",
+    "add": "Add the panel",
+    "newTitle": "New panel",
+    "types": {
+      "stat": "Single value",
+      "gauge": "Gauge",
+      "line": "Lines",
+      "area": "Areas",
+      "bar": "Bars",
+      "pie": "Ring",
+      "table": "Table",
+      "log": "Log",
+      "folders": "My folders"
+    },
+    "variables": "Values",
+    "variablesHint": "{count, plural, one {# value at most.} other {# values at most.}}",
+    "noVariables": "No value of this kind is available to you.",
+    "aggregation": "Shown as",
+    "aggregations": {
+      "last": "Latest",
+      "avg": "Average",
+      "min": "Lowest",
+      "max": "Highest",
+      "sum": "Total"
+    },
+    "decimals": "Decimals",
+    "decimalsAuto": "Automatic",
+    "min": "Minimum",
+    "max": "Maximum",
+    "maxAuto": "Second value, or 100",
+    "legend": "Show the legend",
+    "stacked": "Stack the series",
+    "rules": "Colour rules",
+    "rulesHint": "From each threshold upwards the value takes the colour; the highest threshold reached wins.",
+    "ruleFrom": "Threshold {position}",
+    "ruleColor": "Colour {position}",
+    "removeRule": "Remove rule {position}",
+    "addRule": "Add a rule",
+    "colors": {
+      "chart-1": "Green",
+      "chart-2": "Teal",
+      "chart-3": "Blue",
+      "chart-4": "Amber",
+      "chart-5": "Purple",
+      "primary": "Accent",
+      "destructive": "Red"
+    },
+    "size": "Size",
+    "sizeCustom": "Custom size",
+    "sizeHint": "On a phone, panels take the whole width, one under the other.",
+    "sizes": {
+      "small": "Small (¼ width)",
+      "medium": "Medium (⅓ width)",
+      "wide": "Wide (½ width)",
+      "large": "Large (⅔ width)",
+      "full": "Full width"
     }
   }
 }
