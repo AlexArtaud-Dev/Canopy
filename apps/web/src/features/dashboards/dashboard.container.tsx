@@ -7,6 +7,7 @@ import {
   Home,
   LayoutDashboard,
   LayoutGrid,
+  LayoutTemplate,
   MoreHorizontal,
   PencilLine,
   Plus,
@@ -28,6 +29,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu';
 import {
@@ -48,8 +52,10 @@ import {
   type DashboardInput,
   type Panel,
 } from './dashboards.utils';
+import { availablePresets } from './presets.utils';
 import {
   createDashboard,
+  createFromPreset,
   duplicateDashboard,
   makeHomeDashboard,
   removeDashboard,
@@ -107,6 +113,7 @@ export function DashboardContainer({
   const gridT = useTranslations('dashboards.grid');
   const panelT = useTranslations('dashboards.panel');
   const editorT = useTranslations('dashboards.editor');
+  const presetT = useTranslations('dashboards.presets');
   const [pending, startTransition] = useTransition();
 
   const run = <T,>(action: () => Promise<ActionResult<T>>, done: (data: T) => void) => {
@@ -272,7 +279,7 @@ export function DashboardContainer({
                     <MoreHorizontal aria-hidden />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-72">
                   <DropdownMenuItem
                     onSelect={() => {
                       setDialog('create');
@@ -281,6 +288,29 @@ export function DashboardContainer({
                     <Plus aria-hidden />
                     {t('new')}
                   </DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <LayoutTemplate aria-hidden />
+                      {t('fromPreset')}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="w-52">
+                      {availablePresets(variables).map((preset) => (
+                        <DropdownMenuItem
+                          key={preset}
+                          onSelect={() => {
+                            run(
+                              () => createFromPreset({ preset }),
+                              (created) => {
+                                open(created.id);
+                              },
+                            );
+                          }}
+                        >
+                          {presetT(`names.${preset}`)}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
                   <DropdownMenuItem
                     onSelect={() => {
                       run(
@@ -413,7 +443,7 @@ export function DashboardContainer({
                       <MoreHorizontal aria-hidden />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="w-52">
                     <DropdownMenuItem
                       onSelect={() => {
                         setEditing({ mode: 'edit', panel });

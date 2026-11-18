@@ -11,10 +11,10 @@ import { requireSession, type CurrentSession } from '@/features/auth';
 import {
   dashboardIdSchema,
   dashboardInputSchema,
-  defaultDashboard,
   type Dashboard,
   type DashboardInput,
 } from '../dashboards.utils';
+import { availablePresets, presetDashboard, presetKeys, type PresetKey } from '../presets.utils';
 import {
   deleteDashboard,
   findDashboard,
@@ -31,20 +31,26 @@ function parse<T>(schema: z.ZodType<T>, input: unknown): T {
   return parsed.data;
 }
 
-/** The default dashboard for this person: from what they may read, in their language. */
-async function defaultFor(): Promise<DashboardInput> {
+/** The presets this person may use, each as a builder of the dashboard in their language. */
+async function presetsFor(): Promise<{
+  keys: PresetKey[];
+  build: (key: PresetKey) => DashboardInput;
+}> {
   const [t, variables] = await Promise.all([
-    getTranslations('dashboards.default'),
+    getTranslations('dashboards.presets'),
     loadVariables(),
   ]);
-  return defaultDashboard(variables.ok ? variables.data : [], {
-    name: t('name'),
-    folders: t('folders'),
-    space: t('space'),
-    operations: t('operations'),
-    dropOffs: t('dropOffs'),
-    audit: t('audit'),
-  });
+  const readable = variables.ok ? variables.data : [];
+  // i18n-dynamic: dashboards.presets.names
+  // i18n-dynamic: dashboards.presets.panels
+  return {
+    keys: availablePresets(readable),
+    build: (key) =>
+      presetDashboard(key, readable, {
+        name: t(`names.${key}`),
+        panel: (id) => t(`panels.${id}`),
+      }),
+  };
 }
 
 async function record(session: CurrentSession, action: string, dashboard: string) {
@@ -52,17 +58,38 @@ async function record(session: CurrentSession, action: string, dashboard: string
 }
 
 /**
- * The person's dashboards; a first visit gets the default one, made their home, so that nobody
- * starts from an empty page.
+ * The person's dashboards; a first visit gets every preset they may use, the overview as their
+ * home, so that nobody starts from an empty page.
  */
 export async function loadDashboards(): Promise<ActionResult<Dashboard[]>> {
   return runAction(async () => {
     const session = await requireSession();
     const existing = await listDashboards(session.user.id);
     if (existing.length > 0) return existing;
-    const created = await insertDashboard(session.user.id, await defaultFor(), true);
+    const { keys, build } = await presetsFor();
+    const created: Dashboard[] = [];
+    // One after the other, so that they are listed in the presets' order.
+    for (const key of keys) {
+      const dashboard = await insertDashboard(session.user.id, build(key), key === 'overview');
+      await record(session, 'dashboards.create', dashboard.id);
+      created.push(dashboard);
+    }
+    return created;
+  });
+}
+
+const presetSchema = z.object({ preset: z.enum(presetKeys) });
+
+/** A new dashboard from a preset, with what the person may read. */
+export async function createFromPreset(input: unknown): Promise<ActionResult<Dashboard>> {
+  return runAction(async () => {
+    const { preset } = parse(presetSchema, input);
+    const session = await requireSession();
+    const { keys, build } = await presetsFor();
+    if (!keys.includes(preset)) throw new AppBaseError('system.bad_request', 'preset not readable');
+    const created = await insertDashboard(session.user.id, build(preset), false);
     await record(session, 'dashboards.create', created.id);
-    return [created];
+    return created;
   });
 }
 
@@ -146,14 +173,14 @@ export async function makeHomeDashboard(input: unknown): Promise<ActionResult<nu
   });
 }
 
-/** Puts the default panels back on a dashboard (keeping its name). */
+/** Puts the overview's panels back on a dashboard (keeping its name). */
 export async function resetDashboard(input: unknown): Promise<ActionResult<Dashboard>> {
   return runAction(async () => {
     const { id } = parse(dashboardIdSchema, input);
     const session = await requireSession();
     const current = await findDashboard(session.user.id, id);
     if (!current) throw new AppBaseError('dashboards.not_found', 'no such dashboard');
-    const defaults = await defaultFor();
+    const defaults = (await presetsFor()).build('overview');
     const saved = await updateDashboard(session.user.id, id, { ...defaults, name: current.name });
     if (!saved) throw new AppBaseError('dashboards.not_found', 'no such dashboard');
     await record(session, 'dashboards.update', id);

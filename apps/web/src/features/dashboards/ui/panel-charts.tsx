@@ -39,6 +39,11 @@ import type { TimeRange } from '../variables.utils';
 /** Theme colours for series, in order (more series reuse them). */
 const seriesColors = ['chart-1', 'chart-2', 'chart-3', 'chart-4', 'chart-5'] as const;
 
+/** Counted things have whole-number ticks only. */
+function counts(series: readonly NamedSeries[]): boolean {
+  return series.every((one) => one.unit === 'count');
+}
+
 function seriesColor(index: number): string {
   return cssColor(seriesColors[index % seriesColors.length] ?? 'chart-1');
 }
@@ -133,7 +138,13 @@ export function TimeView({ panel, series, range }: ChartProps & { range: TimeRan
         axisLine={false}
         minTickGap={32}
       />
-      <YAxis width={64} tickLine={false} axisLine={false} tickFormatter={value} />
+      <YAxis
+        width={64}
+        tickLine={false}
+        axisLine={false}
+        tickFormatter={value}
+        allowDecimals={!counts(series)}
+      />
       <Tooltip
         panel={panel}
         series={series}
@@ -209,7 +220,13 @@ export function BarView({ panel, series, range }: ChartProps & { range: TimeRang
           axisLine={false}
           minTickGap={32}
         />
-        <YAxis width={64} tickLine={false} axisLine={false} tickFormatter={value} />
+        <YAxis
+          width={64}
+          tickLine={false}
+          axisLine={false}
+          tickFormatter={value}
+          allowDecimals={!counts(series)}
+        />
         <Tooltip
           panel={panel}
           series={series}
