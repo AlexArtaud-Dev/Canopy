@@ -13,9 +13,9 @@ import (
 	"github.com/riverqueue/river"
 	"github.com/riverqueue/river/riverdriver/riverpgxv5"
 	"github.com/riverqueue/river/rivermigrate"
+	"github.com/riverqueue/river/rivertype"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
-	"github.com/riverqueue/river/rivertype"
 )
 
 // riverSchema holds River's own tables (created for the engine role by docker/postgres/init).
