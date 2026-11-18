@@ -8,17 +8,17 @@ require (
 	github.com/go-chi/chi/v5 v5.5.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
-	github.com/jackc/pgx/v5 v5.12.0
-	github.com/oapi-codegen/runtime v1.8.0
-	github.com/pressly/goose/v3 v3.29.0
-	github.com/riverqueue/river v0.51.1
-	github.com/riverqueue/river/riverdriver/riverpgxv5 v0.51.1
-	github.com/riverqueue/river/rivertype v0.51.1
+	github.com/jackc/pgx/v5 v5.13.0
+	github.com/oapi-codegen/runtime v1.9.0
+	github.com/pressly/goose/v3 v3.30.0
+	github.com/riverqueue/river v0.51.2
+	github.com/riverqueue/river/riverdriver/riverpgxv5 v0.51.2
+	github.com/riverqueue/river/rivertype v0.51.2
 	github.com/tus/tusd/v2 v2.10.1
-	go.yaml.in/yaml/v3 v3.0.5
-	golang.org/x/exp v0.0.0-20261011100332-faecfb24eb49
-	golang.org/x/image v0.47.0
-	golang.org/x/sync v0.24.0
+	go.yaml.in/yaml/v3 v3.0.6
+	golang.org/x/exp v0.0.0-20261109185158-a52e3aef5920
+	golang.org/x/image v0.48.0
+	golang.org/x/sync v0.25.0
 )
 
 require (
@@ -32,8 +32,8 @@ require (
 	github.com/jackc/puddle/v2 v2.2.3 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/oapi-codegen/oapi-codegen/v2 v2.8.2 // indirect
-	github.com/riverqueue/river/riverdriver v0.51.1 // indirect
-	github.com/riverqueue/river/rivershared v0.51.1 // indirect
+	github.com/riverqueue/river/riverdriver v0.51.2 // indirect
+	github.com/riverqueue/river/rivershared v0.51.2 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/sethvargo/go-retry v0.5.0 // indirect
 	github.com/speakeasy-api/jsonpath v0.6.3 // indirect
@@ -47,8 +47,8 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v4 v4.0.0 // indirect
 	golang.org/x/mod v0.42.0 // indirect
-	golang.org/x/text v0.43.0 // indirect
-	golang.org/x/tools v0.52.0 // indirect
+	golang.org/x/text v0.44.0 // indirect
+	golang.org/x/tools v0.52.1-0.20261106145633-d407941a339a // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

@@ -34,6 +34,42 @@ sudo chown -R 1000:1000 /mnt/disk1
 
 The web container never mounts your files.
 
+### Running the engine as root
+
+When the folders you mount belong to several host users (other containers, old copies, a NAS),
+giving them all to `PUID:PGID` may not be possible. The engine can then run as root, so the
+host's file rights no longer stop it. **Who may do what is then decided by Canopy alone**: its
+roles, groups and folder rights (Administration › Users and groups, and each folder's access).
+
+```yaml
+# docker/compose.yaml, engine service
+engine:
+  user: ${PUID:-1000}:${PGID:-1000} # unchanged: 0:100 with the .env below
+  read_only: true
+  cap_drop: [ALL]
+  # Root without these still obeys the folders' rights.
+  cap_add: [DAC_OVERRIDE, DAC_READ_SEARCH, FOWNER]
+  security_opt: [no-new-privileges:true]
+```
+
+```bash
+# docker/.env
+PUID=0
+PGID=100
+UMASK=002
+```
+
+- `PGID` and `UMASK=002` make what Canopy creates belong to `root:<group>` and stay writable by
+  that group, so other containers running as a member of it keep writing there.
+- Only the three capabilities above are added; the container stays read-only and cannot gain
+  more privileges.
+- The engine can now change anything you mount. Mount only the folders Canopy should manage,
+  mount read-only (`:ro`) what must never change, and give folder rights sparingly: start from
+  _View_ and add actions per group. _Delete permanently_ is its own right; keep it for the few
+  who need it.
+- Only `cap_add` is new in the compose file; the GPU image keeps its `runtime` and `deploy`
+  lines.
+
 ## CANOPY_HOME
 
 One folder holds everything Canopy keeps; the first start fills it:
