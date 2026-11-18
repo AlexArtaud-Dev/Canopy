@@ -23,7 +23,8 @@ RUN pnpm --filter @canopy/web build     && rm -rf apps/web/.next/standalone/node
 # Runtime: plain Alpine (same release as the node image) with only the node binary and the C++
 # runtime it links. npm, corepack and yarn never run in production and are left behind.
 FROM alpine:3.24@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf AS runtime
-RUN apk add --no-cache libstdc++     && addgroup -g 1000 node     && adduser -u 1000 -G node -s /sbin/nologin -D -H node
+# Node 26 links libatomic as well as libstdc++.
+RUN apk add --no-cache libstdc++ libatomic     && addgroup -g 1000 node     && adduser -u 1000 -G node -s /sbin/nologin -D -H node
 COPY --from=base /usr/local/bin/node /usr/local/bin/node
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
 WORKDIR /app
