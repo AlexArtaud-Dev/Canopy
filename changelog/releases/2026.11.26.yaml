@@ -1,0 +1,9 @@
+date: 2026-11-18
+entries:
+  - type: fix
+    scope: engine
+    issue: 242
+    text:
+      en: When the disk refuses a change (Canopy's server account may not write there, the disk is read-only or full), the message now says so instead of a generic server error.
+      fr: Quand le disque refuse une modification (le compte serveur de Canopy n’a pas le droit d’y écrire, disque en lecture seule ou plein), le message le dit au lieu d’une erreur serveur générique.
+      es: Cuando el disco rechaza un cambio (la cuenta del servidor de Canopy no puede escribir ahí, disco de solo lectura o lleno), el mensaje lo indica en lugar de un error genérico del servidor.
