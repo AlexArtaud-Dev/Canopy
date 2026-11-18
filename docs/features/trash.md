@@ -10,6 +10,11 @@ plus `<id>.json`): deleting is an instant rename, and restoring puts the item ba
 - People see and restore their own deletions; administrators see every item. Restoring needs
   `create` at the original place; a name taken meanwhile keeps both (`name (1)`); missing parent
   folders are recreated.
+- Deleting **for good** needs `purge` (_Delete permanently_) on each item: bypassing the trash,
+  deleting trash items, emptying the trash. Without it, people only move to the trash; emptying
+  skips their items (`skipped` in the job result), which leave when retention or limits sweep
+  them. Migration `0022` gave `purge` to every grant that had `delete`, so nothing changed at
+  upgrade; remove it where only administrators (or some groups) should delete for good.
 - Permanent deletion (bypassing the trash) and emptying the trash run as jobs.
 - Every change is audited: `fs.delete` (to the trash or permanent), `trash.restore`,
   `trash.empty`, `trash.purge` (automatic, with its reason).
@@ -37,9 +42,12 @@ unbounded amount of data or files.
 - **Delete** (item menu, Delete key, selection bar) measures the selection first. If it fits the
   trash: a confirmation, then a toast with **Undo** (10 s) that restores at once. If it does not
   fit (or with **Shift+Delete**): a red warning stating the size and that nothing can be
-  restored, then a permanent delete job in the operations panel.
+  restored, then a permanent delete job in the operations panel. Without `purge`, Shift+Delete
+  moves to the trash, _Delete permanently_ is not offered, and a selection too large for the
+  trash is refused with the reason.
 - **Trash** page (sidebar, under Files): deleted items with where they were, when, how long they
   are kept, their size (measured shortly after deletion); restore one or a selection, delete a
-  selection for good, or empty the trash (both behind a red confirmation). Administrators also
+  selection for good, or empty the trash (both behind a red confirmation, and only for items
+  the person may purge: `mayPurge` on each item). Administrators also
   see who deleted each item (by username).
 - Settings › Trash: retention, maximum size and maximum files per volume.

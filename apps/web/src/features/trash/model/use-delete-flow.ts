@@ -5,22 +5,19 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import type { DeletePlan } from '@canopy/contracts';
 import { useErrorMessage } from '@/shared/errors/use-error-message';
 import { filesystemQueryRoot } from '@/shared/query/query-keys';
 
 import { deletePermanently, planDeletion, restoreItems, trashItems } from '../server/trash-actions';
+import { deleteDialogFor, type DeleteDialog } from '../trash.utils';
 
-export type DeleteDialog =
-  | { kind: 'none' }
-  | { kind: 'trash'; paths: string[]; plan: DeletePlan }
-  /** Asked with Shift+Delete, or the selection does not fit the trash limits. */
-  | { kind: 'permanent'; paths: string[]; plan: DeletePlan; asked: boolean };
+export type { DeleteDialog } from '../trash.utils';
 
 /**
  * Deleting: the selection is measured first. If it fits the trash, a confirmation moves it there
  * with an Undo in the toast; otherwise (or when asked) a strong warning precedes a permanent
- * delete. The engine checks permissions and limits again.
+ * delete, for those who may purge; the others are told why nothing can be deleted. The engine
+ * checks permissions and limits again.
  */
 export function useDeleteFlow() {
   const t = useTranslations('trash.delete');
@@ -34,7 +31,8 @@ export function useDeleteFlow() {
     toast.error(errorMessage(code, params));
   };
 
-  const start = async (paths: string[], permanent: boolean) => {
+  /** `mayPurge`: every path allows deleting for good (`purge`). */
+  const start = async (paths: string[], permanent: boolean, mayPurge: boolean) => {
     if (paths.length === 0) return;
     const planned = await planDeletion({ paths });
     if (!planned.ok) {
@@ -42,11 +40,7 @@ export function useDeleteFlow() {
       return;
     }
     const plan = planned.data;
-    setDialog(
-      permanent || !plan.fitsTrash
-        ? { kind: 'permanent', paths, plan, asked: permanent }
-        : { kind: 'trash', paths, plan },
-    );
+    setDialog(deleteDialogFor(paths, plan, permanent, mayPurge));
   };
 
   const undo = async (ids: string[]) => {
@@ -60,7 +54,7 @@ export function useDeleteFlow() {
   };
 
   const confirm = async () => {
-    if (dialog.kind === 'none') return;
+    if (dialog.kind === 'none' || dialog.kind === 'blocked') return;
     setPending(true);
     try {
       if (dialog.kind === 'trash') {

@@ -1676,7 +1676,7 @@ components:
           type: string
     PathAction:
       type: string
-      enum: [read, upload, create, update, move, copy, delete, download, share, execute]
+      enum: [read, upload, create, update, move, copy, delete, purge, download, share, execute]
     DirectoryEntry:
       type: object
       required: [name, path, kind, size, modified, actions, preview, thumbnail]
@@ -2339,7 +2339,19 @@ components:
           $ref: '#/components/schemas/TrashLimits'
     TrashItem:
       type: object
-      required: [id, name, originalPath, isDirectory, deletedAt, deletedBy, bytes, files, measured]
+      required:
+        [
+          id,
+          name,
+          originalPath,
+          isDirectory,
+          deletedAt,
+          deletedBy,
+          bytes,
+          files,
+          measured,
+          mayPurge,
+        ]
       properties:
         id:
           type: string
@@ -2361,6 +2373,9 @@ components:
           type: integer
           format: int64
         measured:
+          type: boolean
+        mayPurge:
+          description: The caller may delete it for good (the `purge` path action).
           type: boolean
     TrashItemList:
       type: object

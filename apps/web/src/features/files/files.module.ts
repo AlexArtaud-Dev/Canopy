@@ -15,6 +15,7 @@ export const filesModule = defineModule({
       'move',
       'copy',
       'delete',
+      'purge',
       'download',
       'share',
       'execute',

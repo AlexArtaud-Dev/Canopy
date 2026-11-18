@@ -44,7 +44,8 @@
       "update": "Modifier",
       "move": "Déplacer",
       "copy": "Copier",
-      "delete": "Supprimer",
+      "delete": "Mettre à la corbeille",
+      "purge": "Supprimer définitivement",
       "share": "Partager",
       "execute": "Exécuter des commandes"
     },

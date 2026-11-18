@@ -31,6 +31,8 @@ type Meta struct {
 	Bytes    int64 `json:"bytes"`
 	Files    int64 `json:"files"`
 	Measured bool  `json:"measured"`
+	// MayPurge is computed for the reader when listing (never stored): they may delete it for good.
+	MayPurge bool `json:"-"`
 }
 
 // Limits are the administrator's trash settings, per volume.

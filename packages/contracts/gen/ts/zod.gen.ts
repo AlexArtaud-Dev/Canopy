@@ -56,6 +56,7 @@ export const zPathAction = z.enum([
   'move',
   'copy',
   'delete',
+  'purge',
   'download',
   'share',
   'execute',
@@ -515,6 +516,7 @@ export const zTrashItem = z.object({
       error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
     }),
   measured: z.boolean(),
+  mayPurge: z.boolean(),
 });
 
 export const zTrashItemList = z.object({

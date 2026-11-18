@@ -8,7 +8,8 @@
 - **Two scopes**, declared by each module's manifest:
   1. **Global** permissions `<module>:<action>` — e.g. `users:create`, `settings:update`, `audit:read`.
   2. **Path** permissions for the `files` module, granted per path:
-     `read, upload, create, update, move, copy, delete, download, share, execute`.
+     `read, upload, create, update, move, copy, delete, purge, download, share, execute`
+     (`delete` moves to the trash; `purge` deletes for good: bypassing or emptying the trash).
 - **Path grant**: `(subjectType, subjectId, virtualPath, actions[], effect: allow | deny)`.
 - `system:admin` bypasses path grants (still fully audited).
 

@@ -72,6 +72,7 @@ export type PathAction =
   | 'move'
   | 'copy'
   | 'delete'
+  | 'purge'
   | 'download'
   | 'share'
   | 'execute';
@@ -565,6 +566,10 @@ export type TrashItem = {
   bytes: number;
   files: number;
   measured: boolean;
+  /**
+   * The caller may delete it for good (the `purge` path action).
+   */
+  mayPurge: boolean;
 };
 
 export type TrashItemList = {

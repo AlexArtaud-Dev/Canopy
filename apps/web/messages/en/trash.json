@@ -13,7 +13,10 @@
     "permanentSize": "{size} in {files, plural, one {# file} other {# files}}.",
     "permanentWarning": "It cannot be undone or restored.",
     "permanentConfirm": "Delete permanently",
-    "permanentStarted": "Permanent delete started: {count, plural, one {# item} other {# items}}"
+    "permanentStarted": "Permanent delete started: {count, plural, one {# item} other {# items}}",
+    "blockedTitle": "Cannot delete: {count, plural, one {# item} other {# items}}",
+    "blockedReason": "Deleting it for good needs the “Delete permanently” right; ask an administrator, or delete smaller parts.",
+    "blockedClose": "Close"
   },
   "page": {
     "description": "Items you deleted. Restore them, or delete them for good.",
@@ -33,6 +36,7 @@
     "emptyTitleConfirm": "Empty the trash?",
     "deleteTitle": "Delete for good: {count, plural, one {# item} other {# items}}?",
     "deleteWarning": "This cannot be undone.",
+    "keptWithoutPurge": "{count, plural, one {# item stays} other {# items stay}} until they expire: deleting them for good needs the “Delete permanently” right.",
     "deleteConfirm": "Delete for good",
     "columns": {
       "name": "Name",

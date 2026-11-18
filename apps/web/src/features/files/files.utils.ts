@@ -9,6 +9,7 @@ export const pathActions = [
   'move',
   'copy',
   'delete',
+  'purge',
   'share',
   'execute',
 ] as const;

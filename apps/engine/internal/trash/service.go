@@ -82,8 +82,14 @@ func (s *Service) record(ctx context.Context, actor, action, target, requestID s
 	}
 }
 
-// checkDeletable validates paths and the `delete` permission before anything moves.
-func (s *Service) checkDeletable(ctx context.Context, subject authz.Subject, paths []string) ([]string, error) {
+// Path actions deleting needs: to the trash, or for good.
+const (
+	actionDelete = "delete"
+	actionPurge  = "purge"
+)
+
+// checkDeletable validates paths and the given permission before anything moves.
+func (s *Service) checkDeletable(ctx context.Context, subject authz.Subject, paths []string, action string) ([]string, error) {
 	access, err := transfer.LoadAccess(ctx, s.cfg.Grants, subject)
 	if err != nil {
 		return nil, err //nolint:wrapcheck // answered as an internal error
@@ -103,7 +109,7 @@ func (s *Service) checkDeletable(ctx context.Context, subject authz.Subject, pat
 		if _, err := s.cfg.Files.Lstat(clean); err != nil {
 			return nil, err //nolint:wrapcheck // classified by the caller
 		}
-		if !access.Can("delete", clean) {
+		if !access.Can(action, clean) {
 			return nil, ErrForbidden
 		}
 		cleaned = append(cleaned, clean)
@@ -123,7 +129,7 @@ type Plan struct {
 
 // PlanDelete measures the selection within a time budget.
 func (s *Service) PlanDelete(ctx context.Context, subject authz.Subject, paths []string) (Plan, error) {
-	cleaned, err := s.checkDeletable(ctx, subject, paths)
+	cleaned, err := s.checkDeletable(ctx, subject, paths, actionDelete)
 	if err != nil {
 		return Plan{}, err
 	}
@@ -164,7 +170,7 @@ func (s *Service) PlanDelete(ctx context.Context, subject authz.Subject, paths [
 
 // Delete moves items to their volume's trash (instant renames) and wakes the keeper.
 func (s *Service) Delete(ctx context.Context, subject authz.Subject, paths []string, requestID string) ([]Item, error) {
-	cleaned, err := s.checkDeletable(ctx, subject, paths)
+	cleaned, err := s.checkDeletable(ctx, subject, paths, actionDelete)
 	if err != nil {
 		return nil, err
 	}
@@ -199,8 +205,12 @@ func (s *Service) Delete(ctx context.Context, subject authz.Subject, paths []str
 	return items, nil
 }
 
-// List returns the items a person may see, newest first.
-func (s *Service) List(_ context.Context, subject authz.Subject) ([]Item, error) {
+// List returns the items a person may see, newest first, each saying whether they may purge it.
+func (s *Service) List(ctx context.Context, subject authz.Subject) ([]Item, error) {
+	access, err := transfer.LoadAccess(ctx, s.cfg.Grants, subject)
+	if err != nil {
+		return nil, err //nolint:wrapcheck // answered as an internal error
+	}
 	volumes, err := s.cfg.Files.Volumes()
 	if err != nil {
 		return nil, err //nolint:wrapcheck // internal error
@@ -213,6 +223,7 @@ func (s *Service) List(_ context.Context, subject authz.Subject) ([]Item, error)
 		}
 		for _, item := range metas {
 			if Visible(item, subject.UserID, subject.Admin) {
+				item.MayPurge = access.Can(actionPurge, item.OriginalPath)
 				items = append(items, item)
 			}
 		}
@@ -403,13 +414,13 @@ func (a EmptyArgs) JobID() string { return a.Job }
 
 // CheckPermanent validates a permanent delete before it is queued.
 func (s *Service) CheckPermanent(ctx context.Context, subject authz.Subject, paths []string) ([]string, error) {
-	return s.checkDeletable(ctx, subject, paths)
+	return s.checkDeletable(ctx, subject, paths, actionPurge)
 }
 
 // DeleteHandler runs a permanent delete, checking each path again.
 func (s *Service) DeleteHandler() jobs.Handler[DeleteArgs] {
 	return func(ctx context.Context, args DeleteArgs, report *jobs.Reporter) (map[string]any, error) {
-		cleaned, err := s.checkDeletable(ctx, args.Subject, args.Paths)
+		cleaned, err := s.checkDeletable(ctx, args.Subject, args.Paths, actionPurge)
 		if err != nil {
 			return nil, &jobs.Failure{Code: "files.forbidden", Err: err}
 		}
@@ -432,39 +443,37 @@ func (s *Service) DeleteHandler() jobs.Handler[DeleteArgs] {
 	}
 }
 
-// EmptyHandler removes trash items for good (the person's own, or any for administrators).
+// EmptyHandler removes trash items for good (the person's own, or any for administrators). Items
+// they may not purge stay (counted as skipped) until the retention sweeps them.
 func (s *Service) EmptyHandler() jobs.Handler[EmptyArgs] {
 	return func(ctx context.Context, args EmptyArgs, report *jobs.Reporter) (map[string]any, error) {
-		ids := args.IDs
-		if len(ids) == 0 {
-			items, err := s.List(ctx, args.Subject)
-			if err != nil {
-				return nil, err
-			}
-			for _, item := range items {
-				ids = append(ids, item.ID)
-			}
+		listed, err := s.List(ctx, args.Subject)
+		if err != nil {
+			return nil, err
 		}
-		total := int64(len(ids))
+		chosen := listed
+		if len(args.IDs) > 0 {
+			chosen = slices.DeleteFunc(slices.Clone(listed), func(item Item) bool { return !slices.Contains(args.IDs, item.ID) })
+		}
+		purgeable := slices.DeleteFunc(slices.Clone(chosen), func(item Item) bool { return !item.MayPurge })
+		skipped := int64(len(chosen) - len(purgeable))
+		total := int64(len(purgeable))
 		progress := jobs.Progress{ItemsTotal: &total}
-		for _, id := range ids {
+		for _, item := range purgeable {
 			if err := ctx.Err(); err != nil {
-				return map[string]any{"items": progress.ItemsDone}, fmt.Errorf("stopped: %w", err)
+				return map[string]any{"items": progress.ItemsDone, "skipped": skipped}, fmt.Errorf("stopped: %w", err)
 			}
-			item, volume, err := s.find(args.Subject, id)
-			if err != nil {
-				continue
-			}
+			volume, _ := fsx.VolumeOfID(item.ID)
 			progress.CurrentPath = item.OriginalPath
 			_ = report.Progress(ctx, progress)
-			if err := s.cfg.Files.TrashRemove(volume, id); err != nil {
-				return map[string]any{"items": progress.ItemsDone}, err //nolint:wrapcheck // reported as a failed job
+			if err := s.cfg.Files.TrashRemove(volume, item.ID); err != nil {
+				return map[string]any{"items": progress.ItemsDone, "skipped": skipped}, err //nolint:wrapcheck // reported as a failed job
 			}
 			progress.ItemsDone++
 		}
-		s.record(ctx, args.Subject.UserID, "trash.empty", "", "", map[string]any{"items": progress.ItemsDone})
+		s.record(ctx, args.Subject.UserID, "trash.empty", "", "", map[string]any{"items": progress.ItemsDone, "skipped": skipped})
 		_ = report.Progress(ctx, progress)
-		return map[string]any{"items": progress.ItemsDone}, nil
+		return map[string]any{"items": progress.ItemsDone, "skipped": skipped}, nil
 	}
 }
 
