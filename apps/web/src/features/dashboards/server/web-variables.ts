@@ -18,7 +18,10 @@ interface Window {
   bucketSeconds: number;
 }
 
-function countSeries(points: VariablePoint[], bucket: number): VariableData {
+function countSeries(
+  points: VariablePoint[],
+  bucket: number,
+): Extract<VariableData, { kind: 'series' }> {
   return { kind: 'series', unit: 'count', bucketSeconds: bucket, series: [{ name: '', points }] };
 }
 
@@ -36,20 +39,25 @@ async function bucketCounts(
   where: ReturnType<typeof and>,
   window: Window,
 ): Promise<VariableData> {
-  const bucket = sql<Date>`date_bin(${`${String(window.bucketSeconds)} seconds`}::interval, ${column}, ${window.from})`;
+  const bucket = sql<
+    Date | string
+  >`date_bin(${`${String(window.bucketSeconds)} seconds`}::interval, ${column}, ${window.from.toISOString()}::timestamptz)`;
+  // Grouped by position: the same expression written twice gets other parameter numbers, which
+  // Postgres would not see as the selected one.
   const rows = await getDb()
     .select({ at: bucket, total: count() })
     .from(column.table)
     .where(and(gte(column, window.from), lt(column, window.to), where))
-    .groupBy(bucket)
-    .orderBy(bucket);
-  return countSeries(
+    .groupBy(sql`1`)
+    .orderBy(sql`1`);
+  const series = countSeries(
     rows.map((row) => {
       const at = new Date(row.at).toISOString();
       return { at, avg: row.total, min: row.total, max: row.total };
     }),
     window.bucketSeconds,
   );
+  return { ...series, total: rows.reduce((sum, row) => sum + row.total, 0) };
 }
 
 /** Reads one web-computed variable; the caller checked the permission. */

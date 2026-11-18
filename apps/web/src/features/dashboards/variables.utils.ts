@@ -170,6 +170,8 @@ export type VariableData =
       unit: VariableUnit;
       bucketSeconds: number;
       series: { name: string; points: VariablePoint[] }[];
+      /** Events counted over the whole range (drop-offs, refusals): what a single value shows. */
+      total?: number;
     }
   | { kind: 'log'; lines: LogLine[] };
 
@@ -185,6 +187,7 @@ export type ReadVariableInput = z.infer<typeof readVariableInputSchema>;
 /** The latest value of each series (what a single-value panel shows), null when empty. */
 export function latestValue(data: VariableData): number | null {
   if (data.kind !== 'series') return null;
+  if (data.total !== undefined) return data.total;
   let latest: VariablePoint | undefined;
   for (const series of data.series) {
     const last = series.points.at(-1);

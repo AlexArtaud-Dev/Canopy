@@ -11,6 +11,7 @@ import { jobsModule } from '@/features/jobs/jobs.module';
 import { mailModule } from '@/features/mail/mail.module';
 import { notificationsModule } from '@/features/notifications/notifications.module';
 import { devicesModule } from '@/features/devices/devices.module';
+import { dashboardsModule } from '@/features/dashboards/dashboards.module';
 import { metricsModule } from '@/features/dashboards/metrics.module';
 import { pluginsModule } from '@/features/plugins/plugins.module';
 import { settingsModule } from '@/features/settings/settings.module';
@@ -23,6 +24,7 @@ import { createRegistry } from '@/shared/modules/registry';
 
 export const appRegistry = createRegistry([
   filesModule,
+  dashboardsModule,
   jobsModule,
   uploadsModule,
   trashModule,

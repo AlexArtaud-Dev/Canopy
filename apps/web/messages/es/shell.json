@@ -17,7 +17,8 @@
     "shares": "Compartidos",
     "commands": "Comandos",
     "plugins": "Plugins",
-    "devices": "Dispositivos"
+    "devices": "Dispositivos",
+    "dashboards": "Paneles"
   },
   "sections": {
     "people": "Gestión de usuarios",

@@ -105,5 +105,9 @@ describe('variables', () => {
       latestValue({ kind: 'series', unit: 'count', bucketSeconds: 60, series: [] }),
     ).toBeNull();
     expect(latestValue({ kind: 'log', lines: [] })).toBeNull();
+    // Counted events show their total over the range, even when nothing happened.
+    expect(
+      latestValue({ kind: 'series', unit: 'count', bucketSeconds: 60, series: [], total: 0 }),
+    ).toBe(0);
   });
 });

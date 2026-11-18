@@ -17,7 +17,8 @@
     "shares": "Partages",
     "commands": "Commandes",
     "plugins": "Plugins",
-    "devices": "Appareils"
+    "devices": "Appareils",
+    "dashboards": "Tableaux de bord"
   },
   "sections": {
     "people": "Gestion des utilisateurs",
