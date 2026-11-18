@@ -174,16 +174,6 @@
       "primary": "Accent",
       "destructive": "Red"
     },
-    "size": "Size",
-    "sizeCustom": "Custom size",
-    "sizeHint": "On a phone, panels take the whole width, one under the other.",
-    "sizes": {
-      "small": "Small (¼ width)",
-      "medium": "Medium (⅓ width)",
-      "wide": "Wide (½ width)",
-      "large": "Large (⅔ width)",
-      "full": "Full width"
-    },
     "alignX": "Horizontal placement",
     "alignY": "Vertical placement",
     "aligns": {

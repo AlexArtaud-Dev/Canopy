@@ -7,13 +7,7 @@ import {
   gaugeShare,
   type NamedSeries,
 } from './panels.utils';
-import {
-  copyPanel,
-  editorFeatures,
-  maxPanelVariables,
-  newPanel,
-  panelSizes,
-} from './ui/panel-editor.utils';
+import { copyPanel, editorFeatures, maxPanelVariables, newPanel } from './ui/panel-editor.utils';
 import { panelTypes, withDefaults } from './dashboards.utils';
 
 const points = (values: number[]) =>
@@ -142,12 +136,5 @@ describe('editor', () => {
 
     const copy = copyPanel(existing[1] ?? created, existing, () => 'copy');
     expect(copy).toMatchObject({ id: 'p-copy', title: 'b', layout: { x: 0, y: 6, w: 3, h: 4 } });
-  });
-
-  it('offers sizes that fit the grid', () => {
-    for (const size of panelSizes) {
-      expect(size.w).toBeLessThanOrEqual(12);
-      expect(size.id).toBe(`${String(size.w)}x${String(size.h)}`);
-    }
   });
 });

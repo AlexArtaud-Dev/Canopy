@@ -174,16 +174,6 @@
       "primary": "Accent",
       "destructive": "Rouge"
     },
-    "size": "Taille",
-    "sizeCustom": "Taille personnalisée",
-    "sizeHint": "Sur un téléphone, les panneaux prennent toute la largeur, les uns sous les autres.",
-    "sizes": {
-      "small": "Petit (¼ de largeur)",
-      "medium": "Moyen (⅓ de largeur)",
-      "wide": "Large (½ largeur)",
-      "large": "Grand (⅔ de largeur)",
-      "full": "Toute la largeur"
-    },
     "alignX": "Placement horizontal",
     "alignY": "Placement vertical",
     "aligns": {

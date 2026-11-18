@@ -174,16 +174,6 @@
       "primary": "Acento",
       "destructive": "Rojo"
     },
-    "size": "Tamaño",
-    "sizeCustom": "Tamaño personalizado",
-    "sizeHint": "En un teléfono, los bloques ocupan todo el ancho, uno debajo del otro.",
-    "sizes": {
-      "small": "Pequeño (¼ de ancho)",
-      "medium": "Mediano (⅓ de ancho)",
-      "wide": "Ancho (½ ancho)",
-      "large": "Grande (⅔ de ancho)",
-      "full": "Todo el ancho"
-    },
     "alignX": "Posición horizontal",
     "alignY": "Posición vertical",
     "aligns": {

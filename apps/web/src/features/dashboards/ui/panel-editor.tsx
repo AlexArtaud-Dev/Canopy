@@ -26,7 +26,6 @@ import {
 } from '@/shared/ui/dialog';
 import {
   Field,
-  FieldContent,
   FieldDescription,
   FieldGroup,
   FieldLabel,
@@ -49,7 +48,7 @@ import {
 import { cssColor } from '../panels.utils';
 import { variableFamilies, type TimeRange, type VariableDefinition } from '../variables.utils';
 import { PanelView } from './panel-views';
-import { editorFeatures, panelSizes } from './panel-editor.utils';
+import { editorFeatures } from './panel-editor.utils';
 
 interface PanelEditorProps {
   /** The panel being edited, or the new one's starting point. */
@@ -478,40 +477,6 @@ export function PanelEditor({
                 </Button>
               </FieldSet>
             )}
-
-            <Field>
-              <FieldLabel htmlFor={`${formId}-size`}>{t('editor.size')}</FieldLabel>
-              <Select
-                value={`${String(panel.layout.w)}x${String(panel.layout.h)}`}
-                onValueChange={(value) => {
-                  const size = panelSizes.find((candidate) => candidate.id === value);
-                  if (size)
-                    update({
-                      layout: {
-                        ...panel.layout,
-                        w: size.w,
-                        h: size.h,
-                        x: Math.min(panel.layout.x, 12 - size.w),
-                      },
-                    });
-                }}
-              >
-                <SelectTrigger id={`${formId}-size`} className="w-full">
-                  <SelectValue placeholder={t('editor.sizeCustom')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {panelSizes.map((size) => (
-                    <SelectItem key={size.id} value={size.id}>
-                      {/* i18n-dynamic: dashboards.editor.sizes */}
-                      {t(`editor.sizes.${size.name}`)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldContent>
-                <FieldDescription>{t('editor.sizeHint')}</FieldDescription>
-              </FieldContent>
-            </Field>
           </form>
         </div>
         <DialogFooter>

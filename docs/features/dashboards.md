@@ -20,7 +20,7 @@
   highest threshold it reaches (single value, gauge, bars, ring, table).
 - **Editor** (_Add a panel_, or a panel's menu › _Edit_): title, type, variables grouped by
   family (only what the person may read, of the kind the type draws), aggregation, decimals,
-  gauge bounds, legend, stacking, colour rules and size, with a **live preview** of the real
+  gauge bounds, placement, legend, stacking and colour rules, with a **live preview** of the real
   values beside the form (above it on a phone). Cancel leaves the dashboard as it was. A
   panel's menu also duplicates it, or removes it with _Undo_ in the toast.
 - **Layout**: 12 columns on wide screens (each panel says where it sits), one column in
