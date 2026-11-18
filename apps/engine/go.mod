@@ -2,7 +2,7 @@ module github.com/AlexArtaud-Dev/Canopy/apps/engine
 
 go 1.26.0
 
-toolchain go1.26.11
+toolchain go1.27.4
 
 require (
 	github.com/go-chi/chi/v5 v5.5.0
