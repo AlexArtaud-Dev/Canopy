@@ -1,8 +1,1 @@
-entries:
-  - type: feat
-    scope: web
-    issue: 221
-    text:
-      en: Dashboards - your own, starting from a default one built from your folders and what your roles let you read, with time ranges, auto refresh and line charts.
-      fr: Tableaux de bord - les vôtres, à partir d’un tableau par défaut construit depuis vos dossiers et ce que vos rôles vous permettent de lire, avec périodes, actualisation automatique et courbes.
-      es: Paneles - los suyos, a partir de uno por defecto construido con sus carpetas y lo que sus roles le permiten leer, con periodos, actualización automática y gráficos de líneas.
+entries: []
