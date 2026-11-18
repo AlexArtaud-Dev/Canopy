@@ -56,7 +56,6 @@
   },
   "page": {
     "choose": "Dashboard",
-    "home": "Home",
     "range": "Time range",
     "refresh": "Refresh",
     "refreshNow": "Refresh now",
@@ -92,7 +91,6 @@
     "resetDescription": "The panels of {name} are replaced by the default ones.",
     "emptyTitle": "No panel yet",
     "empty": "Put the default panels back to start from them.",
-    "saved": "Dashboard saved",
     "deleted": "Dashboard deleted"
   },
   "panel": {

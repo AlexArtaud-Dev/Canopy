@@ -56,7 +56,6 @@
   },
   "page": {
     "choose": "Panel",
-    "home": "Inicio",
     "range": "Periodo",
     "refresh": "Actualización",
     "refreshNow": "Actualizar ahora",
@@ -92,7 +91,6 @@
     "resetDescription": "Los bloques de {name} se sustituyen por los de por defecto.",
     "emptyTitle": "Ningún bloque",
     "empty": "Vuelva a los bloques por defecto para partir de ellos.",
-    "saved": "Panel guardado",
     "deleted": "Panel eliminado"
   },
   "panel": {

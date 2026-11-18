@@ -56,7 +56,6 @@
   },
   "page": {
     "choose": "Tableau de bord",
-    "home": "Accueil",
     "range": "Période",
     "refresh": "Actualisation",
     "refreshNow": "Actualiser maintenant",
@@ -92,7 +91,6 @@
     "resetDescription": "Les panneaux de {name} sont remplacés par ceux par défaut.",
     "emptyTitle": "Aucun panneau",
     "empty": "Remettez les panneaux par défaut pour partir d’eux.",
-    "saved": "Tableau de bord enregistré",
     "deleted": "Tableau de bord supprimé"
   },
   "panel": {
