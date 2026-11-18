@@ -1,8 +1,1 @@
-entries:
-  - type: chore
-    scope: deps
-    issue: 265
-    text:
-      en: 'The web image now runs on Node.js 26 (LTS) and the engine is built with Go 1.27.'
-      fr: 'L’image web tourne désormais sur Node.js 26 (LTS) et le moteur est compilé avec Go 1.27.'
-      es: 'La imagen web funciona ahora con Node.js 26 (LTS) y el motor se compila con Go 1.27.'
+entries: []
