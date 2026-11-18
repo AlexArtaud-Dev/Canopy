@@ -9,9 +9,19 @@ import {
 
 /**
  * What a panel draws. `folders` lists the places the person can open (the default dashboard's
- * entry point); the others draw variables.
+ * entry point); `log` lists log lines; the others draw variables' values.
  */
-export const panelTypes = ['stat', 'line', 'log', 'folders'] as const;
+export const panelTypes = [
+  'stat',
+  'gauge',
+  'line',
+  'area',
+  'bar',
+  'pie',
+  'table',
+  'log',
+  'folders',
+] as const;
 export type PanelType = (typeof panelTypes)[number];
 
 /** How often a dashboard reloads its values, in seconds (0: only on demand). */
@@ -20,6 +30,44 @@ export type RefreshSeconds = (typeof refreshOptions)[number];
 
 /** Grid columns on a wide screen; panels say where they sit in them. */
 export const gridColumns = 12;
+
+/** How a series becomes one number (single value, gauge, pie, table). */
+export const aggregations = ['last', 'avg', 'min', 'max', 'sum'] as const;
+export type Aggregation = (typeof aggregations)[number];
+
+/** Theme colours a rule can paint with (design tokens, readable in light and dark). */
+export const ruleColors = [
+  'chart-1',
+  'chart-2',
+  'chart-3',
+  'chart-4',
+  'chart-5',
+  'primary',
+  'destructive',
+] as const;
+export type RuleColor = (typeof ruleColors)[number];
+
+/** From `from` upwards the value takes `color` (the highest threshold reached wins). */
+export const colorRuleSchema = z.object({
+  from: z.number(),
+  color: z.enum(ruleColors),
+});
+export type ColorRule = z.infer<typeof colorRuleSchema>;
+
+export const panelOptionsSchema = z.object({
+  aggregation: z.enum(aggregations).default('last'),
+  /** Digits after the decimal point; null lets the unit decide. */
+  decimals: z.number().int().min(0).max(4).nullable().default(null),
+  legend: z.boolean().default(true),
+  /** Areas and bars on top of each other rather than side by side. */
+  stacked: z.boolean().default(false),
+  /** Gauge bounds; with no maximum, a second variable gives it (used out of total), else 100. */
+  min: z.number().default(0),
+  max: z.number().nullable().default(null),
+});
+export type PanelOptions = z.infer<typeof panelOptionsSchema>;
+
+export const defaultPanelOptions: PanelOptions = panelOptionsSchema.parse({});
 
 export const panelSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]{1,40}$/),
@@ -43,8 +91,18 @@ export const panelSchema = z.object({
     w: z.number().int().min(1).max(gridColumns),
     h: z.number().int().min(1).max(12),
   }),
+  options: panelOptionsSchema.default(defaultPanelOptions),
+  rules: z.array(colorRuleSchema).max(8).default([]),
 });
 export type Panel = z.infer<typeof panelSchema>;
+
+/** A panel before its options are chosen: they start at their defaults, with no colour rule. */
+export type PanelDraft = Omit<Panel, 'options' | 'rules'> &
+  Partial<Pick<Panel, 'options' | 'rules'>>;
+
+export function withDefaults(draft: PanelDraft): Panel {
+  return { ...draft, options: draft.options ?? defaultPanelOptions, rules: draft.rules ?? [] };
+}
 
 export const dashboardInputSchema = z.object({
   name: z.string().trim().min(1).max(80),
@@ -84,7 +142,7 @@ export function defaultDashboard(
 ): DashboardInput {
   const has = new Set(readable.map((variable) => variable.id));
   const wide = !has.has('storage.volume.used');
-  const panels: Panel[] = [
+  const panels: PanelDraft[] = [
     {
       id: 'folders',
       title: texts.folders,
@@ -130,7 +188,7 @@ export function defaultDashboard(
       },
     });
   }
-  return { name: texts.name, range: '24h', refreshSeconds: 60, panels };
+  return { name: texts.name, range: '24h', refreshSeconds: 60, panels: panels.map(withDefaults) };
 }
 
 /** Panels in reading order: top to bottom, then left to right (the phone's single column). */

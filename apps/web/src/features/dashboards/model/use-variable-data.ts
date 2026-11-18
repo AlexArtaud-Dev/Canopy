@@ -1,28 +1,37 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQueries } from '@tanstack/react-query';
 
 import { readVariable } from '../server/variables-actions';
 import type { TimeRange, VariableData } from '../variables.utils';
 
-export type VariableState =
+export type PanelDataState =
   | { status: 'loading' }
   | { status: 'error'; code: string }
-  | { status: 'ready'; data: VariableData };
+  | { status: 'ready'; data: { id: string; data: VariableData }[] };
 
-/** One variable over a range, reloaded every `refreshSeconds` (never when 0). */
-export function useVariableData(
-  id: string,
+/**
+ * The variables of a panel over a range, reloaded every `refreshSeconds` (never when 0). The
+ * first refusal or failure is what the panel says; it never shows half its values silently.
+ */
+export function usePanelData(
+  ids: readonly string[],
   range: TimeRange,
   refreshSeconds: number,
-): VariableState {
-  const query = useQuery({
-    queryKey: ['dashboards', 'variable', id, range],
-    queryFn: () => readVariable({ id, range }),
-    refetchInterval: refreshSeconds > 0 ? refreshSeconds * 1000 : false,
-    staleTime: 10_000,
+): PanelDataState {
+  const results = useQueries({
+    queries: ids.map((id) => ({
+      queryKey: ['dashboards', 'variable', id, range],
+      queryFn: () => readVariable({ id, range }),
+      refetchInterval: refreshSeconds > 0 ? refreshSeconds * 1000 : (false as const),
+      staleTime: 10_000,
+    })),
   });
-  if (!query.data) return { status: 'loading' };
-  if (!query.data.ok) return { status: 'error', code: query.data.error.code };
-  return { status: 'ready', data: query.data.data };
+  const data: { id: string; data: VariableData }[] = [];
+  for (const [index, result] of results.entries()) {
+    if (!result.data) return { status: 'loading' };
+    if (!result.data.ok) return { status: 'error', code: result.data.error.code };
+    data.push({ id: ids[index] ?? '', data: result.data.data });
+  }
+  return { status: 'ready', data };
 }
