@@ -57,6 +57,9 @@ The engine runs as `PUID:PGID`. The mounted folder must be writable by that user
 `ls -ln /mnt/disk1`, then `chown` or change `PUID`/`PGID` (see
 [Configuration](configuration.md#owner-of-new-files-puid-pgid-umask)). A folder mounted `:ro` is
 read-only on purpose.
+When the folders belong to several host users, the engine can also
+[run as root](configuration.md#running-the-engine-as-root); Canopy's own rights then decide
+who may do what.
 
 ## Uploads fail or stop at the same size
 
