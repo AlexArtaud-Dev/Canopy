@@ -7,6 +7,7 @@ import {
   panelSchema,
   panelTypes,
   aggregations,
+  alignments,
   colorRuleSchema,
   panelOptionsSchema,
   defaultPanelOptions,
@@ -116,7 +117,10 @@ describe('panels', () => {
       stacked: false,
       min: 0,
       max: null,
+      alignX: 'center',
+      alignY: 'center',
     });
+    expect(alignments).toEqual(['start', 'center', 'end']);
     expect(
       dashboardIdSchema.safeParse({ id: '00000000-0000-4000-8000-000000000000' }).success,
     ).toBe(true);

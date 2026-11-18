@@ -174,15 +174,47 @@
       "primary": "Acento",
       "destructive": "Rojo"
     },
-    "size": "Tamaño",
-    "sizeCustom": "Tamaño personalizado",
-    "sizeHint": "En un teléfono, los bloques ocupan todo el ancho, uno debajo del otro.",
-    "sizes": {
-      "small": "Pequeño (¼ de ancho)",
-      "medium": "Mediano (⅓ de ancho)",
-      "wide": "Ancho (½ ancho)",
-      "large": "Grande (⅔ de ancho)",
-      "full": "Todo el ancho"
+    "alignX": "Posición horizontal",
+    "alignY": "Posición vertical",
+    "aligns": {
+      "alignX": {
+        "start": "A la izquierda",
+        "center": "Al centro",
+        "end": "A la derecha"
+      },
+      "alignY": {
+        "start": "Arriba",
+        "center": "En medio",
+        "end": "Abajo"
+      }
+    }
+  },
+  "grid": {
+    "arrangeMode": "Reorganizar",
+    "done": "Listo",
+    "cancelArrange": "Cancelar",
+    "drag": "Arrastrar para mover",
+    "arrange": "Colocar {title}",
+    "arranging": "Arrastre los bloques por su título, cambie su tamaño por la esquina, o use el menú Colocar de cada bloque.",
+    "nudges": {
+      "left": "A la izquierda",
+      "right": "A la derecha",
+      "up": "Hacia arriba",
+      "down": "Hacia abajo",
+      "narrower": "Más estrecho",
+      "wider": "Más ancho",
+      "shorter": "Más bajo",
+      "taller": "Más alto"
+    },
+    "moved": {
+      "left": "{title} movido a la izquierda",
+      "right": "{title} movido a la derecha",
+      "up": "{title} movido hacia arriba",
+      "down": "{title} movido hacia abajo",
+      "narrower": "{title} más estrecho",
+      "wider": "{title} más ancho",
+      "shorter": "{title} más bajo",
+      "taller": "{title} más alto"
     }
   }
 }

@@ -174,15 +174,47 @@
       "primary": "Accent",
       "destructive": "Red"
     },
-    "size": "Size",
-    "sizeCustom": "Custom size",
-    "sizeHint": "On a phone, panels take the whole width, one under the other.",
-    "sizes": {
-      "small": "Small (¼ width)",
-      "medium": "Medium (⅓ width)",
-      "wide": "Wide (½ width)",
-      "large": "Large (⅔ width)",
-      "full": "Full width"
+    "alignX": "Horizontal placement",
+    "alignY": "Vertical placement",
+    "aligns": {
+      "alignX": {
+        "start": "Left",
+        "center": "Centre",
+        "end": "Right"
+      },
+      "alignY": {
+        "start": "Top",
+        "center": "Middle",
+        "end": "Bottom"
+      }
+    }
+  },
+  "grid": {
+    "arrangeMode": "Arrange",
+    "done": "Done",
+    "cancelArrange": "Cancel",
+    "drag": "Drag to move",
+    "arrange": "Arrange {title}",
+    "arranging": "Drag panels by their title, resize them from their corner, or use each panel’s Arrange menu.",
+    "nudges": {
+      "left": "Move left",
+      "right": "Move right",
+      "up": "Move up",
+      "down": "Move down",
+      "narrower": "Narrower",
+      "wider": "Wider",
+      "shorter": "Shorter",
+      "taller": "Taller"
+    },
+    "moved": {
+      "left": "{title} moved left",
+      "right": "{title} moved right",
+      "up": "{title} moved up",
+      "down": "{title} moved down",
+      "narrower": "{title} narrower",
+      "wider": "{title} wider",
+      "shorter": "{title} shorter",
+      "taller": "{title} taller"
     }
   }
 }

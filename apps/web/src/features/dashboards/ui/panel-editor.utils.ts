@@ -1,4 +1,4 @@
-import { gridColumns, withDefaults, type Panel, type PanelType } from '../dashboards.utils';
+import { withDefaults, type Panel, type PanelType } from '../dashboards.utils';
 import type { VariableKind } from '../variables.utils';
 
 /** A panel draws at most this many variables (series of several volumes count as one variable). */
@@ -17,6 +17,8 @@ export interface EditorFeatures {
   legend: boolean;
   stacked: boolean;
   rules: boolean;
+  /** Content grows with the panel and can be placed in it. */
+  align: boolean;
 }
 
 export function editorFeatures(type: PanelType): EditorFeatures {
@@ -29,6 +31,7 @@ export function editorFeatures(type: PanelType): EditorFeatures {
     legend: false,
     stacked: false,
     rules: false,
+    align: false,
   };
   const values = {
     ...none,
@@ -43,9 +46,9 @@ export function editorFeatures(type: PanelType): EditorFeatures {
     case 'log':
       return { ...none, kinds: ['log'], maxVariables: 1 };
     case 'stat':
-      return { ...values, maxVariables: 1, aggregation: true };
+      return { ...values, maxVariables: 1, aggregation: true, align: true };
     case 'gauge':
-      return { ...values, maxVariables: 2, aggregation: true, gauge: true };
+      return { ...values, maxVariables: 2, aggregation: true, gauge: true, align: true };
     case 'pie':
     case 'table':
       return { ...values, aggregation: true, legend: type === 'pie' };
@@ -57,22 +60,6 @@ export function editorFeatures(type: PanelType): EditorFeatures {
       return { ...values, legend: true, stacked: true };
   }
 }
-
-/** Sizes offered until panels can be resized on the grid. */
-export interface PanelSize {
-  id: string;
-  name: 'small' | 'medium' | 'wide' | 'large' | 'full';
-  w: number;
-  h: number;
-}
-
-export const panelSizes: readonly PanelSize[] = [
-  { id: '3x2', name: 'small', w: 3, h: 2 },
-  { id: '4x4', name: 'medium', w: 4, h: 4 },
-  { id: '6x4', name: 'wide', w: 6, h: 4 },
-  { id: '8x5', name: 'large', w: 8, h: 5 },
-  { id: '12x4', name: 'full', w: gridColumns, h: 4 },
-];
 
 /** A new panel, placed under the others, with an id no other panel of the dashboard has. */
 export function newPanel(existing: readonly Panel[], title: string, random: () => string): Panel {
