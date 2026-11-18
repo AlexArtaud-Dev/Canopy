@@ -1,0 +1,9 @@
+date: 2026-11-18
+entries:
+  - type: feat
+    scope: web
+    issue: 257
+    text:
+      en: Ready-made dashboards — overview, server, storage, activity, security and access — with gauges, charts, tables and colour thresholds, built from what you may read; a first visit gets them all, and the menu adds any of them later (New from a template).
+      fr: Des tableaux de bord prêts à l’emploi — vue d’ensemble, serveur, stockage, activité, sécurité et accès — avec jauges, graphiques, tableaux et seuils de couleur, construits selon ce que vous pouvez lire ; une première visite les crée tous, et le menu en ajoute un à tout moment (Nouveau à partir d’un modèle).
+      es: Paneles listos para usar — resumen, servidor, almacenamiento, actividad, seguridad y acceso — con indicadores, gráficos, tablas y umbrales de color, según lo que puede leer; la primera visita los crea todos y el menú añade cualquiera después (Nuevo a partir de una plantilla).
