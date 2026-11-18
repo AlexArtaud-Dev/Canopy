@@ -14,6 +14,8 @@
   total; counted events take their total over the range), with automatic or fixed decimals.
   Lines and areas draw each series in a theme colour; areas and bars can stack; a legend can be
   hidden.
+- **Size and placement**: single values and gauges grow with their panel (sized in container
+  units) and sit where the editor says, horizontally and vertically (centred by default).
 - **Colour rules**: thresholds with a theme colour each; a value takes the colour of the
   highest threshold it reaches (single value, gauge, bars, ring, table).
 - **Editor** (_Add a panel_, or a panel's menu › _Edit_): title, type, variables grouped by
@@ -23,7 +25,7 @@
   panel's menu also duplicates it, or removes it with _Undo_ in the toast.
 - **Layout**: 12 columns on wide screens (each panel says where it sits), one column in
   reading order on phones.
-- **Arrange** (wide screens): drag panels by their title bar and resize them from their corner
+- **Arrange** (wide screens): drag panels by their title bar and resize them from their sides and corners
   (react-grid-layout; panels slide up to fill gaps), or use each panel's **Arrange** menu from
   the keyboard (move, narrower, wider, shorter, taller; each step announced). **Done** saves,
   **Cancel** puts everything back.

@@ -17,6 +17,8 @@ export interface EditorFeatures {
   legend: boolean;
   stacked: boolean;
   rules: boolean;
+  /** Content grows with the panel and can be placed in it. */
+  align: boolean;
 }
 
 export function editorFeatures(type: PanelType): EditorFeatures {
@@ -29,6 +31,7 @@ export function editorFeatures(type: PanelType): EditorFeatures {
     legend: false,
     stacked: false,
     rules: false,
+    align: false,
   };
   const values = {
     ...none,
@@ -43,9 +46,9 @@ export function editorFeatures(type: PanelType): EditorFeatures {
     case 'log':
       return { ...none, kinds: ['log'], maxVariables: 1 };
     case 'stat':
-      return { ...values, maxVariables: 1, aggregation: true };
+      return { ...values, maxVariables: 1, aggregation: true, align: true };
     case 'gauge':
-      return { ...values, maxVariables: 2, aggregation: true, gauge: true };
+      return { ...values, maxVariables: 2, aggregation: true, gauge: true, align: true };
     case 'pie':
     case 'table':
       return { ...values, aggregation: true, legend: type === 'pie' };

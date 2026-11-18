@@ -183,6 +183,20 @@
       "wide": "Ancho (½ ancho)",
       "large": "Grande (⅔ de ancho)",
       "full": "Todo el ancho"
+    },
+    "alignX": "Posición horizontal",
+    "alignY": "Posición vertical",
+    "aligns": {
+      "alignX": {
+        "start": "A la izquierda",
+        "center": "Al centro",
+        "end": "A la derecha"
+      },
+      "alignY": {
+        "start": "Arriba",
+        "center": "En medio",
+        "end": "Abajo"
+      }
     }
   },
   "grid": {

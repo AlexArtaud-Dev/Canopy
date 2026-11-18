@@ -183,6 +183,20 @@
       "wide": "Large (½ largeur)",
       "large": "Grand (⅔ de largeur)",
       "full": "Toute la largeur"
+    },
+    "alignX": "Placement horizontal",
+    "alignY": "Placement vertical",
+    "aligns": {
+      "alignX": {
+        "start": "À gauche",
+        "center": "Au centre",
+        "end": "À droite"
+      },
+      "alignY": {
+        "start": "En haut",
+        "center": "Au milieu",
+        "end": "En bas"
+      }
     }
   },
   "grid": {

@@ -43,6 +43,27 @@ function Message({ children }: { children: ReactNode }) {
   return <p className="text-muted-foreground text-sm">{children}</p>;
 }
 
+const alongX = { start: 'items-start', center: 'items-center', end: 'items-end' } as const;
+const alongY = { start: 'justify-start', center: 'justify-center', end: 'justify-end' } as const;
+
+/**
+ * The whole panel body, for content that grows with it: a size container (its children size
+ * themselves in `cq` units) that places them as the panel's alignment says.
+ */
+function Fill({ panel, children }: { panel: Panel; children: ReactNode }) {
+  return (
+    <div
+      className={cn(
+        'flex min-h-0 flex-1 flex-col [container-type:size]',
+        alongX[panel.options.alignX],
+        alongY[panel.options.alignY],
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
 function NoVariable() {
   const t = useTranslations('dashboards.panel');
   return <Message>{t('noVariable')}</Message>;
@@ -110,12 +131,18 @@ function StatView({ panel, series }: { panel: Panel; series: NamedSeries[] }) {
   if (!first || value === null) return <Message>{t('noData')}</Message>;
   const color = colorFor(value, panel.rules);
   return (
-    <p
-      className="text-3xl font-semibold tracking-tight tabular-nums"
-      style={color ? { color: cssColor(color) } : undefined}
-    >
-      {formatPanelValue(value, first.unit, panel.options.decimals, locale)}
-    </p>
+    <Fill panel={panel}>
+      <p
+        className="leading-none font-semibold tracking-tight whitespace-nowrap tabular-nums"
+        // Grows with the panel: a third of its smaller side, within readable bounds.
+        style={{
+          fontSize: 'clamp(1.75rem, 32cqmin, 10rem)',
+          ...(color ? { color: cssColor(color) } : {}),
+        }}
+      >
+        {formatPanelValue(value, first.unit, panel.options.decimals, locale)}
+      </p>
+    </Fill>
   );
 }
 
@@ -139,34 +166,43 @@ function GaugeView({ panel, series }: { panel: Panel; series: NamedSeries[] }) {
   const format = (number: number) =>
     formatPanelValue(number, first.unit, panel.options.decimals, locale);
   return (
-    <figure className="flex min-h-0 flex-1 flex-col items-center justify-center gap-1">
-      <svg
-        viewBox="0 0 100 56"
-        className="w-full max-w-56"
-        role="img"
-        aria-label={t('gaugeLabel', { value: format(value), max: format(max) })}
-      >
-        <path
-          d={gaugeArc}
-          fill="none"
-          stroke="var(--muted)"
-          strokeWidth="10"
-          strokeLinecap="round"
-        />
-        <path
-          d={gaugeArc}
-          fill="none"
-          stroke={cssColor(color)}
-          strokeWidth="10"
-          strokeLinecap="round"
-          strokeDasharray={`${String(share * gaugeLength)} ${String(gaugeLength)}`}
-        />
-      </svg>
-      <figcaption className="text-center">
-        <span className="block text-2xl font-semibold tabular-nums">{format(value)}</span>
-        <span className="text-muted-foreground text-xs">{t('outOf', { max: format(max) })}</span>
-      </figcaption>
-    </figure>
+    <Fill panel={panel}>
+      <figure className="flex max-h-full max-w-full flex-col items-center gap-1">
+        <svg
+          viewBox="0 0 100 56"
+          // As wide as the panel allows, leaving room under it for the value.
+          style={{ width: 'min(100cqw, calc((100cqh - 4.5rem) * 1.78))' }}
+          className="min-w-24"
+          role="img"
+          aria-label={t('gaugeLabel', { value: format(value), max: format(max) })}
+        >
+          <path
+            d={gaugeArc}
+            fill="none"
+            stroke="var(--muted)"
+            strokeWidth="10"
+            strokeLinecap="round"
+          />
+          <path
+            d={gaugeArc}
+            fill="none"
+            stroke={cssColor(color)}
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeDasharray={`${String(share * gaugeLength)} ${String(gaugeLength)}`}
+          />
+        </svg>
+        <figcaption className="text-center">
+          <span
+            className="block leading-tight font-semibold tabular-nums"
+            style={{ fontSize: 'clamp(1.25rem, 11cqmin, 4rem)' }}
+          >
+            {format(value)}
+          </span>
+          <span className="text-muted-foreground text-xs">{t('outOf', { max: format(max) })}</span>
+        </figcaption>
+      </figure>
+    </Fill>
   );
 }
 

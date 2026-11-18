@@ -102,6 +102,7 @@ describe('editor', () => {
       maxVariables: 1,
       aggregation: true,
       rules: true,
+      align: true,
     });
     expect(editorFeatures('gauge')).toMatchObject({ maxVariables: 2, gauge: true });
     expect(editorFeatures('pie')).toMatchObject({ aggregation: true, legend: true });

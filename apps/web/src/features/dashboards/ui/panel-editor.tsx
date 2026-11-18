@@ -1,6 +1,15 @@
 'use client';
 
-import { Plus, Trash2 } from 'lucide-react';
+import {
+  AlignCenterHorizontal,
+  AlignCenterVertical,
+  AlignEndHorizontal,
+  AlignEndVertical,
+  AlignStartHorizontal,
+  AlignStartVertical,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId, useState } from 'react';
 
@@ -27,9 +36,11 @@ import {
 import { Input } from '@/shared/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
 import { Switch } from '@/shared/ui/switch';
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group';
 
 import {
   aggregations,
+  alignments,
   panelTypes,
   ruleColors,
   type ColorRule,
@@ -50,6 +61,20 @@ interface PanelEditorProps {
   onClose: () => void;
   onSave: (panel: Panel) => void;
 }
+
+/** Icons of each placement: left, centre, right; top, middle, bottom. */
+const alignIcons = {
+  alignX: {
+    start: AlignStartVertical,
+    center: AlignCenterVertical,
+    end: AlignEndVertical,
+  },
+  alignY: {
+    start: AlignStartHorizontal,
+    center: AlignCenterHorizontal,
+    end: AlignEndHorizontal,
+  },
+} as const;
 
 /**
  * Builds a panel with its live preview beside the settings (above them on a phone): type,
@@ -300,6 +325,40 @@ export function PanelEditor({
                 </>
               )}
             </FieldGroup>
+
+            {features.align && (
+              <FieldGroup className="grid gap-4 sm:grid-cols-2">
+                {(['alignX', 'alignY'] as const).map((axis) => (
+                  <Field key={axis}>
+                    <FieldLabel>{t(`editor.${axis}`)}</FieldLabel>
+                    <ToggleGroup
+                      type="single"
+                      variant="outline"
+                      value={panel.options[axis]}
+                      onValueChange={(value) => {
+                        const alignment = alignments.find((candidate) => candidate === value);
+                        if (alignment) setOption(axis, alignment);
+                      }}
+                    >
+                      {alignments.map((alignment) => {
+                        const Icon = alignIcons[axis][alignment];
+                        return (
+                          <ToggleGroupItem
+                            key={alignment}
+                            value={alignment}
+                            // i18n-dynamic: dashboards.editor.aligns
+                            aria-label={t(`editor.aligns.${axis}.${alignment}`)}
+                            className="flex-1"
+                          >
+                            <Icon aria-hidden />
+                          </ToggleGroupItem>
+                        );
+                      })}
+                    </ToggleGroup>
+                  </Field>
+                ))}
+              </FieldGroup>
+            )}
 
             {(features.legend || features.stacked) && (
               <FieldGroup className="grid gap-3 sm:grid-cols-2">

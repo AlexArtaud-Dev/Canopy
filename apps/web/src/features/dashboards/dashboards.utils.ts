@@ -54,6 +54,10 @@ export const colorRuleSchema = z.object({
 });
 export type ColorRule = z.infer<typeof colorRuleSchema>;
 
+/** Where content sits in its panel, on each axis. */
+export const alignments = ['start', 'center', 'end'] as const;
+export type Alignment = (typeof alignments)[number];
+
 export const panelOptionsSchema = z.object({
   aggregation: z.enum(aggregations).default('last'),
   /** Digits after the decimal point; null lets the unit decide. */
@@ -64,6 +68,9 @@ export const panelOptionsSchema = z.object({
   /** Gauge bounds; with no maximum, a second variable gives it (used out of total), else 100. */
   min: z.number().default(0),
   max: z.number().nullable().default(null),
+  /** Single values and gauges: where they sit in the panel (they grow with it). */
+  alignX: z.enum(alignments).default('center'),
+  alignY: z.enum(alignments).default('center'),
 });
 export type PanelOptions = z.infer<typeof panelOptionsSchema>;
 

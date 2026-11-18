@@ -59,7 +59,7 @@ export function DashboardGrid({ panels, onChange, renderPanel }: DashboardGridPr
             containerPadding: [0, 0],
           }}
           dragConfig={{ handle: '.panel-drag-handle', cancel: 'button' }}
-          resizeConfig={{ handles: ['se'] }}
+          resizeConfig={{ handles: ['e', 'w', 's', 'se', 'sw'] }}
           onLayoutChange={(layout: Layout) => {
             onChange(applyGrid(panels, layout));
           }}

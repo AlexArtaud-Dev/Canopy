@@ -167,8 +167,63 @@
 }
 
 /* Dashboard grid while arranging: the drop place in the theme's accent, not the library's red. */
-.react-grid-item.react-grid-placeholder {
+.react-grid-layout .react-grid-item.react-grid-placeholder {
   background: var(--primary);
   border-radius: var(--radius-xl);
   opacity: 0.15;
+}
+
+/* Dashboard grid while arranging: visible bars on the sides and corners to resize a panel. */
+.react-grid-layout .react-grid-item > .react-resizable-handle {
+  opacity: 0.6;
+  transform: none;
+}
+.react-grid-layout .react-grid-item:hover > .react-resizable-handle,
+.react-grid-layout .react-grid-item > .react-resizable-handle:hover {
+  opacity: 1;
+}
+.react-grid-layout .react-grid-item > .react-resizable-handle::after {
+  inset: auto;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--primary);
+}
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-e,
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-w {
+  width: 14px;
+  height: 56px;
+  margin-top: -28px;
+  transform: none;
+}
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-e::after,
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-w::after {
+  top: 8px;
+  left: 5px;
+  width: 4px;
+  height: 40px;
+}
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-s {
+  width: 56px;
+  height: 14px;
+  margin-left: -28px;
+  transform: none;
+}
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-s::after {
+  top: 5px;
+  left: 8px;
+  width: 40px;
+  height: 4px;
+}
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-se::after,
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-sw::after {
+  bottom: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-se::after {
+  right: 4px;
+}
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-sw::after {
+  left: 4px;
 }
