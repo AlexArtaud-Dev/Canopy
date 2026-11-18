@@ -1,0 +1,9 @@
+date: 2026-11-18
+entries:
+  - type: feat
+    scope: web
+    issue: 224
+    text:
+      en: Arrange a dashboard by dragging its panels and resizing them from their sides and corners, or from the keyboard; single values and gauges grow with their panel and can be placed in it; on a phone panels stay in one column.
+      fr: Réorganisez un tableau de bord en glissant ses panneaux et en les redimensionnant par leurs côtés et leurs coins, ou au clavier ; valeurs et jauges grandissent avec leur panneau et s’y placent où vous voulez ; sur un téléphone, les panneaux restent sur une colonne.
+      es: Reorganice un panel arrastrando sus bloques y cambiando su tamaño por los lados y las esquinas, o con el teclado; valores e indicadores crecen con su bloque y se colocan donde quiera; en un teléfono los bloques siguen en una columna.
