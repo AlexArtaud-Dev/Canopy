@@ -166,5 +166,8 @@
     "forbidden": "No puede leer este valor: pida el permiso a un administrador.",
     "unknown": "Este valor no está disponible.",
     "invalid_range": "Este periodo no se puede mostrar."
+  },
+  "dashboards": {
+    "not_found": "Este panel ya no existe."
   }
 }

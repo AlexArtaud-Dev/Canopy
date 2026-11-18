@@ -44,5 +44,68 @@
       "denied": "Acciones rechazadas",
       "audit": "Registro de auditoría"
     }
+  },
+  "copyName": "{name} (copia)",
+  "default": {
+    "name": "Mi panel",
+    "folders": "Mis carpetas",
+    "space": "Espacio usado",
+    "operations": "Operaciones en curso",
+    "dropOffs": "Depósitos recibidos",
+    "audit": "Actividad reciente"
+  },
+  "page": {
+    "choose": "Panel",
+    "range": "Periodo",
+    "refresh": "Actualización",
+    "refreshNow": "Actualizar ahora",
+    "refreshEvery": {
+      "0": "Desactivada",
+      "30": "Cada 30 s",
+      "60": "Cada minuto",
+      "300": "Cada 5 minutos"
+    },
+    "ranges": {
+      "1h": "1 hora",
+      "6h": "6 horas",
+      "24h": "24 horas",
+      "7d": "7 días",
+      "30d": "30 días"
+    },
+    "actions": "Acciones del panel",
+    "new": "Nuevo panel",
+    "duplicate": "Duplicar",
+    "rename": "Renombrar",
+    "makeHome": "Abrir por defecto",
+    "reset": "Volver a los paneles por defecto",
+    "delete": "Eliminar",
+    "newTitle": "Nuevo panel",
+    "renameTitle": "Renombrar el panel",
+    "name": "Nombre",
+    "create": "Crear",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "deleteTitle": "¿Eliminar este panel?",
+    "deleteDescription": "{name} y sus bloques se eliminan. Sus otros paneles se quedan.",
+    "resetTitle": "¿Volver a los paneles por defecto?",
+    "resetDescription": "Los bloques de {name} se sustituyen por los de por defecto.",
+    "emptyTitle": "Ningún bloque",
+    "empty": "Vuelva a los bloques por defecto para partir de ellos.",
+    "deleted": "Panel eliminado"
+  },
+  "panel": {
+    "noData": "Sin datos en este periodo.",
+    "loading": "Cargando…",
+    "unreadable": "No puede leer este valor.",
+    "volumes": "Volúmenes",
+    "favorites": "Favoritos",
+    "noFolders": "Todavía no hay ninguna carpeta accesible.",
+    "logEmpty": "No pasó nada en este periodo.",
+    "by": "por {actor}",
+    "results": {
+      "success": "hecho",
+      "denied": "rechazado",
+      "error": "fallido"
+    }
   }
 }

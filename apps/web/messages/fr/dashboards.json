@@ -44,5 +44,68 @@
       "denied": "Actions refusées",
       "audit": "Journal d’audit"
     }
+  },
+  "copyName": "{name} (copie)",
+  "default": {
+    "name": "Mon tableau de bord",
+    "folders": "Mes dossiers",
+    "space": "Espace utilisé",
+    "operations": "Opérations en cours",
+    "dropOffs": "Dépôts reçus",
+    "audit": "Activité récente"
+  },
+  "page": {
+    "choose": "Tableau de bord",
+    "range": "Période",
+    "refresh": "Actualisation",
+    "refreshNow": "Actualiser maintenant",
+    "refreshEvery": {
+      "0": "Désactivée",
+      "30": "Toutes les 30 s",
+      "60": "Toutes les minutes",
+      "300": "Toutes les 5 minutes"
+    },
+    "ranges": {
+      "1h": "1 heure",
+      "6h": "6 heures",
+      "24h": "24 heures",
+      "7d": "7 jours",
+      "30d": "30 jours"
+    },
+    "actions": "Actions du tableau de bord",
+    "new": "Nouveau tableau de bord",
+    "duplicate": "Dupliquer",
+    "rename": "Renommer",
+    "makeHome": "Ouvrir par défaut",
+    "reset": "Remettre les panneaux par défaut",
+    "delete": "Supprimer",
+    "newTitle": "Nouveau tableau de bord",
+    "renameTitle": "Renommer le tableau de bord",
+    "name": "Nom",
+    "create": "Créer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "deleteTitle": "Supprimer ce tableau de bord ?",
+    "deleteDescription": "{name} et ses panneaux sont supprimés. Vos autres tableaux de bord restent.",
+    "resetTitle": "Remettre les panneaux par défaut ?",
+    "resetDescription": "Les panneaux de {name} sont remplacés par ceux par défaut.",
+    "emptyTitle": "Aucun panneau",
+    "empty": "Remettez les panneaux par défaut pour partir d’eux.",
+    "deleted": "Tableau de bord supprimé"
+  },
+  "panel": {
+    "noData": "Aucune donnée sur cette période.",
+    "loading": "Chargement…",
+    "unreadable": "Vous ne pouvez pas lire cette valeur.",
+    "volumes": "Volumes",
+    "favorites": "Favoris",
+    "noFolders": "Aucun dossier accessible pour l’instant.",
+    "logEmpty": "Rien ne s’est passé sur cette période.",
+    "by": "par {actor}",
+    "results": {
+      "success": "fait",
+      "denied": "refusé",
+      "error": "échoué"
+    }
   }
 }

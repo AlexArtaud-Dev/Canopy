@@ -166,5 +166,8 @@
     "forbidden": "You may not read this value: ask an administrator for the permission.",
     "unknown": "This value is not available.",
     "invalid_range": "This time range cannot be shown."
+  },
+  "dashboards": {
+    "not_found": "This dashboard no longer exists."
   }
 }

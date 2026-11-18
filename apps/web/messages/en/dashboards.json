@@ -44,5 +44,68 @@
       "denied": "Refused actions",
       "audit": "Audit log"
     }
+  },
+  "copyName": "{name} (copy)",
+  "default": {
+    "name": "My dashboard",
+    "folders": "My folders",
+    "space": "Space used",
+    "operations": "Operations running",
+    "dropOffs": "Drop-offs received",
+    "audit": "Latest activity"
+  },
+  "page": {
+    "choose": "Dashboard",
+    "range": "Time range",
+    "refresh": "Refresh",
+    "refreshNow": "Refresh now",
+    "refreshEvery": {
+      "0": "Off",
+      "30": "Every 30 s",
+      "60": "Every minute",
+      "300": "Every 5 minutes"
+    },
+    "ranges": {
+      "1h": "1 hour",
+      "6h": "6 hours",
+      "24h": "24 hours",
+      "7d": "7 days",
+      "30d": "30 days"
+    },
+    "actions": "Dashboard actions",
+    "new": "New dashboard",
+    "duplicate": "Duplicate",
+    "rename": "Rename",
+    "makeHome": "Open by default",
+    "reset": "Put the default panels back",
+    "delete": "Delete",
+    "newTitle": "New dashboard",
+    "renameTitle": "Rename the dashboard",
+    "name": "Name",
+    "create": "Create",
+    "save": "Save",
+    "cancel": "Cancel",
+    "deleteTitle": "Delete this dashboard?",
+    "deleteDescription": "{name} and its panels are deleted. Your other dashboards stay.",
+    "resetTitle": "Put the default panels back?",
+    "resetDescription": "The panels of {name} are replaced by the default ones.",
+    "emptyTitle": "No panel yet",
+    "empty": "Put the default panels back to start from them.",
+    "deleted": "Dashboard deleted"
+  },
+  "panel": {
+    "noData": "No data for this time range.",
+    "loading": "Loading…",
+    "unreadable": "You may not read this value.",
+    "volumes": "Volumes",
+    "favorites": "Favorites",
+    "noFolders": "No folder you can open yet.",
+    "logEmpty": "Nothing happened in this time range.",
+    "by": "by {actor}",
+    "results": {
+      "success": "done",
+      "denied": "refused",
+      "error": "failed"
+    }
   }
 }

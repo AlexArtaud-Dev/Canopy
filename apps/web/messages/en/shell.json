@@ -17,7 +17,8 @@
     "shares": "Shares",
     "commands": "Commands",
     "plugins": "Plugins",
-    "devices": "Devices"
+    "devices": "Devices",
+    "dashboards": "Dashboards"
   },
   "sections": {
     "people": "User management",
