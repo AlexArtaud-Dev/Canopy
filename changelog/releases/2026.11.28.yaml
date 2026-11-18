@@ -1,0 +1,16 @@
+date: 2026-11-18
+entries:
+  - type: feat
+    scope: web
+    issue: 222
+    text:
+      en: Dashboard panels of many kinds - gauges, areas, bars, rings and tables, up to six values each, shown as latest, average, lowest, highest or total, with colour rules by threshold.
+      fr: Des panneaux de tableau de bord de tous types - jauges, aires, barres, anneaux et tableaux, jusqu’à six valeurs chacun, affichées en dernière, moyenne, plus basse, plus haute ou total, avec des règles de couleur par seuil.
+      es: Bloques de panel de todo tipo - indicadores, áreas, barras, anillos y tablas, hasta seis valores cada uno, mostrados como último, media, mínimo, máximo o total, con reglas de color por umbral.
+  - type: feat
+    scope: web
+    issue: 223
+    text:
+      en: Add and edit dashboard panels with a live preview of the real values, then duplicate or remove them (with undo).
+      fr: Ajoutez et modifiez les panneaux d’un tableau de bord avec un aperçu en direct des vraies valeurs, puis dupliquez-les ou retirez-les (avec annulation).
+      es: Añada y edite los bloques de un panel con una vista previa en directo de los valores reales, luego duplíquelos o quítelos (con deshacer).
