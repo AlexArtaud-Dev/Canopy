@@ -13,6 +13,8 @@ import (
 	"github.com/riverqueue/river"
 	"github.com/riverqueue/river/riverdriver/riverpgxv5"
 	"github.com/riverqueue/river/rivermigrate"
+
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/riverqueue/river/rivertype"
 )
 
@@ -69,6 +71,9 @@ func Outcome(runErr, ctxErr error) (state, code string) {
 	var failure *Failure
 	if errors.As(runErr, &failure) {
 		return StateFailed, failure.Code
+	}
+	if code, ok := fsx.HostCode(runErr); ok {
+		return StateFailed, code
 	}
 	return StateFailed, CodeFailed
 }

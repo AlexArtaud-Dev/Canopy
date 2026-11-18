@@ -74,12 +74,13 @@
     "bad_archive": "This archive is damaged or contains unsafe names, so nothing was extracted.",
     "mixed_folders": "Only items from the same folder can be compressed together.",
     "archive_too_large": "This archive would not fit: it expands beyond the free space or holds too many files.",
-    "host_denied": "The server account Canopy runs as is not allowed to open this folder. Give it access on the host (for example by adding its group to the folder), then try again.",
+    "host_denied": "The server account Canopy runs as is not allowed to open or change this folder on the disk. Give it access on the host (owner, group or PUID/PGID), then try again.",
     "favorites_full": "You have reached {max} favorites. Remove one first.",
     "archive_encrypted": "This archive is protected by a password. Extract it from Commands › Extract an archive (7-Zip), which asks for it.",
     "sevenzip_unavailable": "7-Zip is not installed on this server, so this archive format is not available.",
     "nothing_to_compress": "Nothing to compress: the selection holds no file you may read.",
-    "volume_not_writable": "Canopy cannot write to this volume. Ask your administrator to create a .canopy-uploads folder at its top, writable by Canopy."
+    "volume_not_writable": "Canopy cannot write to this volume. Ask your administrator to create a .canopy-uploads folder at its top, writable by Canopy.",
+    "read_only": "This disk is mounted read-only on the server: nothing can be changed here. Mount it read-write, then try again."
   },
   "mail": {
     "not_configured": "Email is not configured. Set up SMTP in Administration › Email.",

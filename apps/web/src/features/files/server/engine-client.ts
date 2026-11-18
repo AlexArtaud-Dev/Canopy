@@ -4,6 +4,7 @@ import { createClient } from '@canopy/contracts/client';
 
 import { parseServerEnv } from '@/shared/config/env';
 import { signEngineToken } from '@/shared/engine/engine-token';
+import { engineRequestHeaders } from '@/shared/request/request-context';
 import { loadGroupIds } from '@/features/access/server/permissions';
 import type { CurrentSession } from '@/features/auth';
 
@@ -24,5 +25,6 @@ export async function engineClientFor(session: CurrentSession) {
   return createClient({
     baseUrl: parseServerEnv(process.env).CANOPY_ENGINE_URL,
     auth: () => token,
+    headers: await engineRequestHeaders(),
   });
 }

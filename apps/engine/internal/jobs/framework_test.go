@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -67,6 +68,7 @@ func TestOutcome(t *testing.T) {
 		{errors.New("x"), context.Canceled, StateCancelled, ""},
 		{fmt.Errorf("wrapped: %w", coded), nil, StateFailed, "files.not_found"},
 		{errors.New("x"), nil, StateFailed, CodeFailed},
+		{fmt.Errorf("copy: %w", syscall.EROFS), nil, StateFailed, "files.read_only"},
 	}
 	for _, tc := range cases {
 		state, code := Outcome(tc.run, tc.ctx)

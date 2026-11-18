@@ -78,3 +78,28 @@ func TestWalkSkipsUnreadableFolders(t *testing.T) {
 		t.Fatal("the rest of the tree is still walked")
 	}
 }
+
+// Refusals of the host are told apart, so the administrator reads what to fix.
+func TestHostRefusals(t *testing.T) {
+	cases := []struct {
+		err  error
+		code string
+	}{
+		{mapWriteError(&os.PathError{Op: "mkdir", Path: "x", Err: syscall.EACCES}), CodeHostDenied},
+		{mapWriteError(&os.PathError{Op: "mkdir", Path: "x", Err: syscall.EROFS}), CodeReadOnly},
+		{mapWriteError(&os.PathError{Op: "write", Path: "x", Err: syscall.ENOSPC}), CodeNoSpace},
+		{syscall.EDQUOT, CodeNoSpace},
+		{notFound(&os.PathError{Op: "open", Path: "x", Err: syscall.EACCES}), CodeHostDenied},
+	}
+	for _, c := range cases {
+		if code, ok := HostCode(c.err); !ok || code != c.code {
+			t.Errorf("%v: got %q %v, want %q", c.err, code, ok, c.code)
+		}
+	}
+	if _, ok := HostCode(errors.New("other")); ok {
+		t.Error("an unrelated error is not a host refusal")
+	}
+	if !errors.Is(mapWriteError(&os.PathError{Op: "mkdir", Path: "x", Err: syscall.EROFS}), ErrReadOnly) {
+		t.Error("read-only is its own error")
+	}
+}
