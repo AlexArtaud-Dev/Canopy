@@ -86,7 +86,7 @@ export function DashboardGrid({ panels, onChange, renderPanel }: DashboardGridPr
                         <Move aria-hidden />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="w-52">
                       {nudges.map((move) => (
                         <DropdownMenuItem
                           key={move}

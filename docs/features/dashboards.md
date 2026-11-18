@@ -2,12 +2,15 @@
 
 **Workspace › Dashboards**: each person has their own dashboards; nobody sees anyone else's.
 
-- **First visit**: a default dashboard is made from what the person may read and becomes their
-  home: _My folders_ (favorites and the volumes they reach), then, when their roles allow, the
-  space used per volume, operations running, drop-offs received and the latest audit activity.
+- **Ready-made dashboards** (`presets.utils.ts`): _Overview_ (processor, memory, operations,
+  drop-offs, _My folders_, space, network, latest activity), _Server_, _Storage_, _Activity_ and
+  _Security and access_. Each keeps only the variables the person may read; rows close the gaps
+  and share the width. The overview is for everyone; the others need at least one variable.
+- **First visit**: every ready-made dashboard the person may use is created, the overview as
+  their home. Later, the menu's _New from a template_ adds any of them again.
 - **On a dashboard**: pick another one, the time range (1 h to 30 days) and the refresh (off,
   30 s, 1 min, 5 min), refresh now; the menu creates, duplicates, renames, opens it by default,
-  puts the default panels back, or deletes it (confirmed). `/dashboards` opens the home one.
+  puts the overview's panels back, or deletes it (confirmed). `/dashboards` opens the home one.
 - **Panels**: single value, gauge, lines, areas, bars, ring, table, log and the folders list.
   A panel shows up to 6 variables (the gauge 2: used, then total as its maximum; the single
   value 1). Values become one number with an aggregation (latest, average, lowest, highest,

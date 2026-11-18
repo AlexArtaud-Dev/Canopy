@@ -1,11 +1,6 @@
 import { z } from 'zod';
 
-import {
-  timeRanges,
-  type TimeRange,
-  type VariableDefinition,
-  type VariableUnit,
-} from './variables.utils';
+import { timeRanges, type TimeRange, type VariableUnit } from './variables.utils';
 
 /**
  * What a panel draws. `folders` lists the places the person can open (the default dashboard's
@@ -127,75 +122,6 @@ export interface Dashboard extends DashboardInput {
   isHome: boolean;
   /** ISO 8601. */
   updatedAt: string;
-}
-
-/** Texts the default dashboard is named with, in the person's language. */
-export interface DefaultTexts {
-  name: string;
-  folders: string;
-  space: string;
-  operations: string;
-  dropOffs: string;
-  audit: string;
-}
-
-/**
- * The dashboard everyone starts with, from what they may read: their folders first, then the
- * space of the volumes, the operations, the drop-offs and the audit log when their roles allow.
- */
-export function defaultDashboard(
-  readable: readonly Pick<VariableDefinition, 'id'>[],
-  texts: DefaultTexts,
-): DashboardInput {
-  const has = new Set(readable.map((variable) => variable.id));
-  const wide = !has.has('storage.volume.used');
-  const panels: PanelDraft[] = [
-    {
-      id: 'folders',
-      title: texts.folders,
-      type: 'folders',
-      variables: [],
-      // Alone on its row when there is no space chart beside it.
-      layout: { x: 0, y: 0, w: wide ? gridColumns : 4, h: wide ? 3 : 4 },
-    },
-  ];
-  if (has.has('storage.volume.used')) {
-    panels.push({
-      id: 'space',
-      title: texts.space,
-      type: 'line',
-      variables: ['storage.volume.used'],
-      layout: { x: 4, y: 0, w: 8, h: 4 },
-    });
-  }
-  const below = [
-    { id: 'operations', title: texts.operations, variable: 'operations.running' },
-    { id: 'drop-offs', title: texts.dropOffs, variable: 'shares.dropOffs' },
-  ].filter((panel) => has.has(panel.variable));
-  below.forEach((panel, index) => {
-    panels.push({
-      id: panel.id,
-      title: panel.title,
-      type: 'stat',
-      variables: [panel.variable],
-      layout: { x: index * 3, y: wide ? 3 : 4, w: 3, h: 2 },
-    });
-  });
-  if (has.has('logs.audit')) {
-    panels.push({
-      id: 'audit',
-      title: texts.audit,
-      type: 'log',
-      variables: ['logs.audit'],
-      layout: {
-        x: below.length * 3,
-        y: wide ? 3 : 4,
-        w: gridColumns - below.length * 3,
-        h: 4,
-      },
-    });
-  }
-  return { name: texts.name, range: '24h', refreshSeconds: 60, panels: panels.map(withDefaults) };
 }
 
 /** Panels in reading order: top to bottom, then left to right (the phone's single column). */
