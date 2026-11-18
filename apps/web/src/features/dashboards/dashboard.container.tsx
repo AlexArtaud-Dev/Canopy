@@ -2,9 +2,11 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import {
+  Check,
   Copy,
   Home,
   LayoutDashboard,
+  LayoutGrid,
   MoreHorizontal,
   PencilLine,
   Plus,
@@ -55,6 +57,7 @@ import {
   saveDashboard,
 } from './server/dashboards-actions';
 import { DashboardNameDialog } from './ui/dashboard-name-dialog';
+import { DashboardGrid, gridRowHeightPx } from './ui/dashboard-grid';
 import { PanelEditor } from './ui/panel-editor';
 import { copyPanel, newPanel } from './ui/panel-editor.utils';
 import { PanelView } from './ui/panel-views';
@@ -66,7 +69,7 @@ function randomId(): string {
 }
 
 /** Height of one grid row on a wide screen; panels span whole rows. */
-const rowHeightPx = 88;
+const rowHeightPx = gridRowHeightPx;
 
 /** Custom properties for the grid placement (the values are computed per panel). */
 function cssVars(vars: Record<`--${string}`, string>): CSSProperties {
@@ -99,6 +102,9 @@ export function DashboardContainer({
   const [current, setCurrent] = useState(initial);
   const [dialog, setDialog] = useState<Dialog>('none');
   const [editing, setEditing] = useState<{ mode: 'add' | 'edit'; panel: Panel } | null>(null);
+  /** The panels being arranged; null outside the arranging mode. */
+  const [arranging, setArranging] = useState<Panel[] | null>(null);
+  const gridT = useTranslations('dashboards.grid');
   const panelT = useTranslations('dashboards.panel');
   const editorT = useTranslations('dashboards.editor');
   const [pending, startTransition] = useTransition();
@@ -204,104 +210,151 @@ export function DashboardContainer({
           </SelectContent>
         </Select>
         <div className="ml-auto flex items-center gap-1">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setEditing({
-                mode: 'add',
-                panel: newPanel(current.panels, editorT('newTitle'), randomId),
-              });
-            }}
-          >
-            <Plus aria-hidden />
-            <span className="max-sm:sr-only">{t('addPanel')}</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label={t('refreshNow')}
-            onClick={() => {
-              void queryClient.invalidateQueries({ queryKey: ['dashboards'] });
-            }}
-          >
-            <RefreshCw aria-hidden />
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" aria-label={t('actions')}>
-                <MoreHorizontal aria-hidden />
+          {arranging ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setArranging(null);
+                }}
+              >
+                {gridT('cancelArrange')}
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onSelect={() => {
-                  setDialog('create');
+              <Button
+                onClick={() => {
+                  save({ panels: arranging });
+                  setArranging(null);
+                }}
+              >
+                <Check aria-hidden />
+                {gridT('done')}
+              </Button>
+            </>
+          ) : (
+            <>
+              {current.panels.length > 0 && (
+                <Button
+                  variant="outline"
+                  className="max-lg:hidden"
+                  onClick={() => {
+                    setArranging(current.panels);
+                  }}
+                >
+                  <LayoutGrid aria-hidden />
+                  {gridT('arrangeMode')}
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setEditing({
+                    mode: 'add',
+                    panel: newPanel(current.panels, editorT('newTitle'), randomId),
+                  });
                 }}
               >
                 <Plus aria-hidden />
-                {t('new')}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => {
-                  run(
-                    () => duplicateDashboard({ id: current.id }),
-                    (copy) => {
-                      open(copy.id);
-                    },
-                  );
+                <span className="max-sm:sr-only">{t('addPanel')}</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label={t('refreshNow')}
+                onClick={() => {
+                  void queryClient.invalidateQueries({ queryKey: ['dashboards'] });
                 }}
               >
-                <Copy aria-hidden />
-                {t('duplicate')}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => {
-                  setDialog('rename');
-                }}
-              >
-                <PencilLine aria-hidden />
-                {t('rename')}
-              </DropdownMenuItem>
-              {!current.isHome && (
-                <DropdownMenuItem
-                  onSelect={() => {
-                    run(
-                      () => makeHomeDashboard({ id: current.id }),
-                      () => {
-                        setCurrent({ ...current, isHome: true });
-                        router.refresh();
-                      },
-                    );
-                  }}
-                >
-                  <Home aria-hidden />
-                  {t('makeHome')}
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem
-                onSelect={() => {
-                  setDialog('reset');
-                }}
-              >
-                <RotateCcw aria-hidden />
-                {t('reset')}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={() => {
-                  setDialog('delete');
-                }}
-              >
-                <Trash2 aria-hidden />
-                {t('delete')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <RefreshCw aria-hidden />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" aria-label={t('actions')}>
+                    <MoreHorizontal aria-hidden />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setDialog('create');
+                    }}
+                  >
+                    <Plus aria-hidden />
+                    {t('new')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      run(
+                        () => duplicateDashboard({ id: current.id }),
+                        (copy) => {
+                          open(copy.id);
+                        },
+                      );
+                    }}
+                  >
+                    <Copy aria-hidden />
+                    {t('duplicate')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setDialog('rename');
+                    }}
+                  >
+                    <PencilLine aria-hidden />
+                    {t('rename')}
+                  </DropdownMenuItem>
+                  {!current.isHome && (
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        run(
+                          () => makeHomeDashboard({ id: current.id }),
+                          () => {
+                            setCurrent({ ...current, isHome: true });
+                            router.refresh();
+                          },
+                        );
+                      }}
+                    >
+                      <Home aria-hidden />
+                      {t('makeHome')}
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setDialog('reset');
+                    }}
+                  >
+                    <RotateCcw aria-hidden />
+                    {t('reset')}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={() => {
+                      setDialog('delete');
+                    }}
+                  >
+                    <Trash2 aria-hidden />
+                    {t('delete')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
         </div>
       </div>
 
-      {current.panels.length === 0 ? (
+      {arranging ? (
+        <div className="grid gap-3">
+          <p className="text-muted-foreground text-sm">{gridT('arranging')}</p>
+          <DashboardGrid
+            panels={arranging}
+            onChange={setArranging}
+            renderPanel={(panel) => (
+              <PanelView panel={panel} range={current.range} refreshSeconds={0} />
+            )}
+          />
+        </div>
+      ) : current.panels.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">

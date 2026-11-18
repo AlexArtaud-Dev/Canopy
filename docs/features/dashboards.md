@@ -23,6 +23,10 @@
   panel's menu also duplicates it, or removes it with _Undo_ in the toast.
 - **Layout**: 12 columns on wide screens (each panel says where it sits), one column in
   reading order on phones.
+- **Arrange** (wide screens): drag panels by their title bar and resize them from their corner
+  (react-grid-layout; panels slide up to fill gaps), or use each panel's **Arrange** menu from
+  the keyboard (move, narrower, wider, shorter, taller; each step announced). **Done** saves,
+  **Cancel** puts everything back.
 - **Data**: every panel reads [variables](metrics.md) through `readVariable`, which checks the
   person's `metrics:<family>` permission on the server; a refused one says so in its panel.
 - **Storage**: `app.dashboards` (owner, name, home, range, refresh, panels as JSON validated

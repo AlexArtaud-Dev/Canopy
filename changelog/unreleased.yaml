@@ -1,1 +1,8 @@
-entries: []
+entries:
+  - type: feat
+    scope: web
+    issue: 224
+    text:
+      en: Arrange a dashboard by dragging and resizing its panels, or from the keyboard; on a phone panels stay in one column.
+      fr: Réorganisez un tableau de bord en glissant et redimensionnant ses panneaux, ou au clavier ; sur un téléphone, les panneaux restent sur une colonne.
+      es: Reorganice un panel arrastrando y cambiando el tamaño de sus bloques, o con el teclado; en un teléfono los bloques siguen en una columna.

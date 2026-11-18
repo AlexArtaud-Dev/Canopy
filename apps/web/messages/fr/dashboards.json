@@ -184,5 +184,33 @@
       "large": "Grand (⅔ de largeur)",
       "full": "Toute la largeur"
     }
+  },
+  "grid": {
+    "arrangeMode": "Réorganiser",
+    "done": "Terminé",
+    "cancelArrange": "Annuler",
+    "drag": "Glisser pour déplacer",
+    "arrange": "Disposer {title}",
+    "arranging": "Glissez les panneaux par leur titre, redimensionnez-les par leur coin, ou utilisez le menu Disposer de chaque panneau.",
+    "nudges": {
+      "left": "Vers la gauche",
+      "right": "Vers la droite",
+      "up": "Vers le haut",
+      "down": "Vers le bas",
+      "narrower": "Plus étroit",
+      "wider": "Plus large",
+      "shorter": "Moins haut",
+      "taller": "Plus haut"
+    },
+    "moved": {
+      "left": "{title} déplacé à gauche",
+      "right": "{title} déplacé à droite",
+      "up": "{title} déplacé vers le haut",
+      "down": "{title} déplacé vers le bas",
+      "narrower": "{title} plus étroit",
+      "wider": "{title} plus large",
+      "shorter": "{title} moins haut",
+      "taller": "{title} plus haut"
+    }
   }
 }

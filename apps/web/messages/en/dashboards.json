@@ -184,5 +184,33 @@
       "large": "Large (⅔ width)",
       "full": "Full width"
     }
+  },
+  "grid": {
+    "arrangeMode": "Arrange",
+    "done": "Done",
+    "cancelArrange": "Cancel",
+    "drag": "Drag to move",
+    "arrange": "Arrange {title}",
+    "arranging": "Drag panels by their title, resize them from their corner, or use each panel’s Arrange menu.",
+    "nudges": {
+      "left": "Move left",
+      "right": "Move right",
+      "up": "Move up",
+      "down": "Move down",
+      "narrower": "Narrower",
+      "wider": "Wider",
+      "shorter": "Shorter",
+      "taller": "Taller"
+    },
+    "moved": {
+      "left": "{title} moved left",
+      "right": "{title} moved right",
+      "up": "{title} moved up",
+      "down": "{title} moved down",
+      "narrower": "{title} narrower",
+      "wider": "{title} wider",
+      "shorter": "{title} shorter",
+      "taller": "{title} taller"
+    }
   }
 }

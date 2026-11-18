@@ -165,3 +165,10 @@
     opacity: 0;
   }
 }
+
+/* Dashboard grid while arranging: the drop place in the theme's accent, not the library's red. */
+.react-grid-item.react-grid-placeholder {
+  background: var(--primary);
+  border-radius: var(--radius-xl);
+  opacity: 0.15;
+}

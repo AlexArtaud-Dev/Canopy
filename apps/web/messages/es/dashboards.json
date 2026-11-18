@@ -184,5 +184,33 @@
       "large": "Grande (⅔ de ancho)",
       "full": "Todo el ancho"
     }
+  },
+  "grid": {
+    "arrangeMode": "Reorganizar",
+    "done": "Listo",
+    "cancelArrange": "Cancelar",
+    "drag": "Arrastrar para mover",
+    "arrange": "Colocar {title}",
+    "arranging": "Arrastre los bloques por su título, cambie su tamaño por la esquina, o use el menú Colocar de cada bloque.",
+    "nudges": {
+      "left": "A la izquierda",
+      "right": "A la derecha",
+      "up": "Hacia arriba",
+      "down": "Hacia abajo",
+      "narrower": "Más estrecho",
+      "wider": "Más ancho",
+      "shorter": "Más bajo",
+      "taller": "Más alto"
+    },
+    "moved": {
+      "left": "{title} movido a la izquierda",
+      "right": "{title} movido a la derecha",
+      "up": "{title} movido hacia arriba",
+      "down": "{title} movido hacia abajo",
+      "narrower": "{title} más estrecho",
+      "wider": "{title} más ancho",
+      "shorter": "{title} más bajo",
+      "taller": "{title} más alto"
+    }
   }
 }
