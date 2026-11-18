@@ -1,8 +1,1 @@
-entries:
-  - type: feat
-    scope: files
-    issue: 261
-    text:
-      en: '“Delete permanently” is now its own folder right, apart from moving to the trash; without it, people can only move items to the trash, and emptying the trash leaves their items until they expire. Existing access keeps it, so nothing changes until you remove it.'
-      fr: '« Supprimer définitivement » devient un droit à part sur les dossiers, distinct de la mise à la corbeille ; sans lui, on ne peut que mettre à la corbeille, et vider la corbeille laisse ses éléments jusqu’à leur expiration. Les accès existants le gardent : rien ne change tant que vous ne le retirez pas.'
-      es: '«Eliminar definitivamente» es ahora un derecho propio sobre las carpetas, aparte de mover a la papelera; sin él solo se puede mover a la papelera, y vaciarla deja sus elementos hasta que caduquen. Los accesos existentes lo conservan: nada cambia hasta que lo quite.'
+entries: []
