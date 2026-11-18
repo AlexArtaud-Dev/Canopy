@@ -16,6 +16,10 @@ import (
 const (
 	CodeExists      = "files.exists"
 	CodeInvalidName = "files.invalid_name"
+	// CodeReadOnly: the folder is on a filesystem mounted read-only.
+	CodeReadOnly = "files.read_only"
+	// CodeNoSpace: the disk (or the engine user's quota) is full.
+	CodeNoSpace = "files.no_space"
 )
 
 var (
@@ -23,7 +27,27 @@ var (
 	ErrExists = errors.New("target exists")
 	// ErrCrossDevice means a rename would cross filesystems; callers copy then delete instead.
 	ErrCrossDevice = errors.New("cross-device rename")
+	// ErrReadOnly means the host mounted the folder read-only.
+	ErrReadOnly = errors.New("read-only filesystem")
+	// ErrNoSpace means the disk, or the engine user's quota, is full.
+	ErrNoSpace = errors.New("no space left")
 )
+
+// HostCode tells which refusal of the host an error is, if any: the engine's own user may not
+// touch the path, the filesystem is read-only, or it is full. These are not the person's rights
+// in Canopy but the server's setup, which the administrator fixes; each has its own message.
+func HostCode(err error) (string, bool) {
+	switch {
+	case errors.Is(err, ErrHostDenied), errors.Is(err, fs.ErrPermission):
+		return CodeHostDenied, true
+	case errors.Is(err, ErrReadOnly), errors.Is(err, syscall.EROFS):
+		return CodeReadOnly, true
+	case errors.Is(err, ErrNoSpace), errors.Is(err, syscall.ENOSPC), errors.Is(err, syscall.EDQUOT):
+		return CodeNoSpace, true
+	default:
+		return "", false
+	}
+}
 
 // copyChunk balances syscall overhead against how quickly a cancel is noticed.
 const copyChunk = 1 << 20
@@ -355,6 +379,12 @@ func mapWriteError(err error) error {
 		return ErrCrossDevice
 	case errors.Is(err, fs.ErrNotExist):
 		return notFound(err)
+	case errors.Is(err, fs.ErrPermission):
+		return fmt.Errorf("%w: %w", ErrHostDenied, err)
+	case errors.Is(err, syscall.EROFS):
+		return fmt.Errorf("%w: %w", ErrReadOnly, err)
+	case errors.Is(err, syscall.ENOSPC), errors.Is(err, syscall.EDQUOT):
+		return fmt.Errorf("%w: %w", ErrNoSpace, err)
 	default:
 		return fmt.Errorf("write: %w", err)
 	}

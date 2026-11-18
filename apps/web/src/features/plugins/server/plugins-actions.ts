@@ -16,6 +16,7 @@ import { zError, zPlugin } from '@canopy/contracts/zod';
 import { parseServerEnv } from '@/shared/config/env';
 import { runAction, type ActionResult } from '@/shared/lib/action';
 import { AppBaseError, isErrorCode } from '@/shared/lib/errors';
+import { engineRequestHeaders } from '@/shared/request/request-context';
 import { adminPermission } from '@/features/access/access.utils';
 import { authorize } from '@/features/auth';
 import { engineTokenFor } from '@/features/files/server/engine-client';
@@ -45,7 +46,12 @@ async function adminEngine() {
   const session = await authorize(adminPermission);
   const token = await engineTokenFor(session);
   const baseUrl = parseServerEnv(process.env).CANOPY_ENGINE_URL;
-  return { session, token, baseUrl, client: createClient({ baseUrl, auth: () => token }) };
+  return {
+    session,
+    token,
+    baseUrl,
+    client: createClient({ baseUrl, auth: () => token, headers: await engineRequestHeaders() }),
+  };
 }
 
 function refused(response: Response | undefined, error: { code: string } | undefined): never {

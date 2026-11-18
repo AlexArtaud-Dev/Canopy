@@ -41,6 +41,14 @@ export const getRequestContext = cache(async (): Promise<RequestContext> => {
   return { requestId, clientIp, logger: logger.child({ requestId, clientIp }) };
 });
 
+/**
+ * Headers carrying this request's id to the engine, which logs under the same id: the reference
+ * people see on an error finds the engine's log line too.
+ */
+export async function engineRequestHeaders(): Promise<Record<string, string>> {
+  return { 'x-request-id': (await getRequestContext()).requestId };
+}
+
 let localNetworks: ReturnType<typeof parseTrustedNetworks> | undefined;
 
 /** True only when the client IP is known and inside `CANOPY_LOCAL_NETWORKS`. */

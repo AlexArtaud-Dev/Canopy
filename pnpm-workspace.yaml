@@ -13,3 +13,9 @@ overrides:
   'esbuild@<0.25.0': ^0.25.12
   'minimatch@>=7 <11.0.1': ^11.0.1
   'glob@>=9 <14.0.2': ^14.0.2
+# Advisories with no fixed version yet, not reachable from Canopy (reviewed; drop once fixed).
+auditConfig:
+  ignoreGhsas:
+    # picomatch ReDoS (<=4.0.7): only build and dev tools (shadcn CLI, next-intl's watcher,
+    # typescript-eslint) glob the repository's own files; no request input reaches it.
+    - GHSA-fc5q-39xc-vjpf

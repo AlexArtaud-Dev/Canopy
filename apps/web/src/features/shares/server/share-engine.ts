@@ -3,6 +3,7 @@ import 'server-only';
 import { createClient } from '@canopy/contracts/client';
 
 import { parseServerEnv } from '@/shared/config/env';
+import { engineRequestHeaders } from '@/shared/request/request-context';
 import {
   signEngineToken,
   signStreamTicket,
@@ -40,6 +41,7 @@ export async function engineClientForShare(share: ShareRow) {
   return createClient({
     baseUrl: parseServerEnv(process.env).CANOPY_ENGINE_URL,
     auth: () => token,
+    headers: await engineRequestHeaders(),
   });
 }
 

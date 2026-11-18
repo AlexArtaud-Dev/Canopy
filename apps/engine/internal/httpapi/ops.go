@@ -33,6 +33,14 @@ type failure struct {
 
 // classify maps domain errors to refusals; ok is false for unexpected errors (system.internal).
 func classify(err error) (failure, bool) {
+	// The host's own refusals first: a permission refusal also reads as not found.
+	if code, ok := fsx.HostCode(err); ok {
+		status := http.StatusConflict
+		if code == fsx.CodeHostDenied {
+			status = http.StatusForbidden
+		}
+		return failure{status, code}, true
+	}
 	switch {
 	case errors.Is(err, fsx.ErrInvalidPath):
 		return failure{http.StatusBadRequest, fsx.CodeInvalidPath}, true

@@ -14,6 +14,8 @@ import (
 	"github.com/riverqueue/river/riverdriver/riverpgxv5"
 	"github.com/riverqueue/river/rivermigrate"
 	"github.com/riverqueue/river/rivertype"
+
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 )
 
 // riverSchema holds River's own tables (created for the engine role by docker/postgres/init).
@@ -69,6 +71,9 @@ func Outcome(runErr, ctxErr error) (state, code string) {
 	var failure *Failure
 	if errors.As(runErr, &failure) {
 		return StateFailed, failure.Code
+	}
+	if code, ok := fsx.HostCode(runErr); ok {
+		return StateFailed, code
 	}
 	return StateFailed, CodeFailed
 }
