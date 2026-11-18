@@ -1,8 +1,1 @@
-entries:
-  - type: chore
-    scope: deps
-    issue: 265
-    text:
-      en: 'Dependency updates: Next.js 16.4.6, Better Auth, next-intl, Recharts, Tailwind CSS and the engine’s Go modules.'
-      fr: 'Mises à jour des dépendances : Next.js 16.4.6, Better Auth, next-intl, Recharts, Tailwind CSS et les modules Go du moteur.'
-      es: 'Actualizaciones de dependencias: Next.js 16.4.6, Better Auth, next-intl, Recharts, Tailwind CSS y los módulos Go del motor.'
+entries: []
