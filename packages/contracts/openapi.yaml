@@ -2340,7 +2340,18 @@ components:
     TrashItem:
       type: object
       required:
-        [id, name, originalPath, isDirectory, deletedAt, deletedBy, bytes, files, measured, mayPurge]
+        [
+          id,
+          name,
+          originalPath,
+          isDirectory,
+          deletedAt,
+          deletedBy,
+          bytes,
+          files,
+          measured,
+          mayPurge,
+        ]
       properties:
         id:
           type: string
