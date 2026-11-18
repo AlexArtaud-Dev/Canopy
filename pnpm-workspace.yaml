@@ -19,3 +19,10 @@ auditConfig:
     # picomatch ReDoS (<=4.0.7): only build and dev tools (shadcn CLI, next-intl's watcher,
     # typescript-eslint) glob the repository's own files; no request input reaches it.
     - GHSA-fc5q-39xc-vjpf
+# Plugins eslint-config-next pulls in still declare ESLint <= 9 but run unchanged on 10
+# (same rules reported, lint clean); drop once they widen their ranges.
+peerDependencyRules:
+  allowedVersions:
+    eslint-plugin-import>eslint: '10'
+    eslint-plugin-jsx-a11y>eslint: '10'
+    eslint-plugin-react>eslint: '10'
