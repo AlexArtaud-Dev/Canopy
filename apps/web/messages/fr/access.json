@@ -16,7 +16,10 @@
     "settings": "Réglages",
     "audit": "Journal d’audit",
     "system": "Système",
-    "metrics": "Variables de dashboard"
+    "metrics": "Variables de dashboard",
+    "shares": "Partages",
+    "commands": "Commandes",
+    "mail": "E-mail"
   },
   "actions": {
     "read": "Voir",
@@ -30,7 +33,9 @@
     "operations": "Opérations",
     "shares": "Partages et dépôts",
     "users": "Utilisateurs et sessions",
-    "logs": "Journaux"
+    "logs": "Journaux",
+    "manage": "Gérer les liens de tous",
+    "advanced": "Mode avancé"
   },
   "roles": {
     "metaTitle": "Rôles",

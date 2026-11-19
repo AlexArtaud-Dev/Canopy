@@ -1,1 +1,8 @@
-entries: []
+entries:
+  - type: fix
+    scope: web
+    issue: 271
+    text:
+      en: 'The roles editor names every permission (shares, commands, email); chart legends stay inside their panel with long names cut, and the volumes table shows each volume with its used and total space side by side.'
+      fr: 'L’éditeur de rôles nomme chaque permission (partages, commandes, e-mail) ; les légendes des graphiques restent dans leur panneau et coupent les noms trop longs, et le tableau des volumes affiche chaque volume avec son espace utilisé et total côte à côte.'
+      es: 'El editor de roles nombra cada permiso (compartidos, comandos, correo); las leyendas de los gráficos se quedan dentro de su bloque y cortan los nombres largos, y la tabla de volúmenes muestra cada volumen con su espacio usado y total lado a lado.'

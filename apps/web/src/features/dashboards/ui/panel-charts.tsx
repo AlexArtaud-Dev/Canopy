@@ -44,13 +44,28 @@ function counts(series: readonly NamedSeries[]): boolean {
   return series.every((one) => one.unit === 'count');
 }
 
+/** Legends wrap, stay inside their panel (scrolling past two lines) and cut long names. */
+const legendClass =
+  'max-h-12 flex-wrap justify-start gap-x-3 gap-y-1 overflow-y-auto text-xs [&>div]:min-w-0';
+
 function seriesColor(index: number): string {
   return cssColor(seriesColors[index % seriesColors.length] ?? 'chart-1');
 }
 
 function chartConfig(series: readonly NamedSeries[]): ChartConfig {
   return Object.fromEntries(
-    series.map((one, index) => [one.key, { label: one.label, color: seriesColor(index) }]),
+    series.map((one, index) => [
+      one.key,
+      {
+        // Long names (volumes mounted by id) are cut; the whole name shows on hover.
+        label: (
+          <span className="block max-w-40 truncate" title={one.label}>
+            {one.label}
+          </span>
+        ),
+        color: seriesColor(index),
+      },
+    ]),
   );
 }
 
@@ -112,7 +127,10 @@ function Tooltip({
             : {})}
           formatter={(raw, name) => (
             <span className="flex w-full justify-between gap-3">
-              <span className="text-muted-foreground">{config[String(name)]?.label}</span>
+              <span className="text-muted-foreground">
+                {series.find((one) => one.key === String(name))?.label ??
+                  config[String(name)]?.label}
+              </span>
               <span className="font-medium tabular-nums">{value(Number(raw))}</span>
             </span>
           )}
@@ -152,7 +170,7 @@ export function TimeView({ panel, series, range }: ChartProps & { range: TimeRan
         label={(payload) => time.full(rowAt(payload))}
       />
       {panel.options.legend && series.length > 1 && (
-        <ChartLegend content={<ChartLegendContent />} />
+        <ChartLegend content={<ChartLegendContent className={legendClass} />} />
       )}
     </>
   );
@@ -234,7 +252,7 @@ export function BarView({ panel, series, range }: ChartProps & { range: TimeRang
           label={(payload) => time.full(rowAt(payload))}
         />
         {panel.options.legend && series.length > 1 && (
-          <ChartLegend content={<ChartLegendContent />} />
+          <ChartLegend content={<ChartLegendContent className={legendClass} />} />
         )}
         {series.map((one) => (
           <Bar
@@ -291,7 +309,9 @@ export function PieView({ panel, series }: ChartProps) {
           innerRadius="55%"
           isAnimationActive={false}
         />
-        {panel.options.legend && <ChartLegend content={<ChartLegendContent nameKey="key" />} />}
+        {panel.options.legend && (
+          <ChartLegend content={<ChartLegendContent nameKey="key" className={legendClass} />} />
+        )}
       </PieChart>
     </ChartContainer>
   );

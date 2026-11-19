@@ -129,3 +129,6 @@ export function groupByCategory(
 export function selectedTab(requested: string | null, tabs: readonly string[]): string | undefined {
   return requested !== null && tabs.includes(requested) ? requested : tabs[0];
 }
+
+/** Modules whose settings live on their own page (linked from the generated one). */
+export const modulesWithOwnPage: ReadonlySet<string> = new Set(['mail', 'plugins']);
