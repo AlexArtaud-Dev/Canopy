@@ -3,11 +3,8 @@ import 'server-only';
 import { appRegistry } from '@/modules';
 import { isLocalRequest } from '@/shared/request/request-context';
 
-import { describeModule, type FieldView } from '../settings-form.utils';
+import { describeModule, modulesWithOwnPage, type FieldView } from '../settings-form.utils';
 import { getSettings } from './settings-store';
-
-/** Modules whose settings live on their own page (linked from the generated one). */
-export const modulesWithOwnPage: ReadonlySet<string> = new Set(['mail', 'plugins']);
 
 export interface ModuleSettingsView {
   module: string;

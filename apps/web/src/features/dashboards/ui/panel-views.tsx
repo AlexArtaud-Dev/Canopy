@@ -21,6 +21,8 @@ import {
   cssColor,
   formatPanelValue,
   gaugeShare,
+  pivotTable,
+  seriesLabel,
   type NamedSeries,
 } from '../panels.utils';
 import type { LogLine, TimeRange } from '../variables.utils';
@@ -89,14 +91,17 @@ function VariablesView({ panel, range, refreshSeconds }: PanelViewProps) {
     return <LogView lines={first?.kind === 'log' ? first.lines : []} />;
   }
   const series: NamedSeries[] = [];
+  const alone = state.data.length === 1;
   for (const { id, data } of state.data) {
     if (data.kind !== 'series') continue;
     // i18n-dynamic: dashboards.variables
-    const label = t(`variables.${id}` as 'variables.system.cpu');
+    const variable = t(`variables.${id}` as 'variables.system.cpu');
     for (const one of data.series) {
       series.push({
         key: `s${String(series.length)}`,
-        label: one.name ? `${label} · ${one.name}` : label,
+        label: seriesLabel(variable, one.name, alone),
+        variable,
+        ...(one.name ? { name: one.name } : {}),
         unit: data.unit,
         points: one.points,
         ...(data.total === undefined ? {} : { total: data.total }),
@@ -210,9 +215,63 @@ function GaugeView({ panel, series }: { panel: Panel; series: NamedSeries[] }) {
 function TableView({ panel, series }: { panel: Panel; series: NamedSeries[] }) {
   const t = useTranslations('dashboards.panel');
   const locale = useLocale();
+  const format = (value: number | null, unit: NamedSeries['unit']) =>
+    value === null ? '—' : formatPanelValue(value, unit, panel.options.decimals, locale);
+  const pivot = pivotTable(series, panel.options.aggregation);
+  if (pivot) {
+    return (
+      <div className="min-h-0 overflow-y-auto">
+        <table className="w-full table-fixed text-sm">
+          <colgroup>
+            <col />
+            {pivot.columns.map((column) => (
+              <col key={column.variable} className="w-24" />
+            ))}
+          </colgroup>
+          <thead>
+            <tr className="text-muted-foreground text-xs">
+              <th className="py-1 pr-2 text-left font-medium">{t('name')}</th>
+              {pivot.columns.map((column) => (
+                <th key={column.variable} className="py-1 text-right font-medium">
+                  <span className="block truncate" title={column.variable}>
+                    {column.variable}
+                  </span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {pivot.rows.map((row) => (
+              <tr key={row.name}>
+                <td className="truncate py-1.5 pr-2" title={row.name}>
+                  {row.name}
+                </td>
+                {row.values.map((value, index) => {
+                  const color = colorFor(value, panel.rules);
+                  return (
+                    <td
+                      key={pivot.columns[index]?.variable ?? index}
+                      className="py-1.5 text-right font-medium whitespace-nowrap tabular-nums"
+                      style={color ? { color: cssColor(color) } : undefined}
+                    >
+                      {format(value, pivot.columns[index]?.unit ?? 'count')}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
   return (
     <div className="min-h-0 overflow-y-auto">
-      <table className="w-full text-sm">
+      <table className="w-full table-fixed text-sm">
+        <colgroup>
+          <col />
+          <col className="w-28" />
+        </colgroup>
         <thead className="sr-only">
           <tr>
             <th>{t('name')}</th>
@@ -225,14 +284,14 @@ function TableView({ panel, series }: { panel: Panel; series: NamedSeries[] }) {
             const color = colorFor(value, panel.rules);
             return (
               <tr key={one.key}>
-                <td className="max-w-0 truncate py-1.5 pr-2">{one.label}</td>
+                <td className="truncate py-1.5 pr-2" title={one.label}>
+                  {one.label}
+                </td>
                 <td
                   className="py-1.5 text-right font-medium whitespace-nowrap tabular-nums"
                   style={color ? { color: cssColor(color) } : undefined}
                 >
-                  {value === null
-                    ? '—'
-                    : formatPanelValue(value, one.unit, panel.options.decimals, locale)}
+                  {format(value, one.unit)}
                 </td>
               </tr>
             );

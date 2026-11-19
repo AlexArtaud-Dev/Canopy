@@ -16,7 +16,10 @@
     "settings": "Ajustes",
     "audit": "Registro de auditoría",
     "system": "Sistema",
-    "metrics": "Variables de panel"
+    "metrics": "Variables de panel",
+    "shares": "Compartidos",
+    "commands": "Comandos",
+    "mail": "Correo"
   },
   "actions": {
     "read": "Ver",
@@ -30,7 +33,9 @@
     "operations": "Operaciones",
     "shares": "Compartidos y depósitos",
     "users": "Usuarios y sesiones",
-    "logs": "Registros"
+    "logs": "Registros",
+    "manage": "Gestionar los enlaces de todos",
+    "advanced": "Modo avanzado"
   },
   "roles": {
     "metaTitle": "Roles",

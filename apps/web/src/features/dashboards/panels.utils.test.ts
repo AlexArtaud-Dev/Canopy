@@ -5,6 +5,8 @@ import {
   cssColor,
   formatPanelValue,
   gaugeShare,
+  pivotTable,
+  seriesLabel,
   type NamedSeries,
 } from './panels.utils';
 import { copyPanel, editorFeatures, maxPanelVariables, newPanel } from './ui/panel-editor.utils';
@@ -59,8 +61,8 @@ describe('colour rules', () => {
 describe('charts', () => {
   it('put the series side by side, one row per instant in time order', () => {
     const series: NamedSeries[] = [
-      { key: 's0', label: 'a', unit: 'count', points: points([1, 2]) },
-      { key: 's1', label: 'b', unit: 'count', points: points([5]) },
+      { key: 's0', label: 'a', variable: 'a', unit: 'count', points: points([1, 2]) },
+      { key: 's1', label: 'b', variable: 'b', unit: 'count', points: points([5]) },
     ];
     expect(chartRows([...series].reverse())).toEqual([
       { at: '2026-11-18T10:00:00.000Z', s0: 1, s1: 5 },
@@ -136,5 +138,42 @@ describe('editor', () => {
 
     const copy = copyPanel(existing[1] ?? created, existing, () => 'copy');
     expect(copy).toMatchObject({ id: 'p-copy', title: 'b', layout: { x: 0, y: 6, w: 3, h: 4 } });
+  });
+});
+
+describe('series names and tables', () => {
+  const point = (avg: number) => ({ at: '2026-11-19T00:00:00Z', avg, min: avg, max: avg });
+  const one = (variable: string, name: string | undefined, avg: number): NamedSeries => ({
+    key: `${variable}-${name ?? ''}`,
+    label: variable,
+    variable,
+    ...(name ? { name } : {}),
+    unit: 'bytes',
+    points: [point(avg)],
+  });
+
+  it('name a series by what it measures, alone or beside other variables', () => {
+    expect(seriesLabel('Used', undefined, true)).toBe('Used');
+    expect(seriesLabel('Used', 'disk1', true)).toBe('disk1');
+    expect(seriesLabel('Used', 'disk1', false)).toBe('Used · disk1');
+  });
+
+  it('put several variables of the same things side by side', () => {
+    const table = pivotTable(
+      [one('Used', 'a', 1), one('Used', 'b', 2), one('Total', 'a', 10)],
+      'last',
+    );
+    expect(table).toEqual({
+      columns: [
+        { variable: 'Used', unit: 'bytes' },
+        { variable: 'Total', unit: 'bytes' },
+      ],
+      rows: [
+        { name: 'a', values: [1, 10] },
+        { name: 'b', values: [2, null] },
+      ],
+    });
+    expect(pivotTable([one('Used', 'a', 1)], 'last')).toBeNull();
+    expect(pivotTable([one('Used', 'a', 1), one('Total', undefined, 2)], 'last')).toBeNull();
   });
 });

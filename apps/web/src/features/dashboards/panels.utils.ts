@@ -6,6 +6,10 @@ export interface NamedSeries {
   /** Stable key for the chart (`s0`, `s1`…). */
   key: string;
   label: string;
+  /** The variable it comes from, named for people. */
+  variable: string;
+  /** What it measures when the variable has several series (a volume…). */
+  name?: string;
   unit: VariableUnit;
   points: readonly VariablePoint[];
   /** Counted events over the whole range, when the variable gives it. */
@@ -82,4 +86,44 @@ export function formatPanelValue(
     maximumFractionDigits: decimals,
   }).format(value);
   return unit === 'percent' ? `${number} %` : number;
+}
+
+/**
+ * A series as people read it: the variable, and what it measures when there are several. A panel
+ * of one variable names only the thing (the panel's title already says what is measured).
+ */
+export function seriesLabel(variable: string, name: string | undefined, alone: boolean): string {
+  if (!name) return variable;
+  return alone ? name : `${variable} · ${name}`;
+}
+
+/** A table with one row per measured thing and one column per variable (used, total…). */
+export interface PivotTable {
+  columns: { variable: string; unit: VariableUnit }[];
+  rows: { name: string; values: (number | null)[] }[];
+}
+
+/**
+ * Several variables measuring the same things (each volume's used and total space) read best side
+ * by side; null when the series are not like that.
+ */
+export function pivotTable(series: readonly NamedSeries[], how: Aggregation): PivotTable | null {
+  const named = series.flatMap((one) => (one.name ? [{ ...one, name: one.name }] : []));
+  // The first series of each variable gives its column (and unit), in order of appearance.
+  const columns: PivotTable['columns'] = [];
+  for (const one of named) {
+    if (!columns.some((column) => column.variable === one.variable)) {
+      columns.push({ variable: one.variable, unit: one.unit });
+    }
+  }
+  if (named.length < series.length || columns.length < 2) return null;
+  const byKey = new Map(named.map((one) => [JSON.stringify([one.variable, one.name]), one]));
+  const rows = [...new Set(named.map((one) => one.name))].map((name) => ({
+    name,
+    values: columns.map(({ variable }) => {
+      const one = byKey.get(JSON.stringify([variable, name]));
+      return one ? aggregate(one, how) : null;
+    }),
+  }));
+  return { columns, rows };
 }

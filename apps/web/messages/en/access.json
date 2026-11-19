@@ -16,7 +16,10 @@
     "settings": "Settings",
     "audit": "Audit log",
     "system": "System",
-    "metrics": "Dashboard variables"
+    "metrics": "Dashboard variables",
+    "shares": "Shares",
+    "commands": "Commands",
+    "mail": "Email"
   },
   "actions": {
     "read": "View",
@@ -30,7 +33,9 @@
     "operations": "Operations",
     "shares": "Shares and drop-offs",
     "users": "Users and sessions",
-    "logs": "Logs"
+    "logs": "Logs",
+    "manage": "Manage everyone’s links",
+    "advanced": "Advanced mode"
   },
   "roles": {
     "metaTitle": "Roles",
