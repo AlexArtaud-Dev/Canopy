@@ -114,6 +114,10 @@
         "label": "Color theme",
         "description": "Accent color of the whole interface, for everyone."
       },
+      "surfaceStyle": {
+        "label": "Surfaces",
+        "description": "Glass draws cards, menus and the sidebar as frosted, translucent panes over a soft backdrop in the theme’s colours; Solid keeps them opaque. Devices set to reduce transparency always get solid panes."
+      },
       "defaultMode": {
         "label": "Default mode",
         "description": "Light or dark for people who have not chosen on their device; System follows their device."
@@ -208,7 +212,17 @@
         "canopy": "Canopy (green)",
         "ocean": "Ocean (blue)",
         "violet": "Violet",
-        "amber": "Amber"
+        "amber": "Amber",
+        "rose": "Rose",
+        "teal": "Teal",
+        "indigo": "Indigo",
+        "sunset": "Sunset (orange, pink, purple)",
+        "aurora": "Aurora (teal, green, violet)",
+        "graphite": "Graphite (neutral)"
+      },
+      "surfaceStyle": {
+        "glass": "Glass",
+        "solid": "Solid"
       },
       "defaultMode": {
         "system": "System",

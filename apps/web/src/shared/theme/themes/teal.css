@@ -1,0 +1,20 @@
+/* teal: the default theme's tokens with hue 190; lightness and chroma unchanged keep the contrast ratios. */
+:root[data-theme='teal'] {
+  --primary: oklch(0.47 0.09 190);
+  --primary-foreground: oklch(0.985 0.01 190);
+  --ring: oklch(0.62 0.09 190);
+  --chart-1: oklch(0.62 0.11 190);
+  --sidebar-primary: oklch(0.47 0.09 190);
+  --sidebar-primary-foreground: oklch(0.985 0.01 190);
+  --sidebar-ring: oklch(0.62 0.09 190);
+}
+
+:root[data-theme='teal'].dark {
+  --primary: oklch(0.76 0.11 190);
+  --primary-foreground: oklch(0.22 0.04 190);
+  --ring: oklch(0.6 0.09 190);
+  --chart-1: oklch(0.72 0.12 190);
+  --sidebar-primary: oklch(0.76 0.11 190);
+  --sidebar-primary-foreground: oklch(0.22 0.04 190);
+  --sidebar-ring: oklch(0.6 0.09 190);
+}

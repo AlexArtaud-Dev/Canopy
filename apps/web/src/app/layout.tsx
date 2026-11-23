@@ -46,6 +46,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       lang={locale}
       // The default tokens are "canopy"; other themes override them via [data-theme].
       data-theme={appearance.colorTheme === 'canopy' ? undefined : appearance.colorTheme}
+      data-surface={appearance.surfaceStyle}
       suppressHydrationWarning
       className={cn(GeistSans.variable, GeistMono.variable, 'font-sans antialiased')}
     >

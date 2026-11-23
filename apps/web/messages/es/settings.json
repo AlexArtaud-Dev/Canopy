@@ -114,6 +114,10 @@
         "label": "Tema de color",
         "description": "Color de acento de toda la interfaz, para todos."
       },
+      "surfaceStyle": {
+        "label": "Superficies",
+        "description": "Cristal muestra tarjetas, menús y la barra lateral como paneles esmerilados y translúcidos sobre un fondo suave con los colores del tema; Opaco los mantiene sólidos. Los dispositivos configurados para reducir la transparencia siempre tienen paneles opacos."
+      },
       "defaultMode": {
         "label": "Modo por defecto",
         "description": "Claro u oscuro para quien no lo haya elegido en su dispositivo; Sistema sigue su dispositivo."
@@ -208,7 +212,17 @@
         "canopy": "Canopy (verde)",
         "ocean": "Océano (azul)",
         "violet": "Violeta",
-        "amber": "Ámbar"
+        "amber": "Ámbar",
+        "rose": "Rosa",
+        "teal": "Verde azulado",
+        "indigo": "Índigo",
+        "sunset": "Atardecer (naranja, rosa, violeta)",
+        "aurora": "Aurora (verde azulado, verde, violeta)",
+        "graphite": "Grafito (neutro)"
+      },
+      "surfaceStyle": {
+        "glass": "Cristal",
+        "solid": "Opaco"
       },
       "defaultMode": {
         "system": "Sistema",

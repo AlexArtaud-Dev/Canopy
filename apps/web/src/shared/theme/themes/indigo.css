@@ -1,0 +1,20 @@
+/* indigo: the default theme's tokens with hue 265; lightness and chroma unchanged keep the contrast ratios. */
+:root[data-theme='indigo'] {
+  --primary: oklch(0.47 0.09 265);
+  --primary-foreground: oklch(0.985 0.01 265);
+  --ring: oklch(0.62 0.09 265);
+  --chart-1: oklch(0.62 0.11 265);
+  --sidebar-primary: oklch(0.47 0.09 265);
+  --sidebar-primary-foreground: oklch(0.985 0.01 265);
+  --sidebar-ring: oklch(0.62 0.09 265);
+}
+
+:root[data-theme='indigo'].dark {
+  --primary: oklch(0.76 0.11 265);
+  --primary-foreground: oklch(0.22 0.04 265);
+  --ring: oklch(0.6 0.09 265);
+  --chart-1: oklch(0.72 0.12 265);
+  --sidebar-primary: oklch(0.76 0.11 265);
+  --sidebar-primary-foreground: oklch(0.22 0.04 265);
+  --sidebar-ring: oklch(0.6 0.09 265);
+}

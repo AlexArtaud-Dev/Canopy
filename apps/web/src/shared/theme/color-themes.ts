@@ -3,5 +3,16 @@
  * token file in `themes/<name>.css` (light and dark blocks) imported by globals.css. Adding a theme
  * = one token file + one entry here + its label.
  */
-export const colorThemes = ['canopy', 'ocean', 'violet', 'amber'] as const;
+export const colorThemes = [
+  'canopy',
+  'ocean',
+  'violet',
+  'amber',
+  'rose',
+  'teal',
+  'indigo',
+  'sunset',
+  'aurora',
+  'graphite',
+] as const;
 export type ColorTheme = (typeof colorThemes)[number];

@@ -114,6 +114,10 @@
         "label": "Thème de couleur",
         "description": "Couleur d’accent de toute l’interface, pour tout le monde."
       },
+      "surfaceStyle": {
+        "label": "Surfaces",
+        "description": "Verre affiche cartes, menus et barre latérale comme des panneaux givrés et translucides sur un fond doux aux couleurs du thème ; Opaque les garde pleins. Les appareils réglés pour réduire la transparence ont toujours des panneaux opaques."
+      },
       "defaultMode": {
         "label": "Mode par défaut",
         "description": "Clair ou sombre pour ceux qui n’ont pas choisi sur leur appareil ; Système suit leur appareil."
@@ -208,7 +212,17 @@
         "canopy": "Canopy (vert)",
         "ocean": "Océan (bleu)",
         "violet": "Violet",
-        "amber": "Ambre"
+        "amber": "Ambre",
+        "rose": "Rose",
+        "teal": "Sarcelle",
+        "indigo": "Indigo",
+        "sunset": "Couchant (orange, rose, violet)",
+        "aurora": "Aurore (sarcelle, vert, violet)",
+        "graphite": "Graphite (neutre)"
+      },
+      "surfaceStyle": {
+        "glass": "Verre",
+        "solid": "Opaque"
       },
       "defaultMode": {
         "system": "Système",

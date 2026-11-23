@@ -1,0 +1,153 @@
+/*
+ * Liquid glass surfaces (Settings › Appearance › Surfaces, `<html data-surface="glass">`).
+ * The app sits on a soft wallpaper drawn from the colour theme's own tokens; cards, menus,
+ * dialogs, sheets and the sidebar become frosted, translucent layers with a light edge on top.
+ * Only tokens change colour, so every colour theme and both modes keep working; the wallpaper is
+ * pale (light) or deep (dark) enough for text on glass to keep its WCAG AA contrast.
+ */
+:root[data-surface='glass'] {
+  --radius: 0.875rem;
+  --glass-blur: 24px;
+  --glass-saturate: 180%;
+  --glass-highlight: oklch(1 0 0 / 70%);
+  --glass-edge: oklch(1 0 0 / 45%);
+  --glass-shadow: 0 1px 2px oklch(0.2 0.02 260 / 6%), 0 12px 32px -8px oklch(0.2 0.02 260 / 14%);
+  --glass-wallpaper-strength: 38%;
+
+  --card: oklch(1 0 0 / 58%);
+  --popover: oklch(0.995 0 0 / 74%);
+  --sidebar: oklch(1 0 0 / 42%);
+  --secondary: oklch(0.2 0 0 / 6%);
+  --muted: oklch(0.2 0 0 / 5%);
+  --accent: oklch(0.2 0 0 / 7%);
+  --sidebar-accent: oklch(0.2 0 0 / 7%);
+  --border: oklch(0.2 0 0 / 10%);
+  --input: oklch(0.2 0 0 / 14%);
+  --sidebar-border: oklch(1 0 0 / 50%);
+  /* A touch darker than solid: text sits on a lightly tinted pane, not pure white. */
+  --muted-foreground: oklch(0.48 0 0);
+}
+
+:root[data-surface='glass'].dark {
+  --glass-highlight: oklch(1 0 0 / 16%);
+  --glass-edge: oklch(1 0 0 / 9%);
+  --glass-shadow: 0 1px 2px oklch(0 0 0 / 30%), 0 16px 40px -12px oklch(0 0 0 / 55%);
+  --glass-wallpaper-strength: 40%;
+
+  --background: oklch(0.16 0.01 260);
+  --card: oklch(0.26 0.01 260 / 52%);
+  --popover: oklch(0.24 0.01 260 / 78%);
+  --sidebar: oklch(0.22 0.01 260 / 46%);
+  --secondary: oklch(1 0 0 / 8%);
+  --muted: oklch(1 0 0 / 7%);
+  --accent: oklch(1 0 0 / 10%);
+  --sidebar-accent: oklch(1 0 0 / 10%);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --muted-foreground: oklch(0.74 0 0);
+}
+
+/* The wallpaper: three soft blooms in the theme's colours over the background, fixed in place. */
+:root[data-surface='glass'] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60rem 42rem at 8% -12%,
+      color-mix(in oklch, var(--primary) var(--glass-wallpaper-strength), transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      52rem 40rem at 102% 4%,
+      color-mix(in oklch, var(--chart-2) var(--glass-wallpaper-strength), transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      64rem 48rem at 55% 112%,
+      color-mix(in oklch, var(--chart-4) var(--glass-wallpaper-strength), transparent),
+      transparent 72%
+    ),
+    var(--background);
+}
+
+/* The page itself lets the wallpaper through; its panes are the glass. */
+:root[data-surface='glass'] [data-slot='sidebar-inset'] {
+  background-color: transparent;
+}
+
+:root[data-surface='glass']
+  :is(
+    .bg-card,
+    .bg-popover,
+    .bg-sidebar,
+    [data-slot='page-header'],
+    [data-slot='tooltip-content']
+  ) {
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+
+/*
+ * A light edge along the top and a soft drop shadow: glass catching the light. Set through
+ * Tailwind's shadow variables in the components layer, so a pane's own ring or shadow utilities
+ * (the highlighted panel while arranging a dashboard…) still win.
+ */
+@layer components {
+  :root[data-surface='glass'] :is([data-slot='card'], .bg-popover) {
+    --tw-inset-shadow: inset 0 1px 0 0 var(--glass-highlight);
+    --tw-shadow: var(--glass-shadow);
+  }
+}
+
+:root[data-surface='glass'] [data-slot='sidebar-inner'] {
+  box-shadow: inset -1px 0 0 0 var(--glass-edge);
+}
+
+:root[data-surface='glass'] [data-slot='page-header'] {
+  background-color: color-mix(in oklch, var(--background) 35%, transparent);
+  border-color: var(--glass-edge);
+}
+
+/* Outline buttons at rest are small panes of glass too (hover and open keep their own fill). */
+:root[data-surface='glass']
+  [data-slot='button'][data-variant='outline']:not(:hover, [aria-expanded='true']) {
+  background-color: var(--card);
+  border-color: var(--glass-edge);
+  box-shadow: inset 0 1px 0 0 var(--glass-highlight);
+}
+
+/* People who ask their system for less transparency get solid surfaces, same colours. */
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-surface='glass'] {
+    --card: oklch(1 0 0);
+    --popover: oklch(1 0 0);
+    --sidebar: oklch(0.985 0 0);
+  }
+  :root[data-surface='glass'].dark {
+    --card: oklch(0.23 0.01 260);
+    --popover: oklch(0.23 0.01 260);
+    --sidebar: oklch(0.2 0.01 260);
+  }
+  :root[data-surface='glass'] * {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* Browsers without backdrop blur would show raw transparency: keep the panes opaque there. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root[data-surface='glass'] {
+    --card: oklch(1 0 0 / 92%);
+    --popover: oklch(1 0 0 / 96%);
+    --sidebar: oklch(0.985 0 0 / 92%);
+  }
+  :root[data-surface='glass'].dark {
+    --card: oklch(0.23 0.01 260 / 94%);
+    --popover: oklch(0.23 0.01 260 / 96%);
+    --sidebar: oklch(0.2 0.01 260 / 94%);
+  }
+}
