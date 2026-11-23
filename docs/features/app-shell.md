@@ -9,7 +9,9 @@ The frame around every page: navigation, page header and user preferences.
   Configuration, Monitoring). Sections start folded except the one holding the current page, to keep
   the sidebar short; one unfolded by hand stays open during the visit. Collapsed to icons (`Ctrl/⌘ + B` or the rail), a section is an icon
   opening a menu of its pages. Becomes a sheet on phones and closes itself after a destination is
-  picked. Active item uses `aria-current="page"`.
+  picked; a swipe from the left edge (24 px) to the right opens it, a swipe to the left closes it
+  (`edge-swipe.utils.ts`, passive listeners, vertical moves ignored). Active item uses
+  `aria-current="page"`.
 - **Page header** (`ui/page-header.tsx`): sticky bar with the sidebar toggle, page title (`h1`)
   and an optional actions slot.
 - **Preferences** (`preferences.container.tsx` → `ui/preferences-menu.tsx`): theme (light, dark,

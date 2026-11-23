@@ -35,6 +35,7 @@ import { appRegistry } from '@/modules';
 import type { GlobalPermission, NavEntry } from '@/shared/modules/module.types';
 import type { NavNode } from '@/shared/modules/registry';
 
+import { useEdgeSwipe } from '../model/use-edge-swipe';
 import { useOpenedSections } from '../model/use-opened-sections';
 import { isNavItemActive } from '../shell.nav';
 import { BrandMark } from './brand-mark';
@@ -52,7 +53,8 @@ type SectionNode = Extract<NavNode, { kind: 'section' }>;
 export function AppSidebar({ footer, afterWorkspace, grantedPermissions }: AppSidebarProps) {
   const t = useTranslations('shell');
   const pathname = usePathname();
-  const { isMobile, setOpenMobile, state } = useSidebar();
+  const { isMobile, openMobile, setOpenMobile, state } = useSidebar();
+  useEdgeSwipe(isMobile, openMobile, setOpenMobile);
   const { opened, setOpen } = useOpenedSections();
   const navGroups = appRegistry.navigation((permission) => grantedPermissions.includes(permission));
   const iconsOnly = state === 'collapsed' && !isMobile;
