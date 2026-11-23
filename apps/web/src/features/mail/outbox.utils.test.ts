@@ -3,7 +3,9 @@ import {
   outboxIdSchema,
   outboxKind,
   outboxKinds,
+  outboxPageSize,
   outboxQuerySchema,
+  outboxStatuses,
 } from './mail.utils';
 
 describe('sent e-mails list', () => {
@@ -37,6 +39,11 @@ describe('sent e-mails list', () => {
     expect(outboxKind('shares.drop_off_code')).toBe('drop_off_code');
     expect(outboxKind('something.else')).toBe('other');
     expect(outboxKinds).toContain('other');
+  });
+
+  it('pages by 25 and knows the three statuses', () => {
+    expect(outboxPageSize).toBe(25);
+    expect(outboxStatuses).toEqual(['queued', 'sent', 'failed']);
   });
 
   it('accepts only e-mail ids', () => {
