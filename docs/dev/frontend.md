@@ -34,8 +34,14 @@ Dependency direction is one-way: `ui ← container ← model ← server/contract
   (light + dark blocks). Adding a theme = adding one token file and registering it.
   Registry: `shared/theme/color-themes.ts`; the instance theme, default light/dark mode and
   default language are `appearance` settings (`/admin/settings`), applied in the root layout and
-  `src/i18n.request.ts`. Themes keep the default tokens' lightness and chroma (hue only), so
-  contrast stays WCAG AA.
+  `src/i18n.request.ts`. Themes keep the default tokens' lightness and chroma, so contrast stays
+  WCAG AA; some also set `--chart-2`/`--chart-4` (Sunset, Aurora), Graphite is neutral.
+- Surfaces: `data-surface="<name>"` (`appearance.surfaceStyle`, registry
+  `shared/theme/surface-styles.ts`) restyles panes in `shared/theme/surfaces/<name>.css`.
+  `glass` (default): translucent `--card`/`--popover`/`--sidebar`, backdrop blur on `.bg-card`,
+  `.bg-popover`, `.bg-sidebar` and the page header, a wallpaper from `--primary`, `--chart-2` and
+  `--chart-4`; solid panes under `prefers-reduced-transparency` or without backdrop blur.
+  `solid`: the plain tokens. `theme-files.test.ts` checks every theme and surface has its file.
 - Structural differences (e.g. logo swap) only via `useTheme()`, never conditional colors.
 
 ## Layout & devices

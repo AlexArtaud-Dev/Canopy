@@ -1,0 +1,20 @@
+/* rose: the default theme's tokens with hue 5; lightness and chroma unchanged keep the contrast ratios. */
+:root[data-theme='rose'] {
+  --primary: oklch(0.47 0.09 5);
+  --primary-foreground: oklch(0.985 0.01 5);
+  --ring: oklch(0.62 0.09 5);
+  --chart-1: oklch(0.62 0.11 5);
+  --sidebar-primary: oklch(0.47 0.09 5);
+  --sidebar-primary-foreground: oklch(0.985 0.01 5);
+  --sidebar-ring: oklch(0.62 0.09 5);
+}
+
+:root[data-theme='rose'].dark {
+  --primary: oklch(0.76 0.11 5);
+  --primary-foreground: oklch(0.22 0.04 5);
+  --ring: oklch(0.6 0.09 5);
+  --chart-1: oklch(0.72 0.12 5);
+  --sidebar-primary: oklch(0.76 0.11 5);
+  --sidebar-primary-foreground: oklch(0.22 0.04 5);
+  --sidebar-ring: oklch(0.6 0.09 5);
+}

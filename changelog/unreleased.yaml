@@ -1,1 +1,8 @@
-entries: []
+entries:
+  - type: feat
+    scope: web
+    issue: 277
+    text:
+      en: 'A liquid glass look: cards, menus, dialogs and the sidebar become frosted, translucent panes over a soft backdrop in the theme’s colours (Settings › Appearance › Surfaces, Solid keeps the opaque look), and six more colour themes: Rose, Teal, Indigo, Sunset, Aurora and Graphite.'
+      fr: 'Un style verre liquide : cartes, menus, dialogues et barre latérale deviennent des panneaux givrés et translucides sur un fond doux aux couleurs du thème (Réglages › Apparence › Surfaces, Opaque garde le style plein), et six nouveaux thèmes de couleur : Rose, Sarcelle, Indigo, Couchant, Aurore et Graphite.'
+      es: 'Un estilo de cristal líquido: tarjetas, menús, diálogos y la barra lateral se vuelven paneles esmerilados y translúcidos sobre un fondo suave con los colores del tema (Ajustes › Apariencia › Superficies, Opaco mantiene el estilo sólido), y seis temas de color más: Rosa, Verde azulado, Índigo, Atardecer, Aurora y Grafito.'

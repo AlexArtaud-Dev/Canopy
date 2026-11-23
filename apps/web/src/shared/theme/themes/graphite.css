@@ -1,0 +1,24 @@
+/* graphite: a neutral accent (near-black in light, near-white in dark) for a monochrome interface. */
+:root[data-theme='graphite'] {
+  --primary: oklch(0.29 0.01 260);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.55 0.01 260);
+  --chart-1: oklch(0.45 0.02 260);
+  --chart-2: oklch(0.62 0.03 230);
+  --chart-4: oklch(0.55 0.02 290);
+  --sidebar-primary: oklch(0.29 0.01 260);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-ring: oklch(0.55 0.01 260);
+}
+
+:root[data-theme='graphite'].dark {
+  --primary: oklch(0.9 0.01 260);
+  --primary-foreground: oklch(0.2 0.01 260);
+  --ring: oklch(0.6 0.01 260);
+  --chart-1: oklch(0.82 0.02 260);
+  --chart-2: oklch(0.7 0.03 230);
+  --chart-4: oklch(0.66 0.03 290);
+  --sidebar-primary: oklch(0.9 0.01 260);
+  --sidebar-primary-foreground: oklch(0.2 0.01 260);
+  --sidebar-ring: oklch(0.6 0.01 260);
+}
