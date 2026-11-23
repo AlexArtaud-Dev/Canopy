@@ -2,12 +2,26 @@ import 'server-only';
 
 import { createTranslator } from 'next-intl';
 
+import { getAppearance } from '@/features/appearance';
 import { defaultLocale, isLocale, type Locale } from '@/shared/i18n/locales';
+import { themePalette } from '@/shared/theme/theme-palette';
 
 import type emailMessages from '../../../../messages/en/emails.json';
-import { renderEmail, type RenderedEmail } from './layout';
+
+import { emailLook } from './email-look';
+import { renderEmail, type EmailContent, type RenderedEmail } from './layout';
 
 // i18n-dynamic: emails — rendered with createTranslator in the recipient's locale.
+
+/** Every e-mail wears the instance's colour theme and surface (Settings › Appearance). */
+async function renderThemed(subject: string, content: EmailContent): Promise<RenderedEmail> {
+  const appearance = await getAppearance();
+  return renderEmail(
+    subject,
+    content,
+    emailLook(appearance.surfaceStyle, themePalette(appearance.colorTheme)),
+  );
+}
 
 async function translatorFor(locale: string | null | undefined) {
   const resolved: Locale = locale && isLocale(locale) ? locale : defaultLocale;
@@ -24,7 +38,7 @@ async function translatorFor(locale: string | null | undefined) {
 /** Confirms SMTP works; sent from Administration › Email. */
 export async function testEmail(locale: string | null | undefined): Promise<RenderedEmail> {
   const t = await translatorFor(locale);
-  return renderEmail(t('test.subject'), {
+  return renderThemed(t('test.subject'), {
     title: t('test.title'),
     preheader: t('test.preheader'),
     paragraphs: [t('test.body')],
@@ -37,7 +51,7 @@ export async function invitationEmail(
   values: { name: string; link: string },
 ): Promise<RenderedEmail> {
   const t = await translatorFor(locale);
-  return renderEmail(t('invitation.subject'), {
+  return renderThemed(t('invitation.subject'), {
     title: t('invitation.title', { name: values.name }),
     preheader: t('invitation.preheader'),
     paragraphs: [t('invitation.body'), t('invitation.expiry')],
@@ -51,7 +65,7 @@ export async function passwordResetEmail(
   values: { name: string; link: string },
 ): Promise<RenderedEmail> {
   const t = await translatorFor(locale);
-  return renderEmail(t('reset.subject'), {
+  return renderThemed(t('reset.subject'), {
     title: t('reset.title', { name: values.name }),
     preheader: t('reset.preheader'),
     paragraphs: [t('reset.body'), t('reset.expiry'), t('reset.ignore')],
@@ -74,7 +88,7 @@ export async function securityNoticeEmail(
   values: { name: string; device: string; ipAddress: string },
 ): Promise<RenderedEmail> {
   const t = await translatorFor(locale);
-  return renderEmail(t(`security.${kind}.subject`), {
+  return renderThemed(t(`security.${kind}.subject`), {
     title: t(`security.${kind}.title`, { name: values.name }),
     preheader: t(`security.${kind}.subject`),
     paragraphs: [
@@ -92,7 +106,7 @@ export async function dropOffCodeEmail(
   values: { code: string; name: string },
 ): Promise<RenderedEmail> {
   const t = await translatorFor(locale);
-  return renderEmail(t('dropOffCode.subject', { code: values.code }), {
+  return renderThemed(t('dropOffCode.subject', { code: values.code }), {
     title: t('dropOffCode.title', { code: values.code }),
     preheader: t('dropOffCode.preheader'),
     paragraphs: [
@@ -132,7 +146,7 @@ export async function dropOffReceivedEmail(
     values.files.join(', '),
     ...(more > 0 ? [t('dropOffReceived.more', { count: more })] : []),
   ].join(' ');
-  return renderEmail(title, {
+  return renderThemed(title, {
     title,
     preheader: t('dropOffReceived.preheader'),
     paragraphs: [from, t('dropOffReceived.files', { names })],

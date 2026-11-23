@@ -1,4 +1,4 @@
-import { escapeHtml, renderEmail } from './layout';
+import { defaultEmailLook, escapeHtml, renderEmail } from './layout';
 
 describe('escapeHtml', () => {
   it('neutralizes markup', () => {
@@ -47,5 +47,10 @@ describe('renderEmail', () => {
     const { html, text } = renderEmail('S', { ...content, action: undefined });
     expect(html).not.toContain('<a href');
     expect(text).not.toContain('Open:');
+  });
+
+  it('uses the default look (Canopy green, solid panes) when none is given', () => {
+    expect(renderEmail('S', content).html).toBe(renderEmail('S', content, defaultEmailLook).html);
+    expect(defaultEmailLook.cardRadius).toBe(12);
   });
 });

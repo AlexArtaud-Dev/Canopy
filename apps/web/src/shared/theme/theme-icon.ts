@@ -1,23 +1,11 @@
 import type { ColorTheme } from './color-themes';
-
-/** Each theme's accent hue (the same as its token file); Graphite has none. */
-const hues: Record<Exclude<ColorTheme, 'graphite'>, number> = {
-  canopy: 162,
-  ocean: 245,
-  violet: 295,
-  amber: 65,
-  rose: 5,
-  teal: 190,
-  indigo: 265,
-  sunset: 40,
-  aurora: 180,
-};
+import { oklchCss } from './oklch';
+import { themePalette } from './theme-palette';
 
 /** The mark's colours: the theme's dark-mode accent for the tile, its text colour for the tree. */
 export function markColors(theme: ColorTheme): { tile: string; tree: string } {
-  if (theme === 'graphite') return { tile: 'oklch(0.9 0.01 260)', tree: 'oklch(0.2 0.01 260)' };
-  const hue = hues[theme];
-  return { tile: `oklch(0.76 0.11 ${String(hue)})`, tree: `oklch(0.22 0.04 ${String(hue)})` };
+  const palette = themePalette(theme);
+  return { tile: oklchCss(palette.primaryDark), tree: oklchCss(palette.onPrimaryDark) };
 }
 
 /** The tab icon: Canopy's tree on a rounded tile, in the theme's colours. */
