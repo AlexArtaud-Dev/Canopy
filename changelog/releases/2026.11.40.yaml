@@ -1,0 +1,9 @@
+date: 2026-11-23
+entries:
+  - type: feat
+    scope: mail
+    issue: 293
+    text:
+      en: 'E-mails, the test one included, now wear your colour theme and surface: a gradient backdrop for Glass, neon on a dark background for Cyberpunk, a tinted title tile for Bento, and matching looks for Flat, Minimal and Solid.'
+      fr: 'Les e-mails, test compris, prennent désormais votre thème de couleur et votre surface : fond en dégradé pour Verre, néon sur fond sombre pour Cyberpunk, titre dans une tuile teintée pour Bento, et un style assorti pour Plat, Minimaliste et Opaque.'
+      es: 'Los correos, incluido el de prueba, llevan ahora su tema de color y su superficie: fondo degradado para Cristal, neón sobre fondo oscuro para Cyberpunk, título en un mosaico teñido para Bento y un estilo a juego para Plano, Minimalista y Opaco.'
