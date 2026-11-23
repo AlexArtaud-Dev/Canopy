@@ -13,7 +13,12 @@
   text. The page lists the last 50 messages.
 - **Templates** (`features/mail/templates`): one branded layout (inline styles, tables) with a
   plain-text alternative; every value HTML-escaped; texts from `messages/<locale>/emails.json`,
-  rendered in the recipient's locale.
+  rendered in the recipient's locale. Every e-mail (the test one too) wears the instance's
+  colour theme and surface: `email-look.ts` turns them into hex colours and inline styles
+  (`shared/theme/theme-palette.ts`, `oklch.ts`): Glass (gradient backdrop, pill button),
+  Cyberpunk (dark, neon top bar and glowing button, monospace titles), Bento (title in a tinted
+  tile), Flat, Minimal (outline button) and Solid. Gradients and shadows degrade to flat colours
+  in clients that drop them.
 
 ## Flows
 
