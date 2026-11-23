@@ -1,0 +1,9 @@
+date: 2026-11-23
+entries:
+  - type: feat
+    scope: web
+    issue: 279
+    text:
+      en: 'Four more looks in Settings › Appearance › Surfaces: Cyberpunk (neon edges on a dark grid), Bento (tinted tiles), Flat (solid blocks, no shadows) and Minimal (hairlines only), each in every colour theme, light and dark.'
+      fr: 'Quatre nouveaux styles dans Réglages › Apparence › Surfaces : Cyberpunk (bords néon sur une grille sombre), Bento (tuiles teintées), Plat (aplats, sans ombre) et Minimaliste (simples filets), chacun dans tous les thèmes de couleur, en clair comme en sombre.'
+      es: 'Cuatro estilos más en Ajustes › Apariencia › Superficies: Cyberpunk (bordes de neón sobre una cuadrícula oscura), Bento (mosaicos teñidos), Plano (bloques sólidos, sin sombras) y Minimalista (solo líneas finas), cada uno en todos los temas de color, claro y oscuro.'
