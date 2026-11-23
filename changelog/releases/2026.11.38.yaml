@@ -1,0 +1,9 @@
+date: 2026-11-23
+entries:
+  - type: chore
+    scope: deps
+    issue: 287
+    text:
+      en: 'Dependency updates: Better Auth, TanStack Query, next-intl, Recharts, Lucide icons, Nodemailer and the engine’s database migrations tool.'
+      fr: 'Mises à jour des dépendances : Better Auth, TanStack Query, next-intl, Recharts, icônes Lucide, Nodemailer et l’outil de migrations de base de données du moteur.'
+      es: 'Actualizaciones de dependencias: Better Auth, TanStack Query, next-intl, Recharts, iconos Lucide, Nodemailer y la herramienta de migraciones de base de datos del motor.'
