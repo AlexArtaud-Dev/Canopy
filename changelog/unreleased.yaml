@@ -1,8 +1,1 @@
-entries:
-  - type: feat
-    scope: web
-    issue: 290
-    text:
-      en: 'On phones, swipe from the left edge to open the menu, and swipe left to close it.'
-      fr: 'Sur téléphone, glissez depuis le bord gauche pour ouvrir le menu, et vers la gauche pour le fermer.'
-      es: 'En el teléfono, deslice desde el borde izquierdo para abrir el menú y hacia la izquierda para cerrarlo.'
+entries: []
