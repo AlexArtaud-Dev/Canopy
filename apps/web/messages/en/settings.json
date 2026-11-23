@@ -116,7 +116,7 @@
       },
       "surfaceStyle": {
         "label": "Surfaces",
-        "description": "Glass draws cards, menus and the sidebar as frosted, translucent panes over a soft backdrop in the theme’s colours; Solid keeps them opaque. Devices set to reduce transparency always get solid panes."
+        "description": "How panes look: Glass (frosted, translucent), Solid, Cyberpunk (neon edges on a dark grid), Bento (tinted tiles), Flat (no shadows, solid blocks) or Minimal (hairlines only). Devices set to reduce transparency always get solid panes."
       },
       "defaultMode": {
         "label": "Default mode",
@@ -222,7 +222,11 @@
       },
       "surfaceStyle": {
         "glass": "Glass",
-        "solid": "Solid"
+        "solid": "Solid",
+        "cyberpunk": "Cyberpunk",
+        "bento": "Bento",
+        "flat": "Flat",
+        "minimal": "Minimal"
       },
       "defaultMode": {
         "system": "System",

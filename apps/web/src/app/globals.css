@@ -11,6 +11,10 @@
 @import '../shared/theme/themes/aurora.css';
 @import '../shared/theme/themes/graphite.css';
 @import '../shared/theme/surfaces/glass.css';
+@import '../shared/theme/surfaces/cyberpunk.css';
+@import '../shared/theme/surfaces/bento.css';
+@import '../shared/theme/surfaces/flat.css';
+@import '../shared/theme/surfaces/minimal.css';
 
 @custom-variant dark (&:is(.dark *));
 

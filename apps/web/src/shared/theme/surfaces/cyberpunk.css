@@ -1,0 +1,102 @@
+/*
+ * Cyberpunk surfaces (`<html data-surface="cyberpunk">`): a night-city interface. Deep background
+ * with a faint grid, sharp corners, panes outlined in a neon version of the theme's accent with a
+ * soft glow, monospace titles and faint scan lines. The neon comes from `--primary` (relative
+ * colour), so every colour theme gets its own neon; text colours are unchanged (AA contrast).
+ */
+:root[data-surface='cyberpunk'] {
+  --radius: 0.25rem;
+  --neon: oklch(from var(--primary) 0.62 0.2 h);
+  --neon-soft: color-mix(in oklch, var(--neon) 35%, transparent);
+  --cyber-grid: color-mix(in oklch, var(--neon) 9%, transparent);
+
+  --background: oklch(0.975 0.008 280);
+  --card: oklch(1 0 0);
+  --popover: oklch(1 0 0);
+  --sidebar: oklch(0.96 0.012 280);
+  --border: color-mix(in oklch, var(--neon) 28%, transparent);
+  --input: color-mix(in oklch, var(--neon) 34%, transparent);
+  --sidebar-border: color-mix(in oklch, var(--neon) 28%, transparent);
+}
+
+:root[data-surface='cyberpunk'].dark {
+  --neon: oklch(from var(--primary) 0.8 0.19 h);
+  --neon-soft: color-mix(in oklch, var(--neon) 40%, transparent);
+  --cyber-grid: color-mix(in oklch, var(--neon) 7%, transparent);
+
+  --background: oklch(0.13 0.03 280);
+  --card: oklch(0.17 0.035 280 / 94%);
+  --popover: oklch(0.18 0.04 280);
+  --sidebar: oklch(0.15 0.035 280);
+  --secondary: oklch(0.23 0.04 280);
+  --muted: oklch(0.22 0.035 280);
+  --accent: oklch(0.25 0.045 280);
+  --sidebar-accent: oklch(0.25 0.045 280);
+  --muted-foreground: oklch(0.74 0.03 280);
+}
+
+/* The city grid behind everything, fading towards the bottom. */
+:root[data-surface='cyberpunk'] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(70rem 40rem at 50% -10%, var(--neon-soft), transparent 70%),
+    linear-gradient(var(--cyber-grid) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, var(--cyber-grid) 1px, transparent 1px) 0 0 / 32px 32px,
+    var(--background);
+  mask-image: linear-gradient(to bottom, black 55%, transparent);
+}
+
+/* Faint scan lines over the screen; gone for people who ask for less motion or transparency. */
+:root[data-surface='cyberpunk'].dark body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, oklch(0 0 0 / 7%) 2px 3px);
+}
+
+:root[data-surface='cyberpunk'] [data-slot='sidebar-inset'] {
+  background-color: transparent;
+}
+
+/* Neon edges and glow, through Tailwind's shadow variables so a pane's own ring still wins. */
+@layer components {
+  :root[data-surface='cyberpunk'] :is([data-slot='card'], .bg-popover) {
+    --tw-ring-color: var(--neon-soft);
+    --tw-shadow: 0 0 22px -8px var(--neon-soft);
+  }
+}
+
+:root[data-surface='cyberpunk'] [data-slot='card'] {
+  border-top: 2px solid var(--neon);
+}
+
+:root[data-surface='cyberpunk'] :is([data-slot='card-title'], [data-slot='page-header'] h1) {
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+:root[data-surface='cyberpunk'] [data-slot='button'][data-variant='default'] {
+  box-shadow: 0 0 18px -4px var(--neon);
+}
+
+:root[data-surface='cyberpunk'] [data-slot='page-header'] {
+  background-color: color-mix(in oklch, var(--background) 82%, transparent);
+  border-color: var(--neon-soft);
+}
+
+:root[data-surface='cyberpunk'] [data-slot='sidebar-menu-button'][data-active='true'] {
+  box-shadow: inset 2px 0 0 0 var(--neon);
+}
+
+@media (prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce) {
+  :root[data-surface='cyberpunk'] body::after {
+    display: none;
+  }
+}

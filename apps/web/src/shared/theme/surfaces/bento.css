@@ -1,0 +1,65 @@
+/*
+ * Bento surfaces (`<html data-surface="bento">`): the page as a box of tiles. Borderless panes
+ * with large radii on a slightly darker tray, each tile lightly tinted with one of the theme's
+ * chart colours in turn, roomier padding and bolder tile titles. Tints stay under 8 % so text
+ * keeps its AA contrast.
+ */
+:root[data-surface='bento'] {
+  --radius: 1.25rem;
+  --bento-tint: 7%;
+  --background: oklch(0.955 0.004 260);
+  --card: oklch(1 0 0);
+  --popover: oklch(1 0 0);
+  --sidebar: oklch(0.955 0.004 260);
+  --border: oklch(0.2 0 0 / 7%);
+  --sidebar-border: transparent;
+}
+
+:root[data-surface='bento'].dark {
+  --bento-tint: 9%;
+  --background: oklch(0.12 0.005 260);
+  --card: oklch(0.2 0.008 260);
+  --popover: oklch(0.21 0.008 260);
+  --sidebar: oklch(0.12 0.005 260);
+  --border: oklch(1 0 0 / 8%);
+  --sidebar-border: transparent;
+}
+
+/* Panes highlighted on purpose (ring-2: the panel being arranged) keep their ring. */
+:root[data-surface='bento'] [data-slot='card']:not([class*='ring-2']) {
+  --card-spacing: calc(var(--spacing) * 5);
+  box-shadow: none;
+}
+
+/* Tiles take turns with the theme's colours. */
+:root[data-surface='bento'] [data-slot='card']:nth-child(4n + 1) {
+  background-color: color-mix(in oklch, var(--chart-1) var(--bento-tint), var(--card));
+}
+:root[data-surface='bento'] [data-slot='card']:nth-child(4n + 2) {
+  background-color: color-mix(in oklch, var(--chart-2) var(--bento-tint), var(--card));
+}
+:root[data-surface='bento'] [data-slot='card']:nth-child(4n + 3) {
+  background-color: color-mix(in oklch, var(--chart-4) var(--bento-tint), var(--card));
+}
+:root[data-surface='bento'] [data-slot='card']:nth-child(4n + 4) {
+  background-color: color-mix(in oklch, var(--chart-3) var(--bento-tint), var(--card));
+}
+
+:root[data-surface='bento'] [data-slot='card-title'] {
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+:root[data-surface='bento'] [data-slot='page-header'] {
+  background-color: var(--background);
+  border-color: transparent;
+}
+
+:root[data-surface='bento'] [data-slot='sidebar-menu-button'] {
+  border-radius: calc(var(--radius) * 0.6);
+}
+
+:root[data-surface='bento'] .bg-popover {
+  box-shadow: 0 16px 40px -12px oklch(0.2 0.02 260 / 22%);
+}

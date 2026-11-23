@@ -41,7 +41,10 @@ Dependency direction is one-way: `ui ← container ← model ← server/contract
   `glass` (default): translucent `--card`/`--popover`/`--sidebar`, backdrop blur on `.bg-card`,
   `.bg-popover`, `.bg-sidebar` and the page header, a wallpaper from `--primary`, `--chart-2` and
   `--chart-4`; solid panes under `prefers-reduced-transparency` or without backdrop blur.
-  `solid`: the plain tokens. `theme-files.test.ts` checks every theme and surface has its file.
+  `solid`: the plain tokens. `cyberpunk` (neon from `--primary` via relative colour, grid, scan
+  lines off with reduced motion or transparency), `bento` (tinted borderless tiles), `flat` (no
+  shadows or blur) and `minimal` (hairlines). Cards with `ring-2` (arranging) keep their ring.
+  `theme-files.test.ts` checks every theme and surface has its file.
 - Structural differences (e.g. logo swap) only via `useTheme()`, never conditional colors.
 
 ## Layout & devices

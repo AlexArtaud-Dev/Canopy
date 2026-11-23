@@ -116,7 +116,7 @@
       },
       "surfaceStyle": {
         "label": "Surfaces",
-        "description": "Verre affiche cartes, menus et barre latérale comme des panneaux givrés et translucides sur un fond doux aux couleurs du thème ; Opaque les garde pleins. Les appareils réglés pour réduire la transparence ont toujours des panneaux opaques."
+        "description": "L’aspect des panneaux : Verre (givré, translucide), Opaque, Cyberpunk (bords néon sur une grille sombre), Bento (tuiles teintées), Plat (sans ombre, aplats) ou Minimaliste (simples filets). Les appareils réglés pour réduire la transparence ont toujours des panneaux opaques."
       },
       "defaultMode": {
         "label": "Mode par défaut",
@@ -222,7 +222,11 @@
       },
       "surfaceStyle": {
         "glass": "Verre",
-        "solid": "Opaque"
+        "solid": "Opaque",
+        "cyberpunk": "Cyberpunk",
+        "bento": "Bento",
+        "flat": "Plat",
+        "minimal": "Minimaliste"
       },
       "defaultMode": {
         "system": "Système",
