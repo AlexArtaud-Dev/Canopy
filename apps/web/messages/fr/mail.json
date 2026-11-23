@@ -41,8 +41,8 @@
     "error": "Saisissez une adresse e-mail valide."
   },
   "outbox": {
-    "title": "E-mails récents",
-    "description": "Les 50 derniers messages et leur statut d’envoi. Les échecs sont relancés pendant quelques heures.",
+    "title": "E-mails envoyés",
+    "description": "Tous les e-mails que Canopy a envoyés ou tenté d’envoyer, conservés {days, plural, one {# jour} other {# jours}} (Réglages › Système). Les échecs sont réessayés pendant quelques heures.",
     "empty": "Aucun e-mail envoyé pour l’instant.",
     "columns": {
       "recipient": "Destinataire",
@@ -55,6 +55,33 @@
       "sent": "Envoyé",
       "failed": "Échec"
     },
-    "attempts": "{count, plural, one {# tentative} other {# tentatives}}"
+    "attempts": "{count, plural, one {# tentative} other {# tentatives}}",
+    "noMatch": "Aucun e-mail ne correspond.",
+    "search": "Rechercher par destinataire ou objet",
+    "allStatuses": "Tous les statuts",
+    "open": "Ouvrir « {subject} »",
+    "pagination": "Page {page} sur {pages} · {total, plural, one {# e-mail} other {# e-mails}}",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "kinds": {
+      "invitation": "Invitation",
+      "password_reset": "Réinitialisation du mot de passe",
+      "security": "Alerte de sécurité",
+      "drop_off": "Dépôt reçu",
+      "drop_off_code": "Code de dépôt",
+      "test": "Test",
+      "other": "Autre"
+    },
+    "viewer": {
+      "title": "E-mail",
+      "loading": "Chargement…",
+      "meta": "À {recipient} · {date}",
+      "html": "Aperçu",
+      "text": "Texte brut",
+      "resend": "Renvoyer",
+      "resendTitle": "Renvoyer cet e-mail ?",
+      "resendDescription": "Le même message part vers {recipient} comme un nouvel e-mail. Les liens qu’il contient (invitations, réinitialisations) peuvent avoir expiré.",
+      "resent": "E-mail renvoyé"
+    }
   }
 }

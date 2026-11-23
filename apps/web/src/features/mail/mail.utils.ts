@@ -77,3 +77,56 @@ export const smtpFormSchema = z.object({
 export type SmtpForm = z.infer<typeof smtpFormSchema>;
 
 export const testMailSchema = z.object({ to: z.email() });
+
+export const outboxStatuses = ['queued', 'sent', 'failed'] as const;
+export type OutboxStatus = (typeof outboxStatuses)[number];
+
+export const outboxPageSize = 25;
+
+/** `?q=&status=&page=` of the sent e-mails list, tolerant of junk in the URL. */
+export const outboxQuerySchema = z.object({
+  q: z.string().trim().max(200).catch(''),
+  status: z.enum(outboxStatuses).nullable().catch(null),
+  page: z.coerce.number().int().min(1).max(10_000).catch(1),
+});
+export type OutboxQuery = z.infer<typeof outboxQuerySchema>;
+
+export const outboxIdSchema = z.object({ id: z.uuid() });
+
+/** What kind of e-mail, as people name it (stored kinds are technical: `security.password_changed`…). */
+export const outboxKinds = [
+  'invitation',
+  'password_reset',
+  'security',
+  'drop_off',
+  'drop_off_code',
+  'test',
+  'other',
+] as const;
+export type OutboxKind = (typeof outboxKinds)[number];
+
+export function outboxKind(kind: string): OutboxKind {
+  if (kind.startsWith('security.')) return 'security';
+  switch (kind) {
+    case 'invitation':
+    case 'password_reset':
+    case 'test':
+      return kind;
+    case 'shares.drop_off':
+      return 'drop_off';
+    case 'shares.drop_off_code':
+      return 'drop_off_code';
+    default:
+      return 'other';
+  }
+}
+
+/** The URL of a list page, keeping only what differs from the defaults. */
+export function outboxHref(pathname: string, query: OutboxQuery): string {
+  const params = new URLSearchParams();
+  if (query.q) params.set('q', query.q);
+  if (query.status) params.set('status', query.status);
+  if (query.page > 1) params.set('page', String(query.page));
+  const search = params.toString();
+  return search ? `${pathname}?${search}` : pathname;
+}

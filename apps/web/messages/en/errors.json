@@ -88,7 +88,8 @@
     "connection_failed": "Canopy could not reach the SMTP server. Check the host, port and encryption.",
     "invalid_recipient": "The SMTP server refused the recipient address.",
     "tls_failed": "The secure connection to the SMTP server failed. Try another encryption mode.",
-    "send_failed": "The email could not be sent."
+    "send_failed": "The email could not be sent.",
+    "not_found": "This email is no longer kept."
   },
   "jobs": {
     "not_found": "This job no longer exists.",

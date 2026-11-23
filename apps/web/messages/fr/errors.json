@@ -88,7 +88,8 @@
     "connection_failed": "Canopy n’a pas pu joindre le serveur SMTP. Vérifiez l’hôte, le port et le chiffrement.",
     "invalid_recipient": "Le serveur SMTP a refusé l’adresse du destinataire.",
     "tls_failed": "La connexion sécurisée au serveur SMTP a échoué. Essayez un autre mode de chiffrement.",
-    "send_failed": "L’e-mail n’a pas pu être envoyé."
+    "send_failed": "L’e-mail n’a pas pu être envoyé.",
+    "not_found": "Cet e-mail n’est plus conservé."
   },
   "jobs": {
     "not_found": "Cette tâche n’existe plus.",

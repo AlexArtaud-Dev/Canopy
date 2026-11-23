@@ -1,2 +1,2 @@
 export { MailContainer } from './mail.container';
-export { getMailAdminView, listRecentMail } from './server/mail-store';
+export { getMailAdminView, listOutbox } from './server/mail-store';

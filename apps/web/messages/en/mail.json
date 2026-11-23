@@ -41,8 +41,8 @@
     "error": "Enter a valid email address."
   },
   "outbox": {
-    "title": "Recent emails",
-    "description": "The last 50 messages and their delivery status. Failed messages are retried for a few hours.",
+    "title": "Sent emails",
+    "description": "Every email Canopy sent or tried to send, kept {days, plural, one {# day} other {# days}} (Settings › System). Failed messages are retried for a few hours.",
     "empty": "No email sent yet.",
     "columns": {
       "recipient": "Recipient",
@@ -55,6 +55,33 @@
       "sent": "Sent",
       "failed": "Failed"
     },
-    "attempts": "{count, plural, one {# attempt} other {# attempts}}"
+    "attempts": "{count, plural, one {# attempt} other {# attempts}}",
+    "noMatch": "No email matches.",
+    "search": "Search by recipient or subject",
+    "allStatuses": "All statuses",
+    "open": "Open “{subject}”",
+    "pagination": "Page {page} of {pages} · {total, plural, one {# email} other {# emails}}",
+    "previous": "Previous",
+    "next": "Next",
+    "kinds": {
+      "invitation": "Invitation",
+      "password_reset": "Password reset",
+      "security": "Security notice",
+      "drop_off": "Drop-off received",
+      "drop_off_code": "Drop-off code",
+      "test": "Test",
+      "other": "Other"
+    },
+    "viewer": {
+      "title": "Email",
+      "loading": "Loading…",
+      "meta": "To {recipient} · {date}",
+      "html": "Preview",
+      "text": "Plain text",
+      "resend": "Send again",
+      "resendTitle": "Send this email again?",
+      "resendDescription": "The same message goes to {recipient} as a new email. Links inside (invitations, password resets) may have expired.",
+      "resent": "Email sent again"
+    }
   }
 }

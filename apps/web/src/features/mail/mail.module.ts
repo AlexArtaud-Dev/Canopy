@@ -18,5 +18,5 @@ export const mailModule = defineModule({
       permission: 'mail:read',
     },
   ],
-  auditActions: ['mail.test_send'],
+  auditActions: ['mail.test_send', 'mail.view', 'mail.resend'],
 });
