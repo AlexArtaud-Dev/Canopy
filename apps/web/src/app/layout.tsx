@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import { getAppearance } from '@/features/appearance';
 import { InstallSupport } from '@/features/pwa';
 import { cn } from '@/shared/lib/utils';
+import { themeIconPath } from '@/shared/theme/theme-icon';
 import { ThemeProvider } from '@/shared/theme/theme-provider';
 import { Toaster } from '@/shared/ui/sonner';
 import { TooltipProvider } from '@/shared/ui/tooltip';
@@ -16,8 +17,10 @@ import { TooltipProvider } from '@/shared/ui/tooltip';
 import './globals.css';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('common');
+  const [t, appearance] = await Promise.all([getTranslations('common'), getAppearance()]);
   return {
+    // The tab icon takes the instance's colour theme.
+    icons: { icon: [{ url: themeIconPath(appearance.colorTheme), type: 'image/svg+xml' }] },
     title: { default: 'Canopy', template: 'Canopy · %s' },
     description: t('meta.description'),
     applicationName: 'Canopy',

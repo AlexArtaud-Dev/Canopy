@@ -1,5 +1,6 @@
 /**
- * Canopy's mark drawn for an image response (home screen icons): the tree of `app/icon.svg`. An
+ * Canopy's mark drawn for an image response (home screen icons): the tree of the tab icon
+ * (`shared/theme/theme-icon.ts`) in the default theme's colours. An
  * icon is an image, not a page, so it cannot read the theme tokens; these are the mark's colours.
  */
 const leaf = '#6ac79c';

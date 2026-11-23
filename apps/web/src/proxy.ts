@@ -78,7 +78,7 @@ export const config = {
        * are public: browsers fetch them without the session.
        */
       source:
-        '/((?!engine|api/engine|api/health|_next/static|_next/image|favicon.ico|icon.svg|apple-icon|app-icons|manifest.webmanifest|sw.js).*)',
+        '/((?!engine|api/engine|api/health|_next/static|_next/image|favicon.ico|theme-icon|apple-icon|app-icons|manifest.webmanifest|sw.js).*)',
       missing: [{ type: 'header', key: 'next-router-prefetch' }],
     },
   ],
