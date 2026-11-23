@@ -116,7 +116,7 @@
       },
       "surfaceStyle": {
         "label": "Superficies",
-        "description": "Cristal muestra tarjetas, menús y la barra lateral como paneles esmerilados y translúcidos sobre un fondo suave con los colores del tema; Opaco los mantiene sólidos. Los dispositivos configurados para reducir la transparencia siempre tienen paneles opacos."
+        "description": "El aspecto de los paneles: Cristal (esmerilado, translúcido), Opaco, Cyberpunk (bordes de neón sobre una cuadrícula oscura), Bento (mosaicos teñidos), Plano (sin sombras, bloques sólidos) o Minimalista (solo líneas finas). Los dispositivos configurados para reducir la transparencia siempre tienen paneles opacos."
       },
       "defaultMode": {
         "label": "Modo por defecto",
@@ -222,7 +222,11 @@
       },
       "surfaceStyle": {
         "glass": "Cristal",
-        "solid": "Opaco"
+        "solid": "Opaco",
+        "cyberpunk": "Cyberpunk",
+        "bento": "Bento",
+        "flat": "Plano",
+        "minimal": "Minimalista"
       },
       "defaultMode": {
         "system": "Sistema",

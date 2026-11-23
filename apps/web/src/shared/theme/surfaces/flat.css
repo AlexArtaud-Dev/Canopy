@@ -1,0 +1,52 @@
+/*
+ * Flat surfaces (`<html data-surface="flat">`): flat design. No shadows, no blur, no gradients:
+ * solid colour blocks set apart by fill rather than depth, crisp edges, small radii and bold
+ * primary buttons. Focus rings are left alone (they are how keyboard users see where they are).
+ */
+:root[data-surface='flat'] {
+  --radius: 0.3rem;
+  --background: oklch(1 0 0);
+  --card: oklch(0.965 0.003 260);
+  --popover: oklch(1 0 0);
+  --sidebar: oklch(0.94 0.004 260);
+  --border: oklch(0.2 0 0 / 12%);
+  --sidebar-border: transparent;
+}
+
+:root[data-surface='flat'].dark {
+  --background: oklch(0.16 0 0);
+  --card: oklch(0.21 0.003 260);
+  --popover: oklch(0.23 0.003 260);
+  --sidebar: oklch(0.12 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --sidebar-border: transparent;
+}
+
+/* Panes highlighted on purpose (ring-2: the panel being arranged) keep their ring. */
+:root[data-surface='flat'] [data-slot='card']:not([class*='ring-2']) {
+  box-shadow: none;
+}
+
+/* Menus and dialogs keep a hard edge instead of a shadow, so they still stand apart. */
+:root[data-surface='flat'] .bg-popover {
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+:root[data-surface='flat'] [data-slot='button']:not(:focus-visible) {
+  box-shadow: none;
+}
+
+:root[data-surface='flat'] [data-slot='button'][data-variant='default'] {
+  font-weight: 600;
+}
+
+:root[data-surface='flat'] [data-slot='page-header'] {
+  background-color: var(--background);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+:root[data-surface='flat'] [data-slot='sidebar-menu-button'][data-active='true'] {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
