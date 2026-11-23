@@ -41,8 +41,8 @@
     "error": "Introduce un correo válido."
   },
   "outbox": {
-    "title": "Correos recientes",
-    "description": "Los últimos 50 mensajes y su estado de envío. Los fallidos se reintentan durante unas horas.",
+    "title": "Correos enviados",
+    "description": "Todos los correos que Canopy envió o intentó enviar, conservados {days, plural, one {# día} other {# días}} (Ajustes › Sistema). Los fallidos se reintentan durante unas horas.",
     "empty": "Todavía no se ha enviado ningún correo.",
     "columns": {
       "recipient": "Destinatario",
@@ -55,6 +55,33 @@
       "sent": "Enviado",
       "failed": "Fallido"
     },
-    "attempts": "{count, plural, one {# intento} other {# intentos}}"
+    "attempts": "{count, plural, one {# intento} other {# intentos}}",
+    "noMatch": "Ningún correo coincide.",
+    "search": "Buscar por destinatario o asunto",
+    "allStatuses": "Todos los estados",
+    "open": "Abrir «{subject}»",
+    "pagination": "Página {page} de {pages} · {total, plural, one {# correo} other {# correos}}",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "kinds": {
+      "invitation": "Invitación",
+      "password_reset": "Restablecer contraseña",
+      "security": "Aviso de seguridad",
+      "drop_off": "Depósito recibido",
+      "drop_off_code": "Código de depósito",
+      "test": "Prueba",
+      "other": "Otro"
+    },
+    "viewer": {
+      "title": "Correo",
+      "loading": "Cargando…",
+      "meta": "Para {recipient} · {date}",
+      "html": "Vista previa",
+      "text": "Texto plano",
+      "resend": "Reenviar",
+      "resendTitle": "¿Reenviar este correo?",
+      "resendDescription": "El mismo mensaje sale hacia {recipient} como un correo nuevo. Los enlaces que contiene (invitaciones, restablecimientos) pueden haber caducado.",
+      "resent": "Correo reenviado"
+    }
   }
 }

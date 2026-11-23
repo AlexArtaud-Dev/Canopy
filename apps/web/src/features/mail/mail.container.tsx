@@ -19,6 +19,7 @@ import { invalidFields } from '@/features/auth/auth.utils';
 
 import { smtpFormSchema, testMailSchema, type SmtpForm } from './mail.utils';
 import { saveSmtpSettings, sendTestEmail } from './server/mail-actions';
+import type { OutboxQuery } from './mail.utils';
 import type { OutboxItem } from './server/mail-store';
 import { OutboxCard } from './ui/outbox-card';
 import { SmtpCard, type SmtpValues } from './ui/smtp-card';
@@ -28,7 +29,9 @@ interface MailContainerProps {
   passwordSet: boolean;
   locked: readonly string[];
   configured: boolean;
-  outbox: readonly OutboxItem[];
+  outbox: { items: readonly OutboxItem[]; total: number; query: OutboxQuery };
+  /** How long e-mails are kept (Settings › System). */
+  retentionDays: number;
 }
 
 export function MailContainer({
@@ -37,12 +40,15 @@ export function MailContainer({
   locked,
   configured,
   outbox,
+  retentionDays,
 }: MailContainerProps) {
   const t = useTranslations('mail');
   const router = useRouter();
   const toFormError = useFormError();
   const errorMessage = useErrorMessage();
   const canEdit = useCan('mail:update');
+  // Stored e-mails can hold sign-in links: reading and resending them is for administrators.
+  const canOpen = useCan('system:admin');
   const [saving, startSaving] = useTransition();
   const [testing, startTesting] = useTransition();
   const [invalid, setInvalid] = useState<ReadonlySet<string>>(new Set());
@@ -127,10 +133,14 @@ export function MailContainer({
         </Card>
       )}
       <OutboxCard
-        rows={outbox.map((row) => ({
+        rows={outbox.items.map((row) => ({
           ...row,
           error: row.lastError ? errorMessage(row.lastError) : null,
         }))}
+        total={outbox.total}
+        query={outbox.query}
+        retentionDays={retentionDays}
+        canOpen={canOpen}
       />
     </div>
   );
