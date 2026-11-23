@@ -1,0 +1,9 @@
+date: 2026-11-23
+entries:
+  - type: feat
+    scope: mail
+    issue: 296
+    text:
+      en: Administration › Email lists every email kept (search by recipient or subject, filter by status, pages); administrators open one to read it as sent and send it again.
+      fr: Administration › E-mail liste tous les e-mails conservés (recherche par destinataire ou objet, filtre par statut, pages) ; les administrateurs en ouvrent un pour le lire tel qu’envoyé et le renvoyer.
+      es: Administración › Correo lista todos los correos conservados (búsqueda por destinatario o asunto, filtro por estado, páginas); los administradores abren uno para leerlo tal como se envió y reenviarlo.
