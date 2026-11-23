@@ -1,0 +1,9 @@
+date: 2026-11-23
+entries:
+  - type: feat
+    scope: web
+    issue: 281
+    text:
+      en: The browser tab icon now takes the colour theme.
+      fr: L’icône de l’onglet du navigateur prend désormais la couleur du thème.
+      es: El icono de la pestaña del navegador toma ahora el color del tema.
