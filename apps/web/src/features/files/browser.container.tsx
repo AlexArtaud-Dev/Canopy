@@ -795,7 +795,7 @@ export function FileBrowserContainer({ query, firstPage }: FileBrowserProps) {
 function NoResults() {
   const t = useTranslations('files.browser.search');
   return (
-    <Empty className="m-4 border border-dashed md:m-6">
+    <Empty className="m-4 w-auto border border-dashed md:m-6">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <SearchX aria-hidden />
@@ -810,7 +810,7 @@ function NoResults() {
 function EmptyFolder({ isRoot }: { isRoot: boolean }) {
   const t = useTranslations('files.browser');
   return (
-    <Empty className="m-4 border border-dashed md:m-6">
+    <Empty className="m-4 w-auto border border-dashed md:m-6">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           {isRoot ? <FolderTree aria-hidden /> : <FolderOpen aria-hidden />}

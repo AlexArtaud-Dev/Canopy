@@ -1,6 +1,8 @@
 import {
   actionPresets,
   breadcrumbs,
+  crumbsFold,
+  crumbVisible,
   browseInputSchema,
   cleanVirtualPath,
   grantInputSchema,
@@ -20,6 +22,27 @@ describe('cleanVirtualPath', () => {
 
   it.each(['relative', '', '/a\0b', `/${'a'.repeat(4096)}`])('rejects %j', (input) => {
     expect(cleanVirtualPath(input)).toBeNull();
+  });
+});
+
+describe('breadcrumb folding', () => {
+  const shown = (count: number, wide: boolean) =>
+    Array.from({ length: count }, (_, index) => index).filter((index) =>
+      crumbVisible(index, count, wide),
+    );
+
+  it('keeps the root and the open folder on a phone', () => {
+    expect(shown(2, false)).toEqual([0, 1]);
+    expect(shown(5, false)).toEqual([0, 4]);
+    expect(crumbsFold(2)).toEqual({ phone: false, wide: false });
+    expect(crumbsFold(3).phone).toBe(true);
+  });
+
+  it('keeps the parent too on a wider screen, and short paths whole', () => {
+    expect(shown(4, true)).toEqual([0, 1, 2, 3]);
+    expect(shown(6, true)).toEqual([0, 4, 5]);
+    expect(crumbsFold(4).wide).toBe(false);
+    expect(crumbsFold(5).wide).toBe(true);
   });
 });
 

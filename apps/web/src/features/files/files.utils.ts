@@ -34,6 +34,25 @@ export function cleanVirtualPath(input: string): string | null {
   return `/${parts.join('/')}`;
 }
 
+/** A wider screen shows the whole path up to this many segments (root included). */
+const wideCrumbLimit = 4;
+
+/**
+ * Which breadcrumb segments stay in view (the others fold into a "…" menu): the root and the
+ * open folder always; on a phone nothing between; on a wider screen the parent too, and every
+ * segment while the path is no deeper than three folders.
+ */
+export function crumbVisible(index: number, count: number, wide: boolean): boolean {
+  if (index === 0 || index === count - 1) return true;
+  if (!wide) return false;
+  return count <= wideCrumbLimit || index === count - 2;
+}
+
+/** Whether some folders fold into the "…" menu (phone, wider screen). */
+export function crumbsFold(count: number): { phone: boolean; wide: boolean } {
+  return { phone: count > 2, wide: count > wideCrumbLimit };
+}
+
 /** Breadcrumb segments of a clean path: "/a/b" → [{"/", "/"}, {"a", "/a"}, {"b", "/a/b"}]. */
 export function breadcrumbs(clean: string): { name: string; path: string }[] {
   const crumbs = [{ name: '/', path: '/' }];
