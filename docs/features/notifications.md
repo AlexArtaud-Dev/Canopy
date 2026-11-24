@@ -7,9 +7,12 @@ when the tab comes back.
 
 ## Sources
 
-| Kind              | When                                  | Leads to                           |
-| ----------------- | ------------------------------------- | ---------------------------------- |
-| `dropOffReceived` | Files arrive through your upload link | Shares, with that link's drop-offs |
+| Kind              | When                                   | Leads to                           |
+| ----------------- | -------------------------------------- | ---------------------------------- |
+| `dropOffReceived` | Files arrive through your upload link  | Shares, with that link's drop-offs |
+| `diskFailing`     | A disk says it is failing              | Disk health                        |
+| `diskWarning`     | A disk shows new damage or wear        | Disk health                        |
+| `diskHot`         | A disk gets past its temperature limit | Disk health                        |
 
 One notification per event source (`source_key`): a drop-off of 20 files is one line whose count
 grows, unread again each time it changes.

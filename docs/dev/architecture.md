@@ -66,7 +66,8 @@ The engine DB role has read-only access to `app` (grants, settings) and INSERT-o
 
 - `docker/`: `web.Dockerfile`, `engine.Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `.env.example`.
 - Services: `postgres`, `engine`, `web`. Networks: `internal` (all three, not published) and only
-  `web` publishes a port. Images: multi-stage, non-root, base images pinned by digest.
+  `web` publishes a port. Optional: `disks` (the engine image's `disks` target, smartctl for
+  [disk health](../features/disk-health.md); the only service that sees devices). Images: multi-stage, non-root, base images pinned by digest.
 - **Volumes**: every host volume is bind-mounted INSIDE the root — no host symlinks needed:
   ```yaml
   engine:
@@ -96,6 +97,9 @@ The engine DB role has read-only access to `app` (grants, settings) and INSERT-o
 | `CANOPY_LOCAL_NETWORKS`          | CIDR list considered "local" (maintenance mode)  |
 | `CANOPY_MAINTENANCE`             | `true` forces maintenance mode                   |
 | `PUID` / `PGID` / `UMASK`        | File ownership for the engine                    |
+| `CANOPY_DISKS_URL`               | Optional disks service, from the engine          |
+| `CANOPY_DISKS_TOKEN`             | Shared by the engine and the disks service       |
+| `CANOPY_DISKS_ADDR`              | Disks service listen address (default `:8091`)   |
 
 Env values win over DB settings and show as read-only in the admin UI.
 

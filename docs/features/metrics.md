@@ -15,10 +15,15 @@ The values dashboards read. The engine samples them every 30 seconds and keeps t
 | `operations.running`       | operations | count       |             |
 | `operations.queued`        | operations | count       |             |
 | `operations.failed`        | operations | count (1 h) |             |
+| `disks.temperature`        | disks      | °C          | each disk   |
+| `disks.wear`               | disks      | percent     | each disk   |
+| `disks.reallocated`        | disks      | count       | each disk   |
+| `disks.pending`            | disks      | count       | each disk   |
 
 - **System** values come from `/proc` (Linux, so the Docker image); elsewhere they are left out.
   CPU and network are rates between two samplings. Volumes are the root's top-level folders,
-  measured on their filesystem.
+  measured on their filesystem. **Disks** come from the latest disk health reading (see
+  [disk health](disk-health.md)); only when it is set up.
 - **Storage** (`engine.metric_samples`, `engine.metric_hourly`): raw samples for
   _Keep detailed metrics_ (24 h by default), hourly averages with min and max for _Keep hourly
   metrics_ (30 days), both in Settings › System. Every 10 minutes finished hours are rolled up
@@ -43,7 +48,7 @@ Dashboards read **variables**: the engine's metrics above plus values the web ap
 | `logs.audit`      | logs   | the latest 50 audit entries (a log) |
 
 - **Permissions**: the roles editor has a **Dashboard variables** row with one permission per
-  family (`metrics:system`, `storage`, `operations`, `shares`, `users`, `logs`). Administrators
+  family (`metrics:system`, `storage`, `operations`, `shares`, `users`, `logs`, `disks`). Administrators
   read everything; nobody else reads a family by default.
 - `loadVariables()` lists what the person may read. `readVariable({ id, range })` checks the
   family **on the server** (refusals audited as `metrics.read_denied`) and returns one shape for
