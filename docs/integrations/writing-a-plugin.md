@@ -102,6 +102,77 @@ your other screens lead to (entering a pairing code). Needs Canopy 2026.11.11 or
 Administrators can save named values for your text and number fields (a device, a host): give
 the same field the same `name` in every command, and one saved list serves them all.
 
+### Views: a live page of your own
+
+A tool that follows something over time (downloads, a queue, a sync) can declare a **view**: a
+page in the sidebar, refreshed while it is open, with a header widget while it is active. Your
+tool prints JSON, Canopy draws it; the actions on it run your own commands. See
+[plugin views](../features/plugin-views.md). Needs Canopy 2026.11.44 or later.
+
+```yaml
+views:
+  - id: downloads # lowercase letters, digits, dashes
+    name: { en: Downloads, fr: Téléchargements, es: Descargas }
+    icon: download # one of the view icons (below)
+    source: mytool.state # a command of yours with no required param, printing the JSON
+    refresh: 3s # 2s to 1m
+    widget: true # a pill in the header while summary.active is true
+    sections:
+      - key: downloads # the JSON list it shows
+        name: { en: Downloads, fr: Téléchargements, es: Descargas }
+        empty: { en: Nothing here., fr: Rien ici., es: Nada aquí. }
+        rowActions: [remove] # actions offered on chosen rows of this section
+    states: # how a row's "state" reads (tone: active, success, warning, danger, muted)
+      - { key: running, tone: active, label: { en: Running, fr: En cours, es: En curso } }
+    actions:
+      - { id: pause, on: view, icon: pause, command: mytool.pause, name: { en: Pause, fr: Pause, es: Pausa } }
+      - id: add
+        on: view
+        icon: plus
+        command: mytool.add
+        input: links # asks for a text, given to this string param (lines joined by spaces)
+        name: { en: Add, fr: Ajouter, es: Añadir }
+      - id: remove
+        on: row
+        icon: trash
+        command: mytool.remove
+        items: links # string param receiving the chosen items' ids, comma-separated
+        groups: packages # string param receiving the chosen rows' ids
+        confirm: true # asks before running
+        name: { en: Remove, fr: Retirer, es: Quitar }
+```
+
+The source prints one JSON object, at most 2 MiB, within 15 seconds:
+
+```json
+{
+  "summary": { "active": true, "state": "running", "progress": 0.42, "speed": 1048576, "eta": 90 },
+  "downloads": [
+    {
+      "id": 1,
+      "name": "Show",
+      "state": "running",
+      "progress": 0.5,
+      "bytes_loaded": 1,
+      "bytes_total": 2,
+      "folder": "/output/Show",
+      "items": [{ "id": 11, "name": "e01", "host": "example.com", "enabled": false }]
+    }
+  ]
+}
+```
+
+Every field is optional but `id`; unknown fields are ignored. Rows hold `items` one level
+deep. `progress` is a share (0 to 1), `speed` bytes per second, `eta` seconds; `host` or
+`folder` is shown under the name, `status` (a sentence) next to it. Icons: `activity`,
+`arrow-down`, `arrow-up`, `check`, `cloud`, `download`, `eye`, `eye-off`, `flag`, `folder`,
+`link`, `list`, `pause`, `pencil`, `play`, `plus`, `power`, `refresh`, `rotate-ccw`, `server`,
+`square`, `trash`, `upload`, `x`, `zap`.
+
+Each view is a permission of its own (`plugins:view.<plugin>.<view>`), granted per role under
+**Plugin pages**: the commands a view uses are offered only to the people who may open it.
+Make them `secondary: true` so that they stay off the commands list.
+
 ## What your tool can rely on
 
 - Paths arrive as absolute host paths inside the Canopy root, already checked against the
