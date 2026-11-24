@@ -1,8 +1,1 @@
-entries:
-  - type: feat
-    scope: auth
-    issue: 299
-    text:
-      en: 'Sign in with a link sent by e-mail, for the groups you allow (Groups › Allow sign-in by e-mail link): the link works once for 15 minutes, and two-factor authentication still applies.'
-      fr: 'Connexion par lien envoyé par e-mail, pour les groupes que vous autorisez (Groupes › Autoriser la connexion par lien e-mail) : le lien sert une fois pendant 15 minutes, et l’authentification à deux facteurs reste demandée.'
-      es: 'Acceso con un enlace enviado por correo, para los grupos que permita (Grupos › Permitir el acceso por enlace de correo): el enlace funciona una vez durante 15 minutos y la autenticación en dos pasos sigue aplicándose.'
+entries: []
