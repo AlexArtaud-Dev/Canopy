@@ -17,6 +17,7 @@ export const namespaces = [
   'mail',
   'notifications',
   'plugins',
+  'pluginViews',
   'pwa',
   'settings',
   'shares',

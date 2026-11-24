@@ -317,14 +317,18 @@ export interface RunLabels {
 export function runLabels(entries: readonly CommandEntry[], locale: string): RunLabels {
   return {
     names: new Map(entries.map((entry) => [entry.id, localized(entry.name, locale)])),
-    // Device searches, and the controls a remote sends: done for the person, not asked as runs.
+    // Device searches, the controls a remote sends and a plugin page's buttons: done from where
+    // the person is, not asked as runs.
     quiet: new Set(
-      entries.flatMap((entry) =>
-        (entry.plugin?.devices ?? []).flatMap((kind) => [
+      entries.flatMap((entry) => [
+        ...(entry.plugin?.devices ?? []).flatMap((kind) => [
           kind.detect,
           ...Object.values(kind.controls ?? {}),
         ]),
-      ),
+        ...(entry.plugin?.views ?? []).flatMap((view) =>
+          view.actions.map((action) => action.command),
+        ),
+      ]),
     ),
   };
 }

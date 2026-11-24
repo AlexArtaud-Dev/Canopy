@@ -8,6 +8,7 @@ import { getDb } from '@/shared/db/client';
 import { runAction, type ActionResult } from '@/shared/lib/action';
 import { AppBaseError } from '@/shared/lib/errors';
 import { audit } from '@/features/audit/server/audit-writer';
+import { installedViewPermissions } from '@/features/plugin-views/server/view-permissions';
 import { authorize } from '@/features/auth';
 import { usersTable } from '@/features/auth/server/auth.schema';
 import { pathGrantsTable } from '@/features/files/server/files.schema';
@@ -48,7 +49,11 @@ export async function saveRole(input: unknown): Promise<ActionResult<{ id: strin
   return runAction(async () => {
     const draft = parse(roleInputSchema, input);
     const { user } = await authorize(draft.roleId ? 'roles:update' : 'roles:create');
-    const permissions = sanitizeRolePermissions(draft.permissions, appRegistry.globalPermissions);
+    // Plugin pages declare their own permissions: they are kept as long as the plugin is installed.
+    const permissions = sanitizeRolePermissions(draft.permissions, [
+      ...appRegistry.globalPermissions,
+      ...(await installedViewPermissions()),
+    ]);
     const key = draft.roleId ? await roleKey(draft.roleId) : null;
     if (key === undefined) throw new AppBaseError('system.not_found', 'role not found');
 

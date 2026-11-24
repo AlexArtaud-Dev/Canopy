@@ -4,6 +4,7 @@ import { Separator } from '@/shared/ui/separator';
 import { SidebarTrigger } from '@/shared/ui/sidebar';
 import { RemoteContainer } from '@/features/devices';
 import { NotificationsContainer } from '@/features/notifications';
+import { ViewWidgets } from '@/features/plugin-views';
 
 interface PageHeaderProps {
   title: string;
@@ -22,6 +23,8 @@ export function PageHeader({ title, actions }: PageHeaderProps) {
       <h1 className="truncate text-sm font-medium">{title}</h1>
       <div className="ml-auto flex items-center gap-2">
         {actions}
+        {/* There only while a plugin view is busy (downloads running…). */}
+        <ViewWidgets />
         {/* There only while something plays on a screen. */}
         <RemoteContainer />
         <NotificationsContainer />

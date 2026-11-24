@@ -144,7 +144,10 @@
     "invalid_repo": "Saisissez un dépôt GitHub comme propriétaire/nom ou son adresse.",
     "repo_already_allowed": "Ce dépôt est déjà dans la liste.",
     "invalid_saved_value": "Donnez un nom à la valeur, et une valeur qui ne commence pas par un tiret.",
-    "saved_values_full": "Ce champ a déjà 20 valeurs enregistrées. Oubliez-en une d’abord."
+    "saved_values_full": "Ce champ a déjà 20 valeurs enregistrées. Oubliez-en une d’abord.",
+    "view_not_found": "Cette page d’extension n’est pas disponible.",
+    "view_failed": "L’extension n’a pas répondu. Vérifiez qu’elle est configurée et que ce à quoi elle se connecte est joignable.",
+    "view_forbidden": "Vous ne pouvez pas ouvrir cette page d’extension."
   },
   "media": {
     "busy": "Trop de vidéos sont en cours de conversion. Réessayez dans un instant.",

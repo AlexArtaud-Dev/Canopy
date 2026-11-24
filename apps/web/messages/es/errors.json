@@ -144,7 +144,10 @@
     "invalid_repo": "Escribe un repositorio de GitHub como propietario/nombre o su dirección.",
     "repo_already_allowed": "Este repositorio ya está en la lista.",
     "invalid_saved_value": "Dé un nombre al valor, y un valor que no empiece por un guion.",
-    "saved_values_full": "Este campo ya tiene 20 valores guardados. Olvide uno primero."
+    "saved_values_full": "Este campo ya tiene 20 valores guardados. Olvide uno primero.",
+    "view_not_found": "Esta página de extensión no está disponible.",
+    "view_failed": "La extensión no respondió. Compruebe que está configurada y que lo que conecta es accesible.",
+    "view_forbidden": "No puede abrir esta página de extensión."
   },
   "media": {
     "busy": "Hay demasiados vídeos convirtiéndose ahora mismo. Inténtalo de nuevo en un momento.",

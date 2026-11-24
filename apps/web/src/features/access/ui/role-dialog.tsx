@@ -143,9 +143,11 @@ export function RoleDialog({
                       key={row.module}
                       className="grid gap-2 p-3 sm:grid-cols-[8rem_1fr] sm:items-center"
                     >
-                      <span className="text-sm font-medium">{label(`modules.${row.module}`)}</span>
+                      <span className="text-sm font-medium">
+                        {row.label ?? label(`modules.${row.module}`)}
+                      </span>
                       <div className="flex flex-wrap gap-x-4 gap-y-2">
-                        {row.actions.map(({ action, permission }) => (
+                        {row.actions.map(({ action, permission, label: own }) => (
                           <Field key={permission} orientation="horizontal" className="w-auto">
                             <Checkbox
                               id={`perm-${permission}`}
@@ -154,7 +156,7 @@ export function RoleDialog({
                               defaultChecked={editing?.values.permissions.includes(permission)}
                             />
                             <FieldLabel htmlFor={`perm-${permission}`} className="font-normal">
-                              {label(`actions.${action}`)}
+                              {own ?? label(`actions.${action}`)}
                             </FieldLabel>
                           </Field>
                         ))}

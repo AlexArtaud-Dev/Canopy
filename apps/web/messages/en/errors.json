@@ -144,7 +144,10 @@
     "invalid_repo": "Enter a GitHub repository like owner/name or its address.",
     "repo_already_allowed": "This repository is already in the list.",
     "invalid_saved_value": "Give the value a name, and a value that does not start with a dash.",
-    "saved_values_full": "This field already has 20 saved values. Forget one first."
+    "saved_values_full": "This field already has 20 saved values. Forget one first.",
+    "view_not_found": "This plugin page is not available.",
+    "view_failed": "The plugin did not answer. Check that it is set up and that what it connects to is reachable.",
+    "view_forbidden": "You may not open this plugin page."
   },
   "media": {
     "busy": "Too many videos are being converted right now. Try again in a moment.",

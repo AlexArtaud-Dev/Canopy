@@ -13,6 +13,7 @@ import type mail from '../../../messages/en/mail.json';
 import type settings from '../../../messages/en/settings.json';
 import type notifications from '../../../messages/en/notifications.json';
 import type plugins from '../../../messages/en/plugins.json';
+import type pluginViews from '../../../messages/en/pluginViews.json';
 import type pwa from '../../../messages/en/pwa.json';
 import type shares from '../../../messages/en/shares.json';
 import type shell from '../../../messages/en/shell.json';
@@ -39,6 +40,7 @@ declare module 'next-intl' {
       mail: typeof mail;
       settings: typeof settings;
       plugins: typeof plugins;
+      pluginViews: typeof pluginViews;
       shares: typeof shares;
       shell: typeof shell;
       system: typeof system;
