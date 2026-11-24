@@ -7,6 +7,7 @@ import {
   entityIdSchema,
   groupInputSchema,
   groupMembersInputSchema,
+  magicLinkAllowed,
   permissionMatrix,
   roleInputSchema,
   sanitizeRolePermissions,
@@ -94,6 +95,7 @@ describe('input schemas', () => {
         name: 'Family',
         description: '',
         requireTwoFactor: true,
+        allowMagicLink: false,
         roleIds: [],
       }).success,
     ).toBe(true);
@@ -128,5 +130,13 @@ describe('tracePermissions', () => {
       },
     ]);
     expect(tracePermissions([], ['users:read'])).toEqual([]);
+  });
+});
+
+describe('sign-in links', () => {
+  it('are allowed when one of the groups allows them', () => {
+    expect(magicLinkAllowed([])).toBe(false);
+    expect(magicLinkAllowed([{ allowMagicLink: false }, { allowMagicLink: true }])).toBe(true);
+    expect(magicLinkAllowed([{ allowMagicLink: false }])).toBe(false);
   });
 });

@@ -4,6 +4,9 @@ import {
   evaluateSession,
   initialsOf,
   invalidFields,
+  magicLinkLifetimeSeconds,
+  magicLinkRequestSchema,
+  magicLinkSignInSchema,
   newAccountSchema,
   passwordSchema,
   pendingSecondFactorMinutes,
@@ -159,5 +162,23 @@ describe('policy constants', () => {
     expect(passwordSchema(defaultPasswordMinLength).safeParse('a'.repeat(11)).success).toBe(false);
     expect(passwordSchema(defaultPasswordMinLength).safeParse('a'.repeat(12)).success).toBe(true);
     expect(passwordSchema(8).safeParse('a'.repeat(8)).success).toBe(true);
+  });
+});
+
+describe('sign-in links', () => {
+  it('last 15 minutes and take a username or e-mail', () => {
+    expect(magicLinkLifetimeSeconds).toBe(900);
+    expect(magicLinkRequestSchema.safeParse({ identifier: ' ada ' }).data).toEqual({
+      identifier: 'ada',
+    });
+    expect(magicLinkRequestSchema.safeParse({ identifier: '' }).success).toBe(false);
+  });
+
+  it('accept only well-formed tokens', () => {
+    const token = 'a'.repeat(32);
+    expect(magicLinkSignInSchema.safeParse({ token }).success).toBe(true);
+    expect(magicLinkSignInSchema.safeParse({ token, next: '/files' }).success).toBe(true);
+    expect(magicLinkSignInSchema.safeParse({ token: 'short' }).success).toBe(false);
+    expect(magicLinkSignInSchema.safeParse({ token: `${'a'.repeat(31)}!` }).success).toBe(false);
   });
 });

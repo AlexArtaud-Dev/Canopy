@@ -70,6 +70,7 @@
       "drop_off": "Drop-off received",
       "drop_off_code": "Drop-off code",
       "test": "Test",
+      "magic_link": "Sign-in link",
       "other": "Other"
     },
     "viewer": {

@@ -30,6 +30,8 @@ export const groupsTable = authSchema.table('groups', {
   description: text('description').notNull().default(''),
   /** Members must use two-factor authentication. */
   requireTwoFactor: boolean('require_two_factor').notNull().default(false),
+  /** Members may sign in with a link sent to their e-mail address. */
+  allowMagicLink: boolean('allow_magic_link').notNull().default(false),
   ...timestamps,
 });
 

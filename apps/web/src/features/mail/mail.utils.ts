@@ -100,6 +100,7 @@ export const outboxKinds = [
   'security',
   'drop_off',
   'drop_off_code',
+  'magic_link',
   'test',
   'other',
 ] as const;
@@ -110,6 +111,7 @@ export function outboxKind(kind: string): OutboxKind {
   switch (kind) {
     case 'invitation':
     case 'password_reset':
+    case 'magic_link':
     case 'test':
       return kind;
     case 'shares.drop_off':

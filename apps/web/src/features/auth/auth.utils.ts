@@ -121,3 +121,16 @@ export function invalidFields(schema: z.ZodType, input: unknown): Set<string> {
   if (result.success) return new Set();
   return new Set(result.error.issues.map((issue) => String(issue.path[0] ?? '')));
 }
+
+/** A sign-in link sent by e-mail works once, for this long. */
+export const magicLinkLifetimeSeconds = 15 * 60;
+
+export const magicLinkRequestSchema = z.object({
+  identifier: z.string().trim().min(1).max(254),
+});
+
+/** Better Auth's magic link tokens: 32 letters. */
+export const magicLinkSignInSchema = z.object({
+  token: z.string().regex(/^[A-Za-z]{32}$/),
+  next: z.string().max(2048).optional(),
+});

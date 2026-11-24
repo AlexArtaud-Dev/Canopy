@@ -34,6 +34,7 @@ describe('sent e-mails list', () => {
     expect(outboxKind('invitation')).toBe('invitation');
     expect(outboxKind('password_reset')).toBe('password_reset');
     expect(outboxKind('test')).toBe('test');
+    expect(outboxKind('magic_link')).toBe('magic_link');
     expect(outboxKind('security.new_sign_in')).toBe('security');
     expect(outboxKind('shares.drop_off')).toBe('drop_off');
     expect(outboxKind('shares.drop_off_code')).toBe('drop_off_code');

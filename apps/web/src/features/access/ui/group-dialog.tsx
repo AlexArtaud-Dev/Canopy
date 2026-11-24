@@ -32,6 +32,7 @@ export interface GroupFormValues {
   name: string;
   description: string;
   requireTwoFactor: boolean;
+  allowMagicLink: boolean;
   roleIds: string[];
 }
 
@@ -72,6 +73,7 @@ export function GroupDialog({
       name: formText(form, 'name'),
       description: formText(form, 'description'),
       requireTwoFactor: form.get('requireTwoFactor') === 'on',
+      allowMagicLink: form.get('allowMagicLink') === 'on',
       roleIds: form.getAll('roleIds').filter((value) => typeof value === 'string'),
     });
   };
@@ -120,6 +122,17 @@ export function GroupDialog({
               <FieldContent>
                 <FieldLabel htmlFor="group-2fa">{t('form.requireTwoFactor')}</FieldLabel>
                 <FieldDescription>{t('form.requireTwoFactorHint')}</FieldDescription>
+              </FieldContent>
+            </Field>
+            <Field orientation="horizontal">
+              <Checkbox
+                id="group-magic-link"
+                name="allowMagicLink"
+                defaultChecked={editing?.allowMagicLink}
+              />
+              <FieldContent>
+                <FieldLabel htmlFor="group-magic-link">{t('form.allowMagicLink')}</FieldLabel>
+                <FieldDescription>{t('form.allowMagicLinkHint')}</FieldDescription>
               </FieldContent>
             </Field>
             <FieldSet>

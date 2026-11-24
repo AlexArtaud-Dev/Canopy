@@ -37,6 +37,11 @@ export function sanitizeRolePermissions(
 }
 
 /** True when any of the user's groups enforces two-factor authentication. */
+/** One of the user's groups lets its members sign in with a link sent by e-mail. */
+export function magicLinkAllowed(groups: readonly { allowMagicLink: boolean }[]): boolean {
+  return groups.some((group) => group.allowMagicLink);
+}
+
 export function twoFactorRequired(groups: readonly { requireTwoFactor: boolean }[]): boolean {
   return groups.some((group) => group.requireTwoFactor);
 }
@@ -72,6 +77,7 @@ export const groupInputSchema = z.object({
   name: z.string().trim().min(1).max(64),
   description: z.string().trim().max(200),
   requireTwoFactor: z.boolean(),
+  allowMagicLink: z.boolean(),
   roleIds: z.array(z.uuid()).max(50),
 });
 

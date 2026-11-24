@@ -70,5 +70,14 @@
     "more": "{count, plural, one {+# more} other {+# more}}",
     "action": "See the drop-off",
     "footer": "You receive this email because you asked to be told about drop-offs on this link. Turn it off by creating the link again without it."
+  },
+  "magicLink": {
+    "subject": "Your Canopy sign-in link",
+    "title": "Sign in to Canopy, {name}",
+    "preheader": "One click to sign in.",
+    "body": "Someone asked to sign in to your Canopy account with a link. Use the button below to continue.",
+    "expiry": "This link works once and expires in {minutes} minutes.",
+    "ignore": "If you did not ask for it, ignore this email: nobody can sign in without it.",
+    "action": "Sign in"
   }
 }

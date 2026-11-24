@@ -110,6 +110,7 @@ export async function saveGroup(input: unknown): Promise<ActionResult<{ id: stri
           name: draft.name,
           description: draft.description,
           requireTwoFactor: draft.requireTwoFactor,
+          allowMagicLink: draft.allowMagicLink,
         };
         let groupId = draft.groupId;
         if (groupId) {
@@ -149,6 +150,7 @@ export async function saveGroup(input: unknown): Promise<ActionResult<{ id: stri
       meta: {
         name: draft.name,
         requireTwoFactor: draft.requireTwoFactor,
+        allowMagicLink: draft.allowMagicLink,
         roleIds: draft.roleIds,
       },
     });

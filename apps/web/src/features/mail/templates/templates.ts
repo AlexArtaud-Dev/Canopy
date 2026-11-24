@@ -74,6 +74,25 @@ export async function passwordResetEmail(
   });
 }
 
+/** A one-time sign-in link (groups that allow it). */
+export async function magicLinkEmail(
+  locale: string | null | undefined,
+  values: { name: string; link: string; minutes: number },
+): Promise<RenderedEmail> {
+  const t = await translatorFor(locale);
+  return renderThemed(t('magicLink.subject'), {
+    title: t('magicLink.title', { name: values.name }),
+    preheader: t('magicLink.preheader'),
+    paragraphs: [
+      t('magicLink.body'),
+      t('magicLink.expiry', { minutes: values.minutes }),
+      t('magicLink.ignore'),
+    ],
+    action: { label: t('magicLink.action'), url: values.link },
+    footer: t('footer.account'),
+  });
+}
+
 export const securityNoticeKinds = [
   'password_changed',
   'two_factor_enabled',

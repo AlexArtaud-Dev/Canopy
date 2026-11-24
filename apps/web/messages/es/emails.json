@@ -70,5 +70,14 @@
     "more": "{count, plural, one {+# más} other {+# más}}",
     "action": "Ver el depósito",
     "footer": "Recibe este correo porque pidió que le avisaran de los depósitos en este enlace. Para dejar de recibirlo, cree de nuevo el enlace sin esta opción."
+  },
+  "magicLink": {
+    "subject": "Su enlace de acceso a Canopy",
+    "title": "Acceda a Canopy, {name}",
+    "preheader": "Un clic para acceder.",
+    "body": "Alguien pidió acceder a su cuenta de Canopy con un enlace. Use el botón de abajo para continuar.",
+    "expiry": "Este enlace funciona una vez y caduca en {minutes} minutos.",
+    "ignore": "Si no lo pidió, ignore este correo: nadie puede acceder sin él.",
+    "action": "Acceder"
   }
 }

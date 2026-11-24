@@ -28,6 +28,7 @@ export interface GroupSummary {
   name: string;
   description: string;
   requireTwoFactor: boolean;
+  allowMagicLink: boolean;
   roleIds: string[];
   memberCount: number;
 }
@@ -78,6 +79,7 @@ export async function listGroups(): Promise<GroupSummary[]> {
         name: groupsTable.name,
         description: groupsTable.description,
         requireTwoFactor: groupsTable.requireTwoFactor,
+        allowMagicLink: groupsTable.allowMagicLink,
       })
       .from(groupsTable)
       .orderBy(asc(groupsTable.name)),

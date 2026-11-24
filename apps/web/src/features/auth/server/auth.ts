@@ -6,13 +6,14 @@ import { betterAuth } from 'better-auth';
 import { eq } from 'drizzle-orm';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
+import { magicLink } from 'better-auth/plugins/magic-link';
 import { username } from 'better-auth/plugins/username';
 
 import { parseServerEnv } from '@/shared/config/env';
 import { getDb } from '@/shared/db/client';
 import { deriveSecret } from '@/shared/secrets/secrets';
 
-import { usernameSchema } from '../auth.utils';
+import { magicLinkLifetimeSeconds, usernameSchema } from '../auth.utils';
 import { accountsTable, sessionsTable, usersTable, verificationsTable } from './auth.schema';
 import { hashPassword, verifyPassword } from './password';
 import { hasTotpEnabled } from './totp-factor';
@@ -100,6 +101,18 @@ function createAuth(lifetimeSeconds: number, secureCookies: boolean) {
         minUsernameLength: 3,
         maxUsernameLength: 32,
         usernameValidator: (value) => usernameSchema.safeParse(value).success,
+      }),
+      // Sign-in links, for groups that allow them: requested and verified only through our server
+      // actions (eligibility, rate limits, audit); tokens are stored hashed and work once.
+      magicLink({
+        expiresIn: magicLinkLifetimeSeconds,
+        disableSignUp: true,
+        storeToken: 'hashed',
+        sendMagicLink: async ({ token, metadata }) => {
+          // Loaded on demand: the e-mail side pulls in mail and appearance, which use auth.
+          const { deliverMagicLink } = await import('./magic-link-service');
+          await deliverMagicLink(metadata, token);
+        },
       }),
       // Must stay last: copies Set-Cookie from Better Auth into the server action response.
       nextCookies(),

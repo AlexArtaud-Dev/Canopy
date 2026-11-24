@@ -13,11 +13,10 @@ import {
 import { getRequestContext } from '@/shared/request/request-context';
 import { audit } from '@/features/audit/server/audit-writer';
 
-import { safeRedirectPath, signInInputSchema } from '../auth.utils';
+import { signInInputSchema } from '../auth.utils';
 import { authRequestHeaders, getConfiguredAuth } from './current-session';
 import { assertAddressAllowed, recordAddressFailure } from './ip-block';
-import { notifyIfNewDevice } from './security-notices';
-import { hasTotpEnabled } from './totp-factor';
+import { completeSignIn } from './sign-in-completion';
 
 /** Per client IP, whatever the account: slows down password spraying. */
 const perIpRule = { limit: 10, windowSeconds: 60 };
@@ -81,18 +80,9 @@ export async function signIn(input: unknown): Promise<ActionResult<{ redirectTo:
     }
 
     await clearRateLimit(lockoutScope, account);
-    // The session hook already marked the session pending when the account uses 2FA.
-    const secondFactor = await hasTotpEnabled(userId);
-    await audit({
-      action: 'auth.sign_in',
-      result: 'success',
-      actorId: userId,
-      meta: secondFactor ? { secondFactor: 'pending' } : {},
+    return completeSignIn(userId, next, {
+      method: 'password',
+      notifyNewSignIn: policy.notifyNewSignIn,
     });
-    if (policy.notifyNewSignIn) await notifyIfNewDevice(userId);
-    const destination = safeRedirectPath(next);
-    if (!secondFactor) return { redirectTo: destination };
-    const query = destination === '/' ? '' : `?next=${encodeURIComponent(destination)}`;
-    return { redirectTo: `/login/verify${query}` };
   });
 }
