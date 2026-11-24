@@ -21,6 +21,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/audit"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/authz"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/commands"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/disks"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
@@ -48,6 +49,7 @@ type fakeJobs struct {
 	owners      []string
 	notices     chan jobs.Notice
 	transfer    transfer.Args
+	selfTest    []string
 	compress    archive.CompressArgs
 	command     commands.RunArgs
 }
@@ -84,6 +86,11 @@ func (f *fakeJobs) StartChecksum(context.Context, archive.ChecksumArgs) (string,
 
 func (f *fakeJobs) StartCommand(_ context.Context, args commands.RunArgs) (string, error) {
 	f.command = args
+	return jobID, f.startErr
+}
+
+func (f *fakeJobs) StartDiskSelfTest(_ context.Context, owner, disk string, test disks.TestKind) (string, error) {
+	f.selfTest = []string{owner, disk, string(test)}
 	return jobID, f.startErr
 }
 

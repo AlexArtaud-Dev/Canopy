@@ -20,6 +20,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/commands"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/config"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/database"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/disks"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/foldersize"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
@@ -52,6 +53,8 @@ func main() {
 			os.Exit(runSetup())
 		case "setup-db":
 			os.Exit(runSetupDB())
+		case "disks":
+			os.Exit(runDisks())
 		}
 	}
 	if err := run(); err != nil {
@@ -65,6 +68,12 @@ func runHealthcheck() int {
 	addr := os.Getenv("CANOPY_ENGINE_ADDR")
 	if addr == "" {
 		addr = ":8080"
+	}
+	// `engine healthcheck disks` probes the disks service instead.
+	if len(os.Args) > 2 && os.Args[2] == "disks" {
+		if addr = os.Getenv("CANOPY_DISKS_ADDR"); addr == "" {
+			addr = ":8091"
+		}
 	}
 	url, err := healthcheck.LocalURL(addr)
 	if err == nil {
@@ -138,7 +147,9 @@ func run() error {
 		logger.Warn("plugins not loaded", slog.Any("error", err))
 	}
 
-	jobService, err := startJobs(startupCtx, pool, resolver, grants, trashService, commandRunner{catalog, launcher, sevenZip(cfg.CacheDir, resolver, logger)}, logger)
+	diskWatcher := startDisks(ctx, cfg, pool, logger)
+
+	jobService, err := startJobs(startupCtx, pool, resolver, grants, trashService, commandRunner{catalog, launcher, sevenZip(cfg.CacheDir, resolver, logger)}, diskWatcher, logger)
 	if err != nil {
 		return err
 	}
@@ -151,7 +162,7 @@ func run() error {
 		return err
 	}
 
-	metricsService := startMetrics(ctx, cfg.Root, pool, trashService, logger)
+	metricsService := startMetrics(ctx, cfg.Root, pool, trashService, diskReadings(diskWatcher), logger)
 
 	streamsDone := make(chan struct{})
 	server := &http.Server{
@@ -176,6 +187,7 @@ func run() error {
 			Views:        commands.ViewReader{Available: catalog, Launcher: launcher},
 			Media:        mediaPlayer(ctx, cfg.VideoEncoder, logger),
 			Metrics:      metricsService,
+			Disks:        diskHealth(diskWatcher),
 		}),
 		ReadHeaderTimeout: readHeaderTimeout,
 		// No read/write timeouts: multi-GB transfers and SSE streams are legitimately long.
@@ -216,7 +228,7 @@ type commandRunner struct {
 	sevenZip *archive.SevenZip
 }
 
-func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, grants *grantstore.Store, trashService *trash.Service, command commandRunner, logger *slog.Logger) (*jobService, error) {
+func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, grants *grantstore.Store, trashService *trash.Service, command commandRunner, diskWatcher *disks.Watcher, logger *slog.Logger) (*jobService, error) {
 	limits, err := jobs.LoadLimits(ctx, pool)
 	if err != nil {
 		return nil, err
@@ -230,6 +242,7 @@ func startJobs(ctx context.Context, pool *pgxpool.Pool, files *fsx.Resolver, gra
 	jobs.Register(registry, archive.ExtractHandler(files, command.sevenZip))
 	jobs.Register(registry, archive.ChecksumHandler(files))
 	jobs.Register(registry, commands.RunHandler(command.catalog, command.launcher))
+	registerDiskJobs(registry, diskWatcher)
 	runner, err := jobs.Start(ctx, registry, pool, limits)
 	if err != nil {
 		return nil, err

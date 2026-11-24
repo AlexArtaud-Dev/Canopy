@@ -15,12 +15,21 @@ import type {
   CancelJobData,
   CancelJobErrors,
   CancelJobResponses,
+  CheckDisksData,
+  CheckDisksErrors,
+  CheckDisksResponses,
+  ClaimDiskAlertsData,
+  ClaimDiskAlertsErrors,
+  ClaimDiskAlertsResponses,
   CreateFolderData,
   CreateFolderErrors,
   CreateFolderResponses,
   ExplainAccessData,
   ExplainAccessErrors,
   ExplainAccessResponses,
+  GetDisksData,
+  GetDisksErrors,
+  GetDisksResponses,
   GetEntryPropertiesData,
   GetEntryPropertiesErrors,
   GetEntryPropertiesResponses,
@@ -98,6 +107,9 @@ import type {
   StartCompressData,
   StartCompressErrors,
   StartCompressResponses,
+  StartDiskSelfTestData,
+  StartDiskSelfTestErrors,
+  StartDiskSelfTestResponses,
   StartEmptyTrashData,
   StartEmptyTrashErrors,
   StartEmptyTrashResponses,
@@ -126,10 +138,13 @@ import type {
 import {
   zCancelJobPath,
   zCancelJobResponse,
+  zCheckDisksResponse,
+  zClaimDiskAlertsResponse,
   zCreateFolderBody,
   zCreateFolderResponse,
   zExplainAccessBody,
   zExplainAccessResponse,
+  zGetDisksResponse,
   zGetEntryPropertiesQuery,
   zGetEntryPropertiesResponse,
   zGetJobLogsPath,
@@ -177,6 +192,9 @@ import {
   zStartCommandResponse,
   zStartCompressBody,
   zStartCompressResponse,
+  zStartDiskSelfTestBody,
+  zStartDiskSelfTestPath,
+  zStartDiskSelfTestResponse,
   zStartEmptyTrashBody,
   zStartEmptyTrashResponse,
   zStartExtractBody,
@@ -1092,6 +1110,106 @@ export const startEmptyTrash = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Health of the host's disks
+ *
+ * The latest reading of the disks (smartctl, through the optional disks service), without waking sleeping disks. Needs `metrics:disks` (administrators always pass). When the disks service is not set up, `configured` is false and the list is empty.
+ */
+export const getDisks = <ThrowOnError extends boolean = false>(
+  options?: Options<GetDisksData, ThrowOnError>,
+): RequestResult<GetDisksResponses, GetDisksErrors, ThrowOnError> =>
+  (options?.client ?? client).get<GetDisksResponses, GetDisksErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zGetDisksResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/disks',
+    ...options,
+  });
+
+/**
+ * Read the disks now
+ *
+ * Administrators only. Sleeping disks are still not woken up.
+ */
+export const checkDisks = <ThrowOnError extends boolean = false>(
+  options?: Options<CheckDisksData, ThrowOnError>,
+): RequestResult<CheckDisksResponses, CheckDisksErrors, ThrowOnError> =>
+  (options?.client ?? client).post<CheckDisksResponses, CheckDisksErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zCheckDisksResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/disks/check',
+    ...options,
+  });
+
+/**
+ * Run a disk's self-test
+ *
+ * Administrators only. The disk tests itself (short: minutes; long: hours) while a job follows its progress; cancelling the job stops the test.
+ */
+export const startDiskSelfTest = <ThrowOnError extends boolean = false>(
+  options: Options<StartDiskSelfTestData, ThrowOnError>,
+): RequestResult<StartDiskSelfTestResponses, StartDiskSelfTestErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    StartDiskSelfTestResponses,
+    StartDiskSelfTestErrors,
+    ThrowOnError
+  >({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: zStartDiskSelfTestBody,
+          path: zStartDiskSelfTestPath,
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zStartDiskSelfTestResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/disks/{disk}/self-test',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Take the disk alerts not delivered yet
+ *
+ * Administrators only (the web app's notification sweep). Each alert is handed out once, oldest first.
+ */
+export const claimDiskAlerts = <ThrowOnError extends boolean = false>(
+  options?: Options<ClaimDiskAlertsData, ThrowOnError>,
+): RequestResult<ClaimDiskAlertsResponses, ClaimDiskAlertsErrors, ThrowOnError> =>
+  (options?.client ?? client).post<ClaimDiskAlertsResponses, ClaimDiskAlertsErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: z.never().optional(),
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zClaimDiskAlertsResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/disks/alerts/claim',
+    ...options,
   });
 
 /**

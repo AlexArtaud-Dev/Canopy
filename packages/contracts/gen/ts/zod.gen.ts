@@ -2,10 +2,212 @@
 
 import * as z from 'zod';
 
+export const zDiskSelfTestResult = z.object({
+  kind: z.string(),
+  result: z.string(),
+  passed: z.boolean(),
+  powerOnHours: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+});
+
+export const zDiskSelfTest = z.object({
+  running: z.boolean(),
+  remainingPercent: z.int().optional(),
+  last: zDiskSelfTestResult.optional(),
+});
+
+export const zDisk = z.object({
+  id: z.string(),
+  device: z.string(),
+  kind: z.enum(['hdd', 'ssd', 'nvme', 'unknown']),
+  model: z.string(),
+  serial: z.string(),
+  firmware: z.string(),
+  capacity: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    }),
+  health: z.enum(['passed', 'warning', 'failing', 'unknown']),
+  reasons: z.array(
+    z.enum([
+      'smartFailed',
+      'criticalWarning',
+      'reallocated',
+      'pending',
+      'uncorrectable',
+      'mediaErrors',
+      'wornOut',
+      'lowSpare',
+      'testFailed',
+    ]),
+  ),
+  asleep: z.boolean(),
+  hot: z.boolean(),
+  temperature: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  powerOnHours: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  powerCycles: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  reallocated: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  pending: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  uncorrectable: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  crcErrors: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  mediaErrors: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  wearPercent: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  spare: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  spareLimit: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  bytesWritten: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  selfTest: zDiskSelfTest,
+});
+
+export const zDiskReport = z.object({
+  configured: z.boolean(),
+  checkedAt: z.iso.datetime().optional(),
+  disks: z.array(zDisk),
+});
+
+export const zDiskSelfTestRequest = z.object({
+  test: z.enum(['short', 'long']),
+});
+
+export const zDiskAlert = z.object({
+  disk: z.string(),
+  name: z.string(),
+  kind: z.enum(['failing', 'warning', 'hot']),
+  reasons: z.array(z.string()),
+  temperature: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+  limit: z.coerce
+    .bigint()
+    .min(BigInt('-9223372036854775808'), {
+      error: 'Invalid value: Expected int64 to be >= -9223372036854775808',
+    })
+    .max(BigInt('9223372036854775807'), {
+      error: 'Invalid value: Expected int64 to be <= 9223372036854775807',
+    })
+    .optional(),
+});
+
+export const zDiskAlerts = z.object({
+  alerts: z.array(zDiskAlert),
+});
+
 export const zMetricDefinition = z.object({
   name: z.string(),
-  family: z.enum(['system', 'storage', 'operations']),
-  unit: z.enum(['percent', 'bytes', 'bytesPerSecond', 'count']),
+  family: z.enum(['system', 'storage', 'operations', 'disks']),
+  unit: z.enum(['percent', 'bytes', 'bytesPerSecond', 'count', 'celsius']),
   series: z.boolean(),
 });
 
@@ -865,6 +1067,32 @@ export const zStartEmptyTrashBody = zTrashIdsRequest;
  * The job was queued.
  */
 export const zStartEmptyTrashResponse = zJob;
+
+/**
+ * The latest reading.
+ */
+export const zGetDisksResponse = zDiskReport;
+
+/**
+ * The new reading.
+ */
+export const zCheckDisksResponse = zDiskReport;
+
+export const zStartDiskSelfTestBody = zDiskSelfTestRequest;
+
+export const zStartDiskSelfTestPath = z.object({
+  disk: z.string().regex(/^[a-z0-9][a-z0-9-]{0,39}$/),
+});
+
+/**
+ * The job was queued.
+ */
+export const zStartDiskSelfTestResponse = zJob;
+
+/**
+ * The alerts, now delivered.
+ */
+export const zClaimDiskAlertsResponse = zDiskAlerts;
 
 /**
  * The readable metrics, in the order dashboards offer them.

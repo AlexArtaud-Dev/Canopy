@@ -1530,6 +1530,166 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/disks:
+    get:
+      operationId: getDisks
+      summary: Health of the host's disks
+      description: >-
+        The latest reading of the disks (smartctl, through the optional disks service), without
+        waking sleeping disks. Needs `metrics:disks` (administrators always pass). When the disks
+        service is not set up, `configured` is false and the list is empty.
+      tags: [disks]
+      security:
+        - engineToken: []
+      responses:
+        '200':
+          description: The latest reading.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiskReport'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The caller may not read disk health (`disks.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/disks/check:
+    post:
+      operationId: checkDisks
+      summary: Read the disks now
+      description: Administrators only. Sleeping disks are still not woken up.
+      tags: [disks]
+      security:
+        - engineToken: []
+      responses:
+        '200':
+          description: The new reading.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiskReport'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Administrators only (`auth.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: >-
+            The disks service is not set up (`disks.not_configured`) or does not answer
+            (`disks.unavailable`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/disks/{disk}/self-test:
+    post:
+      operationId: startDiskSelfTest
+      summary: Run a disk's self-test
+      description: >-
+        Administrators only. The disk tests itself (short: minutes; long: hours) while a job
+        follows its progress; cancelling the job stops the test.
+      tags: [disks]
+      security:
+        - engineToken: []
+      parameters:
+        - name: disk
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-z0-9][a-z0-9-]{0,39}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiskSelfTestRequest'
+      responses:
+        '202':
+          description: The job was queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Not a self-test the disks run (`disks.invalid_test`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Administrators only (`auth.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such disk in the latest reading (`disks.not_found`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many jobs (`jobs.too_many`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: The disks service is not set up (`disks.not_configured`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/disks/alerts/claim:
+    post:
+      operationId: claimDiskAlerts
+      summary: Take the disk alerts not delivered yet
+      description: >-
+        Administrators only (the web app's notification sweep). Each alert is handed out once,
+        oldest first.
+      tags: [disks]
+      security:
+        - engineToken: []
+      responses:
+        '200':
+          description: The alerts, now delivered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiskAlerts'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Administrators only (`auth.forbidden`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/metrics:
     get:
       operationId: listMetrics
@@ -1629,6 +1789,181 @@ components:
       bearerFormat: JWT
       description: Short-lived Ed25519 token signed by the web app (never by browsers).
   schemas:
+    DiskReport:
+      type: object
+      required: [configured, disks]
+      properties:
+        configured:
+          description: Whether the disks service is set up.
+          type: boolean
+        checkedAt:
+          type: string
+          format: date-time
+        disks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Disk'
+    Disk:
+      type: object
+      required:
+        [
+          id,
+          device,
+          kind,
+          model,
+          serial,
+          firmware,
+          capacity,
+          health,
+          reasons,
+          asleep,
+          hot,
+          selfTest,
+        ]
+      properties:
+        id:
+          type: string
+          examples: [sda]
+        device:
+          type: string
+          examples: [/dev/sda]
+        kind:
+          type: string
+          enum: [hdd, ssd, nvme, unknown]
+        model:
+          type: string
+        serial:
+          type: string
+        firmware:
+          type: string
+        capacity:
+          description: Bytes.
+          type: integer
+          format: int64
+        health:
+          type: string
+          enum: [passed, warning, failing, unknown]
+        reasons:
+          description: Why the health is not "passed".
+          type: array
+          items:
+            type: string
+            enum:
+              - smartFailed
+              - criticalWarning
+              - reallocated
+              - pending
+              - uncorrectable
+              - mediaErrors
+              - wornOut
+              - lowSpare
+              - testFailed
+        asleep:
+          description: Spun down at the last reading; the values are from before.
+          type: boolean
+        hot:
+          description: Past the temperature limit administrators set.
+          type: boolean
+        temperature:
+          description: Degrees Celsius.
+          type: integer
+          format: int64
+        powerOnHours:
+          type: integer
+          format: int64
+        powerCycles:
+          type: integer
+          format: int64
+        reallocated:
+          type: integer
+          format: int64
+        pending:
+          type: integer
+          format: int64
+        uncorrectable:
+          type: integer
+          format: int64
+        crcErrors:
+          type: integer
+          format: int64
+        mediaErrors:
+          type: integer
+          format: int64
+        wearPercent:
+          type: integer
+          format: int64
+        spare:
+          type: integer
+          format: int64
+        spareLimit:
+          type: integer
+          format: int64
+        bytesWritten:
+          type: integer
+          format: int64
+        selfTest:
+          $ref: '#/components/schemas/DiskSelfTest'
+    DiskSelfTest:
+      type: object
+      required: [running]
+      properties:
+        running:
+          type: boolean
+        remainingPercent:
+          type: integer
+        last:
+          $ref: '#/components/schemas/DiskSelfTestResult'
+    DiskSelfTestResult:
+      type: object
+      required: [kind, result, passed]
+      properties:
+        kind:
+          description: How the disk names the test ("Short offline", "Extended").
+          type: string
+        result:
+          type: string
+        passed:
+          type: boolean
+        powerOnHours:
+          type: integer
+          format: int64
+    DiskSelfTestRequest:
+      type: object
+      required: [test]
+      properties:
+        test:
+          type: string
+          enum: [short, long]
+    DiskAlerts:
+      type: object
+      required: [alerts]
+      properties:
+        alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiskAlert'
+    DiskAlert:
+      type: object
+      required: [disk, name, kind, reasons]
+      properties:
+        disk:
+          type: string
+        name:
+          description: The disk as dashboards name it (model and serial end).
+          type: string
+        kind:
+          type: string
+          enum: [failing, warning, hot]
+        reasons:
+          type: array
+          items:
+            type: string
+        temperature:
+          type: integer
+          format: int64
+        limit:
+          type: integer
+          format: int64
     MetricDefinition:
       type: object
       required: [name, family, unit, series]
@@ -1638,10 +1973,10 @@ components:
           examples: [system.cpu]
         family:
           type: string
-          enum: [system, storage, operations]
+          enum: [system, storage, operations, disks]
         unit:
           type: string
-          enum: [percent, bytes, bytesPerSecond, count]
+          enum: [percent, bytes, bytesPerSecond, count, celsius]
         series:
           description: One series per thing (a volume) rather than a single one.
           type: boolean

@@ -4,10 +4,107 @@ export type ClientOptions = {
   baseUrl: 'http://localhost:8080' | (string & {});
 };
 
+export type DiskReport = {
+  /**
+   * Whether the disks service is set up.
+   */
+  configured: boolean;
+  checkedAt?: string;
+  disks: Array<Disk>;
+};
+
+export type Disk = {
+  id: string;
+  device: string;
+  kind: 'hdd' | 'ssd' | 'nvme' | 'unknown';
+  model: string;
+  serial: string;
+  firmware: string;
+  /**
+   * Bytes.
+   */
+  capacity: number;
+  health: 'passed' | 'warning' | 'failing' | 'unknown';
+  /**
+   * Why the health is not "passed".
+   */
+  reasons: Array<
+    | 'smartFailed'
+    | 'criticalWarning'
+    | 'reallocated'
+    | 'pending'
+    | 'uncorrectable'
+    | 'mediaErrors'
+    | 'wornOut'
+    | 'lowSpare'
+    | 'testFailed'
+  >;
+  /**
+   * Spun down at the last reading; the values are from before.
+   */
+  asleep: boolean;
+  /**
+   * Past the temperature limit administrators set.
+   */
+  hot: boolean;
+  /**
+   * Degrees Celsius.
+   */
+  temperature?: number;
+  powerOnHours?: number;
+  powerCycles?: number;
+  reallocated?: number;
+  pending?: number;
+  uncorrectable?: number;
+  crcErrors?: number;
+  mediaErrors?: number;
+  wearPercent?: number;
+  spare?: number;
+  spareLimit?: number;
+  bytesWritten?: number;
+  selfTest: DiskSelfTest;
+};
+
+export type DiskSelfTest = {
+  running: boolean;
+  remainingPercent?: number;
+  last?: DiskSelfTestResult;
+};
+
+export type DiskSelfTestResult = {
+  /**
+   * How the disk names the test ("Short offline", "Extended").
+   */
+  kind: string;
+  result: string;
+  passed: boolean;
+  powerOnHours?: number;
+};
+
+export type DiskSelfTestRequest = {
+  test: 'short' | 'long';
+};
+
+export type DiskAlerts = {
+  alerts: Array<DiskAlert>;
+};
+
+export type DiskAlert = {
+  disk: string;
+  /**
+   * The disk as dashboards name it (model and serial end).
+   */
+  name: string;
+  kind: 'failing' | 'warning' | 'hot';
+  reasons: Array<string>;
+  temperature?: number;
+  limit?: number;
+};
+
 export type MetricDefinition = {
   name: string;
-  family: 'system' | 'storage' | 'operations';
-  unit: 'percent' | 'bytes' | 'bytesPerSecond' | 'count';
+  family: 'system' | 'storage' | 'operations' | 'disks';
+  unit: 'percent' | 'bytes' | 'bytesPerSecond' | 'count' | 'celsius';
   /**
    * One series per thing (a volume) rather than a single one.
    */
@@ -1909,6 +2006,145 @@ export type StartEmptyTrashResponses = {
 };
 
 export type StartEmptyTrashResponse = StartEmptyTrashResponses[keyof StartEmptyTrashResponses];
+
+export type GetDisksData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v1/disks';
+};
+
+export type GetDisksErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * The caller may not read disk health (`disks.forbidden`).
+   */
+  403: Error;
+};
+
+export type GetDisksError = GetDisksErrors[keyof GetDisksErrors];
+
+export type GetDisksResponses = {
+  /**
+   * The latest reading.
+   */
+  200: DiskReport;
+};
+
+export type GetDisksResponse = GetDisksResponses[keyof GetDisksResponses];
+
+export type CheckDisksData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v1/disks/check';
+};
+
+export type CheckDisksErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Administrators only (`auth.forbidden`).
+   */
+  403: Error;
+  /**
+   * The disks service is not set up (`disks.not_configured`) or does not answer (`disks.unavailable`).
+   */
+  503: Error;
+};
+
+export type CheckDisksError = CheckDisksErrors[keyof CheckDisksErrors];
+
+export type CheckDisksResponses = {
+  /**
+   * The new reading.
+   */
+  200: DiskReport;
+};
+
+export type CheckDisksResponse = CheckDisksResponses[keyof CheckDisksResponses];
+
+export type StartDiskSelfTestData = {
+  body: DiskSelfTestRequest;
+  path: {
+    disk: string;
+  };
+  query?: never;
+  url: '/v1/disks/{disk}/self-test';
+};
+
+export type StartDiskSelfTestErrors = {
+  /**
+   * Not a self-test the disks run (`disks.invalid_test`).
+   */
+  400: Error;
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Administrators only (`auth.forbidden`).
+   */
+  403: Error;
+  /**
+   * No such disk in the latest reading (`disks.not_found`).
+   */
+  404: Error;
+  /**
+   * Too many jobs (`jobs.too_many`).
+   */
+  429: Error;
+  /**
+   * The disks service is not set up (`disks.not_configured`).
+   */
+  503: Error;
+};
+
+export type StartDiskSelfTestError = StartDiskSelfTestErrors[keyof StartDiskSelfTestErrors];
+
+export type StartDiskSelfTestResponses = {
+  /**
+   * The job was queued.
+   */
+  202: Job;
+};
+
+export type StartDiskSelfTestResponse =
+  StartDiskSelfTestResponses[keyof StartDiskSelfTestResponses];
+
+export type ClaimDiskAlertsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v1/disks/alerts/claim';
+};
+
+export type ClaimDiskAlertsErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * Administrators only (`auth.forbidden`).
+   */
+  403: Error;
+};
+
+export type ClaimDiskAlertsError = ClaimDiskAlertsErrors[keyof ClaimDiskAlertsErrors];
+
+export type ClaimDiskAlertsResponses = {
+  /**
+   * The alerts, now delivered.
+   */
+  200: DiskAlerts;
+};
+
+export type ClaimDiskAlertsResponse = ClaimDiskAlertsResponses[keyof ClaimDiskAlertsResponses];
 
 export type ListMetricsData = {
   body?: never;

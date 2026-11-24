@@ -39,6 +39,8 @@ const (
 	EnginePublicKey   = "engine-public-key"
 	WebDatabaseURL    = "web-database-url"
 	EngineDatabaseURL = "engine-database-url"
+	// DisksToken is shared by the engine and the optional disks service.
+	DisksToken = "disks-token"
 )
 
 // Options says where to prepare and who reads what.
@@ -74,6 +76,8 @@ type secret struct {
 	name  string
 	owner int
 	mode  fs.FileMode
+	// rootGroup gives the file to group 0 instead of the owner's group.
+	rootGroup bool
 }
 
 // Prepare creates the folders and the missing secrets, then sets owners and modes.
@@ -164,6 +168,9 @@ func ensureSecrets(opts Options) ([]string, error) {
 	if _, err := generate(EncryptionKey, func() (string, error) { return randomBase64(opts.Random, 32) }); err != nil {
 		return created, err
 	}
+	if _, err := generate(DisksToken, func() (string, error) { return randomHex(opts.Random, 32) }); err != nil {
+		return created, err
+	}
 	private, err := generate(EnginePrivateKey, func() (string, error) {
 		seed := make([]byte, ed25519.SeedSize)
 		if _, err := io.ReadFull(opts.Random, seed); err != nil {
@@ -201,9 +208,15 @@ func ensureSecrets(opts Options) ([]string, error) {
 		{name: EnginePublicKey, owner: opts.PUID, mode: 0o444},
 		{name: WebDatabaseURL, owner: opts.WebUID, mode: 0o400},
 		{name: EngineDatabaseURL, owner: opts.PUID, mode: 0o400},
+		// The disks service runs as root without capabilities: it reads through group 0.
+		{name: DisksToken, owner: opts.PUID, mode: 0o440, rootGroup: true},
 	}
 	for _, s := range owners {
-		if err := own(opts, filepath.Join(dir, s.name), s.owner, s.owner, s.mode); err != nil {
+		group := s.owner
+		if s.rootGroup {
+			group = 0
+		}
+		if err := own(opts, filepath.Join(dir, s.name), s.owner, group, s.mode); err != nil {
 			return created, err
 		}
 	}

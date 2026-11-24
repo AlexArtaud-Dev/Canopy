@@ -56,6 +56,8 @@ type Deps struct {
 	Plugins Plugins
 	// Metrics answers dashboard queries (nil: no metric is sampled).
 	Metrics Metrics
+	// Disks is the disks watcher (nil: the disks service is not set up).
+	Disks DiskHealth
 	// Views reads plugin views on demand (nil: no view is offered).
 	Views PluginViews
 	// StreamsDone closes when the server shuts down, ending event streams that would otherwise

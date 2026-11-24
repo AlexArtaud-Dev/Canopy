@@ -76,6 +76,23 @@ func TestLoad(t *testing.T) {
 			wantErr: &Error{Code: CodeInvalid, Key: "UMASK"},
 		},
 		{
+			name: "disks service",
+			env: map[string]string{
+				"CANOPY_DATABASE_URL": dsn, "CANOPY_DISKS_URL": " http://disks:8091/ ", "CANOPY_DISKS_TOKEN": "t0k",
+			},
+			want: Config{Addr: ":8080", DatabaseURL: dsn, Root: "/srv/canopy/root", CacheDir: "/srv/canopy/cache", PluginsDir: "/srv/canopy/plugins", LogLevel: slog.LevelInfo, Umask: 0o022, VideoEncoder: "auto", DisksURL: "http://disks:8091", DisksToken: "t0k"},
+		},
+		{
+			name:    "disks service without a token",
+			env:     map[string]string{"CANOPY_DATABASE_URL": dsn, "CANOPY_DISKS_URL": "http://disks:8091"},
+			wantErr: &Error{Code: CodeMissing, Key: "CANOPY_DISKS_TOKEN"},
+		},
+		{
+			name:    "disks service address",
+			env:     map[string]string{"CANOPY_DATABASE_URL": dsn, "CANOPY_DISKS_URL": "disks:8091", "CANOPY_DISKS_TOKEN": "t"},
+			wantErr: &Error{Code: CodeInvalid, Key: "CANOPY_DISKS_URL"},
+		},
+		{
 			name:    "unknown log level",
 			env:     map[string]string{"CANOPY_DATABASE_URL": dsn, "CANOPY_LOG_LEVEL": "loud"},
 			wantErr: &Error{Code: CodeInvalid, Key: "CANOPY_LOG_LEVEL"},
@@ -101,6 +118,22 @@ func TestLoad(t *testing.T) {
 				t.Fatalf("Load() = %+v, want %+v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestLoadDisks(t *testing.T) {
+	t.Parallel()
+	got, err := LoadDisks(envOf(map[string]string{"CANOPY_DISKS_TOKEN": " t0k "}))
+	if err != nil || got != (DisksConfig{Addr: ":8091", Token: "t0k"}) {
+		t.Fatalf("got %+v %v", got, err)
+	}
+	got, err = LoadDisks(envOf(map[string]string{"CANOPY_DISKS_TOKEN": "t", "CANOPY_DISKS_ADDR": "0.0.0.0:9"}))
+	if err != nil || got.Addr != "0.0.0.0:9" {
+		t.Fatalf("got %+v %v", got, err)
+	}
+	var cfgErr *Error
+	if _, err := LoadDisks(envOf(nil)); !errors.As(err, &cfgErr) || cfgErr.Key != "CANOPY_DISKS_TOKEN" {
+		t.Fatalf("no token: %v", err)
 	}
 }
 

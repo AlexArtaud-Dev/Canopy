@@ -15,6 +15,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/audit"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/authz"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/commands"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/disks"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/enginetoken"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/fsx"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
@@ -35,6 +36,7 @@ type Jobs interface {
 	StartExtract(ctx context.Context, args archive.ExtractArgs) (string, error)
 	StartChecksum(ctx context.Context, args archive.ChecksumArgs) (string, error)
 	StartCommand(ctx context.Context, args commands.RunArgs) (string, error)
+	StartDiskSelfTest(ctx context.Context, owner, disk string, test disks.TestKind) (string, error)
 	Get(ctx context.Context, id, owner string) (jobs.Job, error)
 	List(ctx context.Context, owner string, limit int) ([]jobs.Job, error)
 	Cancel(ctx context.Context, job jobs.Job) error

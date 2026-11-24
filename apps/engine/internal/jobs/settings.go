@@ -2,7 +2,6 @@ package jobs
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/appsettings"
 )
@@ -14,19 +13,11 @@ const (
 )
 
 // LimitsFrom reads the stored `jobs` settings (only values differing from defaults are stored).
-func LimitsFrom(values map[string]json.RawMessage) Limits {
+func LimitsFrom(values appsettings.Values) Limits {
 	limits := DefaultLimits
-	limits.MaxConcurrent = boundedInt(values["maxConcurrent"], 1, maxConcurrentCeiling, limits.MaxConcurrent)
-	limits.PerUser = boundedInt(values["perUser"], 1, perUserCeiling, limits.PerUser)
+	limits.MaxConcurrent = values.Int("maxConcurrent", 1, maxConcurrentCeiling, limits.MaxConcurrent)
+	limits.PerUser = values.Int("perUser", 1, perUserCeiling, limits.PerUser)
 	return limits
-}
-
-func boundedInt(raw json.RawMessage, low, high, fallback int) int {
-	var value int
-	if raw == nil || json.Unmarshal(raw, &value) != nil || value < low || value > high {
-		return fallback
-	}
-	return value
 }
 
 // LoadLimits reads the jobs settings written by the web app (app.settings, read-only here). On a

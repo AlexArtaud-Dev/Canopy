@@ -23,6 +23,17 @@ type Querier interface {
 // Values are a module's stored settings by key, still JSON-encoded.
 type Values map[string]json.RawMessage
 
+// Int reads a whole number the web app validated against [low, high]; anything else (absent,
+// malformed, out of range after a schema change) falls back.
+func (v Values) Int(key string, low, high, fallback int) int {
+	var value int
+	raw, ok := v[key]
+	if !ok || json.Unmarshal(raw, &value) != nil || value < low || value > high {
+		return fallback
+	}
+	return value
+}
+
 // Load reads one module's stored settings. On a fresh install the engine can start before the web
 // app has created app.settings: that reads as nothing stored, so defaults apply.
 func Load(ctx context.Context, db Querier, module string) (Values, error) {
