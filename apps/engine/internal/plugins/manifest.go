@@ -56,6 +56,8 @@ type Manifest struct {
 	Commands    []commands.Entry `yaml:"commands"`
 	// Devices are the kinds of devices the plugin finds (screens), kept by Canopy.
 	Devices []commands.DeviceKind `yaml:"devices,omitempty"`
+	// Views are live pages Canopy shows from the plugin's commands (downloads, a queue).
+	Views []commands.PluginView `yaml:"views,omitempty"`
 }
 
 var (
@@ -115,7 +117,10 @@ func (m *Manifest) validate() error {
 	if err := commands.Validate(m.Commands); err != nil {
 		return err //nolint:wrapcheck // already says which entry
 	}
-	return m.validateDevices()
+	if err := m.validateDevices(); err != nil {
+		return err
+	}
+	return commands.ValidateViews(m.Views, m.Commands) //nolint:wrapcheck // already says which view
 }
 
 // validateDevices checks the device kinds: named in three languages, each once, found and paired

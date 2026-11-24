@@ -349,6 +349,75 @@ export type CommandPlugin = {
    * Kinds of devices the plugin finds on the network.
    */
   devices?: Array<DeviceKind>;
+  /**
+   * Live pages the plugin brings, shown from its commands.
+   */
+  views?: Array<PluginView>;
+};
+
+/**
+ * A live page: Canopy runs `source` every `refreshSeconds` (GET /v1/plugins/{plugin}/views/{view}) and shows its sections; actions run the plugin's commands on the view or on chosen rows. Reading it and running its actions needs `permission` (administrators always may).
+ */
+export type PluginView = {
+  id: string;
+  name: LocalizedText;
+  icon: string;
+  source: string;
+  refreshSeconds: number;
+  /**
+   * Show a summary in the page header while the view is active.
+   */
+  widget: boolean;
+  /**
+   * The global permission the view needs (`plugins:view.<plugin>.<view>`).
+   */
+  permission: string;
+  sections: Array<PluginViewSection>;
+  states: Array<PluginViewState>;
+  actions: Array<PluginViewAction>;
+};
+
+export type PluginViewSection = {
+  key: string;
+  name: LocalizedText;
+  empty?: LocalizedText;
+  rowActions: Array<string>;
+};
+
+export type PluginViewState = {
+  key: string;
+  label: LocalizedText;
+  tone: 'active' | 'success' | 'warning' | 'danger' | 'muted';
+};
+
+export type PluginViewAction = {
+  id: string;
+  name: LocalizedText;
+  icon: string;
+  command: string;
+  on: 'view' | 'row';
+  confirm: boolean;
+  /**
+   * The command's string param taking the chosen groups' ids, comma separated.
+   */
+  groups?: string;
+  /**
+   * The command's string param taking the chosen items' ids, comma separated.
+   */
+  items?: string;
+  /**
+   * A text param the person types (a new name, links to add).
+   */
+  input?: string;
+};
+
+/**
+ * What the view's source command printed (a JSON object).
+ */
+export type PluginViewData = {
+  data: {
+    [key: string]: unknown;
+  };
 };
 
 export type DeviceKind = {
@@ -1162,6 +1231,46 @@ export type UpdatePluginResponses = {
 };
 
 export type UpdatePluginResponse = UpdatePluginResponses[keyof UpdatePluginResponses];
+
+export type ReadPluginViewData = {
+  body?: never;
+  path: {
+    plugin: string;
+    view: string;
+  };
+  query?: never;
+  url: '/v1/plugins/{plugin}/views/{view}';
+};
+
+export type ReadPluginViewErrors = {
+  /**
+   * Missing or invalid engine token.
+   */
+  401: Error;
+  /**
+   * The caller may not read this view.
+   */
+  403: Error;
+  /**
+   * No such plugin view.
+   */
+  404: Error;
+  /**
+   * The source command failed, timed out or printed no JSON object (`plugins.view_failed`).
+   */
+  502: Error;
+};
+
+export type ReadPluginViewError = ReadPluginViewErrors[keyof ReadPluginViewErrors];
+
+export type ReadPluginViewResponses = {
+  /**
+   * The view's data.
+   */
+  200: PluginViewData;
+};
+
+export type ReadPluginViewResponse = ReadPluginViewResponses[keyof ReadPluginViewResponses];
 
 export type ListCommandsData = {
   body?: never;

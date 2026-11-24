@@ -371,6 +371,29 @@ describe('run labels', () => {
         },
         { kind: 'speaker', name: label, detect: 'cast.speakers' },
       ],
+      views: [
+        {
+          id: 'queue',
+          name: label,
+          icon: 'list',
+          source: 'cast.state',
+          refreshSeconds: 3,
+          widget: false,
+          permission: 'plugins:view.cast.queue',
+          sections: [],
+          states: [],
+          actions: [
+            {
+              id: 'skip',
+              name: label,
+              icon: 'x',
+              command: 'cast.skip',
+              on: 'view' as const,
+              confirm: false,
+            },
+          ],
+        },
+      ],
     };
     const make = (id: string, name: string): CommandEntry => ({
       id,
@@ -389,6 +412,7 @@ describe('run labels', () => {
       'cast.resume',
       'cast.stop',
       'cast.speakers',
+      'cast.skip',
     ]);
     expect(runLabels([], 'en').quiet.size).toBe(0);
     const { plugin: _plugin, ...builtIn } = make('rsync.sync', 'Sync');

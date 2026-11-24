@@ -173,6 +173,7 @@ func run() error {
 			AdvancedMode: advancedMode(pool, logger),
 			HostPaths:    resolver,
 			Plugins:      pluginService,
+			Views:        commands.ViewReader{Available: catalog, Launcher: launcher},
 			Media:        mediaPlayer(ctx, cfg.VideoEncoder, logger),
 			Metrics:      metricsService,
 		}),

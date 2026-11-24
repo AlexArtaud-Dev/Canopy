@@ -59,6 +59,14 @@ may run the command; `system:admin` uses every device). The rule is pure
 command run goes through `assertDevicesAllowed` in the web app before reaching the engine; the
 engine itself knows nothing of devices. See [devices](../features/devices.md).
 
+## Plugin views
+
+Each view a plugin declares is a global permission, `plugins:view.<plugin>.<view>`, not declared
+by any module: the roles editor lists those of installed plugins, and `saveRole` keeps only
+registry permissions plus those. The engine enforces it (`mayReadView`, `mayUseEntry`): without
+it the view cannot be read, and the commands the view uses are neither listed nor runnable.
+`system:admin` always passes. See [plugin views](../features/plugin-views.md).
+
 ## Generic module interface
 
 ```ts

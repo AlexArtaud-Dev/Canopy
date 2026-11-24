@@ -712,6 +712,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/plugins/{plugin}/views/{view}:
+    get:
+      operationId: readPluginView
+      summary: Run a plugin view's source and return its JSON
+      description: >-
+        Runs the view's source command now (no job, a short timeout, output capped) and returns
+        the JSON object it printed. Needs the view's permission. Not audited: it only reads.
+      tags: [commands]
+      security:
+        - engineToken: []
+      parameters:
+        - name: plugin
+          in: path
+          required: true
+          schema: { type: string, pattern: '^[a-z][a-z0-9-]{1,31}$' }
+        - name: view
+          in: path
+          required: true
+          schema: { type: string, pattern: '^[a-z][a-z0-9-]{0,31}$' }
+      responses:
+        '200':
+          description: The view's data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginViewData'
+        '401':
+          description: Missing or invalid engine token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The caller may not read this view.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No such plugin view.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: The source command failed, timed out or printed no JSON object (`plugins.view_failed`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/commands:
     get:
       operationId: listCommands
@@ -2032,6 +2082,96 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DeviceKind'
+        views:
+          description: Live pages the plugin brings, shown from its commands.
+          type: array
+          items:
+            $ref: '#/components/schemas/PluginView'
+    PluginView:
+      description: >-
+        A live page: Canopy runs `source` every `refreshSeconds` (GET /v1/plugins/{plugin}/views/{view})
+        and shows its sections; actions run the plugin's commands on the view or on chosen rows.
+        Reading it and running its actions needs `permission` (administrators always may).
+      type: object
+      required:
+        [id, name, icon, source, refreshSeconds, widget, permission, sections, states, actions]
+      properties:
+        id: { type: string }
+        name:
+          $ref: '#/components/schemas/LocalizedText'
+        icon: { type: string }
+        source: { type: string }
+        refreshSeconds: { type: integer }
+        widget:
+          description: Show a summary in the page header while the view is active.
+          type: boolean
+        permission:
+          description: The global permission the view needs (`plugins:view.<plugin>.<view>`).
+          type: string
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/PluginViewSection'
+        states:
+          type: array
+          items:
+            $ref: '#/components/schemas/PluginViewState'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PluginViewAction'
+    PluginViewSection:
+      type: object
+      required: [key, name, rowActions]
+      properties:
+        key: { type: string }
+        name:
+          $ref: '#/components/schemas/LocalizedText'
+        empty:
+          $ref: '#/components/schemas/LocalizedText'
+        rowActions:
+          type: array
+          items: { type: string }
+    PluginViewState:
+      type: object
+      required: [key, label, tone]
+      properties:
+        key: { type: string }
+        label:
+          $ref: '#/components/schemas/LocalizedText'
+        tone:
+          type: string
+          enum: [active, success, warning, danger, muted]
+    PluginViewAction:
+      type: object
+      required: [id, name, icon, command, on, confirm]
+      properties:
+        id: { type: string }
+        name:
+          $ref: '#/components/schemas/LocalizedText'
+        icon: { type: string }
+        command: { type: string }
+        on:
+          type: string
+          enum: [view, row]
+        confirm: { type: boolean }
+        groups:
+          description: The command's string param taking the chosen groups' ids, comma separated.
+          type: string
+        items:
+          description: The command's string param taking the chosen items' ids, comma separated.
+          type: string
+        input:
+          description: A text param the person types (a new name, links to add).
+          type: string
+    PluginViewData:
+      description: What the view's source command printed (a JSON object).
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          additionalProperties: true
     DeviceKind:
       type: object
       required: [kind, name, detect]

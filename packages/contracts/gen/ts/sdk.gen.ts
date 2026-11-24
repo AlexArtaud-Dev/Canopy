@@ -77,6 +77,9 @@ import type {
   QueryMetricData,
   QueryMetricErrors,
   QueryMetricResponses,
+  ReadPluginViewData,
+  ReadPluginViewErrors,
+  ReadPluginViewResponses,
   RenameEntryData,
   RenameEntryErrors,
   RenameEntryResponses,
@@ -160,6 +163,8 @@ import {
   zPreviewCommandResponse,
   zQueryMetricQuery,
   zQueryMetricResponse,
+  zReadPluginViewPath,
+  zReadPluginViewResponse,
   zRenameEntryBody,
   zRenameEntryResponse,
   zRestoreFromTrashBody,
@@ -600,6 +605,29 @@ export const updatePlugin = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Run a plugin view's source and return its JSON
+ *
+ * Runs the view's source command now (no job, a short timeout, output capped) and returns the JSON object it printed. Needs the view's permission. Not audited: it only reads.
+ */
+export const readPluginView = <ThrowOnError extends boolean = false>(
+  options: Options<ReadPluginViewData, ThrowOnError>,
+): RequestResult<ReadPluginViewResponses, ReadPluginViewErrors, ThrowOnError> =>
+  (options.client ?? client).get<ReadPluginViewResponses, ReadPluginViewErrors, ThrowOnError>({
+    requestValidator: async (data) =>
+      await z
+        .object({
+          body: z.never().optional(),
+          path: zReadPluginViewPath,
+          query: z.never().optional(),
+        })
+        .parseAsync(data),
+    responseValidator: async (data) => await zReadPluginViewResponse.parseAsync(data),
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/v1/plugins/{plugin}/views/{view}',
+    ...options,
   });
 
 /**

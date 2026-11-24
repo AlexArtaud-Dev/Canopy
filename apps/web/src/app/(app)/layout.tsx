@@ -4,6 +4,7 @@ import { JobsDockContainer } from '@/features/jobs';
 import { initialsOf, permissionsOf, requireSession, signOut } from '@/features/auth';
 import { AccountContainer, AppSidebar } from '@/features/shell';
 import { FavoritesNav } from '@/features/files';
+import { PluginViewsNav } from '@/features/plugin-views';
 import { PermissionsProvider } from '@/shared/permissions/can';
 import { QueryProvider } from '@/shared/query/query-provider';
 import { SidebarInset, SidebarProvider } from '@/shared/ui/sidebar';
@@ -19,9 +20,12 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           <AppSidebar
             grantedPermissions={permissionsOf(user)}
             afterWorkspace={
-              <Suspense>
-                <FavoritesNav />
-              </Suspense>
+              <>
+                <PluginViewsNav />
+                <Suspense>
+                  <FavoritesNav />
+                </Suspense>
+              </>
             }
             footer={
               <AccountContainer

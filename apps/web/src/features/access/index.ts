@@ -1,4 +1,4 @@
-export { permissionMatrix } from './access.utils';
+export { permissionMatrix, type PermissionRow } from './access.utils';
 export { GroupMembersContainer } from './group-members.container';
 export { GroupsContainer } from './groups.container';
 export { GroupTabs } from './ui/group-tabs';

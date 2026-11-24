@@ -261,6 +261,54 @@ export const zCommandParam = z.object({
   choices: z.array(zCommandChoice).optional(),
 });
 
+export const zPluginViewSection = z.object({
+  key: z.string(),
+  name: zLocalizedText,
+  empty: zLocalizedText.optional(),
+  rowActions: z.array(z.string()),
+});
+
+export const zPluginViewState = z.object({
+  key: z.string(),
+  label: zLocalizedText,
+  tone: z.enum(['active', 'success', 'warning', 'danger', 'muted']),
+});
+
+export const zPluginViewAction = z.object({
+  id: z.string(),
+  name: zLocalizedText,
+  icon: z.string(),
+  command: z.string(),
+  on: z.enum(['view', 'row']),
+  confirm: z.boolean(),
+  groups: z.string().optional(),
+  items: z.string().optional(),
+  input: z.string().optional(),
+});
+
+/**
+ * A live page: Canopy runs `source` every `refreshSeconds` (GET /v1/plugins/{plugin}/views/{view}) and shows its sections; actions run the plugin's commands on the view or on chosen rows. Reading it and running its actions needs `permission` (administrators always may).
+ */
+export const zPluginView = z.object({
+  id: z.string(),
+  name: zLocalizedText,
+  icon: z.string(),
+  source: z.string(),
+  refreshSeconds: z.int(),
+  widget: z.boolean(),
+  permission: z.string(),
+  sections: z.array(zPluginViewSection),
+  states: z.array(zPluginViewState),
+  actions: z.array(zPluginViewAction),
+});
+
+/**
+ * What the view's source command printed (a JSON object).
+ */
+export const zPluginViewData = z.object({
+  data: z.record(z.string(), z.unknown()),
+});
+
 /**
  * Commands a remote runs on a device that plays: each takes the device; seek a position (1:02:03), volume a level (0-100).
  */
@@ -295,6 +343,7 @@ export const zCommandPlugin = z.object({
   id: z.string(),
   name: zLocalizedText,
   devices: z.array(zDeviceKind).optional(),
+  views: z.array(zPluginView).optional(),
 });
 
 export const zCommandEntry = z.object({
@@ -672,6 +721,16 @@ export const zUpdatePluginPath = z.object({
  * The plugin.
  */
 export const zUpdatePluginResponse = zPlugin;
+
+export const zReadPluginViewPath = z.object({
+  plugin: z.string().regex(/^[a-z][a-z0-9-]{1,31}$/),
+  view: z.string().regex(/^[a-z][a-z0-9-]{0,31}$/),
+});
+
+/**
+ * The view's data.
+ */
+export const zReadPluginViewResponse = zPluginViewData;
 
 /**
  * The visible entries.

@@ -1,0 +1,20 @@
+{
+  "nav": "Plugins",
+  "empty": "Nothing here.",
+  "refresh": "Updates every {seconds} s.",
+  "speed": "{speed}/s",
+  "size": "{loaded} of {total}",
+  "eta": "{eta} left",
+  "progress": "Progress",
+  "started": "{action}: sent",
+  "confirm": "Apply to {count, plural, one {# item} other {# items}}?",
+  "chosen": "{count, plural, one {# chosen} other {# chosen}}",
+  "clear": "Clear",
+  "choose": "Choose {name}",
+  "expand": "Show the contents of {name}",
+  "collapse": "Hide the contents of {name}",
+  "input": "Text",
+  "cancel": "Cancel",
+  "open": "Open {name}",
+  "permissions": "Plugin pages"
+}

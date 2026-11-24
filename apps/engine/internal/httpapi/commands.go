@@ -48,7 +48,9 @@ func (s *server) ListCommands(ctx context.Context, _ api.ListCommandsRequestObje
 	body := api.ListCommands200JSONResponse{Advanced: advanced, Entries: []api.CommandEntry{}}
 	if s.deps.Commands != nil {
 		for _, entry := range s.deps.Commands.List(advanced) {
-			body.Entries = append(body.Entries, toCommandEntry(entry))
+			if mayUseEntry(principal, entry) {
+				body.Entries = append(body.Entries, toCommandEntry(entry))
+			}
 		}
 	}
 	return body, nil
@@ -117,8 +119,53 @@ func toCommandEntry(entry commands.Entry) api.CommandEntry {
 			}
 			converted.Plugin.Devices = &devices
 		}
+		if len(entry.Plugin.Views) > 0 {
+			views := make([]api.PluginView, 0, len(entry.Plugin.Views))
+			for _, view := range entry.Plugin.Views {
+				views = append(views, toPluginView(entry.Plugin.ID, view))
+			}
+			converted.Plugin.Views = &views
+		}
 	}
 	return converted
+}
+
+// optional is nil for an empty string (the contract leaves the field out).
+func optional(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
+}
+
+func toPluginView(pluginID string, view commands.PluginView) api.PluginView {
+	sections := make([]api.PluginViewSection, 0, len(view.Sections))
+	for _, section := range view.Sections {
+		converted := api.PluginViewSection{Key: section.Key, Name: localized(section.Name), RowActions: append([]string{}, section.RowActions...)}
+		if section.Empty != nil {
+			empty := localized(*section.Empty)
+			converted.Empty = &empty
+		}
+		sections = append(sections, converted)
+	}
+	states := make([]api.PluginViewState, 0, len(view.States))
+	for _, state := range view.States {
+		states = append(states, api.PluginViewState{Key: state.Key, Label: localized(state.Label), Tone: api.PluginViewStateTone(state.Tone)})
+	}
+	actions := make([]api.PluginViewAction, 0, len(view.Actions))
+	for _, action := range view.Actions {
+		actions = append(actions, api.PluginViewAction{
+			Id: action.ID, Name: localized(action.Name), Icon: action.Icon, Command: action.Command,
+			On: api.PluginViewActionOn(action.On), Confirm: action.Confirm,
+			Groups: optional(action.Groups), Items: optional(action.Items), Input: optional(action.Input),
+		})
+	}
+	return api.PluginView{
+		Id: view.ID, Name: localized(view.Name), Icon: view.Icon, Source: view.Source,
+		RefreshSeconds: int(view.Refresh.Seconds()), Widget: view.Widget,
+		Permission: commands.ViewPermission(pluginID, view.ID),
+		Sections:   sections, States: states, Actions: actions,
+	}
 }
 
 func toDeviceKind(device commands.DeviceKind) api.DeviceKind {
@@ -150,7 +197,7 @@ func (s *server) plan(ctx context.Context, principal enginetoken.Principal, requ
 		return commands.Entry{}, commands.Plan{}, errUnavailable
 	}
 	entry, _, ok := s.deps.Commands.Get(request.Entry, s.advanced(ctx, principal))
-	if !ok {
+	if !ok || !mayUseEntry(principal, entry) {
 		return commands.Entry{}, commands.Plan{}, errUnavailable
 	}
 	access, err := s.accessOf(ctx, principal)

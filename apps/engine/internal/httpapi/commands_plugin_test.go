@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"testing"
+	"time"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/commands"
 )
@@ -54,5 +55,34 @@ func TestCommandEntryNamesItsPlugin(t *testing.T) {
 	}
 	if fromPlugin.Plugin == nil || fromPlugin.Plugin.Id != "tool" || fromPlugin.Plugin.Name.Fr != "Outil" {
 		t.Fatalf("plugin: %+v", fromPlugin.Plugin)
+	}
+}
+
+func TestCommandEntryListsItsPluginViews(t *testing.T) {
+	text := commands.Text{En: "x", Fr: "x", Es: "x"}
+	view := commands.PluginView{
+		ID: "downloads", Name: text, Icon: "download", Source: "jd.state",
+		Refresh: commands.Duration{Duration: 3 * time.Second}, Widget: true,
+		Sections: []commands.ViewSection{
+			{Key: "downloads", Name: text, RowActions: []string{"enable"}},
+			{Key: "grabber", Name: text, Empty: &text},
+		},
+		States: []commands.ViewState{{Key: "running", Label: text, Tone: "active"}},
+		Actions: []commands.ViewAction{
+			{ID: "pause", Name: text, Icon: "pause", Command: "jd.pause", On: commands.OnView},
+			{ID: "enable", Name: text, Icon: "check", Command: "jd.enable", On: commands.OnRow, Items: "links", Confirm: true},
+		},
+	}
+	converted := toCommandEntry(commands.Entry{ID: "jd.state", Plugin: &commands.PluginRef{ID: "jd", Views: []commands.PluginView{view}}})
+	views := converted.Plugin.Views
+	if views == nil || len(*views) != 1 {
+		t.Fatalf("views: %+v", views)
+	}
+	got := (*views)[0]
+	if got.Permission != "plugins:view.jd.downloads" || got.RefreshSeconds != 3 || !got.Widget || got.Sections[1].Empty == nil || got.Sections[0].Empty != nil {
+		t.Fatalf("view: %+v", got)
+	}
+	if got.States[0].Tone != "active" || got.Actions[0].Items != nil || got.Actions[1].Items == nil || *got.Actions[1].Items != "links" || !got.Actions[1].Confirm {
+		t.Fatalf("states and actions: %+v %+v", got.States, got.Actions)
 	}
 }

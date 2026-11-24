@@ -1,0 +1,20 @@
+{
+  "nav": "Extensiones",
+  "empty": "Nada aquí.",
+  "refresh": "Se actualiza cada {seconds} s.",
+  "speed": "{speed}/s",
+  "size": "{loaded} de {total}",
+  "eta": "quedan {eta}",
+  "progress": "Progreso",
+  "started": "{action}: enviado",
+  "confirm": "¿Aplicar a {count, plural, one {# elemento} other {# elementos}}?",
+  "chosen": "{count, plural, one {# elegido} other {# elegidos}}",
+  "clear": "Borrar",
+  "choose": "Elegir {name}",
+  "expand": "Mostrar el contenido de {name}",
+  "collapse": "Ocultar el contenido de {name}",
+  "input": "Texto",
+  "cancel": "Cancelar",
+  "open": "Abrir {name}",
+  "permissions": "Páginas de extensiones"
+}

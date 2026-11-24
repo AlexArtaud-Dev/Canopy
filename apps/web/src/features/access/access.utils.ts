@@ -36,19 +36,21 @@ export function sanitizeRolePermissions(
   return [...new Set(requested.filter((permission) => known.has(permission)))].sort();
 }
 
-/** True when any of the user's groups enforces two-factor authentication. */
 /** One of the user's groups lets its members sign in with a link sent by e-mail. */
 export function magicLinkAllowed(groups: readonly { allowMagicLink: boolean }[]): boolean {
   return groups.some((group) => group.allowMagicLink);
 }
 
+/** True when any of the user's groups enforces two-factor authentication. */
 export function twoFactorRequired(groups: readonly { requireTwoFactor: boolean }[]): boolean {
   return groups.some((group) => group.requireTwoFactor);
 }
 
 export interface PermissionRow {
   module: string;
-  actions: { action: string; permission: GlobalPermission }[];
+  /** Already translated (a plugin's own names); else the module's label is looked up. */
+  label?: string;
+  actions: { action: string; permission: GlobalPermission; label?: string }[];
 }
 
 /** Rows of the role editor's matrix: one per module, its actions in declaration order. */
