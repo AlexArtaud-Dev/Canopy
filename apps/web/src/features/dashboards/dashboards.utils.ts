@@ -4,7 +4,8 @@ import { timeRanges, type TimeRange, type VariableUnit } from './variables.utils
 
 /**
  * What a panel draws. `folders` lists the places the person can open (the default dashboard's
- * entry point); `log` lists log lines; the others draw variables' values.
+ * entry point); `disks` sums up disk health; `log` lists log lines; the others draw variables'
+ * values.
  */
 export const panelTypes = [
   'stat',
@@ -16,6 +17,7 @@ export const panelTypes = [
   'table',
   'log',
   'folders',
+  'disks',
 ] as const;
 export type PanelType = (typeof panelTypes)[number];
 
@@ -142,6 +144,8 @@ export function formatValue(value: number, unit: VariableUnit, locale: string): 
       return `${formatSize(value, locale)}/s`;
     case 'count':
       return number(0);
+    case 'celsius':
+      return `${number(0)} °C`;
   }
 }
 

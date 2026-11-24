@@ -34,7 +34,8 @@
       "compress": "Compresión",
       "extract": "Extracción",
       "checksum": "Suma de verificación",
-      "command": "Comando"
+      "command": "Comando",
+      "disk_self_test": "Autoprueba de disco"
     },
     "transferResult": "{items, plural, one {# elemento} other {# elementos}} · {size}",
     "transferSkipped": "{count, plural, one {# omitido} other {# omitidos}}",

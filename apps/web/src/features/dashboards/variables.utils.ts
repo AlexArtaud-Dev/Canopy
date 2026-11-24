@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /**
  * Variable families: one global permission each (`metrics:<family>`), granted in the roles editor
- * under "Dashboard variables". The engine checks its own three families again.
+ * under "Dashboard variables". The engine checks its own families again.
  */
 export const variableFamilies = [
   'system',
@@ -11,10 +11,11 @@ export const variableFamilies = [
   'shares',
   'users',
   'logs',
+  'disks',
 ] as const;
 export type VariableFamily = (typeof variableFamilies)[number];
 
-export type VariableUnit = 'percent' | 'bytes' | 'bytesPerSecond' | 'count';
+export type VariableUnit = 'percent' | 'bytes' | 'bytesPerSecond' | 'count' | 'celsius';
 
 /** How a variable's data comes: values over time, or a list of log lines. */
 export type VariableKind = 'series' | 'log';

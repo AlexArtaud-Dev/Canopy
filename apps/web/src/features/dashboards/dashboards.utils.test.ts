@@ -83,6 +83,7 @@ describe('values', () => {
   it('are written in their unit', () => {
     expect(formatValue(42.37, 'percent', 'en')).toBe('42.4 %');
     expect(formatValue(1536, 'bytes', 'en')).toBe('1.5 KB');
+    expect(formatValue(41.6, 'celsius', 'en')).toBe('42 °C');
     expect(formatValue(512, 'bytes', 'en')).toBe('512 B');
     expect(formatValue(150 * 1024 * 1024, 'bytes', 'en')).toBe('150 MB');
     expect(formatValue(-5, 'bytes', 'en')).toBe('0 B');

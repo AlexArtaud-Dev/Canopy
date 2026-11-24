@@ -18,7 +18,8 @@
     "commands": "Commandes",
     "plugins": "Plugins",
     "devices": "Appareils",
-    "dashboards": "Tableaux de bord"
+    "dashboards": "Tableaux de bord",
+    "disks": "Santé des disques"
   },
   "sections": {
     "people": "Gestion des utilisateurs",

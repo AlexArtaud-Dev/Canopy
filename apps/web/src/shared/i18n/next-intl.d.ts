@@ -5,6 +5,7 @@ import type commands from '../../../messages/en/commands.json';
 import type common from '../../../messages/en/common.json';
 import type dashboards from '../../../messages/en/dashboards.json';
 import type devices from '../../../messages/en/devices.json';
+import type disks from '../../../messages/en/disks.json';
 import type errors from '../../../messages/en/errors.json';
 import type files from '../../../messages/en/files.json';
 import type jobs from '../../../messages/en/jobs.json';
@@ -33,6 +34,7 @@ declare module 'next-intl' {
       commands: typeof commands;
       common: typeof common;
       devices: typeof devices;
+      disks: typeof disks;
       errors: typeof errors;
       files: typeof files;
       jobs: typeof jobs;

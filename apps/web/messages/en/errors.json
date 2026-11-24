@@ -174,5 +174,13 @@
   },
   "dashboards": {
     "not_found": "This dashboard no longer exists."
+  },
+  "disks": {
+    "forbidden": "You may not read disk health.",
+    "not_configured": "Disk health is not set up on this server.",
+    "unavailable": "The disks service does not answer. Try again in a moment.",
+    "not_found": "This disk is no longer there.",
+    "invalid_test": "This self-test does not exist.",
+    "self_test_failed": "The disk failed its self-test: back up its data."
   }
 }

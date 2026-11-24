@@ -1,0 +1,79 @@
+{
+  "description": "L’état des disques du serveur, d’après leurs propres données SMART. Les disques en veille ne sont jamais réveillés pour les lire.",
+  "checkNow": "Vérifier maintenant",
+  "checked": "Vérifié {when}",
+  "checkedNever": "Pas encore vérifié",
+  "checkDone": "Disques vérifiés.",
+  "summary": "{total, plural, one {# disque} other {# disques}}",
+  "summaryFailing": "{count, plural, one {# défaillant} other {# défaillants}}",
+  "summaryWarning": "{count, plural, one {# à surveiller} other {# à surveiller}}",
+  "summaryHot": "{count, plural, one {# trop chaud} other {# trop chauds}}",
+  "allHealthy": "Tous en bonne santé",
+  "loadError": "L’état des disques n’a pas pu être lu.",
+  "notConfigured": {
+    "title": "La santé des disques n’est pas activée",
+    "description": "Un petit service lit les disques pour Canopy : ajoutez-le à votre fichier compose et indiquez-le au moteur, comme l’explique le guide sur la santé des disques."
+  },
+  "empty": {
+    "title": "Aucun disque trouvé",
+    "description": "Le service des disques n’en voit aucun : listez-les sous « devices » dans sa section du fichier compose."
+  },
+  "kinds": {
+    "hdd": "Disque dur",
+    "ssd": "SSD",
+    "nvme": "SSD NVMe",
+    "unknown": "Disque"
+  },
+  "health": {
+    "passed": "En bonne santé",
+    "warning": "À surveiller",
+    "failing": "Défaillant",
+    "unknown": "Pas de données SMART"
+  },
+  "hot": "Trop chaud",
+  "asleep": "En veille",
+  "asleepHint": "Arrêté : ces valeurs datent de sa dernière lecture.",
+  "reasons": {
+    "smartFailed": "Le disque signale qu’il est défaillant : sauvegardez ses données et remplacez-le.",
+    "criticalWarning": "Le disque signale une alerte critique : sauvegardez ses données.",
+    "reallocated": "Des secteurs abîmés ont été remplacés par des secteurs de réserve.",
+    "pending": "Des secteurs n’ont pas pu être lus et attendent d’être remplacés.",
+    "uncorrectable": "Des secteurs sont devenus illisibles.",
+    "mediaErrors": "Le disque a rencontré des erreurs qu’il n’a pas pu corriger.",
+    "wornOut": "Le disque approche de la fin de sa durée de vie prévue.",
+    "lowSpare": "Le disque manque de blocs de réserve.",
+    "testFailed": "Son dernier autotest a échoué."
+  },
+  "stats": {
+    "temperature": "Température",
+    "age": "En marche depuis",
+    "ageValue": "{years, plural, =0 {} one {# an, } other {# ans, }}{days, plural, one {# jour} other {# jours}}",
+    "powerCycles": "Démarrages",
+    "reallocated": "Secteurs réalloués",
+    "pending": "Secteurs en attente",
+    "uncorrectable": "Secteurs illisibles",
+    "crcErrors": "Erreurs de câble",
+    "mediaErrors": "Erreurs de support",
+    "spare": "Blocs de réserve",
+    "written": "Données écrites",
+    "wear": "Usure",
+    "wearValue": "{used} % de sa durée de vie prévue",
+    "serial": "Numéro de série",
+    "firmware": "Micrologiciel"
+  },
+  "selfTest": {
+    "title": "Autotest",
+    "none": "Aucun autotest enregistré.",
+    "last": "Dernier test : {kind}, {result}",
+    "running": "Test en cours, reste {remaining} %",
+    "short": "Test rapide",
+    "long": "Test complet",
+    "shortHint": "Quelques minutes.",
+    "longHint": "Plusieurs heures ; le disque reste utilisable pendant ce temps.",
+    "started": "Autotest lancé : suivez-le dans les opérations."
+  },
+  "panel": {
+    "none": "Aucun disque à afficher.",
+    "open": "Ouvrir la santé des disques"
+  }
+}

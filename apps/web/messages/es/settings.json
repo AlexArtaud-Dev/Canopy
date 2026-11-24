@@ -29,7 +29,8 @@
     "thumbnails": "Miniaturas",
     "shares": "Enlaces compartidos",
     "commands": "Comandos",
-    "plugins": "Plugins"
+    "plugins": "Plugins",
+    "disks": "Salud de los discos"
   },
   "groups": {
     "sessions": "Sesiones",
@@ -44,7 +45,9 @@
     "display": "Visualización",
     "links": "Enlaces",
     "advanced": "Avanzado",
-    "sources": "Fuentes"
+    "sources": "Fuentes",
+    "monitoring": "Supervisión",
+    "alerts": "Alertas"
   },
   "fields": {
     "auth": {
@@ -203,6 +206,20 @@
       "savedValues": {
         "label": "Valores guardados",
         "description": "Valores guardados para los campos de los plugins. Edítelos en la página Plugins."
+      }
+    },
+    "disks": {
+      "checkMinutes": {
+        "label": "Comprobar cada (minutos)",
+        "description": "Con qué frecuencia se leen los discos. Los discos en reposo nunca se despiertan para ello."
+      },
+      "hddTemperatureLimit": {
+        "label": "Discos duros demasiado calientes desde (°C)",
+        "description": "Se avisa a quienes consultan la salud de los discos cuando un disco duro alcanza esta temperatura."
+      },
+      "ssdTemperatureLimit": {
+        "label": "SSD demasiado calientes desde (°C)",
+        "description": "Lo mismo para las unidades SSD y NVMe, que se calientan más."
       }
     }
   },

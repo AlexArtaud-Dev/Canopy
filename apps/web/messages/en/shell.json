@@ -18,7 +18,8 @@
     "commands": "Commands",
     "plugins": "Plugins",
     "devices": "Devices",
-    "dashboards": "Dashboards"
+    "dashboards": "Dashboards",
+    "disks": "Disk health"
   },
   "sections": {
     "people": "User management",

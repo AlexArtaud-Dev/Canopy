@@ -53,6 +53,8 @@ export const presetPanelIds = [
   'denied',
   'denied-history',
   'audit',
+  'disks',
+  'disk-temperature',
 ] as const;
 export type PresetPanelId = (typeof presetPanelIds)[number];
 
@@ -209,6 +211,13 @@ const presets: Record<PresetKey, Preset> = {
             variables: ['system.network.received', 'system.network.sent'],
             w: 12,
           },
+        ],
+      },
+      {
+        h: 4,
+        panels: [
+          { id: 'disks', type: 'disks', variables: [], w: 5 },
+          { id: 'disk-temperature', type: 'line', variables: ['disks.temperature'], w: 7 },
         ],
       },
     ],
@@ -391,6 +400,14 @@ export function shareRow<T extends { w: number }>(items: readonly T[]): T[] {
   });
 }
 
+/** Disk health reads the `disks` family: its panel shows to those who may read that family. */
+const diskHealthVariable = 'disks.temperature';
+
+/** Panels that draw no variable: the folders list always, disk health when it is readable. */
+function shownWithoutVariables(type: PanelDraft['type'], readable: ReadonlySet<string>): boolean {
+  return type === 'folders' || (type === 'disks' && readable.has(diskHealthVariable));
+}
+
 /** The panels of a preset the person may read, rows packed from the top. */
 function presetPanels(
   preset: Preset,
@@ -402,7 +419,7 @@ function presetPanels(
   for (const row of preset.rows) {
     const shown = row.panels
       .map((panel) => ({ ...panel, variables: panel.variables.filter((id) => readable.has(id)) }))
-      .filter((panel) => panel.type === 'folders' || panel.variables.length > 0);
+      .filter((panel) => panel.variables.length > 0 || shownWithoutVariables(panel.type, readable));
     if (shown.length === 0) continue;
     let x = 0;
     for (const panel of shareRow(shown)) {
