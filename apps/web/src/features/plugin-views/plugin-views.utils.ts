@@ -168,7 +168,10 @@ export function actionValues(
   const values: Record<string, string> = {};
   if (action.groups && chosen.groups.length > 0) values[action.groups] = chosen.groups.join(',');
   if (action.items && chosen.items.length > 0) values[action.items] = chosen.items.join(',');
-  if (action.input && chosen.input !== undefined) values[action.input] = chosen.input;
+  // Commands take no line breaks: several lines (links pasted one per line) become one line.
+  if (action.input && chosen.input !== undefined) {
+    values[action.input] = chosen.input.trim().split(/\s+/).join(' ');
+  }
   return values;
 }
 

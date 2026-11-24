@@ -159,6 +159,10 @@ describe('plugin views', () => {
       name: 'New',
     });
     expect(actionValues({}, { groups: ['1'], items: [] })).toEqual({});
+    const pasted = [' https://a', 'https://b\t '].join('\n');
+    expect(actionValues({ input: 'links' }, { groups: [], items: [], input: pasted })).toEqual({
+      links: 'https://a https://b',
+    });
     expect(actionValues(action, { groups: [], items: [] })).toEqual({});
   });
 
