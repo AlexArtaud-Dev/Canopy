@@ -38,7 +38,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip';
 
 import { sortKeys, type BrowserView, type SortKey, type SortOrder } from '../browser.utils';
-import { breadcrumbs } from '../files.utils';
+import { breadcrumbs, crumbsFold, crumbVisible } from '../files.utils';
 import { DropCrumb } from './dnd';
 import { SearchBox } from './search-box';
 
@@ -72,6 +72,8 @@ interface BrowserToolbarProps {
 export function BrowserToolbar(props: BrowserToolbarProps) {
   const t = useTranslations('files.browser');
   const crumbs = breadcrumbs(props.path);
+  // Deep paths fold their middle folders into "…" on every screen (more of them on a phone).
+  const fold = crumbsFold(crumbs.length);
   const OrderIcon = props.order === 'asc' ? ArrowUp : ArrowDown;
 
   return (
@@ -83,12 +85,16 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
         {crumbs.map((crumb, index) => {
           const current = index === crumbs.length - 1;
           const label = crumb.path === '/' ? t('root') : crumb.name;
-          // On a phone the folders between the root and the current one fold into "…".
-          const middle = index > 0 && !current;
           return (
             <Fragment key={crumb.path}>
-              {index === 1 && crumbs.length > 2 && (
-                <span className="flex shrink-0 items-center sm:hidden">
+              {index === 1 && (fold.phone || fold.wide) && (
+                <span
+                  className={cn(
+                    'flex shrink-0 items-center',
+                    !fold.phone && 'max-sm:hidden',
+                    !fold.wide && 'sm:hidden',
+                  )}
+                >
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm" aria-label={t('hiddenFolders')}>
@@ -96,8 +102,15 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-72 max-w-[85vw]">
-                      {crumbs.slice(1, -1).map((hidden) => (
-                        <DropdownMenuItem key={hidden.path} asChild>
+                      {crumbs.slice(1, -1).map((hidden, offset) => (
+                        <DropdownMenuItem
+                          key={hidden.path}
+                          asChild
+                          // The parent stays in the path on a wider screen: not in the menu.
+                          className={cn(
+                            crumbVisible(offset + 1, crumbs.length, true) && 'sm:hidden',
+                          )}
+                        >
                           <Link href={props.hrefFor(hidden.path) as Route}>
                             <Folder aria-hidden />
                             <span className="truncate">{hidden.name}</span>
@@ -109,9 +122,15 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
                   <ChevronRight className="text-muted-foreground size-3.5 shrink-0" aria-hidden />
                 </span>
               )}
-              <span className={cn(cnCrumb(current), middle && 'max-sm:hidden')}>
+              <span
+                className={cn(
+                  cnCrumb(current, index === 0),
+                  !crumbVisible(index, crumbs.length, false) && 'max-sm:hidden',
+                  !crumbVisible(index, crumbs.length, true) && 'sm:hidden',
+                )}
+              >
                 {current ? (
-                  <span aria-current="page" className="truncate px-2 font-medium">
+                  <span aria-current="page" className="truncate px-2 font-medium" title={label}>
                     {label}
                   </span>
                 ) : (
@@ -120,7 +139,11 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
                       asChild
                       variant="ghost"
                       size="sm"
-                      className="max-w-40 min-w-0 shrink max-sm:max-w-32"
+                      className={cn(
+                        'max-w-40 max-sm:max-w-32',
+                        index === 0 ? 'shrink-0' : 'min-w-12 shrink-[4]',
+                      )}
+                      title={label}
                     >
                       <Link href={props.hrefFor(crumb.path) as Route}>
                         <span className="truncate">{label}</span>
@@ -268,6 +291,9 @@ export function BrowserToolbar(props: BrowserToolbarProps) {
   );
 }
 
-function cnCrumb(current: boolean) {
-  return current ? 'flex min-w-0 items-center' : 'flex min-w-0 shrink items-center';
+function cnCrumb(current: boolean, root: boolean) {
+  // The open folder takes the room left and truncates; the root keeps its width; the folders in
+  // between give way first.
+  if (current) return 'flex min-w-24 flex-1 items-center';
+  return root ? 'flex shrink-0 items-center' : 'flex min-w-0 shrink-[4] items-center';
 }

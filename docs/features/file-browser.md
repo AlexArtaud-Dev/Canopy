@@ -22,6 +22,10 @@ be bookmarked or shared. Defaults (`/`, name, ascending) are left out. Junk fall
   move under the name. Rows are 44 px (touch target).
 - **Grid**: tiles whose column count follows the width.
 - The choice is remembered per browser (local storage; falls back to list).
+- **Breadcrumb**: the root and the open folder always show; deeper paths fold the folders between
+  into a "…" menu: on a phone all of them, on a wider screen all but the parent once the path is
+  deeper than three folders (`crumbVisible`, `crumbsFold`, in CSS so nothing jumps). The open
+  folder takes the room left and truncates (full name on hover); the root keeps its width.
 
 ## Selection and keyboard
 
