@@ -131,6 +131,7 @@ type PluginRef struct {
 	ID      string
 	Name    Text
 	Devices []DeviceKind
+	Views   []PluginView
 }
 
 // DeviceKind is a kind of device a plugin finds on the network (screens), that Canopy keeps,

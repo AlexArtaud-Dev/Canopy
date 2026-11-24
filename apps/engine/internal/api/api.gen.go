@@ -378,6 +378,51 @@ func (e PathAction) Valid() bool {
 	}
 }
 
+// Defines values for PluginViewActionOn.
+const (
+	Row  PluginViewActionOn = "row"
+	View PluginViewActionOn = "view"
+)
+
+// Valid indicates whether the value is a known member of the PluginViewActionOn enum.
+func (e PluginViewActionOn) Valid() bool {
+	switch e {
+	case Row:
+		return true
+	case View:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PluginViewStateTone.
+const (
+	Active  PluginViewStateTone = "active"
+	Danger  PluginViewStateTone = "danger"
+	Muted   PluginViewStateTone = "muted"
+	Success PluginViewStateTone = "success"
+	Warning PluginViewStateTone = "warning"
+)
+
+// Valid indicates whether the value is a known member of the PluginViewStateTone enum.
+func (e PluginViewStateTone) Valid() bool {
+	switch e {
+	case Active:
+		return true
+	case Danger:
+		return true
+	case Muted:
+		return true
+	case Success:
+		return true
+	case Warning:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for PreviewKind.
 const (
 	Audio PreviewKind = "audio"
@@ -601,6 +646,9 @@ type CommandPlugin struct {
 	Devices *[]DeviceKind `json:"devices,omitempty"`
 	Id      string        `json:"id"`
 	Name    LocalizedText `json:"name"`
+
+	// Views Live pages the plugin brings, shown from its commands.
+	Views *[]PluginView `json:"views,omitempty"`
 }
 
 // CommandPreview defines model for CommandPreview.
@@ -993,6 +1041,69 @@ type PluginRelease struct {
 	Version        string        `json:"version"`
 }
 
+// PluginView A live page: Canopy runs `source` every `refreshSeconds` (GET /v1/plugins/{plugin}/views/{view}) and shows its sections; actions run the plugin's commands on the view or on chosen rows. Reading it and running its actions needs `permission` (administrators always may).
+type PluginView struct {
+	Actions []PluginViewAction `json:"actions"`
+	Icon    string             `json:"icon"`
+	Id      string             `json:"id"`
+	Name    LocalizedText      `json:"name"`
+
+	// Permission The global permission the view needs (`plugins:view.<plugin>.<view>`).
+	Permission     string              `json:"permission"`
+	RefreshSeconds int                 `json:"refreshSeconds"`
+	Sections       []PluginViewSection `json:"sections"`
+	Source         string              `json:"source"`
+	States         []PluginViewState   `json:"states"`
+
+	// Widget Show a summary in the page header while the view is active.
+	Widget bool `json:"widget"`
+}
+
+// PluginViewAction defines model for PluginViewAction.
+type PluginViewAction struct {
+	Command string `json:"command"`
+	Confirm bool   `json:"confirm"`
+
+	// Groups The command's string param taking the chosen groups' ids, comma separated.
+	Groups *string `json:"groups,omitempty"`
+	Icon   string  `json:"icon"`
+	Id     string  `json:"id"`
+
+	// Input A text param the person types (a new name, links to add).
+	Input *string `json:"input,omitempty"`
+
+	// Items The command's string param taking the chosen items' ids, comma separated.
+	Items *string            `json:"items,omitempty"`
+	Name  LocalizedText      `json:"name"`
+	On    PluginViewActionOn `json:"on"`
+}
+
+// PluginViewActionOn defines model for PluginViewAction.On.
+type PluginViewActionOn string
+
+// PluginViewData What the view's source command printed (a JSON object).
+type PluginViewData struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+// PluginViewSection defines model for PluginViewSection.
+type PluginViewSection struct {
+	Empty      *LocalizedText `json:"empty,omitempty"`
+	Key        string         `json:"key"`
+	Name       LocalizedText  `json:"name"`
+	RowActions []string       `json:"rowActions"`
+}
+
+// PluginViewState defines model for PluginViewState.
+type PluginViewState struct {
+	Key   string              `json:"key"`
+	Label LocalizedText       `json:"label"`
+	Tone  PluginViewStateTone `json:"tone"`
+}
+
+// PluginViewStateTone defines model for PluginViewState.Tone.
+type PluginViewStateTone string
+
 // PreviewKind How the file can be shown in the browser, decided by the engine from its extension (`none` for folders and unknown files: download only).
 type PreviewKind string
 
@@ -1338,6 +1449,9 @@ type ServerInterface interface {
 	// UpdatePlugin Enable, disable, pin or unpin a plugin
 	// (PATCH /v1/plugins/{pluginId})
 	UpdatePlugin(w http.ResponseWriter, r *http.Request, pluginId string)
+	// ReadPluginView Run a plugin view's source and return its JSON
+	// (GET /v1/plugins/{plugin}/views/{view})
+	ReadPluginView(w http.ResponseWriter, r *http.Request, plugin string, view string)
 	// ListTrash Items in the trash
 	// (GET /v1/trash)
 	ListTrash(w http.ResponseWriter, r *http.Request)
@@ -1551,6 +1665,12 @@ func (_ Unimplemented) UninstallPlugin(w http.ResponseWriter, r *http.Request, p
 // UpdatePlugin Enable, disable, pin or unpin a plugin
 // (PATCH /v1/plugins/{pluginId})
 func (_ Unimplemented) UpdatePlugin(w http.ResponseWriter, r *http.Request, pluginId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ReadPluginView Run a plugin view's source and return its JSON
+// (GET /v1/plugins/{plugin}/views/{view})
+func (_ Unimplemented) ReadPluginView(w http.ResponseWriter, r *http.Request, plugin string, view string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -2377,6 +2497,41 @@ func (siw *ServerInterfaceWrapper) UpdatePlugin(w http.ResponseWriter, r *http.R
 	handler.ServeHTTP(w, r)
 }
 
+// ReadPluginView operation middleware
+func (siw *ServerInterfaceWrapper) ReadPluginView(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "plugin" -------------
+	var plugin string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "plugin", chi.URLParam(r, "plugin"), &plugin, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "plugin", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "view" -------------
+	var view string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "view", chi.URLParam(r, "view"), &view, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "view", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ReadPluginView(w, r, plugin, view)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // ListTrash operation middleware
 func (siw *ServerInterfaceWrapper) ListTrash(w http.ResponseWriter, r *http.Request) {
 
@@ -2565,6 +2720,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Patch(options.BaseURL+"/v1/plugins/{pluginId}", wrapper.UpdatePlugin)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/plugins/{plugin}/views/{view}", wrapper.ReadPluginView)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/v1/commands", wrapper.ListCommands)
@@ -4951,6 +5109,85 @@ func (response UpdatePlugin404JSONResponse) VisitUpdatePluginResponse(w http.Res
 	return err
 }
 
+type ReadPluginViewRequestObject struct {
+	Plugin string `json:"plugin"`
+	View   string `json:"view"`
+}
+
+type ReadPluginViewResponseObject interface {
+	VisitReadPluginViewResponse(w http.ResponseWriter) error
+}
+
+type ReadPluginView200JSONResponse PluginViewData
+
+func (response ReadPluginView200JSONResponse) VisitReadPluginViewResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ReadPluginView401JSONResponse Error
+
+func (response ReadPluginView401JSONResponse) VisitReadPluginViewResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ReadPluginView403JSONResponse Error
+
+func (response ReadPluginView403JSONResponse) VisitReadPluginViewResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ReadPluginView404JSONResponse Error
+
+func (response ReadPluginView404JSONResponse) VisitReadPluginViewResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ReadPluginView502JSONResponse Error
+
+func (response ReadPluginView502JSONResponse) VisitReadPluginViewResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(502)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type ListTrashRequestObject struct {
 }
 
@@ -5168,6 +5405,9 @@ type StrictServerInterface interface {
 	// UpdatePlugin Enable, disable, pin or unpin a plugin
 	// (PATCH /v1/plugins/{pluginId})
 	UpdatePlugin(ctx context.Context, request UpdatePluginRequestObject) (UpdatePluginResponseObject, error)
+	// ReadPluginView Run a plugin view's source and return its JSON
+	// (GET /v1/plugins/{plugin}/views/{view})
+	ReadPluginView(ctx context.Context, request ReadPluginViewRequestObject) (ReadPluginViewResponseObject, error)
 	// ListTrash Items in the trash
 	// (GET /v1/trash)
 	ListTrash(ctx context.Context, request ListTrashRequestObject) (ListTrashResponseObject, error)
@@ -6175,6 +6415,33 @@ func (sh *strictHandler) UpdatePlugin(w http.ResponseWriter, r *http.Request, pl
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(UpdatePluginResponseObject); ok {
 		if err := validResponse.VisitUpdatePluginResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ReadPluginView operation middleware
+func (sh *strictHandler) ReadPluginView(w http.ResponseWriter, r *http.Request, plugin string, view string) {
+	var request ReadPluginViewRequestObject
+
+	request.Plugin = plugin
+	request.View = view
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ReadPluginView(ctx, request.(ReadPluginViewRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ReadPluginView")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ReadPluginViewResponseObject); ok {
+		if err := validResponse.VisitReadPluginViewResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
