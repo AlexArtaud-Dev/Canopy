@@ -1,0 +1,9 @@
+date: 2026-11-24
+entries:
+  - type: feat
+    scope: plugins
+    issue: 305
+    text:
+      en: 'Plugins can bring live pages: a Downloads page follows and controls JDownloader 2 through the jdctl plugin, with a header pill while downloads run. Each page is a right of its own, under “Plugin pages” in the roles editor.'
+      fr: 'Les plugins peuvent apporter des pages en direct : une page Téléchargements suit et pilote JDownloader 2 avec le plugin jdctl, avec une pastille dans l’en-tête pendant les téléchargements. Chaque page est un droit à part, sous « Pages des extensions » dans l’éditeur de rôles.'
+      es: 'Los plugins pueden aportar páginas en directo: una página Descargas sigue y controla JDownloader 2 con el plugin jdctl, con una píldora en la cabecera mientras descargan. Cada página es un permiso propio, en «Páginas de extensiones» del editor de roles.'
