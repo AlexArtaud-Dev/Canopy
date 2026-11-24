@@ -1,0 +1,9 @@
+date: 2026-11-24
+entries:
+  - type: feat
+    scope: disks
+    issue: 308
+    text:
+      en: 'Disk health: a page under Monitoring shows each disk’s SMART verdict, temperature, age, damaged sectors and wear, runs quick or full self-tests, and notifies you when a disk starts failing, shows new damage or gets too hot. A dashboard panel and disk metrics come with it. Needs the optional disks service (see the disk health guide); sleeping disks are never woken up.'
+      fr: 'Santé des disques : une page dans Supervision montre le verdict SMART de chaque disque, sa température, son âge, ses secteurs abîmés et son usure, lance des autotests rapides ou complets, et vous prévient quand un disque devient défaillant, montre de nouveaux dommages ou chauffe trop. Un panneau de tableau de bord et des métriques l’accompagnent. Nécessite le service des disques, optionnel (voir le guide) ; les disques en veille ne sont jamais réveillés.'
+      es: 'Salud de los discos: una página en Supervisión muestra el veredicto SMART de cada disco, su temperatura, su edad, sus sectores dañados y su desgaste, lanza autopruebas rápidas o completas y le avisa cuando un disco empieza a fallar, muestra nuevos daños o se calienta demasiado. Incluye un panel de tablero y métricas de discos. Requiere el servicio de discos, opcional (vea la guía); los discos en reposo nunca se despiertan.'
