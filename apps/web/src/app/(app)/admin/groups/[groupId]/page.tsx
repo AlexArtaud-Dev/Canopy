@@ -1,4 +1,4 @@
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, MailCheck, ShieldCheck } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -70,6 +70,12 @@ export default async function GroupPage({ params }: GroupPageProps) {
               <Badge variant="outline" className="gap-1">
                 <ShieldCheck aria-hidden />
                 {t('groups.requireTwoFactor')}
+              </Badge>
+            )}
+            {group.allowMagicLink && (
+              <Badge variant="outline" className="gap-1">
+                <MailCheck aria-hidden />
+                {t('groups.allowMagicLink')}
               </Badge>
             )}
             {group.roleIds.map((roleId) => (

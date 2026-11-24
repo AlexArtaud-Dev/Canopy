@@ -1,6 +1,6 @@
 'use client';
 
-import { MoreHorizontal, Plus, ShieldCheck, UsersRound } from 'lucide-react';
+import { MailCheck, MoreHorizontal, Plus, ShieldCheck, UsersRound } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -131,6 +131,12 @@ export function GroupsContainer({
                       {t('requireTwoFactor')}
                     </Badge>
                   )}
+                  {group.allowMagicLink && (
+                    <Badge variant="outline" className="gap-1">
+                      <MailCheck aria-hidden />
+                      {t('allowMagicLink')}
+                    </Badge>
+                  )}
                 </p>
                 {group.description && (
                   <p className="text-muted-foreground line-clamp-2 text-sm">{group.description}</p>
@@ -203,6 +209,7 @@ export function GroupsContainer({
               name: dialog.group.name,
               description: dialog.group.description,
               requireTwoFactor: dialog.group.requireTwoFactor,
+              allowMagicLink: dialog.group.allowMagicLink,
               roleIds: dialog.group.roleIds,
             }
           }

@@ -70,5 +70,14 @@
     "more": "{count, plural, one {+# autre} other {+# autres}}",
     "action": "Voir le dépôt",
     "footer": "Vous recevez cet e-mail car vous avez demandé à être prévenu des dépôts sur ce lien. Pour l’arrêter, recréez le lien sans cette option."
+  },
+  "magicLink": {
+    "subject": "Votre lien de connexion à Canopy",
+    "title": "Connectez-vous à Canopy, {name}",
+    "preheader": "Un clic pour vous connecter.",
+    "body": "Quelqu’un a demandé à se connecter à votre compte Canopy avec un lien. Utilisez le bouton ci-dessous pour continuer.",
+    "expiry": "Ce lien ne sert qu’une fois et expire dans {minutes} minutes.",
+    "ignore": "Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail : personne ne peut se connecter sans lui.",
+    "action": "Se connecter"
   }
 }

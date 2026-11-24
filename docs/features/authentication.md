@@ -31,6 +31,14 @@ Local accounts only (Better Auth, username + password). No public sign-up.
   call it, after validation, rate limiting and with our resolved client IP.
 - **Audit**: `auth.setup`, `auth.sign_in` (success / denied with the attempted username),
   `auth.sign_out`.
+- **Sign-in links** (magic links): offered on `/login` when e-mail is configured and a group allows
+  them (`groups.allow_magic_link`). `/login/link` asks for a username or e-mail and always answers
+  the same; a link is sent only to an enabled account with an e-mail address in such a group
+  (`requestMagicLink`, 5 per 15 min per IP, audited `auth.magic_link_request`). Better Auth's
+  `magicLink` plugin keeps the token hashed, single use, 15 minutes, no sign-up; the e-mail goes
+  through the outbox (themed, listed). The link opens `/login/link?token=…`, which signs in only on
+  a click (mail scanners cannot use it up); the group is checked again, and the usual session
+  hook, 2FA, audit (`method: magic_link`) and new-device notice apply (`completeSignIn`).
 - **Two-factor (TOTP)**: enrolled from Account → Security (QR code + manual key, confirmed by a
   first code). RFC 6238 (SHA-1, 6 digits, 30 s, ±1 step), implemented in `totp.utils.ts`; a used
   step is never accepted again. Secrets are sealed (`auth.totp:<userId>`); 10 single-use recovery

@@ -70,6 +70,7 @@
       "drop_off": "Depósito recibido",
       "drop_off_code": "Código de depósito",
       "test": "Prueba",
+      "magic_link": "Enlace de acceso",
       "other": "Otro"
     },
     "viewer": {

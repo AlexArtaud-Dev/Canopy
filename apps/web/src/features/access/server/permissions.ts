@@ -6,7 +6,7 @@ import { appRegistry } from '@/modules';
 import { getDb } from '@/shared/db/client';
 import type { GlobalPermission } from '@/shared/modules/module.types';
 
-import { effectivePermissions, twoFactorRequired } from '../access.utils';
+import { effectivePermissions, magicLinkAllowed, twoFactorRequired } from '../access.utils';
 import {
   groupMembersTable,
   groupRolesTable,
@@ -53,6 +53,16 @@ export async function groupsRequireTwoFactor(userId: string): Promise<boolean> {
     .innerJoin(groupsTable, eq(groupsTable.id, groupMembersTable.groupId))
     .where(eq(groupMembersTable.userId, userId));
   return twoFactorRequired(rows.map((row) => ({ requireTwoFactor: row.require })));
+}
+
+/** True when one of the user's groups lets its members sign in with an e-mailed link. */
+export async function groupsAllowMagicLink(userId: string): Promise<boolean> {
+  const rows = await getDb()
+    .select({ allowMagicLink: groupsTable.allowMagicLink })
+    .from(groupMembersTable)
+    .innerJoin(groupsTable, eq(groupsTable.id, groupMembersTable.groupId))
+    .where(eq(groupMembersTable.userId, userId));
+  return magicLinkAllowed(rows);
 }
 
 /** Ids of the user's groups (carried in engine tokens for group path grants). */

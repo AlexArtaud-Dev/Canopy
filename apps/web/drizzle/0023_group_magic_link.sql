@@ -1,0 +1,1 @@
+ALTER TABLE "auth"."groups" ADD COLUMN "allow_magic_link" boolean DEFAULT false NOT NULL;

@@ -4,7 +4,8 @@
   generated from the module registry (one row per module, one checkbox per action), or "Full
   access" (`*`, includes future modules). Built-in Admin, Editor and Viewer keep their translated
   name and cannot be deleted; their permissions are editable.
-- **Groups** (`/admin/groups`, `groups:*`): name, description, roles and "require two-factor".
+- **Groups** (`/admin/groups`, `groups:*`): name, description, roles, "require two-factor" and
+  "allow sign-in by e-mail link" (see [authentication](authentication.md)).
   Members are managed on the group's own page (`/admin/groups/<id>`): search people to add,
   remove members (audited `groups.members_add|members_remove`; removal is refused when it would
   leave no active administrator). Members of such a group without 2FA are sent to `/two-factor/setup`

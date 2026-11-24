@@ -19,6 +19,7 @@ export const authModule = defineModule({
     'auth.access_denied',
     'auth.ip_block',
     'auth.password_reset_request',
+    'auth.magic_link_request',
     'auth.password_set',
     'auth.data_export',
   ],
