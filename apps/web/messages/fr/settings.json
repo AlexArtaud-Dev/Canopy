@@ -29,7 +29,8 @@
     "thumbnails": "Miniatures",
     "shares": "Liens de partage",
     "commands": "Commandes",
-    "plugins": "Plugins"
+    "plugins": "Plugins",
+    "disks": "Santé des disques"
   },
   "groups": {
     "sessions": "Sessions",
@@ -44,7 +45,9 @@
     "display": "Affichage",
     "links": "Liens",
     "advanced": "Avancé",
-    "sources": "Sources"
+    "sources": "Sources",
+    "monitoring": "Surveillance",
+    "alerts": "Alertes"
   },
   "fields": {
     "auth": {
@@ -203,6 +206,20 @@
       "savedValues": {
         "label": "Valeurs enregistrées",
         "description": "Valeurs enregistrées pour les champs des plugins. Modifiez-les sur la page Plugins."
+      }
+    },
+    "disks": {
+      "checkMinutes": {
+        "label": "Vérifier toutes les (minutes)",
+        "description": "À quelle fréquence les disques sont lus. Les disques en veille ne sont jamais réveillés pour cela."
+      },
+      "hddTemperatureLimit": {
+        "label": "Disques durs trop chauds dès (°C)",
+        "description": "Les personnes qui consultent la santé des disques sont prévenues quand un disque dur atteint cette température."
+      },
+      "ssdTemperatureLimit": {
+        "label": "SSD trop chauds dès (°C)",
+        "description": "La même chose pour les SSD et NVMe, qui chauffent davantage."
       }
     }
   },

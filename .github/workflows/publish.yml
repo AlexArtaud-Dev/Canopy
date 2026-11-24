@@ -74,6 +74,8 @@ jobs:
           - { image: engine-ffmpeg, file: engine, target: ffmpeg }
           # The engine with hardware video encoding (NVIDIA NVENC), on Debian.
           - { image: engine-gpu, file: engine, target: gpu }
+          # The disks service (smartctl) for disk health; optional.
+          - { image: disks, file: engine, target: disks }
     env:
       # Optional: without the secret, only GHCR receives the images.
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

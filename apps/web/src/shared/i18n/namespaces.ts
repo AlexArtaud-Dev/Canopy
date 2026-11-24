@@ -11,6 +11,7 @@ export const namespaces = [
   'common',
   'dashboards',
   'devices',
+  'disks',
   'errors',
   'files',
   'jobs',

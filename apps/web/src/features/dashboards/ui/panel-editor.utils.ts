@@ -42,6 +42,7 @@ export function editorFeatures(type: PanelType): EditorFeatures {
   };
   switch (type) {
     case 'folders':
+    case 'disks':
       return none;
     case 'log':
       return { ...none, kinds: ['log'], maxVariables: 1 };

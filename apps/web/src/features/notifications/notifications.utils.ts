@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
+import { diskNotificationKinds } from '@/features/disks/disks.utils';
+
 /** The kinds of events the bell knows; each has its texts under `notifications.kinds`. */
-export const notificationKinds = ['dropOffReceived'] as const;
+export const notificationKinds = ['dropOffReceived', ...diskNotificationKinds] as const;
 export type NotificationKind = (typeof notificationKinds)[number];
 
 /** Notifications are forgotten after this long, read or not. */

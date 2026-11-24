@@ -11,6 +11,7 @@ import { jobsModule } from '@/features/jobs/jobs.module';
 import { mailModule } from '@/features/mail/mail.module';
 import { notificationsModule } from '@/features/notifications/notifications.module';
 import { devicesModule } from '@/features/devices/devices.module';
+import { disksModule } from '@/features/disks/disks.module';
 import { dashboardsModule } from '@/features/dashboards/dashboards.module';
 import { metricsModule } from '@/features/dashboards/metrics.module';
 import { pluginsModule } from '@/features/plugins/plugins.module';
@@ -41,6 +42,7 @@ export const appRegistry = createRegistry([
   pluginsModule,
   devicesModule,
   metricsModule,
+  disksModule,
   appearanceModule,
   auditModule,
   systemModule,

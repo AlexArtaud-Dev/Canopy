@@ -5,7 +5,8 @@
     "operations": "Operations",
     "shares": "Shares and drop-offs",
     "users": "Users and sessions",
-    "logs": "Logs"
+    "logs": "Logs",
+    "disks": "Disk health"
   },
   "variables": {
     "system": {
@@ -43,6 +44,12 @@
     "logs": {
       "denied": "Refused actions",
       "audit": "Audit log"
+    },
+    "disks": {
+      "temperature": "Disk temperature",
+      "wear": "Disk wear",
+      "reallocated": "Reallocated sectors",
+      "pending": "Pending sectors"
     }
   },
   "copyName": "{name} (copy)",
@@ -87,7 +94,9 @@
       "sessions-history": "Sessions over time",
       "denied": "Denied requests",
       "denied-history": "Denied requests over time",
-      "audit": "Latest activity"
+      "audit": "Latest activity",
+      "disks": "Disk health",
+      "disk-temperature": "Disk temperature"
     }
   },
   "page": {
@@ -176,7 +185,8 @@
       "pie": "Ring",
       "table": "Table",
       "log": "Log",
-      "folders": "My folders"
+      "folders": "My folders",
+      "disks": "Disk health"
     },
     "variables": "Values",
     "variablesHint": "{count, plural, one {# value at most.} other {# values at most.}}",

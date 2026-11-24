@@ -1,0 +1,79 @@
+{
+  "description": "El estado de los discos del servidor, según sus propios datos SMART. Los discos en reposo nunca se despiertan para leerlos.",
+  "checkNow": "Comprobar ahora",
+  "checked": "Comprobado {when}",
+  "checkedNever": "Aún no comprobado",
+  "checkDone": "Discos comprobados.",
+  "summary": "{total, plural, one {# disco} other {# discos}}",
+  "summaryFailing": "{count, plural, one {# averiado} other {# averiados}}",
+  "summaryWarning": "{count, plural, one {# a vigilar} other {# a vigilar}}",
+  "summaryHot": "{count, plural, one {# demasiado caliente} other {# demasiado calientes}}",
+  "allHealthy": "Todos en buen estado",
+  "loadError": "No se pudo leer el estado de los discos.",
+  "notConfigured": {
+    "title": "La salud de los discos no está activada",
+    "description": "Un pequeño servicio lee los discos para Canopy: añádalo a su archivo compose e indíqueselo al motor, como explica la guía sobre la salud de los discos."
+  },
+  "empty": {
+    "title": "Ningún disco encontrado",
+    "description": "El servicio de discos no ve ninguno: indíquelos en «devices» en su sección del archivo compose."
+  },
+  "kinds": {
+    "hdd": "Disco duro",
+    "ssd": "SSD",
+    "nvme": "SSD NVMe",
+    "unknown": "Disco"
+  },
+  "health": {
+    "passed": "En buen estado",
+    "warning": "A vigilar",
+    "failing": "Averiado",
+    "unknown": "Sin datos SMART"
+  },
+  "hot": "Demasiado caliente",
+  "asleep": "En reposo",
+  "asleepHint": "Detenido: estos valores son de su última lectura.",
+  "reasons": {
+    "smartFailed": "El disco indica que está fallando: haga una copia de sus datos y sustitúyalo.",
+    "criticalWarning": "La unidad indica una alerta crítica: haga una copia de sus datos.",
+    "reallocated": "Sectores dañados se sustituyeron por sectores de reserva.",
+    "pending": "Algunos sectores no se pudieron leer y esperan ser sustituidos.",
+    "uncorrectable": "Algunos sectores ya no se pueden leer.",
+    "mediaErrors": "La unidad encontró errores que no pudo corregir.",
+    "wornOut": "La unidad se acerca al final de su vida útil prevista.",
+    "lowSpare": "La unidad se está quedando sin bloques de reserva.",
+    "testFailed": "Su última autoprueba falló."
+  },
+  "stats": {
+    "temperature": "Temperatura",
+    "age": "Encendido durante",
+    "ageValue": "{years, plural, =0 {} one {# año, } other {# años, }}{days, plural, one {# día} other {# días}}",
+    "powerCycles": "Arranques",
+    "reallocated": "Sectores reasignados",
+    "pending": "Sectores pendientes",
+    "uncorrectable": "Sectores ilegibles",
+    "crcErrors": "Errores de cable",
+    "mediaErrors": "Errores de soporte",
+    "spare": "Bloques de reserva",
+    "written": "Datos escritos",
+    "wear": "Desgaste",
+    "wearValue": "{used} % de su vida útil prevista",
+    "serial": "Número de serie",
+    "firmware": "Firmware"
+  },
+  "selfTest": {
+    "title": "Autoprueba",
+    "none": "Ninguna autoprueba registrada.",
+    "last": "Última prueba: {kind}, {result}",
+    "running": "Prueba en curso, queda {remaining} %",
+    "short": "Prueba rápida",
+    "long": "Prueba completa",
+    "shortHint": "Unos minutos.",
+    "longHint": "Varias horas; el disco sigue utilizable mientras tanto.",
+    "started": "Autoprueba iniciada: sígala en las operaciones."
+  },
+  "panel": {
+    "none": "Ningún disco que mostrar.",
+    "open": "Abrir la salud de los discos"
+  }
+}

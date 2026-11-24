@@ -5,6 +5,7 @@ package config
 import (
 	"fmt"
 	"log/slog"
+	"net/url"
 	"path"
 	"path/filepath"
 	"slices"
@@ -38,6 +39,31 @@ type Config struct {
 	// VideoEncoder picks how videos are re-encoded: "auto" (the GPU when one works), "cpu" or
 	// "nvenc" (NVIDIA).
 	VideoEncoder string
+	// DisksURL reaches the optional disks service (smartctl); empty when disk health is off.
+	DisksURL string
+	// DisksToken is shared with the disks service, which answers nobody else.
+	DisksToken string
+}
+
+// DisksConfig is the disks service's own configuration (the `disks` subcommand).
+type DisksConfig struct {
+	Addr  string
+	Token string
+}
+
+// defaultDisksAddr is where the disks service listens on the internal network.
+const defaultDisksAddr = ":8091"
+
+// LoadDisks reads the disks service's configuration; the token is mandatory.
+func LoadDisks(getenv func(string) string) (DisksConfig, error) {
+	cfg := DisksConfig{
+		Addr:  valueOr(getenv("CANOPY_DISKS_ADDR"), defaultDisksAddr),
+		Token: strings.TrimSpace(getenv("CANOPY_DISKS_TOKEN")),
+	}
+	if cfg.Token == "" {
+		return DisksConfig{}, &Error{Code: CodeMissing, Key: "CANOPY_DISKS_TOKEN"}
+	}
+	return cfg, nil
 }
 
 // ErrorCode identifies a configuration error independently of its message.
@@ -71,6 +97,8 @@ func Load(getenv func(string) string) (Config, error) {
 		LogLevel:     defaultLogLevel,
 		Umask:        defaultUmask,
 		VideoEncoder: strings.ToLower(valueOr(getenv("CANOPY_VIDEO_ENCODER"), "auto")),
+		DisksURL:     strings.TrimSuffix(strings.TrimSpace(getenv("CANOPY_DISKS_URL")), "/"),
+		DisksToken:   strings.TrimSpace(getenv("CANOPY_DISKS_TOKEN")),
 	}
 	if !slices.Contains([]string{"auto", "cpu", "nvenc"}, cfg.VideoEncoder) {
 		return Config{}, &Error{Code: CodeInvalid, Key: "CANOPY_VIDEO_ENCODER"}
@@ -97,6 +125,16 @@ func Load(getenv func(string) string) (Config, error) {
 	if raw := strings.TrimSpace(getenv("CANOPY_LOG_LEVEL")); raw != "" {
 		if err := cfg.LogLevel.UnmarshalText([]byte(raw)); err != nil {
 			return Config{}, &Error{Code: CodeInvalid, Key: "CANOPY_LOG_LEVEL"}
+		}
+	}
+
+	if cfg.DisksURL != "" {
+		parsed, err := url.Parse(cfg.DisksURL)
+		if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
+			return Config{}, &Error{Code: CodeInvalid, Key: "CANOPY_DISKS_URL"}
+		}
+		if cfg.DisksToken == "" {
+			return Config{}, &Error{Code: CodeMissing, Key: "CANOPY_DISKS_TOKEN"}
 		}
 	}
 

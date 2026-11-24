@@ -44,6 +44,19 @@ EXPOSE 8080
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3     CMD ["/usr/local/bin/engine", "healthcheck"]
 ENTRYPOINT ["/usr/local/bin/engine"]
 
+# The disks service (target `disks`): smartctl reading the disks' health for the engine. It is
+# the only image that sees devices, and it serves nothing but smartctl's answers. It runs as
+# root because smartctl needs it to query disks; compose drops every capability but the two
+# smartctl uses.
+FROM alpine:3.24@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf AS disks
+RUN apk add --no-cache smartmontools
+COPY --from=build /out/engine /usr/local/bin/engine
+EXPOSE 8091
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD ["/usr/local/bin/engine", "healthcheck", "disks"]
+ENTRYPOINT ["/usr/local/bin/engine"]
+CMD ["disks"]
+
 # Default target. Distroless: no shell, no package manager. Runs as an unprivileged user by default; compose
 # overrides it with PUID:PGID so created files belong to the host user.
 FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab

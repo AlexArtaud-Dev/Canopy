@@ -12,6 +12,7 @@ import { Badge } from '@/shared/ui/badge';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { listFavorites } from '@/features/files/server/favorites';
 import { listFolder } from '@/features/files/server/browse';
+import { DisksPanel } from '@/features/disks';
 
 import type { Panel } from '../dashboards.utils';
 import { usePanelData } from '../model/use-variable-data';
@@ -37,6 +38,7 @@ interface PanelViewProps {
 /** What a panel shows, by its type. */
 export function PanelView(props: PanelViewProps) {
   if (props.panel.type === 'folders') return <FoldersView />;
+  if (props.panel.type === 'disks') return <DisksPanel />;
   if (props.panel.variables.length === 0) return <NoVariable />;
   return <VariablesView {...props} />;
 }

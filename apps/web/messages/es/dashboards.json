@@ -5,7 +5,8 @@
     "operations": "Operaciones",
     "shares": "Compartidos y depósitos",
     "users": "Usuarios y sesiones",
-    "logs": "Registros"
+    "logs": "Registros",
+    "disks": "Salud de los discos"
   },
   "variables": {
     "system": {
@@ -43,6 +44,12 @@
     "logs": {
       "denied": "Acciones rechazadas",
       "audit": "Registro de auditoría"
+    },
+    "disks": {
+      "temperature": "Temperatura de los discos",
+      "wear": "Desgaste de los discos",
+      "reallocated": "Sectores reasignados",
+      "pending": "Sectores pendientes"
     }
   },
   "copyName": "{name} (copia)",
@@ -87,7 +94,9 @@
       "sessions-history": "Sesiones en el tiempo",
       "denied": "Peticiones denegadas",
       "denied-history": "Peticiones denegadas en el tiempo",
-      "audit": "Actividad reciente"
+      "audit": "Actividad reciente",
+      "disks": "Salud de los discos",
+      "disk-temperature": "Temperatura de los discos"
     }
   },
   "page": {
@@ -176,7 +185,8 @@
       "pie": "Anillo",
       "table": "Tabla",
       "log": "Registro",
-      "folders": "Mis carpetas"
+      "folders": "Mis carpetas",
+      "disks": "Salud de los discos"
     },
     "variables": "Valores",
     "variablesHint": "{count, plural, one {# valor como máximo.} other {# valores como máximo.}}",

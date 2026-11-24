@@ -1,0 +1,79 @@
+{
+  "description": "The health of the server’s disks, from their own SMART data. Sleeping disks are never woken up to read it.",
+  "checkNow": "Check now",
+  "checked": "Checked {when}",
+  "checkedNever": "Not checked yet",
+  "checkDone": "Disks checked.",
+  "summary": "{total, plural, one {# disk} other {# disks}}",
+  "summaryFailing": "{count, plural, one {# failing} other {# failing}}",
+  "summaryWarning": "{count, plural, one {# needs attention} other {# need attention}}",
+  "summaryHot": "{count, plural, one {# too hot} other {# too hot}}",
+  "allHealthy": "All healthy",
+  "loadError": "Disk health could not be read.",
+  "notConfigured": {
+    "title": "Disk health is not set up",
+    "description": "A small service reads the disks for Canopy: add it to your compose file and point the engine to it, as the disk health guide explains."
+  },
+  "empty": {
+    "title": "No disk found",
+    "description": "The disks service sees no disk: list them under “devices” in its compose entry."
+  },
+  "kinds": {
+    "hdd": "Hard disk",
+    "ssd": "SSD",
+    "nvme": "NVMe SSD",
+    "unknown": "Disk"
+  },
+  "health": {
+    "passed": "Healthy",
+    "warning": "Needs attention",
+    "failing": "Failing",
+    "unknown": "No SMART data"
+  },
+  "hot": "Too hot",
+  "asleep": "Asleep",
+  "asleepHint": "Spun down: these values are from its last reading.",
+  "reasons": {
+    "smartFailed": "The disk reports that it is failing: back up its data and replace it.",
+    "criticalWarning": "The drive reports a critical warning: back up its data.",
+    "reallocated": "Damaged sectors were replaced by spare ones.",
+    "pending": "Some sectors could not be read and wait to be replaced.",
+    "uncorrectable": "Some sectors could not be read at all.",
+    "mediaErrors": "The drive met errors it could not correct.",
+    "wornOut": "The drive is close to the end of its rated life.",
+    "lowSpare": "The drive is running out of spare blocks.",
+    "testFailed": "Its last self-test failed."
+  },
+  "stats": {
+    "temperature": "Temperature",
+    "age": "Powered on",
+    "ageValue": "{years, plural, =0 {} one {# year, } other {# years, }}{days, plural, one {# day} other {# days}}",
+    "powerCycles": "Starts",
+    "reallocated": "Reallocated sectors",
+    "pending": "Pending sectors",
+    "uncorrectable": "Unreadable sectors",
+    "crcErrors": "Cable errors",
+    "mediaErrors": "Media errors",
+    "spare": "Spare blocks",
+    "written": "Data written",
+    "wear": "Wear",
+    "wearValue": "{used} % of its rated life used",
+    "serial": "Serial number",
+    "firmware": "Firmware"
+  },
+  "selfTest": {
+    "title": "Self-test",
+    "none": "No self-test recorded.",
+    "last": "Last test: {kind}, {result}",
+    "running": "Test running, {remaining} % left",
+    "short": "Quick test",
+    "long": "Full test",
+    "shortHint": "A few minutes.",
+    "longHint": "Several hours; the disk stays usable meanwhile.",
+    "started": "Self-test started: follow it in the operations."
+  },
+  "panel": {
+    "none": "No disk to show.",
+    "open": "Open disk health"
+  }
+}

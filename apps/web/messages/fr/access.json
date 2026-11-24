@@ -35,7 +35,8 @@
     "users": "Utilisateurs et sessions",
     "logs": "Journaux",
     "manage": "Gérer les liens de tous",
-    "advanced": "Mode avancé"
+    "advanced": "Mode avancé",
+    "disks": "Santé des disques"
   },
   "roles": {
     "metaTitle": "Rôles",

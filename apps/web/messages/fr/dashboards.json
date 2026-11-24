@@ -5,7 +5,8 @@
     "operations": "Opérations",
     "shares": "Partages et dépôts",
     "users": "Utilisateurs et sessions",
-    "logs": "Journaux"
+    "logs": "Journaux",
+    "disks": "Santé des disques"
   },
   "variables": {
     "system": {
@@ -43,6 +44,12 @@
     "logs": {
       "denied": "Actions refusées",
       "audit": "Journal d’audit"
+    },
+    "disks": {
+      "temperature": "Température des disques",
+      "wear": "Usure des disques",
+      "reallocated": "Secteurs réalloués",
+      "pending": "Secteurs en attente"
     }
   },
   "copyName": "{name} (copie)",
@@ -87,7 +94,9 @@
       "sessions-history": "Sessions dans le temps",
       "denied": "Requêtes refusées",
       "denied-history": "Requêtes refusées dans le temps",
-      "audit": "Activité récente"
+      "audit": "Activité récente",
+      "disks": "Santé des disques",
+      "disk-temperature": "Température des disques"
     }
   },
   "page": {
@@ -176,7 +185,8 @@
       "pie": "Anneau",
       "table": "Tableau",
       "log": "Journal",
-      "folders": "Mes dossiers"
+      "folders": "Mes dossiers",
+      "disks": "Santé des disques"
     },
     "variables": "Valeurs",
     "variablesHint": "{count, plural, one {# valeur au plus.} other {# valeurs au plus.}}",

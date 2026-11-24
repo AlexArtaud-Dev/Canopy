@@ -29,7 +29,8 @@
     "thumbnails": "Thumbnails",
     "shares": "Share links",
     "commands": "Commands",
-    "plugins": "Plugins"
+    "plugins": "Plugins",
+    "disks": "Disk health"
   },
   "groups": {
     "sessions": "Sessions",
@@ -44,7 +45,9 @@
     "display": "Display",
     "links": "Links",
     "advanced": "Advanced",
-    "sources": "Sources"
+    "sources": "Sources",
+    "monitoring": "Monitoring",
+    "alerts": "Alerts"
   },
   "fields": {
     "auth": {
@@ -203,6 +206,20 @@
       "savedValues": {
         "label": "Saved values",
         "description": "Values saved for plugin fields. Edit them on the Plugins page."
+      }
+    },
+    "disks": {
+      "checkMinutes": {
+        "label": "Check every (minutes)",
+        "description": "How often the disks are read. Sleeping disks are never woken up for it."
+      },
+      "hddTemperatureLimit": {
+        "label": "Hard disks too hot from (°C)",
+        "description": "People who read disk health are notified when a hard disk reaches this temperature."
+      },
+      "ssdTemperatureLimit": {
+        "label": "SSDs too hot from (°C)",
+        "description": "The same for SSD and NVMe drives, which run warmer."
       }
     }
   },

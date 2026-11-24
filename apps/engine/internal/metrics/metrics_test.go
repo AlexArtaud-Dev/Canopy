@@ -163,6 +163,10 @@ func TestSampler(t *testing.T) {
 		Counts: func(context.Context) (Counts, error) {
 			return Counts{Running: 1, Queued: 2, FailedLastHour: 3, TrashBytes: 4, ThumbnailBytes: 5}, countsErr
 		},
+		Disks: func(context.Context) ([]DiskReading, error) {
+			hot, worn := int64(41), int64(3)
+			return []DiskReading{{Series: "WD · 0001", Temperature: &hot}, {Series: "nvme0", Wear: &worn}}, nil
+		},
 	}
 	sampler := NewSampler(sources, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	start := time.Date(2026, 11, 14, 12, 0, 0, 0, time.UTC)
@@ -172,6 +176,12 @@ func TestSampler(t *testing.T) {
 	}
 	if first[MemoryUsedName] != 3*1024 || first[VolumeUsedName+"/data"] != 30 || first[OperationsQueued] != 2 {
 		t.Errorf("first sampling: %v", first)
+	}
+	if first[DiskTemperatureName+"/WD · 0001"] != 41 || first[DiskWearName+"/nvme0"] != 3 {
+		t.Errorf("disks: %v", first)
+	}
+	if _, ok := first[DiskTemperatureName+"/nvme0"]; ok {
+		t.Error("a value the disk does not report is left out")
 	}
 	if _, ok := first[VolumeUsedName+"/gone"]; ok {
 		t.Error("an unmeasured volume is left out")
@@ -190,6 +200,7 @@ func TestSampler(t *testing.T) {
 		Volumes:   func(context.Context) ([]Volume, error) { return nil, errors.New("no root") },
 		DiskUsage: sources.DiskUsage,
 		Counts:    func(context.Context) (Counts, error) { return Counts{}, countsErr },
+		Disks:     func(context.Context) ([]DiskReading, error) { return nil, errors.New("no table") },
 	}, slog.New(slog.NewTextHandler(io.Discard, nil))).Sample(context.Background(), start))
 	if _, ok := third[OperationsRunning]; ok || third[MemoryTotalName] != 4096 {
 		t.Errorf("failing sources are skipped: %v", third)

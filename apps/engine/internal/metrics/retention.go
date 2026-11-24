@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/appsettings"
@@ -25,23 +24,15 @@ const (
 )
 
 // RetentionFrom reads the stored `system` settings (only values differing from defaults are stored).
-func RetentionFrom(values map[string]json.RawMessage) Retention {
+func RetentionFrom(values appsettings.Values) Retention {
 	retention := DefaultRetention
-	if hours, ok := boundedInt(values["metricsRawHours"], 1, maxRawHours); ok {
+	if hours := values.Int("metricsRawHours", 1, maxRawHours, 0); hours > 0 {
 		retention.Raw = time.Duration(hours) * time.Hour
 	}
-	if days, ok := boundedInt(values["metricsHourlyDays"], 1, maxHourlyDays); ok {
+	if days := values.Int("metricsHourlyDays", 1, maxHourlyDays, 0); days > 0 {
 		retention.Hourly = time.Duration(days) * 24 * time.Hour
 	}
 	return retention
-}
-
-func boundedInt(raw json.RawMessage, low, high int) (int, bool) {
-	var value int
-	if raw == nil || json.Unmarshal(raw, &value) != nil || value < low || value > high {
-		return 0, false
-	}
-	return value, true
 }
 
 // LoadRetention reads the durations administrators set (defaults on a fresh install).

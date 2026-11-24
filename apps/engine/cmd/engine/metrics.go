@@ -15,8 +15,9 @@ import (
 )
 
 // startMetrics samples dashboards' values every 30 seconds until ctx ends: the system (from
-// /proc, Linux only), each volume of the root, the operations, the trash and the thumbnails cache.
-func startMetrics(ctx context.Context, root string, pool *pgxpool.Pool, trashService *trash.Service, logger *slog.Logger) *metrics.Service {
+// /proc, Linux only), each volume of the root, the disks, the operations, the trash and the
+// thumbnails cache.
+func startMetrics(ctx context.Context, root string, pool *pgxpool.Pool, trashService *trash.Service, diskSource func(context.Context) ([]metrics.DiskReading, error), logger *slog.Logger) *metrics.Service {
 	store := metrics.Store{DB: pool}
 	// The trash is read as an administrator would: its size is everyone's deletions.
 	everyone := authz.Subject{Admin: true}
@@ -48,6 +49,7 @@ func startMetrics(ctx context.Context, root string, pool *pgxpool.Pool, trashSer
 			}
 			return counts, nil
 		},
+		Disks: diskSource,
 	}, logger)
 	service := &metrics.Service{
 		Sampler: sampler,

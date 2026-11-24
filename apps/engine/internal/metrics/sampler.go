@@ -28,6 +28,16 @@ type Counts struct {
 	ThumbnailBytes int64
 }
 
+// DiskReading is one disk's latest values, as the disks watcher last read them. Values are nil
+// when the disk does not report them; a sleeping disk has no current temperature.
+type DiskReading struct {
+	Series      string
+	Temperature *int64
+	Wear        *int64
+	Reallocated *int64
+	Pending     *int64
+}
+
 // Sources are the edges a sampling reads; injected so that sampling is tested without a system.
 type Sources struct {
 	// ReadFile reads /proc files; an error leaves the matching metrics out (not Linux, no access).
@@ -36,6 +46,8 @@ type Sources struct {
 	// DiskUsage measures the filesystem holding a path.
 	DiskUsage func(path string) (used, total uint64, err error)
 	Counts    func(ctx context.Context) (Counts, error)
+	// Disks reads the disks' latest values; nil when disk health is not set up.
+	Disks func(ctx context.Context) ([]DiskReading, error)
 }
 
 // Sampler turns readings into samples. CPU and network are rates: the first sampling only
@@ -59,7 +71,37 @@ func (s *Sampler) Sample(ctx context.Context, now time.Time) []Sample {
 	samples := make([]Sample, 0, 16)
 	samples = append(samples, s.system(now)...)
 	samples = append(samples, s.volumes(ctx)...)
+	samples = append(samples, s.disks(ctx)...)
 	return append(samples, s.counts(ctx)...)
+}
+
+func (s *Sampler) disks(ctx context.Context) []Sample {
+	if s.sources.Disks == nil {
+		return nil
+	}
+	readings, err := s.sources.Disks(ctx)
+	if err != nil {
+		s.logger.Warn("metrics: disks not read", slog.Any("error", err))
+		return nil
+	}
+	samples := make([]Sample, 0, 4*len(readings))
+	for _, reading := range readings {
+		values := []struct {
+			metric string
+			value  *int64
+		}{
+			{DiskTemperatureName, reading.Temperature},
+			{DiskWearName, reading.Wear},
+			{DiskReallocatedName, reading.Reallocated},
+			{DiskPendingName, reading.Pending},
+		}
+		for _, entry := range values {
+			if entry.value != nil {
+				samples = append(samples, Sample{Metric: entry.metric, Series: reading.Series, Value: float64(*entry.value)})
+			}
+		}
+	}
+	return samples
 }
 
 func (s *Sampler) system(now time.Time) []Sample {

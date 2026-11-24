@@ -1,3 +1,4 @@
+import { deliverDiskAlerts } from '@/features/disks/server/disk-alerts';
 import { deliverDueMail, purgeOldMail } from '@/features/mail/server/mailer';
 import { getSettings } from '@/features/settings/server/settings-store';
 import { systemSettings } from '@/features/system/system.settings';
@@ -27,6 +28,7 @@ export async function startNodeServer(): Promise<void> {
   // Instances coordinate through advisory locks, so every instance may run these.
   every(mailSweepIntervalMs, deliverDueMail, 'mail sweep');
   every(mailSweepIntervalMs, sendDueDropOffEmails, 'drop-off e-mails');
+  every(mailSweepIntervalMs, deliverDiskAlerts, 'disk alerts');
   every(auditPurgeIntervalMs, purgeExpiredAuditEvents, 'audit purge', true);
   every(
     auditPurgeIntervalMs,

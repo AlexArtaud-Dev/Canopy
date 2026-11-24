@@ -99,7 +99,7 @@ export const settingResetSchema = settingUpdateSchema.omit({ value: true });
 
 /** Settings tab categories, in display order, with the modules each one holds. */
 export const settingsCategories = [
-  { id: 'general', modules: ['appearance', 'system'] },
+  { id: 'general', modules: ['appearance', 'system', 'disks'] },
   { id: 'security', modules: ['auth', 'audit'] },
   { id: 'files', modules: ['uploads', 'trash', 'thumbnails', 'shares', 'jobs'] },
   { id: 'tools', modules: ['commands', 'plugins'] },

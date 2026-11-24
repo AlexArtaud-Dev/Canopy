@@ -14,6 +14,7 @@ const (
 	FamilySystem     Family = "system"
 	FamilyStorage    Family = "storage"
 	FamilyOperations Family = "operations"
+	FamilyDisks      Family = "disks"
 )
 
 // Unit tells dashboards how to show a value.
@@ -25,6 +26,7 @@ const (
 	UnitBytes          Unit = "bytes"
 	UnitBytesPerSecond Unit = "bytesPerSecond"
 	UnitCount          Unit = "count"
+	UnitCelsius        Unit = "celsius"
 )
 
 // Definition describes one metric the engine samples.
@@ -50,6 +52,10 @@ const (
 	OperationsRunning    = "operations.running"
 	OperationsQueued     = "operations.queued"
 	OperationsFailedHour = "operations.failed"
+	DiskTemperatureName  = "disks.temperature"
+	DiskWearName         = "disks.wear"
+	DiskReallocatedName  = "disks.reallocated"
+	DiskPendingName      = "disks.pending"
 )
 
 // Catalog lists every metric, in the order dashboards offer them.
@@ -66,6 +72,10 @@ var Catalog = []Definition{
 	{Name: OperationsRunning, Family: FamilyOperations, Unit: UnitCount},
 	{Name: OperationsQueued, Family: FamilyOperations, Unit: UnitCount},
 	{Name: OperationsFailedHour, Family: FamilyOperations, Unit: UnitCount},
+	{Name: DiskTemperatureName, Family: FamilyDisks, Unit: UnitCelsius, Series: true},
+	{Name: DiskWearName, Family: FamilyDisks, Unit: UnitPercent, Series: true},
+	{Name: DiskReallocatedName, Family: FamilyDisks, Unit: UnitCount, Series: true},
+	{Name: DiskPendingName, Family: FamilyDisks, Unit: UnitCount, Series: true},
 }
 
 // Lookup finds a metric by name.

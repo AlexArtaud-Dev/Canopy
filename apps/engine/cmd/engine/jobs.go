@@ -6,6 +6,7 @@ import (
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/archive"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/authz"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/commands"
+	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/disks"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/foldersize"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/jobs"
 	"github.com/AlexArtaud-Dev/Canopy/apps/engine/internal/transfer"
@@ -21,6 +22,12 @@ type jobService struct {
 func (j *jobService) StartFolderSize(ctx context.Context, path string, subject authz.Subject) (string, error) {
 	return jobs.Enqueue(ctx, j.runner, subject.UserID, path, func(id string) foldersize.Args {
 		return foldersize.Args{Job: id, Path: path, Subject: subject}
+	})
+}
+
+func (j *jobService) StartDiskSelfTest(ctx context.Context, owner, disk string, test disks.TestKind) (string, error) {
+	return jobs.Enqueue(ctx, j.runner, owner, disk, func(id string) disks.SelfTestArgs {
+		return disks.SelfTestArgs{Job: id, Disk: disk, Test: test}
 	})
 }
 

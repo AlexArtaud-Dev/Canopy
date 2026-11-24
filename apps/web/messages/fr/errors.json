@@ -174,5 +174,13 @@
   },
   "dashboards": {
     "not_found": "Ce tableau de bord n’existe plus."
+  },
+  "disks": {
+    "forbidden": "Vous ne pouvez pas consulter la santé des disques.",
+    "not_configured": "La santé des disques n’est pas activée sur ce serveur.",
+    "unavailable": "Le service des disques ne répond pas. Réessayez dans un instant.",
+    "not_found": "Ce disque n’est plus là.",
+    "invalid_test": "Cet autotest n’existe pas.",
+    "self_test_failed": "Le disque a échoué à son autotest : sauvegardez ses données."
   }
 }

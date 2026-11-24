@@ -1,8 +1,9 @@
 import 'server-only';
 
-import { eq, inArray, or } from 'drizzle-orm';
+import { and, arrayOverlaps, eq, inArray, or } from 'drizzle-orm';
 
 import { appRegistry } from '@/modules';
+import { usersTable } from '@/features/auth/server/auth.schema';
 import { getDb } from '@/shared/db/client';
 import type { GlobalPermission } from '@/shared/modules/module.types';
 
@@ -29,6 +30,33 @@ export async function loadPermissions(userId: string): Promise<GlobalPermission[
     .leftJoin(groupRolesTable, eq(groupRolesTable.roleId, rolesTable.id))
     .where(or(eq(userRolesTable.userId, userId), inArray(groupRolesTable.groupId, groupIds)));
   return effectivePermissions(roles, appRegistry.globalPermissions);
+}
+
+/**
+ * Enabled users holding any of these permissions through a role of theirs or of their groups
+ * (administrators included: `*` and `system:admin` always count), for notifying them.
+ */
+export async function usersHolding(permissions: readonly string[]): Promise<string[]> {
+  const db = getDb();
+  const wanted = ['*', 'system:admin', ...permissions];
+  const granting = db
+    .select({ id: rolesTable.id })
+    .from(rolesTable)
+    .where(arrayOverlaps(rolesTable.permissions, wanted));
+  const [direct, viaGroups] = await Promise.all([
+    db
+      .select({ id: userRolesTable.userId })
+      .from(userRolesTable)
+      .innerJoin(usersTable, eq(usersTable.id, userRolesTable.userId))
+      .where(and(inArray(userRolesTable.roleId, granting), eq(usersTable.disabled, false))),
+    db
+      .select({ id: groupMembersTable.userId })
+      .from(groupMembersTable)
+      .innerJoin(groupRolesTable, eq(groupRolesTable.groupId, groupMembersTable.groupId))
+      .innerJoin(usersTable, eq(usersTable.id, groupMembersTable.userId))
+      .where(and(inArray(groupRolesTable.roleId, granting), eq(usersTable.disabled, false))),
+  ]);
+  return [...new Set([...direct, ...viaGroups].map((row) => row.id))];
 }
 
 /** Gives a user the built-in roles named by `keys` (e.g. `admin` for the first account). */

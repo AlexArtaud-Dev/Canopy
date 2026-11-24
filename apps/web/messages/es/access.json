@@ -35,7 +35,8 @@
     "users": "Usuarios y sesiones",
     "logs": "Registros",
     "manage": "Gestionar los enlaces de todos",
-    "advanced": "Modo avanzado"
+    "advanced": "Modo avanzado",
+    "disks": "Salud de los discos"
   },
   "roles": {
     "metaTitle": "Roles",

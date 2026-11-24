@@ -43,7 +43,7 @@ func TestPrepare(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(report.CreatedFolders) != 4 || len(report.CreatedSecrets) != 5 {
+	if len(report.CreatedFolders) != 4 || len(report.CreatedSecrets) != 6 {
 		t.Fatalf("report: %+v", report)
 	}
 	if owners[CacheDir] != [2]int{1001, 100} || owners[PluginsDir] != [2]int{1001, 100} {
@@ -59,6 +59,10 @@ func TestPrepare(t *testing.T) {
 		if owners[name][0] != uid {
 			t.Errorf("%s owned by %d, want %d", name, owners[name][0], uid)
 		}
+	}
+	// The engine owns the disks token; the disks service (root) reads it through group 0.
+	if owners[DisksToken] != [2]int{1001, 0} || len(read(t, home, DisksToken)) != 64 {
+		t.Errorf("disks token owned by %v", owners[DisksToken])
 	}
 
 	key, err := base64.StdEncoding.DecodeString(read(t, home, EncryptionKey))

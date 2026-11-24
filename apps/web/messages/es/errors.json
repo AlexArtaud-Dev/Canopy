@@ -174,5 +174,13 @@
   },
   "dashboards": {
     "not_found": "Este panel ya no existe."
+  },
+  "disks": {
+    "forbidden": "No puede consultar la salud de los discos.",
+    "not_configured": "La salud de los discos no está activada en este servidor.",
+    "unavailable": "El servicio de discos no responde. Inténtelo de nuevo en un momento.",
+    "not_found": "Este disco ya no está.",
+    "invalid_test": "Esta autoprueba no existe.",
+    "self_test_failed": "El disco no superó su autoprueba: haga una copia de sus datos."
   }
 }

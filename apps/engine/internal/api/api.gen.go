@@ -204,6 +204,132 @@ func (e DirectoryEntryKind) Valid() bool {
 	}
 }
 
+// Defines values for DiskHealth.
+const (
+	DiskHealthFailing DiskHealth = "failing"
+	DiskHealthPassed  DiskHealth = "passed"
+	DiskHealthUnknown DiskHealth = "unknown"
+	DiskHealthWarning DiskHealth = "warning"
+)
+
+// Valid indicates whether the value is a known member of the DiskHealth enum.
+func (e DiskHealth) Valid() bool {
+	switch e {
+	case DiskHealthFailing:
+		return true
+	case DiskHealthPassed:
+		return true
+	case DiskHealthUnknown:
+		return true
+	case DiskHealthWarning:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DiskKind.
+const (
+	DiskKindHdd     DiskKind = "hdd"
+	DiskKindNvme    DiskKind = "nvme"
+	DiskKindSsd     DiskKind = "ssd"
+	DiskKindUnknown DiskKind = "unknown"
+)
+
+// Valid indicates whether the value is a known member of the DiskKind enum.
+func (e DiskKind) Valid() bool {
+	switch e {
+	case DiskKindHdd:
+		return true
+	case DiskKindNvme:
+		return true
+	case DiskKindSsd:
+		return true
+	case DiskKindUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DiskReasons.
+const (
+	CriticalWarning DiskReasons = "criticalWarning"
+	LowSpare        DiskReasons = "lowSpare"
+	MediaErrors     DiskReasons = "mediaErrors"
+	Pending         DiskReasons = "pending"
+	Reallocated     DiskReasons = "reallocated"
+	SmartFailed     DiskReasons = "smartFailed"
+	TestFailed      DiskReasons = "testFailed"
+	Uncorrectable   DiskReasons = "uncorrectable"
+	WornOut         DiskReasons = "wornOut"
+)
+
+// Valid indicates whether the value is a known member of the DiskReasons enum.
+func (e DiskReasons) Valid() bool {
+	switch e {
+	case CriticalWarning:
+		return true
+	case LowSpare:
+		return true
+	case MediaErrors:
+		return true
+	case Pending:
+		return true
+	case Reallocated:
+		return true
+	case SmartFailed:
+		return true
+	case TestFailed:
+		return true
+	case Uncorrectable:
+		return true
+	case WornOut:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DiskAlertKind.
+const (
+	DiskAlertKindFailing DiskAlertKind = "failing"
+	DiskAlertKindHot     DiskAlertKind = "hot"
+	DiskAlertKindWarning DiskAlertKind = "warning"
+)
+
+// Valid indicates whether the value is a known member of the DiskAlertKind enum.
+func (e DiskAlertKind) Valid() bool {
+	switch e {
+	case DiskAlertKindFailing:
+		return true
+	case DiskAlertKindHot:
+		return true
+	case DiskAlertKindWarning:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DiskSelfTestRequestTest.
+const (
+	Long  DiskSelfTestRequestTest = "long"
+	Short DiskSelfTestRequestTest = "short"
+)
+
+// Valid indicates whether the value is a known member of the DiskSelfTestRequestTest enum.
+func (e DiskSelfTestRequestTest) Valid() bool {
+	switch e {
+	case Long:
+		return true
+	case Short:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for JobLogLineLevel.
 const (
 	JobLogLineLevelError JobLogLineLevel = "error"
@@ -290,6 +416,7 @@ func (e MediaInfoMode) Valid() bool {
 
 // Defines values for MetricDefinitionFamily.
 const (
+	Disks      MetricDefinitionFamily = "disks"
 	Operations MetricDefinitionFamily = "operations"
 	Storage    MetricDefinitionFamily = "storage"
 	System     MetricDefinitionFamily = "system"
@@ -298,6 +425,8 @@ const (
 // Valid indicates whether the value is a known member of the MetricDefinitionFamily enum.
 func (e MetricDefinitionFamily) Valid() bool {
 	switch e {
+	case Disks:
+		return true
 	case Operations:
 		return true
 	case Storage:
@@ -313,6 +442,7 @@ func (e MetricDefinitionFamily) Valid() bool {
 const (
 	Bytes          MetricDefinitionUnit = "bytes"
 	BytesPerSecond MetricDefinitionUnit = "bytesPerSecond"
+	Celsius        MetricDefinitionUnit = "celsius"
 	Count          MetricDefinitionUnit = "count"
 	Percent        MetricDefinitionUnit = "percent"
 )
@@ -323,6 +453,8 @@ func (e MetricDefinitionUnit) Valid() bool {
 	case Bytes:
 		return true
 	case BytesPerSecond:
+		return true
+	case Celsius:
 		return true
 	case Count:
 		return true
@@ -398,25 +530,25 @@ func (e PluginViewActionOn) Valid() bool {
 
 // Defines values for PluginViewStateTone.
 const (
-	Active  PluginViewStateTone = "active"
-	Danger  PluginViewStateTone = "danger"
-	Muted   PluginViewStateTone = "muted"
-	Success PluginViewStateTone = "success"
-	Warning PluginViewStateTone = "warning"
+	PluginViewStateToneActive  PluginViewStateTone = "active"
+	PluginViewStateToneDanger  PluginViewStateTone = "danger"
+	PluginViewStateToneMuted   PluginViewStateTone = "muted"
+	PluginViewStateToneSuccess PluginViewStateTone = "success"
+	PluginViewStateToneWarning PluginViewStateTone = "warning"
 )
 
 // Valid indicates whether the value is a known member of the PluginViewStateTone enum.
 func (e PluginViewStateTone) Valid() bool {
 	switch e {
-	case Active:
+	case PluginViewStateToneActive:
 		return true
-	case Danger:
+	case PluginViewStateToneDanger:
 		return true
-	case Muted:
+	case PluginViewStateToneMuted:
 		return true
-	case Success:
+	case PluginViewStateToneSuccess:
 		return true
-	case Warning:
+	case PluginViewStateToneWarning:
 		return true
 	default:
 		return false
@@ -772,6 +904,109 @@ type DirectoryListing struct {
 
 	// Total Visible entries in the whole folder (for pagination).
 	Total int `json:"total"`
+}
+
+// Disk defines model for Disk.
+type Disk struct {
+	// Asleep Spun down at the last reading; the values are from before.
+	Asleep       bool   `json:"asleep"`
+	BytesWritten *int64 `json:"bytesWritten,omitempty"`
+
+	// Capacity Bytes.
+	Capacity  int64  `json:"capacity"`
+	CrcErrors *int64 `json:"crcErrors,omitempty"`
+
+	// Device Examples: /dev/sda
+	Device   string     `json:"device"`
+	Firmware string     `json:"firmware"`
+	Health   DiskHealth `json:"health"`
+
+	// Hot Past the temperature limit administrators set.
+	Hot bool `json:"hot"`
+
+	// Id Examples: sda
+	Id           string   `json:"id"`
+	Kind         DiskKind `json:"kind"`
+	MediaErrors  *int64   `json:"mediaErrors,omitempty"`
+	Model        string   `json:"model"`
+	Pending      *int64   `json:"pending,omitempty"`
+	PowerCycles  *int64   `json:"powerCycles,omitempty"`
+	PowerOnHours *int64   `json:"powerOnHours,omitempty"`
+	Reallocated  *int64   `json:"reallocated,omitempty"`
+
+	// Reasons Why the health is not "passed".
+	Reasons    []DiskReasons `json:"reasons"`
+	SelfTest   DiskSelfTest  `json:"selfTest"`
+	Serial     string        `json:"serial"`
+	Spare      *int64        `json:"spare,omitempty"`
+	SpareLimit *int64        `json:"spareLimit,omitempty"`
+
+	// Temperature Degrees Celsius.
+	Temperature   *int64 `json:"temperature,omitempty"`
+	Uncorrectable *int64 `json:"uncorrectable,omitempty"`
+	WearPercent   *int64 `json:"wearPercent,omitempty"`
+}
+
+// DiskHealth defines model for Disk.Health.
+type DiskHealth string
+
+// DiskKind defines model for Disk.Kind.
+type DiskKind string
+
+// DiskReasons defines model for Disk.Reasons.
+type DiskReasons string
+
+// DiskAlert defines model for DiskAlert.
+type DiskAlert struct {
+	Disk  string        `json:"disk"`
+	Kind  DiskAlertKind `json:"kind"`
+	Limit *int64        `json:"limit,omitempty"`
+
+	// Name The disk as dashboards name it (model and serial end).
+	Name        string   `json:"name"`
+	Reasons     []string `json:"reasons"`
+	Temperature *int64   `json:"temperature,omitempty"`
+}
+
+// DiskAlertKind defines model for DiskAlert.Kind.
+type DiskAlertKind string
+
+// DiskAlerts defines model for DiskAlerts.
+type DiskAlerts struct {
+	Alerts []DiskAlert `json:"alerts"`
+}
+
+// DiskReport defines model for DiskReport.
+type DiskReport struct {
+	CheckedAt *time.Time `json:"checkedAt,omitempty"`
+
+	// Configured Whether the disks service is set up.
+	Configured bool   `json:"configured"`
+	Disks      []Disk `json:"disks"`
+}
+
+// DiskSelfTest defines model for DiskSelfTest.
+type DiskSelfTest struct {
+	Last             *DiskSelfTestResult `json:"last,omitempty"`
+	RemainingPercent *int                `json:"remainingPercent,omitempty"`
+	Running          bool                `json:"running"`
+}
+
+// DiskSelfTestRequest defines model for DiskSelfTestRequest.
+type DiskSelfTestRequest struct {
+	Test DiskSelfTestRequestTest `json:"test"`
+}
+
+// DiskSelfTestRequestTest defines model for DiskSelfTestRequest.Test.
+type DiskSelfTestRequestTest string
+
+// DiskSelfTestResult defines model for DiskSelfTestResult.
+type DiskSelfTestResult struct {
+	// Kind How the disk names the test ("Short offline", "Extended").
+	Kind         string `json:"kind"`
+	Passed       bool   `json:"passed"`
+	PowerOnHours *int64 `json:"powerOnHours,omitempty"`
+	Result       string `json:"result"`
 }
 
 // EntryProperties defines model for EntryProperties.
@@ -1294,6 +1529,9 @@ type ExplainAccessJSONRequestBody = ExplainRequest
 // PreviewCommandJSONRequestBody defines body for PreviewCommand for application/json ContentType.
 type PreviewCommandJSONRequestBody = CommandRequest
 
+// StartDiskSelfTestJSONRequestBody defines body for StartDiskSelfTest for application/json ContentType.
+type StartDiskSelfTestJSONRequestBody = DiskSelfTestRequest
+
 // PlanDeleteJSONRequestBody defines body for PlanDelete for application/json ContentType.
 type PlanDeleteJSONRequestBody = PathsRequest
 
@@ -1362,6 +1600,18 @@ type ServerInterface interface {
 	// PreviewCommand Show the exact arguments a run would use
 	// (POST /v1/commands/preview)
 	PreviewCommand(w http.ResponseWriter, r *http.Request)
+	// GetDisks Health of the host's disks
+	// (GET /v1/disks)
+	GetDisks(w http.ResponseWriter, r *http.Request)
+	// ClaimDiskAlerts Take the disk alerts not delivered yet
+	// (POST /v1/disks/alerts/claim)
+	ClaimDiskAlerts(w http.ResponseWriter, r *http.Request)
+	// CheckDisks Read the disks now
+	// (POST /v1/disks/check)
+	CheckDisks(w http.ResponseWriter, r *http.Request)
+	// StartDiskSelfTest Run a disk's self-test
+	// (POST /v1/disks/{disk}/self-test)
+	StartDiskSelfTest(w http.ResponseWriter, r *http.Request, disk string)
 	// PlanDelete Measure a deletion before doing it
 	// (POST /v1/fs/delete/plan)
 	PlanDelete(w http.ResponseWriter, r *http.Request)
@@ -1491,6 +1741,30 @@ func (_ Unimplemented) ListCommands(w http.ResponseWriter, r *http.Request) {
 // PreviewCommand Show the exact arguments a run would use
 // (POST /v1/commands/preview)
 func (_ Unimplemented) PreviewCommand(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// GetDisks Health of the host's disks
+// (GET /v1/disks)
+func (_ Unimplemented) GetDisks(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ClaimDiskAlerts Take the disk alerts not delivered yet
+// (POST /v1/disks/alerts/claim)
+func (_ Unimplemented) ClaimDiskAlerts(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// CheckDisks Read the disks now
+// (POST /v1/disks/check)
+func (_ Unimplemented) CheckDisks(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// StartDiskSelfTest Run a disk's self-test
+// (POST /v1/disks/{disk}/self-test)
+func (_ Unimplemented) StartDiskSelfTest(w http.ResponseWriter, r *http.Request, disk string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -1756,6 +2030,74 @@ func (siw *ServerInterfaceWrapper) PreviewCommand(w http.ResponseWriter, r *http
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PreviewCommand(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetDisks operation middleware
+func (siw *ServerInterfaceWrapper) GetDisks(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetDisks(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ClaimDiskAlerts operation middleware
+func (siw *ServerInterfaceWrapper) ClaimDiskAlerts(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ClaimDiskAlerts(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CheckDisks operation middleware
+func (siw *ServerInterfaceWrapper) CheckDisks(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CheckDisks(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// StartDiskSelfTest operation middleware
+func (siw *ServerInterfaceWrapper) StartDiskSelfTest(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "disk" -------------
+	var disk string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "disk", chi.URLParam(r, "disk"), &disk, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "disk", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.StartDiskSelfTest(w, r, disk)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2779,6 +3121,18 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/v1/jobs/empty-trash", wrapper.StartEmptyTrash)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/v1/disks", wrapper.GetDisks)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/disks/check", wrapper.CheckDisks)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/disks/{disk}/self-test", wrapper.StartDiskSelfTest)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/v1/disks/alerts/claim", wrapper.ClaimDiskAlerts)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/v1/metrics", wrapper.ListMetrics)
 	})
 	r.Group(func(r chi.Router) {
@@ -3017,6 +3371,274 @@ func (response PreviewCommand404JSONResponse) VisitPreviewCommandResponse(w http
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetDisksRequestObject struct {
+}
+
+type GetDisksResponseObject interface {
+	VisitGetDisksResponse(w http.ResponseWriter) error
+}
+
+type GetDisks200JSONResponse DiskReport
+
+func (response GetDisks200JSONResponse) VisitGetDisksResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetDisks401JSONResponse Error
+
+func (response GetDisks401JSONResponse) VisitGetDisksResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetDisks403JSONResponse Error
+
+func (response GetDisks403JSONResponse) VisitGetDisksResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ClaimDiskAlertsRequestObject struct {
+}
+
+type ClaimDiskAlertsResponseObject interface {
+	VisitClaimDiskAlertsResponse(w http.ResponseWriter) error
+}
+
+type ClaimDiskAlerts200JSONResponse DiskAlerts
+
+func (response ClaimDiskAlerts200JSONResponse) VisitClaimDiskAlertsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ClaimDiskAlerts401JSONResponse Error
+
+func (response ClaimDiskAlerts401JSONResponse) VisitClaimDiskAlertsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ClaimDiskAlerts403JSONResponse Error
+
+func (response ClaimDiskAlerts403JSONResponse) VisitClaimDiskAlertsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CheckDisksRequestObject struct {
+}
+
+type CheckDisksResponseObject interface {
+	VisitCheckDisksResponse(w http.ResponseWriter) error
+}
+
+type CheckDisks200JSONResponse DiskReport
+
+func (response CheckDisks200JSONResponse) VisitCheckDisksResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CheckDisks401JSONResponse Error
+
+func (response CheckDisks401JSONResponse) VisitCheckDisksResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CheckDisks403JSONResponse Error
+
+func (response CheckDisks403JSONResponse) VisitCheckDisksResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CheckDisks503JSONResponse Error
+
+func (response CheckDisks503JSONResponse) VisitCheckDisksResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(503)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartDiskSelfTestRequestObject struct {
+	Disk string `json:"disk"`
+	Body *StartDiskSelfTestJSONRequestBody
+}
+
+type StartDiskSelfTestResponseObject interface {
+	VisitStartDiskSelfTestResponse(w http.ResponseWriter) error
+}
+
+type StartDiskSelfTest202JSONResponse Job
+
+func (response StartDiskSelfTest202JSONResponse) VisitStartDiskSelfTestResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartDiskSelfTest400JSONResponse Error
+
+func (response StartDiskSelfTest400JSONResponse) VisitStartDiskSelfTestResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartDiskSelfTest401JSONResponse Error
+
+func (response StartDiskSelfTest401JSONResponse) VisitStartDiskSelfTestResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartDiskSelfTest403JSONResponse Error
+
+func (response StartDiskSelfTest403JSONResponse) VisitStartDiskSelfTestResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartDiskSelfTest404JSONResponse Error
+
+func (response StartDiskSelfTest404JSONResponse) VisitStartDiskSelfTestResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartDiskSelfTest429JSONResponse Error
+
+func (response StartDiskSelfTest429JSONResponse) VisitStartDiskSelfTestResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(429)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type StartDiskSelfTest503JSONResponse Error
+
+func (response StartDiskSelfTest503JSONResponse) VisitStartDiskSelfTestResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(503)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -5318,6 +5940,18 @@ type StrictServerInterface interface {
 	// PreviewCommand Show the exact arguments a run would use
 	// (POST /v1/commands/preview)
 	PreviewCommand(ctx context.Context, request PreviewCommandRequestObject) (PreviewCommandResponseObject, error)
+	// GetDisks Health of the host's disks
+	// (GET /v1/disks)
+	GetDisks(ctx context.Context, request GetDisksRequestObject) (GetDisksResponseObject, error)
+	// ClaimDiskAlerts Take the disk alerts not delivered yet
+	// (POST /v1/disks/alerts/claim)
+	ClaimDiskAlerts(ctx context.Context, request ClaimDiskAlertsRequestObject) (ClaimDiskAlertsResponseObject, error)
+	// CheckDisks Read the disks now
+	// (POST /v1/disks/check)
+	CheckDisks(ctx context.Context, request CheckDisksRequestObject) (CheckDisksResponseObject, error)
+	// StartDiskSelfTest Run a disk's self-test
+	// (POST /v1/disks/{disk}/self-test)
+	StartDiskSelfTest(ctx context.Context, request StartDiskSelfTestRequestObject) (StartDiskSelfTestResponseObject, error)
 	// PlanDelete Measure a deletion before doing it
 	// (POST /v1/fs/delete/plan)
 	PlanDelete(ctx context.Context, request PlanDeleteRequestObject) (PlanDeleteResponseObject, error)
@@ -5582,6 +6216,111 @@ func (sh *strictHandler) PreviewCommand(w http.ResponseWriter, r *http.Request) 
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(PreviewCommandResponseObject); ok {
 		if err := validResponse.VisitPreviewCommandResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetDisks operation middleware
+func (sh *strictHandler) GetDisks(w http.ResponseWriter, r *http.Request) {
+	var request GetDisksRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetDisks(ctx, request.(GetDisksRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetDisks")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetDisksResponseObject); ok {
+		if err := validResponse.VisitGetDisksResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ClaimDiskAlerts operation middleware
+func (sh *strictHandler) ClaimDiskAlerts(w http.ResponseWriter, r *http.Request) {
+	var request ClaimDiskAlertsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ClaimDiskAlerts(ctx, request.(ClaimDiskAlertsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ClaimDiskAlerts")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ClaimDiskAlertsResponseObject); ok {
+		if err := validResponse.VisitClaimDiskAlertsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CheckDisks operation middleware
+func (sh *strictHandler) CheckDisks(w http.ResponseWriter, r *http.Request) {
+	var request CheckDisksRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CheckDisks(ctx, request.(CheckDisksRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CheckDisks")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CheckDisksResponseObject); ok {
+		if err := validResponse.VisitCheckDisksResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// StartDiskSelfTest operation middleware
+func (sh *strictHandler) StartDiskSelfTest(w http.ResponseWriter, r *http.Request, disk string) {
+	var request StartDiskSelfTestRequestObject
+
+	request.Disk = disk
+
+	var body StartDiskSelfTestJSONRequestBody
+	if err := runtime.BindJSONBody(r, &body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.StartDiskSelfTest(ctx, request.(StartDiskSelfTestRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "StartDiskSelfTest")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(StartDiskSelfTestResponseObject); ok {
+		if err := validResponse.VisitStartDiskSelfTestResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

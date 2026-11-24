@@ -23,6 +23,7 @@ describe('variables', () => {
       'shares',
       'users',
       'logs',
+      'disks',
     ]);
     expect(variablePermission('logs')).toBe('metrics:logs');
   });
