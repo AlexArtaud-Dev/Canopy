@@ -1,8 +1,1 @@
-entries:
-  - type: fix
-    scope: web
-    issue: 302
-    text:
-      en: 'Long names no longer push dialogs past their edges, the empty folder view no longer scrolls sideways, and deep paths fold into “…” on computers too, keeping the open folder readable.'
-      fr: 'Les noms longs ne débordent plus des dialogues, la vue d’un dossier vide ne défile plus sur le côté, et les chemins profonds se replient en « … » sur ordinateur aussi, en gardant le dossier ouvert lisible.'
-      es: 'Los nombres largos ya no desbordan los diálogos, la vista de una carpeta vacía ya no se desplaza de lado, y las rutas profundas se pliegan en «…» también en el ordenador, manteniendo legible la carpeta abierta.'
+entries: []
